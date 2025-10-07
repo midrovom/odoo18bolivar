@@ -1,7 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="s_cover_2_inherit" inherit_id="theme_prime.s_cover_2" name="Cover 2 Custom - Sin textos">
+  <template id="s_cover_2_inherit" inherit_id="theme_prime.s_cover_2" name="Cover 2 Custom - Sin textos y más bajo">
     <xpath expr="//div[@class='carousel-content col-lg-5']" position="replace">
     </xpath>
+
+    <!-- Reducir altura de los slides -->
+    <xpath expr="//div[contains(@class,'carousel-item')]" position="attributes">
+      <attribute name="class">carousel-item oe_img_bg o_bg_img_center pt96 pb96</attribute>
+    </xpath>
+
+    <!-- Estilo adicional para fijar altura -->
+    <xpath expr="//section[@class='s_cover_2']" position="inside">
+      <style>
+        .s_cover_2 .carousel-item {
+          height: 290px;          /* altura fija más pequeña */
+          background-size: cover; /* recorta proporcionalmente */
+          background-position: center;
+        }
+      </style>
+    </xpath>
+
   </template>
 </odoo>
