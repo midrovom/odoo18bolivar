@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <!-- Registro del snippet -->
   <template id="s_banner_17_snippet" inherit_id="theme_prime.snippets" name="Banner - 17 Registry">
-    <xpath expr="//div[@id='tp_snippet_banner']/div[@class='o_panel_body']" position="inside">
+    <xpath expr="//t[@t-snippet='theme_prime_image.s_banner_16']" position="after">
       <t t-snippet="theme_prime_image.s_banner_17_template"
-        string="Banner - 17"
-        t-thumbnail="/theme_prime_image/static/src/img/snippets/brands_thumb.png"
-        data-snippet-option-class="BannerSliderOptions">
+         string="Banner - 17"
+         group="theme_prime_banner"
+         t-thumbnail="/theme_prime_image/static/src/img/snippets/brands_thumb.png"
+         data-snippet-option-class="BannerSliderOptions">
         <keywords>banner, brands, carrusel</keywords>
       </t>
     </xpath>
