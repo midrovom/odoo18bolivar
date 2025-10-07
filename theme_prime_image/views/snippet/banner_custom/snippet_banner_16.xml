@@ -10,7 +10,6 @@
       </t>
     </xpath>
   </template>
-</odoo>
 
   <template id="s_banner_16" name="Banner - 16">
     <section class="s_banner_slider o_snippet">
