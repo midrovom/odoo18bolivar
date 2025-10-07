@@ -2,18 +2,20 @@
 <odoo>
   <template id="s_shop_offer_1_inherit" inherit_id="theme_prime.s_shop_offer_1" name="Shop Offer 1 Custom">
     <xpath expr="//div[@class='col-12 text-center']" position="replace">
-      <div class="col-12 text-center" style="max-width:800px; margin:0 auto;">
-        <h3 class="text-uppercase mb-1">
-         HASTA EL <span class="text-o-color-1">30%</span> OFF EN TU PRIMERA COMPRA
-        </h3>
-        <p style="font-size:12px; margin-bottom:1rem;">*Aplican términos y condiciones</p>
-        <a href="#" class="btn btn-primary rounded-pill">Ver Ofertas</a>
+      <div class="col-12 text-center">
+        <div class="d-inline-flex align-items-center gap-3">
+          <h3 class="mb-0 text-uppercase">
+            HASTA EL <span class="text-o-color-1">30%</span> OFF EN TU PRIMERA COMPRA
+          </h3>
+          <a href="#" class="btn btn-primary rounded-pill">Ver Ofertas</a>
+        </div>
+        <p class="mt-1" style="font-size: 12px;">*Aplican términos y condiciones</p>
       </div>
     </xpath>
 
-    <!-- Reducir el alto del bloque -->
+    <!-- Ajustar el alto del bloque -->
     <xpath expr="//section[contains(@class,'s_shop_offer_1')]" position="attributes">
-      <attribute name="class">s_shop_offer_1 parallax s_parallax_is_fixed pt40 pb40 s_parallax_no_overflow_hidden</attribute>
+      <attribute name="class">s_shop_offer_1 parallax s_parallax_is_fixed pt100 pb60 s_parallax_no_overflow_hidden</attribute>
     </xpath>
   </template>
 </odoo>
