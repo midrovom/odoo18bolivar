@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="s_banner_16_snippet" inherit_id="theme_prime.snippets" name="Banner - 16 Registry">
-    <xpath expr="//t[@t-snippet='theme_prime.s_banner_15']" position="after">
-      <t t-snippet="theme_prime_image.s_banner_16"
-         string="Banner - 16"
-         group="theme_prime_banner"
-         t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png"
-         data-snippet-option-class="BannerSliderOptions">
-        <keywords>banner, slider, hero</keywords>
-      </t>
+<template id="s_banner_16_snippet" inherit_id="website.snippets" name="Banner - 16 Registry">
+    <xpath expr="//t[@snippet-group='theme_prime_banner']" position="inside">
+        <t t-snippet="theme_prime_image.s_banner_16"
+           string="Banner - 16"
+           t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png"
+           data-snippet-option-class="BannerSliderOptions">
+            <keywords>banner, slider, hero</keywords>
+        </t>
     </xpath>
-  </template>
+</template>
 
   <template id="s_banner_16" name="Banner - 16">
     <section class="s_banner_slider o_snippet">
