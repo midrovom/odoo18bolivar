@@ -3,7 +3,7 @@
   <template id="s_shop_offer_1_inherit" inherit_id="theme_prime.s_shop_offer_1" name="Shop Offer 1 Custom">
     <xpath expr="//div[@class='col-12 text-center']" position="replace">
       <div class="col-12 text-center">
-        <div class="d-inline-flex align-items-center gap-3">
+        <div class="d-inline-flex align-items-center gap-3" style="gap:1rem; padding-top:15px;">
           <h3 class="mb-0 text-uppercase">
             HASTA EL <span class="text-o-color-1">30%</span> OFF EN TU PRIMERA COMPRA
           </h3>
@@ -17,6 +17,5 @@
       <attribute name="class">s_shop_offer_1 o_container mt-5 mb-5 pt140 pb60</attribute>
       <attribute name="style">max-width:1000px; margin:40px auto; border-radius:20px; background:#fff;</attribute>
     </xpath>
-
   </template>
 </odoo>
