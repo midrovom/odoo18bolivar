@@ -14,8 +14,9 @@
     </xpath>
 
     <xpath expr="//section[contains(@class,'s_shop_offer_1')]" position="attributes">
-      <attribute name="class">s_shop_offer_1 o_container mt-5 mb-5 pt100 pb60</attribute>
-      <attribute name="style">max-width:1000px; margin:40px auto; border-radius:8px; background:#fff;</attribute>
+      <attribute name="class">s_shop_offer_1 o_container mt-5 mb-5 pt140 pb60</attribute>
+      <attribute name="style">max-width:1000px; margin:40px auto; border-radius:20px; background:#fff;</attribute>
     </xpath>
+
   </template>
 </odoo>
