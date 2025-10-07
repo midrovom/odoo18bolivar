@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <!-- Registro del snippet como Cover -->
   <template id="s_cover_6_snippet" inherit_id="theme_prime.snippets" name="Cover - 6 Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_cover_5']" position="after">
       <t t-snippet="theme_prime_image.s_cover_6"
@@ -13,78 +12,24 @@
     </xpath>
   </template>
 
-  <!-- Template principal como Cover -->
   <template id="s_cover_6" name="Cover - 6">
-    <section class="s_cover_16 o_snippet s_parallax">
-      <div id="coverCarousel16" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000" data-bs-pause="false">
-        <div class="carousel-inner">
-          <div class="carousel-item active">
-            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg" class="d-block w-100" alt="Banner 1"/>
-          </div>
-          <div class="carousel-item">
-            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2.jpg" class="d-block w-100" alt="Banner 2"/>
-          </div>
-          <div class="carousel-item">
-            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner3.jpg" class="d-block w-100" alt="Banner 3"/>
-          </div>
-          <div class="carousel-item">
-            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner4.jpg" class="d-block w-100" alt="Banner 4"/>
-          </div>
-          <div class="carousel-item">
-            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner5.jpg" class="d-block w-100" alt="Banner 5"/>
-          </div>
-          <div class="carousel-item">
-            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner6.jpg" class="d-block w-100" alt="Banner 6"/>
-          </div>
-          <div class="carousel-item">
-            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner7.jpg" class="d-block w-100" alt="Banner 7"/>
-          </div>
+    <section class="s_cover o_colored_level pt120 pb120"
+             data-snippet="s_cover"
+             data-name="Cover - 6">
+
+      <div class="container text-center">
+        <div class="o_bg_img o_bg_img_center"
+             data-snippet-option-id="background">
+          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
+               class="img-fluid"
+               alt="Cover 6"/>
         </div>
 
-        <!-- Indicadores -->
-        <div class="carousel-indicators">
-          <button type="button" data-bs-target="#coverCarousel16" data-bs-slide-to="0" class="active"></button>
-          <button type="button" data-bs-target="#coverCarousel16" data-bs-slide-to="1"></button>
-          <button type="button" data-bs-target="#coverCarousel16" data-bs-slide-to="2"></button>
-          <button type="button" data-bs-target="#coverCarousel16" data-bs-slide-to="3"></button>
-          <button type="button" data-bs-target="#coverCarousel16" data-bs-slide-to="4"></button>
-          <button type="button" data-bs-target="#coverCarousel16" data-bs-slide-to="5"></button>
-          <button type="button" data-bs-target="#coverCarousel16" data-bs-slide-to="6"></button>
-        </div>
+
+        <h1 class="s_title mt32">Tu título aquí</h1>
+        <p class="lead">Un subtítulo o descripción breve</p>
+        <a href="#" class="btn btn-primary mt16">Llamada a la acción</a>
       </div>
-
-      <style>
-        .s_cover_6 {
-          width: 100%;
-          margin: 0;
-          padding: 0;
-        }
-        .s_cover_6 img {
-          width: 100%;
-          height: 290px;     /* altura fija */
-          object-fit: cover; /* recorta proporcionalmente */
-        }
-        .s_cover_6 .carousel-indicators {
-          bottom: 15px;
-          display: flex;
-          justify-content: center;
-          gap: 8px;
-        }
-        .s_cover_6 .carousel-indicators button {
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          background-color: #fff;
-          opacity: 0.6;
-          border: none;
-          transition: opacity 0.3s, transform 0.3s;
-        }
-        .s_cover_6 .carousel-indicators .active {
-          opacity: 1;
-          background-color: #007bff;
-          transform: scale(1.2);
-        }
-      </style>
     </section>
   </template>
 </odoo>
