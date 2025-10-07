@@ -1,6 +1,6 @@
 {
     'name': 'Theme Prime Image',
-    'version': '17.0.1.0.0',
+    'version': '18.0.1.0.0',
     'summary': 'Extensión visual para theme prime',
     'category': 'Theme/eCommerce',
     'depends': ['theme_prime'],
