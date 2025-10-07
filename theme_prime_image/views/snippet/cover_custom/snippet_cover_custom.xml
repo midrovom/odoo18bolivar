@@ -1,24 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="s_cover_2_inherit" inherit_id="theme_prime.s_cover_2" name="Cover 2 Custom - Sin textos y más bajo">
-    <xpath expr="//div[@class='carousel-content col-lg-5']" position="replace">
+  <!-- Registro del snippet como Cover -->
+  <template id="s_cover_6_snippet" inherit_id="theme_prime.snippets" name="Cover - 6 Registry">
+    <xpath expr="//t[@t-snippet='theme_prime.s_cover_5']" position="after">
+      <t t-snippet="theme_prime_image.s_cover_6"
+         string="Cover - 6"
+         group="theme_prime_cover"
+         t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png"
+         data-snippet-option-class="CoverOptions">
+        <keywords>cover, hero, slider</keywords>
+      </t>
     </xpath>
+  </template>
 
-    <!-- Reducir altura de los slides -->
-    <xpath expr="//div[contains(@class,'carousel-item')]" position="attributes">
-      <attribute name="class">carousel-item oe_img_bg o_bg_img_center pt96 pb96</attribute>
-    </xpath>
+  <!-- Template principal como Cover -->
+  <template id="s_cover_6" name="Cover - 6">
+    <section class="s_cover_16 o_snippet s_parallax">
+      <div id="coverCarousel16" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000" data-bs-pause="false">
+        <div class="carousel-inner">
+          <div class="carousel-item active">
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg" class="d-block w-100" alt="Banner 1"/>
+          </div>
+          <div class="carousel-item">
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2.jpg" class="d-block w-100" alt="Banner 2"/>
+          </div>
+          <div class="carousel-item">
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner3.jpg" class="d-block w-100" alt="Banner 3"/>
+          </div>
+          <div class="carousel-item">
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner4.jpg" class="d-block w-100" alt="Banner 4"/>
+          </div>
+          <div class="carousel-item">
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner5.jpg" class="d-block w-100" alt="Banner 5"/>
+          </div>
+          <div class="carousel-item">
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner6.jpg" class="d-block w-100" alt="Banner 6"/>
+          </div>
+          <div class="carousel-item">
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner7.jpg" class="d-block w-100" alt="Banner 7"/>
+          </div>
+        </div>
 
-    <!-- Estilo adicional para fijar altura -->
-    <xpath expr="//section[@class='s_cover_2']" position="inside">
+        <!-- Indicadores -->
+        <div class="carousel-indicators">
+          <button type="button" data-bs-target="#coverCarousel16" data-bs-slide-to="0" class="active"></button>
+          <button type="button" data-bs-target="#coverCarousel16" data-bs-slide-to="1"></button>
+          <button type="button" data-bs-target="#coverCarousel16" data-bs-slide-to="2"></button>
+          <button type="button" data-bs-target="#coverCarousel16" data-bs-slide-to="3"></button>
+          <button type="button" data-bs-target="#coverCarousel16" data-bs-slide-to="4"></button>
+          <button type="button" data-bs-target="#coverCarousel16" data-bs-slide-to="5"></button>
+          <button type="button" data-bs-target="#coverCarousel16" data-bs-slide-to="6"></button>
+        </div>
+      </div>
+
       <style>
-        .s_cover_2 .carousel-item {
-          height: 290px;          /* altura fija más pequeña */
-          background-size: cover; /* recorta proporcionalmente */
-          background-position: center;
+        .s_cover_6 {
+          width: 100%;
+          margin: 0;
+          padding: 0;
+        }
+        .s_cover_6 img {
+          width: 100%;
+          height: 290px;     /* altura fija */
+          object-fit: cover; /* recorta proporcionalmente */
+        }
+        .s_cover_6 .carousel-indicators {
+          bottom: 15px;
+          display: flex;
+          justify-content: center;
+          gap: 8px;
+        }
+        .s_cover_6 .carousel-indicators button {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background-color: #fff;
+          opacity: 0.6;
+          border: none;
+          transition: opacity 0.3s, transform 0.3s;
+        }
+        .s_cover_6 .carousel-indicators .active {
+          opacity: 1;
+          background-color: #007bff;
+          transform: scale(1.2);
         }
       </style>
-    </xpath>
-
+    </section>
   </template>
 </odoo>
