@@ -9,6 +9,7 @@
         'views/snippet/banner_custom/snippet_banner_16.xml',
         'views/snippet/subscribe_custom/snippet_subscribe.xml',
         'views/snippet/banner_custom/snippet_banner_17.xml',
+        'views/snippet/shop_offert_custom/s_shop_offer_custom.xml',
     ],
     'assets': {
         'web.assets_frontend': [
