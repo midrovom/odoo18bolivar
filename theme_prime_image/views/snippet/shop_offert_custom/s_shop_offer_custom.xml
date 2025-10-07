@@ -2,69 +2,26 @@
 <odoo>
   <template id="s_shop_offer_1_inherit" inherit_id="theme_prime.s_shop_offer_1" name="Shop Offer 1 Custom">
     <xpath expr="//div[@class='col-12 text-center']" position="replace">
-      <div class="container mi-snippet-bloque text-center">
-        <div class="mi-snippet-contenido">
+      <div class="col-12 text-center">
+        <div class="d-inline-flex align-items-center gap-3">
           <h3 class="mb-0 text-uppercase">
-            HASTA EL <span class="mi-color-naranja">30%</span> OFF EN TU PRIMERA COMPRA
+            HASTA EL <span class="text-o-color-1">30%</span> OFF EN TU PRIMERA COMPRA
           </h3>
           <a href="#" class="btn btn-primary rounded-pill">
             Ver Ofertas
           </a>
         </div>
-        <p class="mi-snippet-condiciones">
+
+        <!-- Texto pequeño debajo -->
+        <p class="mt-1" style="font-size: 12px;">
           *Aplican términos y condiciones
         </p>
       </div>
     </xpath>
 
+    <!-- Reducimos el alto del bloque -->
     <xpath expr="//section[contains(@class,'s_shop_offer_1')]" position="attributes">
-      <attribute name="class">s_shop_offer_1 mi-snippet-espaciado</attribute>
+      <attribute name="class">s_shop_offer_1 parallax s_parallax_is_fixed pt60 pb60 s_parallax_no_overflow_hidden</attribute>
     </xpath>
-
-    <!-- Estilos embebidos -->
-    <xpath expr="." position="inside">
-      <style>
-        /* Contenedor del bloque: limita ancho y centra */
-        .mi-snippet-bloque {
-          max-width: 960px;
-          padding: 40px 20px;
-          margin: 0 auto;
-        }
-
-        /* Contenido centrado y con separación */
-        .mi-snippet-contenido {
-          display: inline-flex;
-          align-items: center;
-          gap: 1rem;
-          flex-wrap: wrap;
-          justify-content: center;
-        }
-
-        .mi-snippet-contenido h3 {
-          margin-bottom: 0;
-          font-size: 1.75rem;
-          text-transform: uppercase;
-          font-weight: bold;
-        }
-
-        .mi-snippet-condiciones {
-          margin-top: 0.5rem;
-          font-size: 12px;
-        }
-
-        .mi-color-naranja {
-          color: #ff7900;
-        }
-
-        /* Separación con otros snippets */
-        .mi-snippet-espaciado {
-          padding-top: 40px !important;
-          padding-bottom: 40px !important;
-          margin-top: 40px;
-          margin-bottom: 40px;
-        }
-      </style>
-    </xpath>
-
   </template>
 </odoo>
