@@ -2,7 +2,7 @@
 <odoo>
   <template id="s_banner_17_snippet" inherit_id="theme_prime.snippets" name="Banner - 17 Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_banner_15']" position="after">
-      <t t-snippet="theme_prime_image.s_banner_17_template"
+      <t t-call="theme_prime_image.s_banner_17_template"
          string="Banner - 17"
          group="theme_prime_banner"
          t-thumbnail="/theme_prime_image/static/src/img/snippets/brands_thumb.png"
@@ -12,7 +12,6 @@
     </xpath>
   </template>
 
-  <!-- Template principal -->
   <template id="s_banner_17_template" name="Banner - 17 (Marcas destacadas)">
     <section class="s_banner_17 s_featured_brands o_snippet">
       <div class="container text-center">
@@ -28,23 +27,21 @@
             <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
               <div class="swiper-slide">
                 <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
-                  class="brand-link">
+                   class="brand-link">
                   <span class="brand-name"><t t-esc="brand.name"/></span>
                 </a>
               </div>
             </t>
           </div>
-          <!-- Controles -->
           <div class="swiper-pagination"></div>
           <div class="swiper-button-prev"></div>
           <div class="swiper-button-next"></div>
         </div>
 
-        <!-- Vista normal en desktop -->
         <div class="brands-row d-none d-md-flex flex-wrap justify-content-between align-items-center">
           <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
             <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
-              class="brand-link">
+               class="brand-link">
               <span class="brand-name"><t t-esc="brand.name"/></span>
             </a>
           </t>
@@ -52,61 +49,6 @@
 
         <hr class="linea mt-3"/>
       </div>
-
-      <style>
-        /* Línea con texto centrado */
-        .s_featured_brands .linea-con-texto {
-          border-top: 2px solid #000;
-          text-align: center;
-          position: relative;
-          margin: 10px 0;
-        }
-        .s_featured_brands .linea-con-texto .texto {
-          position: relative;
-          top: -14px;
-          background: #fff;
-          padding: 0 20px;
-          font-weight: bold;
-          font-size: 1.3rem;
-        }
-
-        /* Línea inferior */
-        .s_featured_brands .linea {
-          border: none;
-          border-top: 2px solid #000;
-        }
-
-        /* Estilo de marcas */
-        .s_featured_brands .brands-row {
-          margin: 15px 0;
-        }
-        .s_featured_brands .brand-link {
-          flex: 1;
-          text-align: center;
-          margin: 5px 0;
-        }
-        .s_featured_brands .brand-name {
-          color: #555;
-          font-size: 1.1rem;
-          font-weight: 600;
-          transition: all 0.3s ease;
-        }
-        .s_featured_brands .brand-link:hover .brand-name {
-          color: #28a745;
-          text-decoration: underline;
-        }
-
-        /* Slider en móvil */
-        .swiper-container {
-          width: 100%;
-          padding: 10px 0;
-        }
-        .swiper-slide {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-      </style>
     </section>
   </template>
 </odoo>
