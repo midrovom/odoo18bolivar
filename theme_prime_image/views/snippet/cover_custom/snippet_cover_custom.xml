@@ -24,11 +24,6 @@
                class="img-fluid"
                alt="Cover 6"/>
         </div>
-
-
-        <h1 class="s_title mt32">Tu título aquí</h1>
-        <p class="lead">Un subtítulo o descripción breve</p>
-        <a href="#" class="btn btn-primary mt16">Llamada a la acción</a>
       </div>
     </section>
   </template>
