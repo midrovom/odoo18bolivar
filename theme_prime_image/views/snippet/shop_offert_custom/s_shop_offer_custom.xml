@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="s_shop_offer_1_inherit" inherit_id="theme_prime.s_shop_offer_1" name="Shop Offer 1 Custom">
+    <xpath expr="//div[@class='col-12 text-center']" position="replace">
+      <div class="col-12 text-center">
+        <h3 class="mb-3 text-uppercase">
+          HASTA EL <span class="text-o-color-1">30%</span> OFF EN TU PRIMERA COMPRA
+        </h3>
+        <a href="#" class="btn btn-primary rounded-pill mt-2">
+          Ver Ofertas
+        </a>
+        <p class="mt-2" style="font-size: 12px;">
+          *Aplican términos y condiciones
+        </p>
+      </div>
+    </xpath>
+  </template>
+</odoo>
