@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="s_banner_17_snippet" inherit_id="theme_prime.snippets" name="Banner - 17 Registry">
-    <xpath expr="//t[@t-snippet='theme_prime_image.s_banner_16']" position="after">
+    <xpath expr="//t[@t-snippet='theme_prime.s_banner_16']" position="after">
       <t t-snippet="theme_prime_image.s_banner_17_template"
          string="Banner - 17"
          group="theme_prime_banner"
