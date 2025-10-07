@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="s_cover_2_inherit" inherit_id="theme_prime.s_cover_2" name="Cover 2 Custom">
-    <xpath expr="//div[contains(@class,'carousel-item')]" position="attributes">
-      <attribute name="class">carousel-item oe_img_bg o_bg_img_center pt96 pb96</attribute>
-    </xpath>
+  <template id="s_cover_2_inherit" inherit_id="theme_prime.s_cover_2" name="Cover 2 Custom - Sin textos">
     <xpath expr="//div[@class='carousel-content col-lg-5']" position="replace">
     </xpath>
   </template>
