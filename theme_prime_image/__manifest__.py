@@ -10,7 +10,7 @@
         'views/snippet/subscribe_custom/snippet_subscribe.xml',
         'views/snippet/banner_custom/snippet_banner_17.xml',
         'views/snippet/shop_offert_custom/s_shop_offer_custom.xml',
-        'views/snippet/cover_custom/snippet_cover_custom'
+        'views/snippet/cover_custom/snippet_cover_custom.xml'
     ],
     'assets': {
         'web.assets_frontend': [
