@@ -26,16 +26,16 @@
           </div>
         </div>
 
-        <!-- Marcas en una sola línea -->
-        <div class="row justify-content-center">
+        <!-- Marcas distribuidas de extremo a extremo -->
+        <div class="row">
           <div class="col-12">
-            <div class="d-flex flex-wrap justify-content-center align-items-center gap-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center">
               <t t-set="brand_attr"
                  t-value="request.env['product.attribute'].sudo().search([('name','=','Marca')], limit=1)"/>
               
               <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
                 <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
-                   class="brand-link text-decoration-none">
+                   class="brand-link text-decoration-none mx-2">
                   
                   <!-- Si tiene imagen -->
                   <t t-if="brand.dr_image">
