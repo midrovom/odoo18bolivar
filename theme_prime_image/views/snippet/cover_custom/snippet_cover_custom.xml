@@ -1,20 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="s_cover_2" inherit_id="theme_prime.s_cover_2" name="Cover - 2 (modificado)">
-    <xpath expr="//div[@class='carousel-inner']" position="replace">
-      <div class="carousel-inner">
-        <!-- Slide #01 -->
-        <div class="carousel-item active oe_img_bg o_bg_img_center pt120 pb120"
-             style="background-image: url('/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg');"
-             data-name="Slide">
-        </div>
-
-        <!-- Slide #02 -->
-        <div class="carousel-item oe_img_bg o_bg_img_center pt120 pb120"
-             style="background-image: url('/theme_prime_image/static/src/img/s_banner_custom/banner2.jpg');"
-             data-name="Slide">
+  <template id="s_cover_2" inherit_id="theme_prime.s_cover_2" name="Cover - 2 ">
+    
+    <!-- Desktop -->
+    <xpath expr="//div[@id='s_cover_2_carousel']" position="replace">
+      <div id="s_cover_2_carousel_desktop" class="carousel slide d-none d-md-block"
+           data-bs-ride="carousel" data-bs-interval="4000">
+        <div class="carousel-inner">
+          <!-- Slide #01 -->
+          <div class="carousel-item active oe_img_bg o_bg_img_center pt120 pb120"
+               style="background-image: url('/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg');">
+          </div>
+          <!-- Slide #02 -->
+          <div class="carousel-item oe_img_bg o_bg_img_center pt120 pb120"
+               style="background-image: url('/theme_prime_image/static/src/img/s_banner_custom/banner2.jpg');">
+          </div>
         </div>
       </div>
     </xpath>
+
+    <!-- Móvil -->
+    <xpath expr="//section[contains(@class,'s_cover_2')]" position="inside">
+      <div id="s_cover_2_carousel_mobile" class="carousel slide d-block d-md-none"
+           data-bs-ride="carousel" data-bs-interval="4000">
+        <div class="carousel-inner">
+          <!-- Slide #01 -->
+          <div class="carousel-item active oe_img_bg o_bg_img_center pt80 pb80"
+               style="background-image: url('/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg');">
+          </div>
+          <!-- Slide #02  -->
+          <div class="carousel-item oe_img_bg o_bg_img_center pt80 pb80"
+               style="background-image: url('/theme_prime_image/static/src/img/s_banner_custom/banner3.jpg');">
+          </div>
+        </div>
+      </div>
+    </xpath>
+
   </template>
 </odoo>
