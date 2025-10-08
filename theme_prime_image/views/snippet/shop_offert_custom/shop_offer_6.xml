@@ -5,7 +5,6 @@
       <t t-snippet="theme_prime_image.s_shop_offer_6"
          string="Shop Offer - 6"
          group="theme_prime_banner"
-         t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
         <keywords>banner, hero</keywords>
       </t>
     </xpath>
