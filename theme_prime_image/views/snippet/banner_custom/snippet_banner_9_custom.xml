@@ -1,55 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="s_banner_9_inherit" inherit_id="theme_prime.s_banner_9" name="Banner 9 Custom">
+    
+    <!-- Ajustar el section externo -->
+    <xpath expr="//section[contains(@class,'s_banner_9')]" position="attributes">
+      <attribute name="class">s_banner_9 o_container mt-5 mb-5 bg-white rounded shadow-sm</attribute>
+      <attribute name="style">max-width:1000px; margin:40px auto; padding:40px 0;</attribute>
+    </xpath>
+
+    <!-- Reemplazo del contenido interno -->
     <xpath expr="//div[@class='row s_col_no_bgcolor s_nb_column_fixed']" position="replace">
-      <div class="container">
-        <div class="row justify-content-center s_col_no_bgcolor s_nb_column_fixed">
-          
-          <!-- Card #01 -->
-          <div class="col-6 col-md-6 col-lg-3 py-3 d-flex justify-content-center">
-            <div class="card border rounded shadow-sm tp-animation-scale h-100">
-              <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
-                   class="img img-fluid card-img-top rounded-top" alt="Banner Image 01"/>
-              <div class="p-3 text-center">
-                <a href="#" class="btn btn-primary rounded-pill shadow-sm">Comprar</a>
-              </div>
+      <div class="row justify-content-center s_col_no_bgcolor s_nb_column_fixed">
+        
+        <!-- Card #01 -->
+        <div class="col-6 col-md-6 col-lg-3 py-3 d-flex justify-content-center">
+          <div class="card border rounded shadow-sm tp-animation-scale h-100">
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
+                 class="img img-fluid card-img-top rounded-top" alt="Banner Image 01"/>
+            <div class="p-3 text-center">
+              <a href="#" class="btn btn-primary rounded-pill shadow-sm">Comprar</a>
             </div>
           </div>
-
-          <!-- Card #02 -->
-          <div class="col-6 col-md-6 col-lg-3 py-3 d-flex justify-content-center">
-            <div class="card border rounded shadow-sm tp-animation-scale h-100">
-              <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2.jpg"
-                   class="img img-fluid card-img-top rounded-top" alt="Banner Image 02"/>
-              <div class="p-3 text-center">
-                <a href="#" class="btn btn-primary rounded-pill shadow-sm">Comprar</a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card #03 -->
-          <div class="col-6 col-md-6 col-lg-3 py-3 d-flex justify-content-center">
-            <div class="card border rounded shadow-sm tp-animation-scale h-100">
-              <img src="/theme_prime_image/static/src/img/s_banner_custom/banner3.jpg"
-                   class="img img-fluid card-img-top rounded-top" alt="Banner Image 03"/>
-              <div class="p-3 text-center">
-                <a href="#" class="btn btn-primary rounded-pill shadow-sm">Comprar</a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card #04 -->
-          <div class="col-6 col-md-6 col-lg-3 py-3 d-flex justify-content-center">
-            <div class="card border rounded shadow-sm tp-animation-scale h-100">
-              <img src="/theme_prime_image/static/src/img/s_banner_custom/banner4.jpg"
-                   class="img img-fluid card-img-top rounded-top" alt="Banner Image 04"/>
-              <div class="p-3 text-center">
-                <a href="#" class="btn btn-primary rounded-pill shadow-sm">Comprar</a>
-              </div>
-            </div>
-          </div>
-
         </div>
+
+        <!-- Card #02 -->
+        <div class="col-6 col-md-6 col-lg-3 py-3 d-flex justify-content-center">
+          <div class="card border rounded shadow-sm tp-animation-scale h-100">
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2.jpg"
+                 class="img img-fluid card-img-top rounded-top" alt="Banner Image 02"/>
+            <div class="p-3 text-center">
+              <a href="#" class="btn btn-primary rounded-pill shadow-sm">Comprar</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card #03 -->
+        <div class="col-6 col-md-6 col-lg-3 py-3 d-flex justify-content-center">
+          <div class="card border rounded shadow-sm tp-animation-scale h-100">
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner3.jpg"
+                 class="img img-fluid card-img-top rounded-top" alt="Banner Image 03"/>
+            <div class="p-3 text-center">
+              <a href="#" class="btn btn-primary rounded-pill shadow-sm">Comprar</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card #04 -->
+        <div class="col-6 col-md-6 col-lg-3 py-3 d-flex justify-content-center">
+          <div class="card border rounded shadow-sm tp-animation-scale h-100">
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner4.jpg"
+                 class="img img-fluid card-img-top rounded-top" alt="Banner Image 04"/>
+            <div class="p-3 text-center">
+              <a href="#" class="btn btn-primary rounded-pill shadow-sm">Comprar</a>
+            </div>
+          </div>
+        </div>
+
       </div>
     </xpath>
   </template>
