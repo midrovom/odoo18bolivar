@@ -15,7 +15,8 @@
     <section class="s_shop_offer_6 o_container mt-5 mb-5 py-4 o_cc o_cc2 rounded shadow-sm"
              style="max-width:1000px; margin:40px auto;">
       <div class="container">
-        <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 flex-md-nowrap">
+        <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 flex-md-nowrap">      
+          <!-- Texto -->
           <div class="flex-grow-1 text-center text-md-start">
             <h3 class="fw-bold mb-0">
               Difere tu compra hasta <span class="text-o-color-1">36 meses</span>
@@ -23,21 +24,19 @@
             <p class="mt-1 mb-0" style="font-size: 12px;">*Aplican términos y condiciones</p>
           </div>
 
-          <!-- Imagen rectangular con bordes redondeados -->
           <div class="flex-shrink-0">
-            <div class="rounded overflow-hidden" style="width: 220px; height: 120px;">
+            <div class="rounded overflow-hidden shadow-sm" style="width: 220px; height: 120px;">
               <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
                    alt="Oferta Especial"
-                   class="img-fluid"
-                   style="width:100%; height:100%; object-fit: cover;"/>
+                   class="img-fluid h-100 w-100"
+                   style="object-fit: cover;"/>
             </div>
           </div>
 
           <!-- Botón -->
           <div class="flex-shrink-0 text-center text-md-start">
-            <a href="#" class="btn btn-primary">Ver Ofertas</a>
+            <a href="#" class="btn btn-primary rounded-pill shadow-sm">Ver Ofertas</a>
           </div>
-
         </div>
       </div>
     </section>
