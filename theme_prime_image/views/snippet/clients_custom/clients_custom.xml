@@ -111,7 +111,7 @@
         /* Infinite scroll logos en móvil */
         .logo-slider {
           display: flex;
-          animation: scroll-logos 20s linear infinite;
+          animation: scroll-logos 8s linear infinite;
         }
         @keyframes scroll-logos {
           0% { transform: translateX(0); }
