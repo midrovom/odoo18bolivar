@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="s_shop_offer_snippet" inherit_id="theme_prime.snippets" name="Shop Offer - 6 Registry">
+    <xpath expr="//t[@t-snippet='theme_prime.s_shop_offer_5']" position="after">
+      <t t-snippet="theme_prime_image.s_shop_offer_6"
+         string="Shop Offer - 6"
+         group="theme_prime_banner"
+         t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
+        <keywords>banner, hero</keywords>
+      </t>
+    </xpath>
+  </template>
+
+  <template id="s_shop_offer_6" name="Shop Offer - 6">
+    <section class="s_shop_offer_4 o_container mt-5 mb-5 py-4" 
+             style="max-width:1000px; margin:40px auto; border-radius:20px; background:#fff;">
+      <div class="container">
+        <div class="row align-items-center text-center text-md-start">
+          
+          <!-- Texto -->
+          <div class="col-12 col-md-6 mb-3 mb-md-0">
+            <h3 class="fw-bold">
+              Difere tu compra hasta <span class="text-o-color-1">36 meses</span>
+            </h3>
+            <p class="mt-2" style="font-size: 12px;">*Aplican términos y condiciones</p>
+          </div>
+          
+          <!-- Imagen + Botón alineados -->
+          <div class="col-12 col-md-6 d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
+                 alt="Oferta Especial"
+                 class="img-fluid rounded"
+                 style="max-width:200px;"/>
+            
+            <!-- Botón -->
+            <a href="#" class="btn btn-primary mt-3 mt-md-0">Ver Ofertas</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </template>
+</odoo>
