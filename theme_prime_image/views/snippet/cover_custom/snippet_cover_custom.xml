@@ -3,17 +3,31 @@
   <template id="s_cover_2" inherit_id="theme_prime.s_cover_2" name="Cover - 2 (modificado)">
     <xpath expr="//div[@class='carousel-inner']" position="replace">
       <div class="carousel-inner">
+        
         <!-- Slide #01 -->
-        <div class="carousel-item active oe_img_bg o_bg_img_center pt120 pb120"
-             style="background-image: url('/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg');"
-             data-name="Slide">
+        <div class="carousel-item active pt120 pb120" data-name="Slide">
+          <!-- Imagen Desktop -->
+          <div class="oe_img_bg o_bg_img_center d-none d-md-block"
+               style="background-image: url('/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg'); height:100%; width:100%;">
+          </div>
+          <!-- Imagen Móvil -->
+          <div class="oe_img_bg o_bg_img_center d-block d-md-none"
+               style="background-image: url('/theme_prime_image/static/src/img/s_banner_custom/banner1_mobile.jpg'); height:100%; width:100%;">
+          </div>
         </div>
 
         <!-- Slide #02 -->
-        <div class="carousel-item oe_img_bg o_bg_img_center pt120 pb120"
-             style="background-image: url('/theme_prime_image/static/src/img/s_banner_custom/banner2.jpg');"
-             data-name="Slide">
+        <div class="carousel-item pt120 pb120" data-name="Slide">
+          <!-- Imagen Desktop -->
+          <div class="oe_img_bg o_bg_img_center d-none d-md-block"
+               style="background-image: url('/theme_prime_image/static/src/img/s_banner_custom/banner2.jpg'); height:100%; width:100%;">
+          </div>
+          <!-- Imagen Móvil -->
+          <div class="oe_img_bg o_bg_img_center d-block d-md-none"
+               style="background-image: url('/theme_prime_image/static/src/img/s_banner_custom/banner2_mobile.jpg'); height:100%; width:100%;">
+          </div>
         </div>
+
       </div>
     </xpath>
   </template>
