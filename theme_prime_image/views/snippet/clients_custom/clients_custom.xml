@@ -15,41 +15,43 @@
   <template id="s_clients_brands" name="Clients - Marcas destacadas">
     <section class="s_clients_brands o_snippet py-4">
       <div class="container text-center">
+
+        <!-- Línea superior con título centrado -->
         <div class="row mb-3">
           <div class="col">
-            <div class="border-top position-relative d-inline-block px-3">
-              <h3 class="fw-bold bg-white px-2 position-relative" style="top:-0.8rem;">
-                Marcas destacadas
-              </h3>
-            </div>
+            <hr class="border-top border-2 mb-0"/>
+            <h3 class="fw-bold bg-white d-inline-block px-3 position-relative" style="top:-1.2rem;">
+              Marcas destacadas
+            </h3>
           </div>
         </div>
 
-        <!-- Grid de marcas -->
-        <div class="row justify-content-center align-items-center g-3">
-          <t t-set="brand_attr"
-             t-value="request.env['product.attribute'].sudo().search([('name','=','Marca')], limit=1)"/>
-          
-          <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
-            <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
-              <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
-                 class="brand-link d-flex justify-content-center align-items-center p-3 border rounded h-100">
-                
-                <!-- Si tiene imagen -->
-                <t t-if="brand.dr_image">
-                  <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
-                       t-att-alt="brand.name"
-                       class="img-fluid brand-logo"/>
-                </t>
-                
-                <!-- Si no tiene imagen, mostrar el nombre -->
-                <t t-else="">
-                  <span class="brand-name"><t t-esc="brand.name"/></span>
-                </t>
-                
-              </a>
+        <!-- Marcas en una sola línea -->
+        <div class="row justify-content-center">
+          <div class="col-12">
+            <div class="d-flex flex-wrap justify-content-center align-items-center gap-4">
+              <t t-set="brand_attr"
+                 t-value="request.env['product.attribute'].sudo().search([('name','=','Marca')], limit=1)"/>
+              
+              <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
+                <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
+                   class="brand-link text-decoration-none">
+                  
+                  <!-- Si tiene imagen -->
+                  <t t-if="brand.dr_image">
+                    <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
+                         t-att-alt="brand.name"
+                         class="brand-logo"/>
+                  </t>
+                  
+                  <!-- Si no tiene imagen, mostrar el nombre -->
+                  <t t-else="">
+                    <span class="brand-name"><t t-esc="brand.name"/></span>
+                  </t>
+                </a>
+              </t>
             </div>
-          </t>
+          </div>
         </div>
 
         <!-- Línea inferior -->
@@ -63,13 +65,9 @@
 
       <!-- Estilos -->
       <style>
-        .s_clients_brands .brand-link {
-          color: #6c757d; /* gris */
-          transition: all 0.3s ease;
-        }
         .s_clients_brands .brand-logo {
-          max-height: 60px;
-          filter: grayscale(100%); /* logos en gris */
+          max-height: 50px;
+          filter: grayscale(100%);
           transition: all 0.3s ease;
         }
         .s_clients_brands .brand-name {
@@ -79,7 +77,7 @@
           transition: all 0.3s ease;
         }
         .s_clients_brands .brand-link:hover .brand-logo {
-          filter: grayscale(0%) brightness(1) saturate(2);
+          filter: grayscale(0%) saturate(2);
           transform: scale(1.05);
         }
         .s_clients_brands .brand-link:hover .brand-name {
