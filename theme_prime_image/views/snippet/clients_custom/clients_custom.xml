@@ -15,8 +15,6 @@
   <template id="s_clients_brands" name="Clients - Marcas destacadas">
     <section class="s_clients_brands o_snippet py-4">
       <div class="container text-center">
-
-        <!-- Línea superior con título -->
         <div class="row mb-3">
           <div class="col">
             <div class="border-top position-relative d-inline-block px-3">
@@ -34,22 +32,22 @@
           
           <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
             <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
-              <div class="tp-client-box p-3 h-100 d-flex justify-content-center align-items-center">
+              <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
+                 class="brand-link d-flex justify-content-center align-items-center p-3 border rounded h-100">
                 
                 <!-- Si tiene imagen -->
                 <t t-if="brand.dr_image">
                   <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
                        t-att-alt="brand.name"
-                       class="img img-fluid tp-client-image"
-                       style="max-height:60px; object-fit:contain;"/>
+                       class="img-fluid brand-logo"/>
                 </t>
                 
                 <!-- Si no tiene imagen, mostrar el nombre -->
                 <t t-else="">
-                  <span class="fw-semibold text-secondary"><t t-esc="brand.name"/></span>
+                  <span class="brand-name"><t t-esc="brand.name"/></span>
                 </t>
                 
-              </div>
+              </a>
             </div>
           </t>
         </div>
@@ -62,6 +60,32 @@
         </div>
 
       </div>
+
+      <!-- Estilos -->
+      <style>
+        .s_clients_brands .brand-link {
+          color: #6c757d; /* gris */
+          transition: all 0.3s ease;
+        }
+        .s_clients_brands .brand-logo {
+          max-height: 60px;
+          filter: grayscale(100%); /* logos en gris */
+          transition: all 0.3s ease;
+        }
+        .s_clients_brands .brand-name {
+          font-weight: 600;
+          font-size: 1.1rem;
+          color: #6c757d; /* gris */
+          transition: all 0.3s ease;
+        }
+        .s_clients_brands .brand-link:hover .brand-logo {
+          filter: grayscale(0%) brightness(1) saturate(2);
+          transform: scale(1.05);
+        }
+        .s_clients_brands .brand-link:hover .brand-name {
+          color: #28a745; /* verde */
+        }
+      </style>
     </section>
   </template>
 </odoo>
