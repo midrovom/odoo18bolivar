@@ -14,99 +14,68 @@
 
   <!-- Template principal -->
   <template id="s_banner_17_template" name="Banner - 17 (Marcas destacadas)">
-    <section class="s_banner_17 s_featured_brands o_snippet">
+    <section class="s_banner_17 s_featured_brands o_snippet py-4">
       <div class="container text-center">
-        <div class="linea-con-texto mb-3">
-          <span class="texto">Marcas destacadas</span>
+        
+        <!-- Título -->
+        <div class="row mb-3">
+          <div class="col">
+            <h3 class="fw-bold border-top pt-2 d-inline-block">Marcas destacadas</h3>
+          </div>
         </div>
 
         <!-- Slider en móvil -->
-        <div class="swiper-container d-md-none">
-          <div class="swiper-wrapper">
-            <t t-set="brand_attr"
-              t-value="request.env['product.attribute'].sudo().search([('name','=','Marca')], limit=1)"/>
-            <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
-              <div class="swiper-slide">
-                <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
-                  class="brand-link">
-                  <span class="brand-name"><t t-esc="brand.name"/></span>
-                </a>
-              </div>
-            </t>
+        <div class="d-md-none">
+          <div id="brandsCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              <t t-set="brand_attr"
+                t-value="request.env['product.attribute'].sudo().search([('name','=','Marca')], limit=1)"/>
+              <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
+                <div t-attf-class="carousel-item #{'active' if loop.first else ''}">
+                  <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
+                     class="d-flex justify-content-center align-items-center p-3">
+                    <t t-if="brand.image_1920">
+                      <img t-att-src="'/web/image/product.attribute.value/%s/image_1920' % brand.id"
+                           t-att-alt="brand.name"
+                           class="img-fluid" style="max-height:60px; object-fit:contain;"/>
+                    </t>
+                    <t t-else="">
+                      <span class="fw-semibold text-secondary"><t t-esc="brand.name"/></span>
+                    </t>
+                  </a>
+                </div>
+              </t>
+            </div>
+            <!-- Controles -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#brandsCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#brandsCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon"></span>
+            </button>
           </div>
-          <!-- Controles -->
-          <div class="swiper-pagination"></div>
-          <div class="swiper-button-prev"></div>
-          <div class="swiper-button-next"></div>
         </div>
 
         <!-- Vista normal en desktop -->
-        <div class="brands-row d-none d-md-flex flex-wrap justify-content-between align-items-center">
+        <div class="row d-none d-md-flex justify-content-center align-items-center g-3">
           <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
-            <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
-              class="brand-link">
-              <span class="brand-name"><t t-esc="brand.name"/></span>
-            </a>
+            <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
+              <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
+                 class="d-flex justify-content-center align-items-center p-2 border rounded h-100">
+                <t t-if="brand.image_1920">
+                  <img t-att-src="'/web/image/product.attribute.value/%s/image_1920' % brand.id"
+                       t-att-alt="brand.name"
+                       class="img-fluid" style="max-height:60px; object-fit:contain;"/>
+                </t>
+                <t t-else="">
+                  <span class="fw-semibold text-secondary"><t t-esc="brand.name"/></span>
+                </t>
+              </a>
+            </div>
           </t>
         </div>
 
-        <hr class="linea mt-3"/>
       </div>
-
-      <style>
-        /* Línea con texto centrado */
-        .s_featured_brands .linea-con-texto {
-          border-top: 2px solid #000;
-          text-align: center;
-          position: relative;
-          margin: 10px 0;
-        }
-        .s_featured_brands .linea-con-texto .texto {
-          position: relative;
-          top: -14px;
-          background: #fff;
-          padding: 0 20px;
-          font-weight: bold;
-          font-size: 1.3rem;
-        }
-
-        /* Línea inferior */
-        .s_featured_brands .linea {
-          border: none;
-          border-top: 2px solid #000;
-        }
-
-        /* Estilo de marcas */
-        .s_featured_brands .brands-row {
-          margin: 15px 0;
-        }
-        .s_featured_brands .brand-link {
-          flex: 1;
-          text-align: center;
-          margin: 5px 0;
-        }
-        .s_featured_brands .brand-name {
-          color: #555;
-          font-size: 1.1rem;
-          font-weight: 600;
-          transition: all 0.3s ease;
-        }
-        .s_featured_brands .brand-link:hover .brand-name {
-          color: #28a745;
-          text-decoration: underline;
-        }
-
-        /* Slider en móvil */
-        .swiper-container {
-          width: 100%;
-          padding: 10px 0;
-        }
-        .swiper-slide {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-      </style>
     </section>
   </template>
 </odoo>
