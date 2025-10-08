@@ -13,6 +13,7 @@
         'views/snippet/shop_offert_custom/s_shop_offer_custom.xml',
         'views/snippet/cover_custom/snippet_cover_custom.xml',
         'views/snippet/shop_offert_custom/shop_offer_6.xml',
+        'views/snippet/clients_custom/clients_custom.xml',
     ],
     'assets': {
         'web.assets_frontend': [
