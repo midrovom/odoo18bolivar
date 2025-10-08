@@ -3,7 +3,7 @@
   <template id="s_subscribe_2_inherit" inherit_id="theme_prime.s_subscribe_2" name="Subscribe 2 - Centrado">
     <xpath expr="//div[@class='row s_col_no_bgcolor s_nb_column_fixed']" position="replace">
       <div class="row justify-content-center">
-        <div class="col-12 col-md-8 text-center bg-light p-4 rounded shadow-sm">
+        <div class="col-12 col-md-8 text-center">
           <h3 class="mb-4">Subscribe to our weekly newsletter</h3>
           
           <!-- Formulario centrado -->
