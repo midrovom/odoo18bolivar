@@ -34,7 +34,6 @@
                  t-value="request.env['product.attribute'].sudo().search([('name','=','Marca')], limit=1)"/>
               
               <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
-                <!-- Enlace con filtro de marca aplicado -->
                 <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
                    class="brand-link text-decoration-none mx-2">
                   
