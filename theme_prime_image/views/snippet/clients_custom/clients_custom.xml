@@ -11,7 +11,6 @@
     </xpath>
   </template>
 
-  <!-- Template principal -->
   <template id="s_clients_brands" name="Clients - Marcas destacadas">
     <section class="s_clients_brands o_snippet py-4">
       <div class="container text-center">
@@ -45,41 +44,38 @@
           </div>
         </div>
 
-        <!-- Móvil: carrusel de 4 en 4 -->
-        <div class="d-md-none">
-          <div id="brandsCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
-            <div class="carousel-inner">
-              <t t-set="brand_attr"
-                 t-value="request.env['product.attribute'].sudo().search([('name','=','Marca')], limit=1)"/>
-              <t t-set="brands" t-value="brand_attr.value_ids"/>
-              <t t-set="chunk_size" t-value="4"/>
-              <t t-foreach="range(0, len(brands), chunk_size)" t-as="i">
-                <div t-attf-class="carousel-item #{'active' if i == 0 else ''}">
-                  <div class="d-flex justify-content-around align-items-center">
-                    <t t-foreach="brands[i:i+chunk_size]" t-as="brand" t-key="brand.id">
-                      <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
-                         class="brand-link text-decoration-none mx-2">
-                        <t t-if="brand.dr_image">
-                          <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
-                               t-att-alt="brand.name"
-                               class="brand-logo"/>
-                        </t>
-                        <t t-else="">
-                          <span class="brand-name"><t t-esc="brand.name"/></span>
-                        </t>
-                      </a>
-                    </t>
-                  </div>
-                </div>
-              </t>
-            </div>
-            <!-- Controles -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#brandsCarousel" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon"></span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#brandsCarousel" data-bs-slide="next">
-              <span class="carousel-control-next-icon"></span>
-            </button>
+        <!-- Móvil: scroll infinito -->
+        <div class="d-md-none overflow-hidden">
+          <div class="logo-slider d-flex align-items-center">
+            <t t-set="brand_attr"
+               t-value="request.env['product.attribute'].sudo().search([('name','=','Marca')], limit=1)"/>
+            <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
+              <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
+                 class="brand-link text-decoration-none mx-3 flex-shrink-0">
+                <t t-if="brand.dr_image">
+                  <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
+                       t-att-alt="brand.name"
+                       class="brand-logo"/>
+                </t>
+                <t t-else="">
+                  <span class="brand-name"><t t-esc="brand.name"/></span>
+                </t>
+              </a>
+            </t>
+            <!-- Duplicar para efecto infinito -->
+            <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="'dup-%s' % brand.id">
+              <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
+                 class="brand-link text-decoration-none mx-3 flex-shrink-0">
+                <t t-if="brand.dr_image">
+                  <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
+                       t-att-alt="brand.name"
+                       class="brand-logo"/>
+                </t>
+                <t t-else="">
+                  <span class="brand-name"><t t-esc="brand.name"/></span>
+                </t>
+              </a>
+            </t>
           </div>
         </div>
 
@@ -89,7 +85,6 @@
             <hr class="border-top border-2"/>
           </div>
         </div>
-
       </div>
 
       <!-- Estilos -->
@@ -102,7 +97,7 @@
         .s_clients_brands .brand-name {
           font-weight: 600;
           font-size: 1.1rem;
-          color: #6c757d; /* gris */
+          color: #6c757d;
           transition: all 0.3s ease;
         }
         .s_clients_brands .brand-link:hover .brand-logo {
@@ -110,7 +105,17 @@
           transform: scale(1.05);
         }
         .s_clients_brands .brand-link:hover .brand-name {
-          color: #28a745; /* verde */
+          color: #28a745;
+        }
+
+        /* Infinite scroll logos en móvil */
+        .logo-slider {
+          display: flex;
+          animation: scroll-logos 20s linear infinite;
+        }
+        @keyframes scroll-logos {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
         }
       </style>
     </section>
