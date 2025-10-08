@@ -12,8 +12,8 @@
   </template>
 
   <template id="s_shop_offer_6" name="Shop Offer - 6">
-    <section class="s_shop_offer_4 o_container mt-5 mb-5 py-4" 
-             style="max-width:1000px; margin:40px auto; border-radius:20px; background:#fff;">
+    <section class="s_shop_offer_6 o_container mt-5 mb-5 py-4 o_cc o_cc2 rounded shadow-sm"
+             style="max-width:1000px; margin:40px auto;">
       <div class="container">
         <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 flex-md-nowrap">
           <div class="flex-grow-1 text-center text-md-start">
@@ -23,9 +23,9 @@
             <p class="mt-1 mb-0" style="font-size: 12px;">*Aplican términos y condiciones</p>
           </div>
 
-          <!-- Contenedor de imagen rectangular con borde redondeado -->
+          <!-- Imagen rectangular con bordes redondeados -->
           <div class="flex-shrink-0">
-            <div class="rounded" style="width: 220px; height: 120px; overflow: hidden;">
+            <div class="rounded overflow-hidden" style="width: 220px; height: 120px;">
               <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
                    alt="Oferta Especial"
                    class="img-fluid"
@@ -43,4 +43,3 @@
     </section>
   </template>
 </odoo>
-
