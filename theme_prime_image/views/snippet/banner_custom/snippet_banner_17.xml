@@ -16,8 +16,6 @@
   <template id="s_banner_17_template" name="Banner - 17 (Marcas destacadas)">
     <section class="s_banner_17 s_featured_brands o_snippet py-4">
       <div class="container text-center">
-        
-        <!-- Título -->
         <div class="row mb-3">
           <div class="col">
             <h3 class="fw-bold border-top pt-2 d-inline-block">Marcas destacadas</h3>
@@ -30,8 +28,10 @@
             <div class="carousel-inner">
               <t t-set="brand_attr"
                 t-value="request.env['product.attribute'].sudo().search([('name','=','Marca')], limit=1)"/>
-              <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
-                <div t-attf-class="carousel-item #{'active' if loop.first else ''}">
+              <t t-foreach="enumerate(brand_attr.value_ids)" t-as="item">
+                <t t-set="idx" t-value="item[0]"/>
+                <t t-set="brand" t-value="item[1]"/>
+                <div t-attf-class="carousel-item #{'active' if idx == 0 else ''}">
                   <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
                      class="d-flex justify-content-center align-items-center p-3">
                     <t t-if="brand.image_1920">
