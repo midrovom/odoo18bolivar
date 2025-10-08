@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="s_cover_6" inherit_id="theme_prime.s_cover_2" name="Cover - 6">
+  <template id="s_cover_2" inherit_id="theme_prime.s_cover_2" name="Cover - 2 (modificado)">
     <xpath expr="//div[@class='carousel-inner']" position="replace">
       <div class="carousel-inner">
         <!-- Slide #01 -->
