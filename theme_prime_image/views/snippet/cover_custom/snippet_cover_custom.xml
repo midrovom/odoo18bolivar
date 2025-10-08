@@ -1,28 +1,40 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="s_cover_6_snippet" inherit_id="theme_prime.snippets" name="Cover - 6 Registry">
-    <xpath expr="//t[@t-snippet='theme_prime.s_cover_5']" position="after">
-      <t t-snippet="theme_prime_image.s_cover_6"
-         string="Cover - 6"
-         group="theme_prime_cover"
-         t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png"
-         data-snippet-option-class="CoverOptions">
-        <keywords>cover, hero, slider</keywords>
-      </t>
-    </xpath>
-  </template>
-
   <template id="s_cover_6" name="Cover - 6">
-    <section class="s_cover o_colored_level pt120 pb120"
-             data-snippet="s_cover"
-             data-name="Cover - 6">
+    <section class="s_cover_6">
+      <t t-set="uniq" t-value="dr_uid or datetime.datetime.now().microsecond"/>
+      <div t-attf-id="myCarousel{{uniq}}" class="tp-custom-carousel s_carousel carousel slide" data-bs-interval="5000">
+        
+        <!-- Contenido del carrusel -->
+        <div class="carousel-inner">
+          <!-- Slide #01 -->
+          <div class="carousel-item active oe_img_bg o_bg_img_center pt192 pb192"
+               style="background-image: url('/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg');"
+               data-name="Slide">
+          </div>
 
-      <div class="container text-center">
-        <div class="o_bg_img o_bg_img_center"
-             data-snippet-option-id="background">
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
-               class="img-fluid"
-               alt="Cover 6"/>
+          <!-- Slide #02 -->
+          <div class="carousel-item oe_img_bg o_bg_img_center pt192 pb192"
+               style="background-image: url('/theme_prime_image/static/src/img/s_banner_custom/banner2.jpg');"
+               data-name="Slide">
+          </div>
+        </div>
+
+        <!-- Controles -->
+        <button class="carousel-control-prev o_not_editable" contenteditable="false"
+                t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"/>
+          <span class="visually-hidden">Anterior</span>
+        </button>
+        <button class="carousel-control-next o_not_editable" contenteditable="false"
+                t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"/>
+          <span class="visually-hidden">Siguiente</span>
+        </button>
+
+        <!-- Indicadores -->
+        <div class="carousel-indicators o_not_editable">
+          <button type="button" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide-to="0" class="active"/>
+          <button type="button" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide-to="1"/>
         </div>
       </div>
     </section>
