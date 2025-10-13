@@ -53,5 +53,14 @@
     <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto')][.//i[contains(@class,'dri-cart')]]"
            position="replace"/>
 
+    <!-- Personalización de la barra de búsqueda -->
+    <xpath expr="//input[contains(@class,'o_searchbar_input')]" position="attributes">
+        <attribute name="placeholder">Encuentra todo lo que necesitas</attribute>
+    </xpath>
+
+    <xpath expr="//form[contains(@class,'o_wsale_products_searchbar_form')]" position="attributes">
+        <attribute name="class" add="searchbar-small" separator=" "/>
+    </xpath>
+
 </template>
 </odoo>
