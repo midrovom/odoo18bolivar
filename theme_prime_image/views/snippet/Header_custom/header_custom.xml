@@ -7,6 +7,7 @@
         <div class="col-auto my-1">
             <div class="d-flex align-items-center">
                 <div class="flex-grow-1 d-none d-xl-block">
+
                     <!-- Si es público: Register | Login -->
                     <div class="d-flex align-items-center" t-if="user_id._is_public()">
                         <a class="tp-account-info-sidebar-action me-2" href="/web/signup">Register</a>
@@ -14,12 +15,18 @@
                         <a class="tp-account-info-sidebar-action ms-2" href="/web/login">Login</a>
                     </div>
 
-                    <!-- Si está logueado: My Account ▼ -->
-                    <a class="tp-account-info-sidebar-action d-flex align-items-center" 
-                       t-if="not user_id._is_public()" href="/my/home">
-                        <p class="h6 mb-0 me-1">My Account</p>
-                        <i class="fa fa-caret-down"></i>
-                    </a>
+                    <!-- Si está logueado: Nombre del usuario + caret ▼ -->
+                    <div t-if="not user_id._is_public()" class="d-flex align-items-center">
+                        <!-- Nombre del usuario -->
+                        <span class="me-2 text-truncate" style="max-width: 150px;">
+                            <t t-out="user_id.name"/>
+                        </span>
+                        <!-- Solo el ícono caret ▼ -->
+                        <a class="tp-account-info-sidebar-action" href="/my/home">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+
                 </div>
             </div>
         </div>
