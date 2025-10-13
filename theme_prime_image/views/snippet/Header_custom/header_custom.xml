@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<template id="custom_header_registry" inherit_id="theme_prime.snippets" name="Prime Header Style - 9 Registry">
-    <xpath expr="//we-select[@data-variable='header-template']/we-button[last()]" position="after">
-        <we-button 
-            title="Prime Header Style - 9"
-            data-name="tp_header_style_9_opt"
-            data-customize-website-views="theme_prime_image.template_header_style_9"
-            data-customize-website-variable="'prime_style_9'"
-            data-img="/theme_prime_custom/static/src/img/options/header_9.svg"/>
-    </xpath>
-</template>
+    <template id="template_header_style_9" inherit_id="theme_prime.template_header_style_4" name="Header Style - 9" active="True">
+        <!-- Aquí puedes aplicar tus cambios con xpath -->
+    </template>
 </odoo>
