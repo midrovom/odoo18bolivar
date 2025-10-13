@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="template_header_style_9" inherit_id="theme_prime.template_header_style_4" name="Header Style - 9" active="True">
-        <!-- Aquí puedes aplicar tus cambios con xpath -->
+    <template id="template_header_custom" inherit_id="theme_prime.template_header_style_4" name="Header Style custom" active="True">
+        
     </template>
 </odoo>
