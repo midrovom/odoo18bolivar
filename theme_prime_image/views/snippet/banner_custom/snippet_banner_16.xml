@@ -16,7 +16,7 @@
       <div id="bannerCarousel16" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000" data-bs-pause="false">
         <div class="carousel-inner">
 
-          <!-- Banner 1 -->
+          <!-- Slide 1 -->
           <div class="carousel-item active">
             <picture>
               <!-- Imagen para móviles -->
@@ -26,7 +26,7 @@
             </picture>
           </div>
 
-          <!-- Banner 2 -->
+          <!-- Slide 2 -->
           <div class="carousel-item">
             <picture>
               <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/mobile/banner2_small.jpg"/>
@@ -34,7 +34,7 @@
             </picture>
           </div>
 
-          <!-- Repite lo mismo para los demás banners -->
+          <!-- Slide 3 -->
           <div class="carousel-item">
             <picture>
               <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/mobile/banner3_small.jpg"/>
@@ -42,7 +42,7 @@
             </picture>
           </div>
 
-          <!-- ... hasta banner7 -->
+          <!-- Repite lo mismo para los demás banners -->
         </div>
 
         <!-- Indicadores -->
@@ -65,7 +65,7 @@
         }
         .s_banner_slider img {
           width: 100%;
-          height: auto;       /* altura automática */
+          height: auto;
           max-height: 400px;  /* límite en desktop */
           object-fit: cover;
         }
