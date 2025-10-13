@@ -45,9 +45,8 @@
         </div>
     </xpath>
 
-    <!-- Elimina el bloque de wishlist -->
-    <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto')][.//i[contains(@class,'dri-wishlist')]]"
-           position="replace"/>
+    <!-- <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto')][.//i[contains(@class,'dri-wishlist')]]"
+           position="replace"/> -->
 
     <!-- Elimina el bloque original del carrito -->
     <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto')][.//i[contains(@class,'dri-cart')]]"
