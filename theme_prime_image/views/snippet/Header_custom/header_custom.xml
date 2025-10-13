@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <template id="template_header_style_4_inherit" 
-          inherit_id="theme_prime.template_header_style_4" 
+<template id="template_header_style_4_inherit"
+          inherit_id="theme_prime.template_header_style_4"
           name="Header Style - 4 Inherit">
 
-    <!-- Localizamos el bloque del usuario -->
-    <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto')][div//i[contains(@class,'dri-user')]]" position="replace">
+    <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto')][.//i[contains(@class,'dri-user')]]"
+           position="replace">
+
         <div class="col-auto my-1">
             <div class="d-flex align-items-center">
                 <div class="flex-shrink-0">
@@ -18,22 +18,22 @@
                     <div t-nocache="User may vary." style="max-width: 150px;" class="text-truncate mb-1">
                         <t t-out="not user_id._is_public() and user_id.name or 'Guest'"/>
                     </div>
-                    <!-- Aquí añadimos Login | Register -->
-                    <div class="d-flex align-items-center">
-                        <a class="tp-account-info-sidebar-action me-2" t-if="user_id._is_public()" href="/web/login">Login</a>
-                        <span class="mx-1" t-if="user_id._is_public()">|</span>
-                        <a class="tp-account-info-sidebar-action ms-2" t-if="user_id._is_public()" href="/web/signup">Register</a>
 
-                        <!-- Si ya está logueado, mostramos My Account -->
-                        <a class="tp-account-info-sidebar-action" t-if="not user_id._is_public()" href="/my/home">
-                            <p class="h6 mb-0">My Account</p>
-                        </a>
+                    <!-- Si es público: Register | Login -->
+                    <div class="d-flex align-items-center" t-if="user_id._is_public()">
+                        <a class="tp-account-info-sidebar-action me-2" href="/web/signup">Register</a>
+                        <span class="mx-1">|</span>
+                        <a class="tp-account-info-sidebar-action ms-2" href="/web/login">Login</a>
                     </div>
+
+                    <!-- Si está logueado: My Account -->
+                    <a class="tp-account-info-sidebar-action" t-if="not user_id._is_public()" href="/my/home">
+                        <p class="h6 mb-0">My Account</p>
+                    </a>
                 </div>
             </div>
         </div>
     </xpath>
 </template>
-
 
 </odoo>
