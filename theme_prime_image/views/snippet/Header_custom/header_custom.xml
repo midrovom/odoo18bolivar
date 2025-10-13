@@ -1,0 +1,22 @@
+<odoo>
+  <template id="template_header_style_4_custom" inherit_id="theme_prime.template_header_style_4" name="Header Style 4 - Custom">
+
+    <!-- 1. Quitar estilo de círculo del carrito -->
+    <xpath expr="//div[contains(@class,'o_wsale_my_cart')]//i[contains(@class,'dri-cart')]" position="attributes">
+      <attribute name="class">dri dri-cart</attribute>
+    </xpath>
+
+    <!-- 2. Reemplazar bloque de cuenta por "Regístrate | Mi cuenta" -->
+    <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto my-1')][div//i[contains(@class,'dri-user')]]" position="replace">
+      <div class="col-auto my-1">
+        <div class="d-flex align-items-center">
+          <span>
+            <a href="/web/signup">Regístrate</a> | 
+            <a href="/web/login">Mi cuenta</a>
+          </span>
+        </div>
+      </div>
+    </xpath>
+
+  </template>
+</odoo>
