@@ -3,19 +3,38 @@
             inherit_id="theme_prime.template_header_style_4"
             name="Header Style 4 - Custom">
 
-    <!-- 1. Quitar estilo de círculo del carrito -->
-    <xpath expr="//i[contains(@class,'dri-cart')]" position="attributes">
-      <attribute name="class">dri dri-cart</attribute>
-    </xpath>
-
-    <!-- 2. Reemplazar bloque de cuenta por "Regístrate | Mi cuenta" -->
-    <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto my-1')][.//i[contains(@class,'dri-user')]]" position="replace">
-      <div class="col-auto my-1">
-        <div class="d-flex align-items-center">
-          <span>
-            <a href="/web/signup">Regístrate</a> | 
-            <a href="/web/login">Mi cuenta</a>
-          </span>
+    <!-- Reemplazar bloque de usuario y carrito -->
+    <xpath expr="//div[contains(@class,'tp-account-info')]" position="replace">
+      <div class="row align-items-center justify-content-end tp-account-info">
+        <div class="col-auto my-1">
+          <div class="d-flex align-items-center">
+            <span>
+              <!-- Enlace a registro -->
+              <a href="/web/signup">Regístrate</a> | 
+              <!-- Enlace dinámico a cuenta -->
+              <a href="/web/login">
+                <t t-nocache="User may vary.">
+                  <t t-if="not user_id._is_public()">
+                    Mi cuenta (<t t-esc="user_id.name"/>)
+                  </t>
+                  <t t-else="">
+                    Mi cuenta
+                  </t>
+                </t>
+              </a>
+              <!-- Carrito dinámico -->
+              <t t-nocache="The number of products is dynamic.">
+                <t t-set="website_sale_cart_quantity" 
+                       t-value="request.session['website_sale_cart_quantity'] if 'website_sale_cart_quantity' in request.session else website.sale_get_order().cart_quantity or 0"/>
+                <t t-set="show_cart" t-value="website.has_ecommerce_access()"/>
+                <a t-attf-class="ms-3 #{not show_cart and 'd-none'}" href="/shop/cart">
+                  🛒 <sup class="my_cart_quantity badge bg-primary"
+                          t-out="website_sale_cart_quantity"
+                          t-att-data-order-id="request.session.get('sale_order_id', '')"/>
+                </a>
+              </t>
+            </span>
+          </div>
         </div>
       </div>
     </xpath>
