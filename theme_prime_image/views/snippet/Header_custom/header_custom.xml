@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 <template id="template_header_style_4_inherit" inherit_id="theme_prime.template_header_style_4" name="Header Style - 4 Inherit">
-
-    <!-- Reemplazo del bloque de usuario -->
     <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto')][.//i[contains(@class,'dri-user')]]"
            position="replace">
-
         <div class="col-auto my-1">
             <div class="d-flex align-items-center">
                 <div class="flex-grow-1 d-none d-xl-block">
@@ -32,8 +29,12 @@
         </div>
     </xpath>
 
-    <!-- Eliminamos TODO el bloque de wishlist (icono + contador + texto) -->
+    <!-- Elimina el bloque de wishlist (icono + contador + texto) -->
     <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto')][.//i[contains(@class,'dri-wishlist')]]"
+           position="replace"/>
+
+    <!-- Elimina el bloque de texto del carrito (My Cart + total) -->
+    <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'flex-grow-1') and .//div[text()='My Cart']]" 
            position="replace"/>
 
 </template>
