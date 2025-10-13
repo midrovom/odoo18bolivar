@@ -3,7 +3,6 @@
 <template id="template_header_style_4_inherit" inherit_id="theme_prime.template_header_style_4" name="Header Style - 4 Inherit">
     <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto')][.//i[contains(@class,'dri-user')]]"
            position="replace">
-
         <div class="col-auto my-1">
             <div class="d-flex align-items-center">
                 <div class="flex-grow-1 d-none d-xl-block">
@@ -32,9 +31,11 @@
 
     <!-- Eliminamos el bloque "View Wishlist" -->
     <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'flex-grow-1') and .//div[text()='My Wishlist']]" 
-           position="replace">
-        <!-- vacío: eliminamos todo el bloque -->
-    </xpath>
+           position="replace"/>
+
+    <!-- Eliminamos también el icono + contador de wishlist -->
+    <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'o_wsale_my_wish')]" 
+           position="replace"/>
 
 </template>
 </odoo>
