@@ -11,7 +11,7 @@
     </xpath>
 </template>
 
-<template id="template_header_style_9" inherit_id="website.layout" name="Header Style - 9" active="True">
+<template id="template_header_style_9" inherit_id="theme_prime.template_header_style_4" name="Header Style - 9" active="True">
     <xpath expr="//header" position="attributes">
         <attribute name="t-attf-class" add="tp-custom-header" separator=" "/>
     </xpath>
