@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<template id="template_header_style_4_inherit" inherit_id="template_header_style_4" name="Header Style - 4 Inherit">
+<template id="template_header_style_4_inherit" inherit_id="theme_prime.template_header_style_4" name="Header Style - 4 Inherit">
     <xpath expr="//div[@class='tp-account-info']//div[contains(@class,'d-flex') and .//i[contains(@class,'dri-user')]]" position="replace">
         <div class="d-flex align-items-center">
             <div class="flex-shrink-0">
