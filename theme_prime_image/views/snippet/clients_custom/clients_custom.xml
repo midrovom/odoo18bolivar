@@ -29,25 +29,17 @@
             <t t-set="brand_attr"
                t-value="request.env['product.attribute'].sudo().search([('name','=','Marca')], limit=1)"/>
             <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
-              <!-- Buscar si hay productos publicados con esta marca -->
-              <t t-set="products"
-                 t-value="request.env['product.template'].sudo().search([
-                   ('website_published','=',True),
-                   ('attribute_line_ids.value_ids','in', brand.id)
-                 ], limit=1)"/>
-              <t t-if="products">
-                <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
-                   class="brand-link text-decoration-none mx-2">
-                  <t t-if="brand.dr_image">
-                    <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
-                         t-att-alt="brand.name"
-                         class="brand-logo"/>
-                  </t>
-                  <t t-else="">
-                    <span class="brand-name"><t t-esc="brand.name"/></span>
-                  </t>
-                </a>
-              </t>
+              <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
+                 class="brand-link text-decoration-none mx-2">
+                <t t-if="brand.dr_image">
+                  <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
+                       t-att-alt="brand.name"
+                       class="brand-logo"/>
+                </t>
+                <t t-else="">
+                  <span class="brand-name"><t t-esc="brand.name"/></span>
+                </t>
+              </a>
             </t>
           </div>
         </div>
@@ -58,46 +50,31 @@
             <t t-set="brand_attr"
                t-value="request.env['product.attribute'].sudo().search([('name','=','Marca')], limit=1)"/>
             <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
-              <!-- Buscar si hay productos publicados con esta marca -->
-              <t t-set="products"
-                 t-value="request.env['product.template'].sudo().search([
-                   ('website_published','=',True),
-                   ('attribute_line_ids.value_ids','in', brand.id)
-                 ], limit=1)"/>
-              <t t-if="products">
-                <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
-                   class="brand-link text-decoration-none mx-3 flex-shrink-0">
-                  <t t-if="brand.dr_image">
-                    <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
-                         t-att-alt="brand.name"
-                         class="brand-logo"/>
-                  </t>
-                  <t t-else="">
-                    <span class="brand-name"><t t-esc="brand.name"/></span>
-                  </t>
-                </a>
-              </t>
+              <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
+                 class="brand-link text-decoration-none mx-3 flex-shrink-0">
+                <t t-if="brand.dr_image">
+                  <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
+                       t-att-alt="brand.name"
+                       class="brand-logo"/>
+                </t>
+                <t t-else="">
+                  <span class="brand-name"><t t-esc="brand.name"/></span>
+                </t>
+              </a>
             </t>
             <!-- Duplicar para efecto infinito -->
             <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="'dup-%s' % brand.id">
-              <t t-set="products"
-                 t-value="request.env['product.template'].sudo().search([
-                   ('website_published','=',True),
-                   ('attribute_line_ids.value_ids','in', brand.id)
-                 ], limit=1)"/>
-              <t t-if="products">
-                <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
-                   class="brand-link text-decoration-none mx-3 flex-shrink-0">
-                  <t t-if="brand.dr_image">
-                    <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
-                         t-att-alt="brand.name"
-                         class="brand-logo"/>
-                  </t>
-                  <t t-else="">
-                    <span class="brand-name"><t t-esc="brand.name"/></span>
-                  </t>
-                </a>
-              </t>
+              <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
+                 class="brand-link text-decoration-none mx-3 flex-shrink-0">
+                <t t-if="brand.dr_image">
+                  <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
+                       t-att-alt="brand.name"
+                       class="brand-logo"/>
+                </t>
+                <t t-else="">
+                  <span class="brand-name"><t t-esc="brand.name"/></span>
+                </t>
+              </a>
             </t>
           </div>
         </div>
