@@ -5,50 +5,35 @@
            position="replace">
         <div class="col-auto my-1">
             <div class="d-flex align-items-center">
+                <div class="flex-grow-1 d-none d-xl-block">
 
-                <!-- Icono del carrito con contador -->
-                <div class="flex-shrink-0 me-3">
-                    <t t-nocache="The number of products is dynamic, this rendering cannot be cached.">
-                        <t t-set="website_sale_cart_quantity"
-                           t-value="request.session['website_sale_cart_quantity'] if 'website_sale_cart_quantity' in request.session else website.sale_get_order().cart_quantity or 0"/>
-                        <t t-set="show_cart" t-value="website.has_ecommerce_access()"/>
-                        <div t-attf-class="o_not_editable position-relative o_wsale_my_cart tp-cart-sidebar-action #{not show_cart and 'd-none'}">
-                            <a href="/shop/cart">
-                                <i class="dri dri-cart tp-light-bg rounded-circle"/>
-                                <sup class="my_cart_quantity badge bg-primary"
-                                     t-out="website_sale_cart_quantity"
-                                     t-att-data-order-id="request.session.get('sale_order_id', '')"/>
-                            </a>
-                        </div>
-                    </t>
-                </div>
-
-                <!-- Icono de usuario -->
-                <div class="flex-shrink-0">
-                    <a href="#" class="tp-account-info-sidebar-action">
-                        <i class="dri dri-user tp-light-bg rounded-circle"/>
-                    </a>
-                </div>
-
-                <!-- Texto de usuario -->
-                <div class="flex-grow-1 ms-3 d-none d-xl-block">
-                    <div t-nocache="User may vary." style="max-width: 150px;" class="text-truncate mb-1">
-                        <t t-out="not user_id._is_public() and user_id.name or 'Guest'"/>
+                    <!-- Si es público: Register | Login -->
+                    <div class="d-flex align-items-center" t-if="user_id._is_public()">
+                        <a class="tp-account-info-sidebar-action me-2" href="/web/signup">Register</a>
+                        <span class="mx-1">|</span>
+                        <a class="tp-account-info-sidebar-action ms-2" href="/web/login">Login</a>
                     </div>
-                    <a class="tp-account-info-sidebar-action" href="#">
-                        <p class="h6 mb-0">My Account</p>
-                    </a>
-                </div>
 
+                    <!-- Si está logueado: Nombre del usuario + caret ▼ -->
+                    <div t-if="not user_id._is_public()" class="d-flex align-items-center">
+                        <span class="me-2 text-truncate" style="max-width: 150px;">
+                            <t t-out="user_id.name"/>
+                        </span>
+                        <a class="tp-account-info-sidebar-action" href="/my/home">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+
+                </div>
             </div>
         </div>
     </xpath>
 
-    <!-- Eliminamos TODO el bloque de wishlist (icono + contador + texto) -->
+    <!-- Elimina el bloque de wishlist (icono + contador + texto) -->
     <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto')][.//i[contains(@class,'dri-wishlist')]]"
            position="replace"/>
 
-    <!-- Eliminamos el bloque de texto del carrito (My Cart + total) -->
+    <!-- Elimina el bloque de texto del carrito (My Cart + total) -->
     <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'flex-grow-1') and .//div[text()='My Cart']]" 
            position="replace"/>
 
