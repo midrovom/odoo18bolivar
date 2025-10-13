@@ -1,47 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<template id="template_header_style_4_custom" inherit_id="template_header_style_4" name="Header Style - 4 Custom">
-    <xpath expr="//div[@class='tp-account-info']" position="replace">
-        <div class="tp-account-info d-flex align-items-center justify-content-end">
-            <!-- Wishlist -->
-            <div class="account-section pe-3 me-3 border-end">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <t t-nocache="The wishlist may vary and depends on the user.">
-                            <t t-set="wishcount" t-value="len(request.env['product.wishlist'].current())"/>
-                            <t t-set="show_wishes" t-value="website.has_ecommerce_access()"/>
-                            <div t-attf-class="o_not_editable position-relative o_wsale_my_wish #{not show_wishes and 'd-none'}">
-                                <a href="/shop/wishlist">
-                                    <i class="dri dri-wishlist tp-light-bg rounded-circle"/>
-                                    <sup t-out="wishcount" t-attf-class="my_wish_quantity o_animate_blink badge bg-primary"/>
-                                </a>
-                            </div>
+<template id="custom_header_registry" inherit_id="theme_prime.options" name="Prime Header Style - 9 Registry">
+    <xpath expr="//we-select[@data-variable='header-template']/we-button[last()]" position="after">
+        <we-button 
+            title="Prime Header Style - 9"
+            data-name="tp_header_style_9_opt"
+            data-customize-website-views="theme_prime_custom.template_header_style_9"
+            data-customize-website-variable="'prime_style_9'"
+            data-img="/theme_prime_custom/static/src/img/options/header_9.svg"/>
+    </xpath>
+</template>
+
+<template id="template_header_style_9" inherit_id="website.layout" name="Header Style - 9" active="True">
+    <xpath expr="//header" position="attributes">
+        <attribute name="t-attf-class" add="tp-custom-header" separator=" "/>
+    </xpath>
+
+    <xpath expr="//header//nav" position="replace">
+        <div class="tp-header-box o_header_hide_on_scroll d-none d-lg-block o_colored_level o_cc">
+            <div class="container">
+                <div class="row align-items-center">
+                    <!-- Logo -->
+                    <div class="col-auto py-3">
+                        <t t-call="website.placeholder_header_brand">
+                            <t t-set="_link_class" t-valuef="d-inline-block"/>
                         </t>
                     </div>
-                    <div class="flex-grow-1 ms-3 d-none d-xl-block">
-                        <div class="mb-1">My Wishlist</div>
-                        <a href="/shop/wishlist"><p class="h6 mb-0">View Wishlist</p></a>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Cuenta -->
-            <div class="account-section ps-3" t-if="not user_id._is_public() or request.website.viewref('portal.user_sign_in').active">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <a href="#" class="tp-account-info-sidebar-action">
-                            <i class="dri dri-user tp-light-bg rounded-circle"/>
-                        </a>
+                    <!-- Buscador -->
+                    <div class="col py-3">
+                        <form class="mx-auto o_wsale_products_searchbar_form o_not_editable" action="/shop">
+                            <div class="input-group border tp-input-border-radius">
+                                <input type="text" name="search" class="form-control" placeholder="Encuentra todo lo que necesitas"/>
+                                <button class="btn btn-outline-secondary" type="submit">
+                                    <i class="fa fa-search"/>
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                    <div class="flex-grow-1 ms-3 d-none d-xl-block">
-                        <div t-nocache="User may vary." style="max-width: 150px;" class="text-truncate mb-1">
-                            <t t-out="not user_id._is_public() and user_id.name or 'Guest'"/>
+
+                    <!-- Secciones de cuenta, registro, carrito -->
+                    <div class="col-auto py-3 o_not_editable">
+                        <div class="d-flex align-items-center tp-account-info gap-4">
+                            <!-- Registro y Mi cuenta -->
+                            <div class="d-flex align-items-center">
+                                <a href="/web/signup" class="tp-account-info-sidebar-action me-2">Regístrate</a>
+                                <span class="px-2">|</span>
+                                <a href="#" class="tp-account-info-sidebar-action">
+                                    <i class="dri dri-user tp-light-bg rounded-circle me-2"/>
+                                    <span>
+                                        <t t-out="not user_id._is_public() and user_id.name or 'Mi cuenta'"/>
+                                    </span>
+                                </a>
+                            </div>
+
+                            <!-- Carrito -->
+                            <div class="d-flex align-items-center">
+                                <t t-nocache="The number of products is dynamic, this rendering cannot be cached.">
+                                    <t t-set="website_sale_cart_quantity" t-value="request.session['website_sale_cart_quantity'] if 'website_sale_cart_quantity' in request.session else website.sale_get_order().cart_quantity or 0"/>
+                                    <t t-set="show_cart" t-value="website.has_ecommerce_access()"/>
+                                    <div t-attf-class="o_not_editable position-relative o_wsale_my_cart tp-cart-sidebar-action #{not show_cart and 'd-none'}">
+                                        <a href="/shop/cart">
+                                            <i class="dri dri-cart tp-light-bg rounded-circle"/>
+                                            <sup class="my_cart_quantity badge bg-primary" t-out="website_sale_cart_quantity" t-att-data-order-id="request.session.get('sale_order_id', '')"/>
+                                        </a>
+                                    </div>
+                                </t>
+                            </div>
                         </div>
-                        <a class="tp-account-info-sidebar-action" href="#"><p class="h6 mb-0">My Account</p></a>
+
+                        <!-- Botón adicional -->
+                        <div class="mt-2 text-end">
+                            <a href="/contact" class="btn btn-outline-primary btn-sm">¿Deseas productos al por mayor?</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Menú de navegación -->
+        <t t-call="website.navbar">
+            <t t-set="_navbar_classes" t-valuef="d-none d-lg-block shadow-sm"/>
+            <div id="o_main_nav" class="container">
+                <t t-call="website.navbar_nav">
+                    <t t-set="_nav_class" t-value="'flex-grow-1'"/>
+                    <t t-foreach="website.menu_id.child_id" t-as="submenu">
+                        <t t-call="website.submenu">
+                            <t t-set="item_class" t-value="'nav-item'"/>
+                            <t t-set="link_class" t-value="'nav-link'"/>
+                        </t>
+                    </t>
+                </t>
+            </div>
+        </t>
+
+        <!-- Header móvil -->
+        <t t-call="theme_prime.template_header_mobile"/>
     </xpath>
 </template>
 </odoo>
