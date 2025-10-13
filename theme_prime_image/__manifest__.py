@@ -13,11 +13,11 @@
         'views/snippet/shop_offert_custom/shop_offer_6.xml',
         'views/snippet/clients_custom/clients_custom.xml',
         'views/snippet/Header_custom/header_custom.xml',
-        'views/snippet/banner_custom/snippet_banner_16.xml',
+        #'views/snippet/banner_custom/snippet_banner_16.xml',
     ],
     'assets': {
         'web.assets_frontend': [
-            'theme_prime_image/static/src/js/s_banner.js',
+           # 'theme_prime_image/static/src/js/s_banner.js',
         ],
     },
     'installable': True,
