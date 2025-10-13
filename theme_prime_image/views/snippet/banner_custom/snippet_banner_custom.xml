@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="s_cover_2" inherit_id="theme_prime.s_cover_2" name="Cover - 2 (modificado)">
+    <xpath expr="//div[@class='carousel-inner']" position="replace">
+      <div class="carousel-inner">
+
+        <!-- Slide #01 -->
+        <div class="carousel-item active pt120 pb120" data-name="Slide">
+          <picture>
+            <!-- Imagen para móviles -->
+            <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/mobile/banner1_small.jpg"/>
+            <!-- Imagen para desktop -->
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
+                 class="d-block w-100"
+                 alt="Banner 1"/>
+          </picture>
+        </div>
+
+        <!-- Slide #02 -->
+        <div class="carousel-item pt120 pb120" data-name="Slide">
+          <picture>
+            <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/mobile/banner2_small.jpg"/>
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2.jpg"
+                 class="d-block w-100"
+                 alt="Banner 2"/>
+          </picture>
+        </div>
+
+      </div>
+    </xpath>
+
+    <xpath expr="//section[contains(@class,'s_cover')]" position="inside">
+      <style>
+        .s_cover_2 img {
+          object-fit: cover;
+          height: auto;
+          max-height: 400px; /* límite en desktop */
+        }
+        @media (max-width: 767px) {
+          .s_cover_2 img {
+            max-height: 220px; /* límite en móvil */
+          }
+        }
+      </style>
+    </xpath>
+  </template>
+</odoo>
