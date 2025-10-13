@@ -3,16 +3,8 @@
 <template id="template_header_style_4_inherit" inherit_id="theme_prime.template_header_style_4" name="Header Style - 4 Inherit">
     <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto')][.//i[contains(@class,'dri-user')]]"
            position="replace">
-
         <div class="col-auto my-1">
             <div class="d-flex align-items-center">
-
-                <!-- Bloque de usuario -->
-                <div class="flex-shrink-0 me-3">
-                    <a href="#" class="tp-account-info-sidebar-action">
-                        <i class="dri dri-user tp-light-bg rounded-circle"/>
-                    </a>
-                </div>
                 <div class="flex-grow-1 d-none d-xl-block">
                     <!-- Si es público: Register | Login -->
                     <div class="d-flex align-items-center" t-if="user_id._is_public()">
@@ -32,7 +24,7 @@
                     </div>
                 </div>
 
-                <!-- Icono del carrito con contador (trasladado aquí) -->
+                <!-- Carrito incrustado -->
                 <div class="flex-shrink-0 ms-3">
                     <t t-nocache="The number of products is dynamic, this rendering cannot be cached.">
                         <t t-set="website_sale_cart_quantity"
@@ -53,12 +45,12 @@
         </div>
     </xpath>
 
-    <!-- Elimina el bloque de wishlist (icono + contador + texto) -->
+    <!-- Elimina el bloque de wishlist -->
     <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto')][.//i[contains(@class,'dri-wishlist')]]"
            position="replace"/>
 
-    <!-- Elimina el bloque de texto del carrito (My Cart + total) -->
-    <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'flex-grow-1') and .//div[text()='My Cart']]" 
+    <!-- Elimina el bloque original del carrito -->
+    <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto')][.//i[contains(@class,'dri-cart')]]"
            position="replace"/>
 
 </template>
