@@ -1,35 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<template id="template_header_style_4_inherit"
-          inherit_id="theme_prime.template_header_style_4"
-          name="Header Style - 4 Inherit">
-
+<template id="template_header_style_4_inherit_clean" inherit_id="theme_prime.template_header_style_4" name="Header Style - 4 Clean User Block">
     <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto')][.//i[contains(@class,'dri-user')]]"
            position="replace">
 
+        <!-- Bloque vacío o con lo que quieras mostrar -->
         <div class="col-auto my-1">
+            <!-- Aquí puedes dejarlo vacío o poner solo los enlaces que quieras -->
             <div class="d-flex align-items-center">
-                <div class="flex-shrink-0">
-                    <a href="#" class="tp-account-info-sidebar-action">
-                        <i class="dri dri-user tp-light-bg rounded-circle"/>
-                    </a>
-                </div>
                 <div class="flex-grow-1 ms-3 d-none d-xl-block">
-                    <div t-nocache="User may vary." style="max-width: 150px;" class="text-truncate mb-1">
-                        <t t-out="not user_id._is_public() and user_id.name or 'Guest'"/>
-                    </div>
-
-                    <!-- Si es público: Register | Login -->
+                    <!-- Ejemplo: solo mostrar Register | Login si es público -->
                     <div class="d-flex align-items-center" t-if="user_id._is_public()">
                         <a class="tp-account-info-sidebar-action me-2" href="/web/signup">Register</a>
                         <span class="mx-1">|</span>
                         <a class="tp-account-info-sidebar-action ms-2" href="/web/login">Login</a>
                     </div>
-
-                    <!-- Si está logueado: My Account -->
-                    <a class="tp-account-info-sidebar-action" t-if="not user_id._is_public()" href="/my/home">
-                        <p class="h6 mb-0">My Account</p>
-                    </a>
+                    <!-- Si está logueado, solo mostramos el nombre -->
+                    <div t-if="not user_id._is_public()" class="text-truncate mb-1" style="max-width: 150px;">
+                        <t t-out="user_id.name"/>
+                    </div>
                 </div>
             </div>
         </div>
