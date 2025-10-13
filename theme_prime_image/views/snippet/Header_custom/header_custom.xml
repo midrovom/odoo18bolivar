@@ -17,11 +17,9 @@
 
                     <!-- Si está logueado: Nombre del usuario + caret ▼ -->
                     <div t-if="not user_id._is_public()" class="d-flex align-items-center">
-                        <!-- Nombre del usuario -->
                         <span class="me-2 text-truncate" style="max-width: 150px;">
                             <t t-out="user_id.name"/>
                         </span>
-                        <!-- Solo el ícono caret ▼ -->
                         <a class="tp-account-info-sidebar-action" href="/my/home">
                             <i class="fa fa-caret-down"></i>
                         </a>
@@ -31,5 +29,12 @@
             </div>
         </div>
     </xpath>
+
+    <!-- Eliminamos el bloque "View Wishlist" -->
+    <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'flex-grow-1') and .//div[text()='My Wishlist']]" 
+           position="replace">
+        <!-- vacío: eliminamos todo el bloque -->
+    </xpath>
+
 </template>
 </odoo>
