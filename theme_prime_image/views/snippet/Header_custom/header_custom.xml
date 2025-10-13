@@ -1,4 +1,7 @@
-<template id="template_header_style_4_inherit" 
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="template_header_style_4_inherit" 
           inherit_id="theme_prime.template_header_style_4" 
           name="Header Style - 4 Inherit">
 
@@ -31,3 +34,6 @@
         </div>
     </xpath>
 </template>
+
+
+</odoo>
