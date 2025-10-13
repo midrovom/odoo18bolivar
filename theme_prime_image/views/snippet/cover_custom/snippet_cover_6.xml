@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+  <!-- Registro del nuevo cover en el grupo de snippets -->
   <template id="s_cover_custom" inherit_id="theme_prime.snippets" name="Cover - 6 Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_cover_5']" position="after">
       <t t-snippet="theme_prime_image.s_cover_custom_small"
-         string="Shop Offer - 6"
-         group="theme_prime_shop_offer"
+         string="Cover - 6"
+         group="theme_prime_cover"
          t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
         <keywords>covers, carousel</keywords>
       </t>
     </xpath>
   </template>
 
-<template id="s_cover_custom_small" name="Cover - Rounded Small Images">
-    <section class="s_cover_custom_small">
+  <!-- Template del cover -->
+  <template id="s_cover_custom_small" name="Cover - Rounded Small Images">
+    <!-- IMPORTANTE: usar la convención s_cover_X para que sea detectado como cover -->
+    <section class="s_cover_6 s_cover_custom_small">
         <t t-set="uniq" t-value="datetime.datetime.now().microsecond"/>
-        <div t-attf-id="myCarousel{{uniq}}" class="tp-custom-carousel s_carousel s_carousel_rounded carousel slide" data-bs-interval="10000">
+        <div t-attf-id="myCarousel{{uniq}}" 
+             class="tp-custom-carousel s_carousel s_carousel_rounded carousel slide" 
+             data-bs-interval="10000">
             
             <!-- Content -->
             <div class="carousel-inner">
@@ -22,11 +27,12 @@
                 <div class="carousel-item p-0 active" data-name="Slide">
                     <div class="container-fluid px-0">
                         <div class="row content g-0 justify-content-center s_col_no_bgcolor s_nb_column_fixed">
-                            <div class="col-10 col-md-8 text-center">
+                            <!-- Mantener clases de edición para Theme Prime -->
+                            <div class="col-10 col-md-8 text-center tp-editor-bg-color-n-shadow o_cc o_cc1">
                                 <img class="img img-fluid rounded shadow-sm"
                                      src="/web/image/theme_prime.s_cover_1_1"
                                      alt="Cover Image 01"
-                                     style="max-height: 350px; object-fit: cover; border-radius: 20px;"/>
+                                     style="max-height: var(--tp-cover-custom-height, 350px); object-fit: cover;"/>
                             </div>
                         </div>
                     </div>
@@ -35,11 +41,11 @@
                 <div class="carousel-item p-0" data-name="Slide">
                     <div class="container-fluid px-0">
                         <div class="row content g-0 justify-content-center s_col_no_bgcolor s_nb_column_fixed">
-                            <div class="col-10 col-md-8 text-center">
+                            <div class="col-10 col-md-8 text-center tp-editor-bg-color-n-shadow o_cc o_cc1">
                                 <img class="img img-fluid rounded shadow-sm"
                                      src="/web/image/theme_prime.s_cover_1_2"
                                      alt="Cover Image 02"
-                                     style="max-height: 350px; object-fit: cover; border-radius: 20px;"/>
+                                     style="max-height: var(--tp-cover-custom-height, 350px); object-fit: cover;"/>
                             </div>
                         </div>
                     </div>
@@ -65,5 +71,5 @@
             </div>
         </div>
     </section>
-</template>
+  </template>
 </odoo>
