@@ -1,44 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="s_cover_2" inherit_id="theme_prime.s_cover_2" name="Cover - 2 (solo imágenes)">
+  <template id="s_cover_2" inherit_id="theme_prime.s_cover_2" name="Cover - 2 (web/móvil)">
     <xpath expr="//div[@class='carousel-inner']" position="replace">
       <div class="s_cover_2">
 
-        <!-- Imagen para escritorio -->
+        <!-- Un solo <img> con dos versiones -->
         <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-             class="img-web"
-             alt="Banner Web"/>
-
-        <!-- Imagen para móvil -->
-        <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
-             class="img-mobile"
-             alt="Banner Móvil"/>
+             srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png 600w,
+                     /theme_prime_image/static/src/img/s_banner_custom/banner.png 1500w"
+             sizes="(max-width: 767px) 600px, 1500px"
+             alt="Banner adaptable"/>
 
       </div>
     </xpath>
 
     <xpath expr="//section[contains(@class,'s_cover')]" position="inside">
       <style>
-        /* Ocultar/mostrar según dispositivo */
-        .s_cover_2 .img-web {
-          display: block;
+        .s_cover_2 img {
           width: 100%;
-          height: 300px;       /* altura para web */
+          height: 300px;       /* altura en desktop */
           object-fit: cover;
         }
-        .s_cover_2 .img-mobile {
-          display: none;
-        }
-
         @media (max-width: 767px) {
-          .s_cover_2 .img-web {
-            display: none;
-          }
-          .s_cover_2 .img-mobile {
-            display: block;
-            width: 100%;
-            height: 320px;     /* altura para móvil */
-            object-fit: cover;
+          .s_cover_2 img {
+            height: 320px;     /* altura en móvil */
           }
         }
       </style>
