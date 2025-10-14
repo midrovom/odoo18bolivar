@@ -44,7 +44,7 @@
                 <hr class="my-2"/>
 
                 <!-- Nombre -->
-                <h5 class="fw-bold text-truncate" title="<t t-esc='product.name'/>">
+                <h5 class="fw-bold text-truncate" t-att-title="product.name">
                   <t t-esc="product.name"/>
                 </h5>
 
