@@ -1,21 +1,22 @@
-/* Imagen de escritorio */
-.s_cover_custom .img-web {
-  display: block !important;
+/* Ajustamos las imágenes del carrusel */
+.s_cover_2 .carousel-inner img {
+  display: block;
   width: 100vw;   /* ocupa todo el ancho de la pantalla */
   height: auto;   /* mantiene proporción */
   object-fit: cover;
+  margin: 0 auto;
 }
 
 /* Imagen móvil oculta por defecto */
-.s_cover_custom .img-mobile {
+.s_cover_2 .img-mobile {
   display: none !important;
 }
 
 @media (max-width: 767px) {
-  .s_cover_custom .img-web {
+  .s_cover_2 .img-web {
     display: none !important;
   }
-  .s_cover_custom .img-mobile {
+  .s_cover_2 .img-mobile {
     display: block !important;
     width: 100%;
     height: auto;
