@@ -40,7 +40,8 @@
           .s_cover_custom .img-mobile {
             display: block;
             width: 100%;
-            height: auto;        /* se adapta a su proporción */
+            height: auto;       /* que se adapte a su proporción */
+            max-width: 100%;
             object-fit: contain; /* mostrar completa sin recortar */
           }
         }
