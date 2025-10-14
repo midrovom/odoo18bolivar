@@ -29,35 +29,5 @@
 
       </div>
     </xpath>
-
-    <xpath expr="//section[contains(@class,'s_cover')]" position="inside">
-      <style>
-        /* Imagen de escritorio */
-        .s_cover_custom .img-web {
-          display: block !important;
-          width: 100%;
-          height: 300px;       /* altura fija para web */
-          object-fit: cover;
-        }
-
-        /* Imagen de móvil oculta por defecto */
-        .s_cover_custom .img-mobile {
-          display: none !important;
-        }
-
-        /* En pantallas pequeñas */
-        @media (max-width: 767px) {
-          .s_cover_custom .img-web {
-            display: none !important;
-          }
-          .s_cover_custom .img-mobile {
-            display: block !important;
-            width: 100%;
-            height: auto;       /* que se adapte a su proporción */
-            object-fit: contain; /* mostrar completa sin recortar */
-          }
-        }
-      </style>
-    </xpath>
   </template>
 </odoo>
