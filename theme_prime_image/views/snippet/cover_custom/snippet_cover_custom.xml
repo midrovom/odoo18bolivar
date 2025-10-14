@@ -2,6 +2,7 @@
 <odoo>
   <template id="s_cover_custom_slider" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Slider Web/Mobile">
     <xpath expr="//div[@class='carousel-inner']" position="replace">
+      <!-- Slider con soporte para personalización -->
       <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
 
         <!-- Slide #01 -->
@@ -35,13 +36,15 @@
         .s_cover_custom .img-web {
           display: block;
           width: 100%;
-          height: 300px;
+          height: 300px;       /* altura fija para web */
           object-fit: cover;
         }
+
         /* Imagen de móvil oculta por defecto */
         .s_cover_custom .img-mobile {
           display: none;
         }
+
         /* En pantallas pequeñas */
         @media (max-width: 767px) {
           .s_cover_custom .img-web {
@@ -50,8 +53,8 @@
           .s_cover_custom .img-mobile {
             display: block;
             width: 100%;
-            height: auto;
-            object-fit: contain;
+            height: auto;       /* se adapta a su proporción */
+            object-fit: contain; /* mostrar completa sin recortar */
           }
         }
       </style>
