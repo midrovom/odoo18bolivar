@@ -17,37 +17,45 @@
       object-fit: contain;
     }
 
-    h5, li, .price {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    /* Nombre del producto más grande y destacado */
+    h5 {
+      font-size: 1rem; /* tamaño base */
+      font-weight: 600;
+      margin-bottom: .4rem;
     }
 
+    /* Especificaciones más pequeñas */
+    ul {
+      font-size: 0.75rem; /* más pequeño que el nombre */
+      line-height: 1.2;
+      margin-bottom: .5rem;
+      color: #666; /* gris más claro para jerarquía visual */
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+    }
+
+    /* Precio */
     .price {
-      font-size: 1.1rem;
+      font-size: 0.9rem; /* un poco más pequeño que antes */
       color: #28a745;
     }
 
+    /* Botón */
     button {
       font-weight: 600;
       padding: .3rem 1rem;
+      font-size: 0.8rem; /* más compacto */
     }
   }
 
+  /* Íconos de atributos más pequeños */
   .attr-icon {
-    max-height: 20px;
+    max-height: 14px; /* antes 20px */
     width: auto;
     object-fit: contain;
-  }
-
-  ul {
-    padding-left: 0;
-    margin-bottom: .5rem;
-  }
-
-  li {
-    display: flex;
-    align-items: center;
-    gap: .4rem;
   }
 }
