@@ -5,7 +5,7 @@
     background: #fff;
     transition: transform .2s ease;
     margin-bottom: 1rem;
-    overflow: hidden; /* evita que texto o imágenes se salgan */
+    overflow: hidden;
 
     &:hover {
       transform: translateY(-5px);
@@ -17,19 +17,19 @@
       object-fit: contain;
     }
 
-    /* Nombre del producto más grande y destacado */
+    /* Nombre del producto */
     h5 {
-      font-size: 1rem; /* tamaño base */
+      font-size: 1rem;
       font-weight: 600;
       margin-bottom: .4rem;
     }
 
     /* Especificaciones más pequeñas */
     ul {
-      font-size: 0.75rem; /* más pequeño que el nombre */
+      font-size: 0.75rem;
       line-height: 1.2;
       margin-bottom: .5rem;
-      color: #666; /* gris más claro para jerarquía visual */
+      color: #666;
     }
 
     li {
@@ -38,9 +38,16 @@
       gap: .3rem;
     }
 
+    /* Íconos de atributos más pequeños */
+    .attr-icon {
+      max-height: 14px;
+      width: auto;
+      object-fit: contain;
+    }
+
     /* Precio */
     .price {
-      font-size: 0.9rem; /* un poco más pequeño que antes */
+      font-size: 0.9rem;
       color: #28a745;
     }
 
@@ -48,14 +55,7 @@
     button {
       font-weight: 600;
       padding: .3rem 1rem;
-      font-size: 0.8rem; /* más compacto */
+      font-size: 0.8rem;
     }
-  }
-
-  /* Íconos de atributos más pequeños */
-  .attr-icon {
-    max-height: 14px; /* antes 20px */
-    width: auto;
-    object-fit: contain;
   }
 }
