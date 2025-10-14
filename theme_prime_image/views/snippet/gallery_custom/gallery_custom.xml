@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="s_shop_offer_snippet" inherit_id="theme_prime.snippets" name="Products Gallery - 6 Registry">
+  <template id="s_gallery_snippet" inherit_id="theme_prime.snippets" name="Products Gallery - 6 Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_gallery_5']" position="after">
       <t t-snippet="theme_prime_image.s_products_gallery"
          string="Products Gallery - 6"
@@ -11,53 +11,54 @@
     </xpath>
   </template>
 
- <template id="s_products_gallery" name="Products Gallery">
-  <section class="s_products_gallery o_snippet py-4">
-    <div class="container">
-      <div class="row">
-        <t t-foreach="products" t-as="product">
-          <div class="col-6 col-md-4 col-lg-3 product-card text-center mb-4">
+  <template id="s_products_gallery" name="Products Gallery">
+    <section class="s_products_gallery o_snippet py-4">
+      <div class="container">
+        <div class="row">
+          <t t-set="products" t-value="request.env['product.template'].sudo().search([], limit=10)"/>
+          <t t-foreach="products" t-as="product">
+            <div class="col-6 col-md-4 col-lg-3 product-card text-center mb-4">
 
-            <!-- Imagen -->
-            <img t-att-src="'/web/image/product.template/%s/image_1920' % product.id"
-                 t-att-alt="product.name"
-                 class="img-fluid mb-2"/>
+              <!-- Imagen -->
+              <img t-att-src="'/web/image/product.template/%s/image_1920' % product.id"
+                   t-att-alt="product.name"
+                   class="img-fluid mb-2"/>
 
-            <!-- Línea separadora -->
-            <hr class="my-2"/>
+              <!-- Línea separadora -->
+              <hr class="my-2"/>
 
-            <!-- Nombre -->
-            <h5 class="fw-bold"><t t-esc="product.name"/></h5>
+              <!-- Nombre -->
+              <h5 class="fw-bold"><t t-esc="product.name"/></h5>
 
-            <!-- Especificaciones -->
-            <ul class="list-unstyled small text-muted">
-              <t t-foreach="product.attribute_line_ids" t-as="attr">
-                <t t-if="attr.attribute_id.name in ['Pantalla','Procesador','Memoria Ram','Rom','Camara']">
-                  <li>
-                    <strong><t t-esc="attr.attribute_id.name"/>:</strong>
-                    <t t-esc="', '.join(attr.value_ids.mapped('name'))"/>
-                  </li>
+              <!-- Especificaciones -->
+              <ul class="list-unstyled small text-muted">
+                <t t-foreach="product.attribute_line_ids" t-as="attr">
+                  <t t-if="attr.attribute_id.name in ['Pantalla','Procesador','Memoria RAM','ROM','Cámara']">
+                    <li>
+                      <strong><t t-esc="attr.attribute_id.name"/>:</strong>
+                      <t t-esc="', '.join(attr.value_ids.mapped('name'))"/>
+                    </li>
+                  </t>
                 </t>
-              </t>
-            </ul>
+              </ul>
 
-            <!-- Precio -->
-            <div class="price fw-bold mb-2">
-              $<t t-esc="product.list_price"/>
+              <!-- Precio -->
+              <div class="price fw-bold mb-2">
+                $<t t-esc="product.list_price"/>
+              </div>
+
+              <!-- Botón comprar -->
+              <form t-att-action="'/shop/cart/update'" method="post">
+                <input type="hidden" name="product_id" t-att-value="product.id"/>
+                <button type="submit" class="btn btn-primary rounded-pill">
+                  COMPRAR
+                </button>
+              </form>
+
             </div>
-
-            <!-- Botón comprar -->
-            <form t-att-action="'/shop/cart/update'" method="post">
-              <input type="hidden" name="product_id" t-att-value="product.id"/>
-              <button type="submit" class="btn btn-primary rounded-pill">
-                COMPRAR
-              </button>
-            </form>
-
-          </div>
-        </t>
+          </t>
+        </div>
       </div>
-    </div>
-  </section>
-</template>
+    </section>
+  </template>
 </odoo>
