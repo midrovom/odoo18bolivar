@@ -5,6 +5,7 @@
     background: #fff;
     transition: transform .2s ease;
     margin-bottom: 1rem;
+    overflow: hidden; /* evita que texto o imágenes se salgan */
 
     &:hover {
       transform: translateY(-5px);
@@ -14,6 +15,12 @@
     img {
       max-height: 160px;
       object-fit: contain;
+    }
+
+    h5, li, .price {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .price {
