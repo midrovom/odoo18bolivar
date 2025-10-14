@@ -5,12 +5,10 @@
       <attribute name="class">s_cover o_colored_level container-fluid</attribute>
     </xpath>
 
-    <xpath expr="//div[contains(@class,'carousel-inner')]" position="inside">
-      <t t-set="dummy"/>
-      <t t-foreach="[]" t-as="remove"/> 
-    </xpath>
-
+    <!-- Reemplazamos SOLO el contenido de carousel-inner -->
     <xpath expr="//div[contains(@class,'carousel-inner')]" position="replace_content">
+
+      <!-- Slide #01 -->
       <div class="carousel-item active" data-name="Slide">
         <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
              class="img-web"
@@ -22,13 +20,14 @@
 
       <!-- Slide #02 -->
       <div class="carousel-item" data-name="Slide">
-        <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2.png"
+        <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
              class="img-web"
              alt="Banner Web 2"/>
-        <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2_mobile.png"
+        <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
              class="img-mobile"
              alt="Banner Móvil 2"/>
       </div>
+
     </xpath>
   </template>
 </odoo>
