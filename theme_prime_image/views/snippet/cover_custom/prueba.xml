@@ -34,7 +34,7 @@
       <style>
         /* Imagen de escritorio */
         .s_cover_custom .img-web {
-          display: block;
+          display: block !important;
           width: 100%;
           height: 300px;       /* altura fija para web */
           object-fit: cover;
@@ -42,7 +42,7 @@
 
         /* Imagen de móvil oculta por defecto */
         .s_cover_custom .img-mobile {
-          display: none;
+          display: none !important;
         }
 
         /* En pantallas pequeñas */
