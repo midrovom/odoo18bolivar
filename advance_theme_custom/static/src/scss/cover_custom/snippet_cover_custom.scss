@@ -1,6 +1,6 @@
 .s_cover_custom .img-web {
   display: block !important;
-  width: 100%;     /* ocupa todo el ancho del contenedor */
+  width: auto;     /* ocupa todo el ancho del contenedor */
   height: auto;    /* mantiene la proporción original */
   object-fit: contain; /* asegura que no se recorte */
 }
