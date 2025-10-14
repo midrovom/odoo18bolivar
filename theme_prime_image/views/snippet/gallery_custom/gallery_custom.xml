@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <!-- Registro del snippet -->
+  <!-- Registro del snippet dinámico -->
   <template id="s_gallery_snippet" inherit_id="theme_prime.snippets" name="Products Gallery - 6 Registry">
-    <xpath expr="//t[@t-snippet='theme_prime.s_gallery_5']" position="after">
+    <xpath expr="//t[@t-snippet='theme_prime.s_d_products_snippet']" position="after">
       <t t-snippet="theme_prime_image.s_products_gallery"
          string="Products Gallery - 6"
-         group="theme_prime_gallery"
+         group="theme_prime_dynamic"
          t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
-        <keywords>gallery, album, portfolio</keywords>
+        <keywords>gallery, album, portfolio, products</keywords>
       </t>
     </xpath>
   </template>
@@ -95,5 +95,24 @@
         </div>
       </div>
     </section>
+  </template>
+
+  <!-- Opciones del snippet -->
+  <template id="s_products_gallery_options" inherit_id="website.snippet_options" name="Products Gallery Options">
+    <xpath expr="//div[@id='snippet_structure']" position="inside">
+      <div data-js="s_products_gallery" data-selector=".s_products_gallery">
+        <!-- Selector de color del botón -->
+        <we-select string="Color del botón"
+                   data-attribute="class"
+                   data-selector="button"
+                   data-no-preview="true">
+          <we-option string="Primario" data-value="btn btn-primary"/>
+          <we-option string="Secundario" data-value="btn btn-secondary"/>
+          <we-option string="Éxito" data-value="btn btn-success"/>
+          <we-option string="Peligro" data-value="btn btn-danger"/>
+          <we-option string="Oscuro" data-value="btn btn-dark"/>
+        </we-select>
+      </div>
+    </xpath>
   </template>
 </odoo>
