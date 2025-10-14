@@ -1,0 +1,27 @@
+.s_products_gallery {
+  .product-card {
+    border: 1px solid #eee;
+    padding: 1rem;
+    transition: transform .2s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 12px rgba(0,0,0,.1);
+    }
+
+    img {
+      max-height: 180px;
+      object-fit: contain;
+    }
+
+    .price {
+      font-size: 1.2rem;
+      color: #28a745;
+    }
+
+    button {
+      font-weight: 600;
+      padding: .5rem 1.5rem;
+    }
+  }
+}
