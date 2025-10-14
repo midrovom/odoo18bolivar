@@ -1,58 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="s_cover_custom_slider" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Slider Web/Mobile">
+  <template id="s_cover_custom" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Web/Mobile">
     <xpath expr="//div[@class='carousel-inner']" position="replace">
-      <!-- Slider editable en Odoo -->
-      <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
+      <div class="s_cover_custom">
 
-        <!-- Slide #01 -->
-        <div class="carousel-item active" data-name="Slide">
-          <!-- Imagen escritorio -->
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-               class="img-web d-block w-100"
-               alt="Banner Web 1"/>
-          <!-- Imagen móvil -->
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
-               class="img-mobile d-block w-100"
-               alt="Banner Móvil 1"/>
-        </div>
+        <!-- Imagen para escritorio -->
+        <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
+             class="img-web"
+             alt="Banner Web"/>
 
-        <!-- Slide #02 -->
-        <div class="carousel-item" data-name="Slide">
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-               class="img-web d-block w-100"
-               alt="Banner Web 2"/>
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
-               class="img-mobile d-block w-100"
-               alt="Banner Móvil 2"/>
-        </div>
+        <!-- Imagen para móvil -->
+        <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
+             class="img-mobile"
+             alt="Banner Móvil"/>
 
       </div>
     </xpath>
 
     <xpath expr="//section[contains(@class,'s_cover')]" position="inside">
       <style>
-        /* Por defecto, mostrar solo la versión web */
+        /* Imagen de escritorio */
         .s_cover_custom .img-web {
           display: block;
           width: 100%;
-          height: 300px;
+          height: 300px;       /* altura para web */
           object-fit: cover;
         }
+
+        /* Imagen de móvil oculta por defecto */
         .s_cover_custom .img-mobile {
           display: none;
         }
 
-        /* En pantallas pequeñas, ocultar web y mostrar móvil */
+        /* En pantallas pequeñas, se invierte */
         @media (max-width: 767px) {
           .s_cover_custom .img-web {
-            display: none !important;
+            display: none;
           }
           .s_cover_custom .img-mobile {
-            display: block !important;
+            display: block;
             width: 100%;
-            height: auto;
-            object-fit: contain;
+            height: 320px;     /* altura para móvil */
+            object-fit: cover;
           }
         }
       </style>
