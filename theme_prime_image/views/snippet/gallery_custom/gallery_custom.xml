@@ -11,15 +11,18 @@
     </xpath>
   </template>
 
+  <!-- Snippet de productos -->
   <template id="s_products_gallery" name="Products Gallery">
     <section class="s_products_gallery o_snippet py-4">
       <div class="container">
         <div class="row">
           <t t-set="products" t-value="request.env['product.template'].sudo().search([], limit=10)"/>
+
+          <!-- Iteramos productos -->
           <t t-foreach="products" t-as="product">
             <div class="col-6 col-md-4 col-lg-3 product-card text-center mb-4">
 
-              <!-- Imagen -->
+              <!-- Imagen del producto -->
               <img t-att-src="'/web/image/product.template/%s/image_1920' % product.id"
                    t-att-alt="product.name"
                    class="img-fluid mb-2"/>
@@ -27,10 +30,10 @@
               <!-- Línea separadora -->
               <hr class="my-2"/>
 
-              <!-- Nombre -->
+              <!-- Nombre del producto -->
               <h5 class="fw-bold"><t t-esc="product.name"/></h5>
 
-              <!-- Especificaciones -->
+              <!-- Especificaciones (atributos) -->
               <ul class="list-unstyled small text-muted">
                 <t t-foreach="product.attribute_line_ids" t-as="attr">
                   <t t-if="attr.attribute_id.name in ['Pantalla','Procesador','Memoria RAM','ROM','Cámara']">
