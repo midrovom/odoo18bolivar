@@ -1,42 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="s_cover_2" inherit_id="theme_prime.s_cover_2" name="Cover - 2 (modificado)">
+  <template id="s_cover_2" inherit_id="theme_prime.s_cover_2" name="Cover - 2 (solo imágenes)">
     <xpath expr="//div[@class='carousel-inner']" position="replace">
-      <div class="carousel-inner">
+      <div class="s_cover_2">
 
-        <!-- Slide #01 -->
-        <div class="carousel-item active pt120 pb120" data-name="Slide">
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-               srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png 600w,
-                       /theme_prime_image/static/src/img/s_banner_custom/banner.png 1500w"
-               sizes="(max-width: 767px) 600px, 1500px"
-               class="d-block w-100"
-               alt="Banner 1"/>
-        </div>
+        <!-- Imagen para escritorio -->
+        <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
+             class="img-web"
+             alt="Banner Web"/>
 
-        <!-- Slide #02 -->
-        <div class="carousel-item pt120 pb120" data-name="Slide">
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-               srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png 600w,
-                       /theme_prime_image/static/src/img/s_banner_custom/banner.png 1500w"
-               sizes="(max-width: 767px) 600px, 1500px"
-               class="d-block w-100"
-               alt="Banner 2"/>
-        </div>
+        <!-- Imagen para móvil -->
+        <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
+             class="img-mobile"
+             alt="Banner Móvil"/>
 
       </div>
     </xpath>
 
     <xpath expr="//section[contains(@class,'s_cover')]" position="inside">
       <style>
-        .s_cover_2 img {
+        /* Ocultar/mostrar según dispositivo */
+        .s_cover_2 .img-web {
+          display: block;
           width: 100%;
-          height: 300px;       /* altura en desktop */
+          height: 300px;       /* altura para web */
           object-fit: cover;
         }
+        .s_cover_2 .img-mobile {
+          display: none;
+        }
+
         @media (max-width: 767px) {
-          .s_cover_2 img {
-            height: 320px;     /* altura en móvil */
+          .s_cover_2 .img-web {
+            display: none;
+          }
+          .s_cover_2 .img-mobile {
+            display: block;
+            width: 100%;
+            height: 320px;     /* altura para móvil */
+            object-fit: cover;
           }
         }
       </style>
