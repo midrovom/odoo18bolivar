@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+  <!-- Registro del snippet -->
   <template id="s_gallery_snippet" inherit_id="theme_prime.snippets" name="Products Gallery - 6 Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_gallery_5']" position="after">
       <t t-snippet="theme_prime_image.s_products_gallery"
@@ -15,8 +16,8 @@
   <template id="s_products_gallery" name="Products Gallery">
     <section class="s_products_gallery o_snippet py-4">
       <div class="container">
-        <!-- Responsive: 2 columnas en móvil, 5 en desktop -->
-        <div class="row row-cols-2 row-cols-md-5 g-3">
+        <!-- 5 columnas por fila -->
+        <div class="row row-cols-1 row-cols-md-5 g-3">
 
           <!-- Definir categoría (si se pasa como parámetro) -->
           <t t-set="category_id" t-value="request.params.get('category_id') and int(request.params.get('category_id')) or False"/>
@@ -43,31 +44,27 @@
                 <hr class="my-2"/>
 
                 <!-- Nombre -->
-                <h5 class="fw-bold text-truncate" title="<t t-esc='product.name'/>">
-                  <t t-esc="product.name"/>
-                </h5>
+                <h5 class="fw-bold"><t t-esc="product.name"/></h5>
 
-                <!-- Especificaciones con icono + valor (excluyendo Marca) -->
-                <ul class="list-unstyled small text-muted text-start text-wrap">
+                <!-- Especificaciones con icono + valor -->
+                <ul class="list-unstyled small text-muted text-start">
                   <t t-foreach="product.attribute_line_ids" t-as="attr">
-                    <t t-if="attr.attribute_id.name != 'Marca'">
-                      <t t-foreach="attr.value_ids" t-as="val">
-                        <li class="d-flex align-items-center mb-1 text-truncate">
-                          <t t-if="val.dr_image">
-                            <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % val.id"
-                                 t-att-alt="val.name"
-                                 class="attr-icon me-2"/>
-                          </t>
-                          <span><t t-esc="val.name"/></span>
-                        </li>
-                      </t>
+                    <t t-foreach="attr.value_ids" t-as="val">
+                      <li class="d-flex align-items-center mb-1">
+                        <t t-if="val.dr_image">
+                          <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % val.id"
+                               t-att-alt="val.name"
+                               class="attr-icon me-2"/>
+                        </t>
+                        <span><t t-esc="val.name"/></span>
+                      </li>
                     </t>
                   </t>
                 </ul>
 
                 <!-- Precio + Botón responsivo -->
                 <div class="d-flex flex-wrap justify-content-between align-items-center mt-auto">
-                  <div class="price fw-bold mb-2 text-truncate">
+                  <div class="price fw-bold mb-2">
                     $<t t-esc="product.list_price"/>
                   </div>
                   <form t-att-action="'/shop/cart/update'" method="post" class="m-0 flex-grow-1 flex-md-grow-0">
