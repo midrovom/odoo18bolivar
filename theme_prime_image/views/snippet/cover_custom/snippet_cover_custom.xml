@@ -1,20 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="s_cover_2" inherit_id="theme_prime.s_cover_2" name="Cover - 2 (modificado)">
+  <template id="s_cover_custom" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Web/Mobile">
     <xpath expr="//div[@class='carousel-inner']" position="replace">
-      <div class="carousel-inner">
-        <!-- Slide #01 -->
-        <div class="carousel-item active oe_img_bg o_bg_img_center pt120 pb120"
-             style="background-image: url('/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg');"
-             data-name="Slide">
-        </div>
+      <div class="s_cover_custom">
 
-        <!-- Slide #02 -->
-        <div class="carousel-item oe_img_bg o_bg_img_center pt120 pb120"
-             style="background-image: url('/theme_prime_image/static/src/img/s_banner_custom/banner2.jpg');"
-             data-name="Slide">
-        </div>
+        <!-- Imagen para escritorio -->
+        <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
+             class="img-web"
+             alt="Banner Web"/>
+
+        <!-- Imagen para móvil -->
+        <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
+             class="img-mobile"
+             alt="Banner Móvil"/>
+
       </div>
+    </xpath>
+
+    <xpath expr="//section[contains(@class,'s_cover')]" position="inside">
+      <style>
+        /* Imagen de escritorio */
+        .s_cover_custom .img-web {
+          display: block;
+          width: 100%;
+          height: 300px;       /* altura para web */
+          object-fit: cover;
+        }
+
+        /* Imagen de móvil oculta por defecto */
+        .s_cover_custom .img-mobile {
+          display: none;
+        }
+
+        /* En pantallas pequeñas, se invierte */
+        @media (max-width: 767px) {
+          .s_cover_custom .img-web {
+            display: none;
+          }
+          .s_cover_custom .img-mobile {
+            display: block;
+            width: 100%;
+            height: 320px;     /* altura para móvil */
+            object-fit: cover;
+          }
+        }
+      </style>
     </xpath>
   </template>
 </odoo>
