@@ -16,7 +16,6 @@
     ],
     'assets': {
         'web.assets_frontend': [
-           # 'theme_prime_image/static/src/js/s_banner.js',
         ],
     },
     'installable': True,

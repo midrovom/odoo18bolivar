@@ -1,18 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="s_cover_custom" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Web/Mobile">
+  <template id="s_cover_custom_slider" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Slider Web/Mobile">
     <xpath expr="//div[@class='carousel-inner']" position="replace">
-      <div class="s_cover_custom">
+      <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
 
-        <!-- Imagen para escritorio -->
-        <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-             class="img-web"
-             alt="Banner Web"/>
+        <!-- Slide #01 -->
+        <div class="carousel-item active" data-name="Slide">
+          <!-- Imagen escritorio -->
+          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
+               class="img-web d-block w-100"
+               alt="Banner Web 1"/>
+          <!-- Imagen móvil -->
+          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
+               class="img-mobile d-block w-100"
+               alt="Banner Móvil 1"/>
+        </div>
 
-        <!-- Imagen para móvil -->
-        <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
-             class="img-mobile"
-             alt="Banner Móvil"/>
+        <!-- Slide #02 -->
+        <div class="carousel-item" data-name="Slide">
+          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
+               class="img-web d-block w-100"
+               alt="Banner Web 2"/>
+          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
+               class="img-mobile d-block w-100"
+               alt="Banner Móvil 2"/>
+        </div>
 
       </div>
     </xpath>
@@ -23,15 +35,13 @@
         .s_cover_custom .img-web {
           display: block;
           width: 100%;
-          height: 300px;       /* altura fija para web */
+          height: 300px;
           object-fit: cover;
         }
-
         /* Imagen de móvil oculta por defecto */
         .s_cover_custom .img-mobile {
           display: none;
         }
-
         /* En pantallas pequeñas */
         @media (max-width: 767px) {
           .s_cover_custom .img-web {
@@ -40,9 +50,8 @@
           .s_cover_custom .img-mobile {
             display: block;
             width: 100%;
-            height: auto;       /* que se adapte a su proporción */
-            max-width: 100%;
-            object-fit: contain; /* mostrar completa sin recortar */
+            height: auto;
+            object-fit: contain;
           }
         }
       </style>
