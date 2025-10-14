@@ -1,29 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="s_cover_custom_slider" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Slider Web/Mobile">
+  <template id="s_cover_custom_slider" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Slider Web/Mobile Full Width">
+    <xpath expr="//section[contains(@class,'s_cover')]" position="attributes">
+      <attribute name="class">s_cover o_colored_level container-fluid</attribute>
+    </xpath>
+
+    <!-- Reemplazamos el carrusel -->
     <xpath expr="//div[contains(@class,'carousel-inner')]" position="replace">
-      <!-- Activamos el modo slider -->
-      <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
+      <div class="s_cover_custom" data-oe-slideshow="true">
 
         <!-- Slide #01 -->
         <div class="carousel-item active" data-name="Slide">
-          <!-- Imagen escritorio -->
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-               class="img-web d-block w-100"
+               class="img-web"
                alt="Banner Web"/>
-          <!-- Imagen móvil -->
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
-               class="img-mobile d-block w-100"
+               class="img-mobile"
                alt="Banner Móvil"/>
         </div>
 
-        <!-- Slide #02 (ejemplo, podrás añadir más desde el editor) -->
+        <!-- Slide #02 -->
         <div class="carousel-item" data-name="Slide">
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2.png"
-               class="img-web d-block w-100"
+               class="img-web"
                alt="Banner Web 2"/>
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2_mobile.png"
-               class="img-mobile d-block w-100"
+               class="img-mobile"
                alt="Banner Móvil 2"/>
         </div>
 

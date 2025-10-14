@@ -1,10 +1,13 @@
+/* Imagen de escritorio */
 .s_cover_custom .img-web {
   display: block !important;
-  width: auto;     /* ocupa todo el ancho del contenedor */
-  height: auto;    /* mantiene la proporción original */
-  object-fit: contain; /* asegura que no se recorte */
+  width: 100vw;   /* ocupa todo el ancho de la pantalla */
+  height: auto;   /* mantiene proporción */
+  object-fit: contain; /* no recorta, muestra completa */
+  margin: 0 auto;
 }
 
+/* Imagen de móvil oculta por defecto */
 .s_cover_custom .img-mobile {
   display: none !important;
 }
@@ -16,7 +19,7 @@
   .s_cover_custom .img-mobile {
     display: block !important;
     width: 100%;
-    height: auto;       /* se adapta a su proporción */
-    object-fit: contain; /* mostrar completa sin recortar */
+    height: auto;
+    object-fit: contain;
   }
 }
