@@ -5,7 +5,7 @@
       <div class="s_cover_custom">
 
         <!-- Imagen para escritorio -->
-        <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
+        <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_web.png"
              class="img-web"
              alt="Banner Web"/>
 
@@ -23,7 +23,7 @@
         .s_cover_custom .img-web {
           display: block;
           width: 100%;
-          height: 300px;       /* altura para web */
+          height: 300px;       /* altura fija para web */
           object-fit: cover;
         }
 
@@ -32,7 +32,7 @@
           display: none;
         }
 
-        /* En pantallas pequeñas, se invierte */
+        /* En pantallas pequeñas */
         @media (max-width: 767px) {
           .s_cover_custom .img-web {
             display: none;
@@ -40,8 +40,9 @@
           .s_cover_custom .img-mobile {
             display: block;
             width: 100%;
-            height: 320px;     /* altura para móvil */
-            object-fit: cover;
+            height: auto;       /* que se adapte a su proporción */
+            max-width: 100%;
+            object-fit: contain; /* mostrar completa sin recortar */
           }
         }
       </style>
