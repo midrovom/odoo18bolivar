@@ -11,26 +11,29 @@
     </xpath>
   </template>
 
+  <!-- Snippet de productos -->
   <template id="s_products_gallery" name="Products Gallery">
     <section class="s_products_gallery o_snippet py-4">
       <div class="container">
-        <!-- Responsive: 2 columnas en móvil, 5 en desktop -->
-        <div class="row row-cols-2 row-cols-md-5 g-3">
-
+        <div class="row g-3">
+          
           <!-- Definir categoría (si se pasa como parámetro) -->
           <t t-set="category_id" t-value="request.params.get('category_id') and int(request.params.get('category_id')) or False"/>
 
           <!-- Selección de productos -->
           <t t-if="category_id">
-            <t t-set="products" t-value="request.env['product.template'].sudo().search([('public_categ_ids','in',[category_id])], limit=10)"/>
+            <t t-set="products" 
+               t-value="request.env['product.template'].sudo().search([('public_categ_ids','in',[category_id])], limit=10)"/>
           </t>
           <t t-else="">
-            <t t-set="products" t-value="request.env['product.template'].sudo().search([], limit=10)"/>
+            <t t-set="products" 
+               t-value="request.env['product.template'].sudo().search([], limit=10)"/>
           </t>
 
           <!-- Iterar productos -->
           <t t-foreach="products" t-as="product">
-            <div class="col">
+            <!-- col-6 = 2 por fila en móvil / col-md-2 = 5 por fila en desktop -->
+            <div class="col-6 col-md-2">
               <div class="product-card text-center p-3 h-100">
 
                 <!-- Imagen del producto -->
@@ -38,7 +41,6 @@
                      t-att-alt="product.name"
                      class="img-fluid mb-2"/>
 
-                <!-- Línea separadora -->
                 <hr class="my-2"/>
 
                 <!-- Nombre -->
@@ -69,9 +71,11 @@
                   <div class="price fw-bold mb-2 text-truncate">
                     $<t t-esc="product.list_price"/>
                   </div>
-                  <form t-att-action="'/shop/cart/update'" method="post" class="m-0 flex-grow-1 flex-md-grow-0">
+                  <form t-att-action="'/shop/cart/update'" method="post" 
+                        class="m-0 flex-grow-1 flex-md-grow-0">
                     <input type="hidden" name="product_id" t-att-value="product.id"/>
-                    <button type="submit" class="btn btn-primary rounded-pill btn-sm w-100 w-md-auto mt-2 mt-md-0">
+                    <button type="submit" 
+                            class="btn btn-primary rounded-pill btn-sm w-100 w-md-auto mt-2 mt-md-0">
                       COMPRAR
                     </button>
                   </form>
