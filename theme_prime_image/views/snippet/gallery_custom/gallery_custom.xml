@@ -2,10 +2,10 @@
 <odoo>
   <!-- Registro del snippet -->
   <template id="s_gallery_snippet" inherit_id="theme_prime.snippets" name="Products Gallery - 6 Registry">
-    <xpath expr="//t[@t-snippet='theme_prime.s_d_products_snippet']" position="after">
+    <xpath expr="//t[@t-snippet='theme_prime.s_gallery_5']" position="after">
       <t t-snippet="theme_prime_image.s_products_gallery"
          string="Products Gallery - 6"
-         group="theme_prime_dynamic"
+         group="theme_prime_gallery"
          t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
         <keywords>gallery, album, portfolio</keywords>
       </t>
@@ -14,27 +14,20 @@
 
   <!-- Snippet de productos -->
   <template id="s_products_gallery" name="Products Gallery">
-    <section class="s_products_gallery o_snippet py-4"
-             data-oe-model="website.snippet"
-             data-oe-field="category_id"
-             data-oe-type="many2one"
-             data-oe-expression="product.public.category">
-
-      <!-- Texto del botón editable -->
-      <t t-set="button_text" t-value="'COMPRAR'"/>
-
+    <section class="s_products_gallery o_snippet py-4">
       <div class="container">
         <!-- Responsive: 2 columnas en móvil, 5 en desktop -->
         <div class="row row-cols-2 row-cols-md-5 g-3">
 
+          <!-- Definir categoría (si se pasa como parámetro) -->
+          <t t-set="category_id" t-value="request.params.get('category_id') and int(request.params.get('category_id')) or False"/>
+
           <!-- Selección de productos -->
           <t t-if="category_id">
-            <t t-set="products"
-               t-value="request.env['product.template'].sudo().search([('public_categ_ids','child_of', category_id)], limit=10)"/>
+            <t t-set="products" t-value="request.env['product.template'].sudo().search([('public_categ_ids','in',[category_id])], limit=10)"/>
           </t>
           <t t-else="">
-            <t t-set="products"
-               t-value="request.env['product.template'].sudo().search([], limit=10)"/>
+            <t t-set="products" t-value="request.env['product.template'].sudo().search([], limit=10)"/>
           </t>
 
           <!-- Iterar productos -->
@@ -47,6 +40,7 @@
                      t-att-alt="product.name"
                      class="img-fluid mb-2"/>
 
+                <!-- Línea separadora -->
                 <hr class="my-2"/>
 
                 <!-- Nombre -->
@@ -77,14 +71,10 @@
                   <div class="price fw-bold mb-2 text-truncate">
                     $<t t-esc="product.list_price"/>
                   </div>
-                  <form t-att-action="'/shop/cart/update'" method="post"
-                        class="m-0 flex-grow-1 flex-md-grow-0">
+                  <form t-att-action="'/shop/cart/update'" method="post" class="m-0 flex-grow-1 flex-md-grow-0">
                     <input type="hidden" name="product_id" t-att-value="product.id"/>
-                    <button type="submit"
-                            class="btn btn-primary rounded-pill btn-sm w-100 w-md-auto mt-2 mt-md-0"
-                            data-oe-editable="true"
-                            data-oe-expression="button_text">
-                      <t t-esc="button_text or 'COMPRAR'"/>
+                    <button type="submit" class="btn btn-primary rounded-pill btn-sm w-100 w-md-auto mt-2 mt-md-0">
+                      COMPRAR
                     </button>
                   </form>
                 </div>
