@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <!-- Registro del snippet dinámico -->
   <template id="s_gallery_snippet" inherit_id="theme_prime.snippets" name="Products Gallery - 6 Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_d_products_snippet']" position="after">
       <t t-snippet="theme_prime_image.s_products_gallery"
@@ -12,7 +11,6 @@
     </xpath>
   </template>
 
-  <!-- Snippet de productos -->
   <template id="s_products_gallery" name="Products Gallery">
     <section class="s_products_gallery o_snippet py-4"
              data-oe-model="website.snippet"
@@ -20,14 +18,9 @@
              data-oe-type="many2one"
              data-oe-expression="product.public.category">
 
-      <!-- Texto del botón editable -->
       <t t-set="button_text" t-value="'COMPRAR'"/>
-
       <div class="container">
-        <!-- Responsive: 2 columnas en móvil, 5 en desktop -->
         <div class="row row-cols-2 row-cols-md-5 g-3">
-
-          <!-- Selección de productos -->
           <t t-if="category_id">
             <t t-set="products"
                t-value="request.env['product.template'].sudo().search([('public_categ_ids','child_of', category_id)], limit=10)"/>
@@ -48,13 +41,9 @@
                      class="img-fluid mb-2"/>
 
                 <hr class="my-2"/>
-
-                <!-- Nombre -->
                 <h5 class="fw-bold text-truncate" t-att-title="product.name">
                   <t t-esc="product.name"/>
                 </h5>
-
-                <!-- Especificaciones con icono + valor (excluyendo Marca) -->
                 <ul class="list-unstyled small text-muted text-start text-wrap">
                   <t t-foreach="product.attribute_line_ids" t-as="attr">
                     <t t-if="attr.attribute_id.name != 'Marca'">
