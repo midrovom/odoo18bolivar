@@ -46,19 +46,17 @@
                 <!-- Nombre -->
                 <h5 class="fw-bold"><t t-esc="product.name"/></h5>
 
-                <!-- Especificaciones con imagen de atributo -->
+                <!-- Especificaciones con icono + valor -->
                 <ul class="list-unstyled small text-muted text-start">
                   <t t-foreach="product.attribute_line_ids" t-as="attr">
                     <t t-foreach="attr.value_ids" t-as="val">
-                      <li>
-                        <t t-if="val.image_1920">
-                          <img t-att-src="'/web/image/product.attribute.value/%s/image_1920' % val.id"
+                      <li class="d-flex align-items-center mb-1">
+                        <t t-if="val.dr_image">
+                          <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % val.id"
                                t-att-alt="val.name"
                                class="attr-icon me-2"/>
                         </t>
-                        <t t-else="">
-                          <span><t t-esc="val.name"/></span>
-                        </t>
+                        <span><t t-esc="val.name"/></span>
                       </li>
                     </t>
                   </t>
