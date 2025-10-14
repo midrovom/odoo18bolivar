@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="s_cover_custom_slider" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Slider Web/Mobile Full Width">
-    <xpath expr="//section[contains(@class,'s_cover')]" position="attributes">
-      <attribute name="class">s_cover o_colored_level container-fluid</attribute>
+    <xpath expr="//section[contains(@class,'s_cover_2')]" position="attributes">
+      <attribute name="class">s_cover_2 container-fluid</attribute>
     </xpath>
 
+    <!-- Entramos al div.carousel-inner -->
     <xpath expr="//div[contains(@class,'carousel-inner')]" position="inside">
+      <!-- Reemplazamos todos los hijos (slides originales) -->
       <xpath expr="./*" position="replace">
 
         <!-- Slide #01 -->
@@ -20,10 +22,10 @@
 
         <!-- Slide #02 -->
         <div class="carousel-item" data-name="Slide">
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
+          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2.png"
                class="img-web"
                alt="Banner Web 2"/>
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
+          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2_mobile.png"
                class="img-mobile"
                alt="Banner Móvil 2"/>
         </div>

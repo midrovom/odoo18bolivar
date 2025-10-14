@@ -3,11 +3,10 @@
   display: block !important;
   width: 100vw;   /* ocupa todo el ancho de la pantalla */
   height: auto;   /* mantiene proporción */
-  object-fit: contain; /* no recorta, muestra completa */
-  margin: 0 auto;
+  object-fit: cover;
 }
 
-/* Imagen de móvil oculta por defecto */
+/* Imagen móvil oculta por defecto */
 .s_cover_custom .img-mobile {
   display: none !important;
 }
