@@ -86,6 +86,38 @@
           </div>
         </div>
       </div>
+
+      <!-- Estilos -->
+      <style>
+        .s_clients_brands .brand-logo {
+          max-height: 50px;
+          filter: grayscale(100%);
+          transition: all 0.3s ease;
+        }
+        .s_clients_brands .brand-name {
+          font-weight: 600;
+          font-size: 1.1rem;
+          color: #6c757d;
+          transition: all 0.3s ease;
+        }
+        .s_clients_brands .brand-link:hover .brand-logo {
+          filter: grayscale(0%) saturate(2);
+          transform: scale(1.05);
+        }
+        .s_clients_brands .brand-link:hover .brand-name {
+          color: #28a745;
+        }
+
+        /* Infinite scroll logos en móvil */
+        .logo-slider {
+          display: flex;
+          animation: scroll-logos 8s linear infinite;
+        }
+        @keyframes scroll-logos {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+      </style>
     </section>
   </template>
 </odoo>
