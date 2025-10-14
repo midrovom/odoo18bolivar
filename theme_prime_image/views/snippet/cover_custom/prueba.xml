@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="s_cover_custom_slider" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Slider Web/Mobile">
+    <xpath expr="//div[@class='carousel-inner']" position="replace">
+      <!-- Activamos el modo slider -->
+      <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
+
+        <!-- Slide #01 -->
+        <div class="carousel-item active" data-name="Slide">
+          <!-- Imagen escritorio -->
+          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_web.png"
+               class="img-web d-block w-100"
+               alt="Banner Web"/>
+          <!-- Imagen móvil -->
+          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
+               class="img-mobile d-block w-100"
+               alt="Banner Móvil"/>
+        </div>
+
+        <!-- Slide #02 (ejemplo, podrás añadir más desde el editor) -->
+        <div class="carousel-item" data-name="Slide">
+          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2_web.png"
+               class="img-web d-block w-100"
+               alt="Banner Web 2"/>
+          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2_mobile.png"
+               class="img-mobile d-block w-100"
+               alt="Banner Móvil 2"/>
+        </div>
+
+      </div>
+    </xpath>
+
+    <xpath expr="//section[contains(@class,'s_cover')]" position="inside">
+      <style>
+        /* Imagen de escritorio */
+        .s_cover_custom .img-web {
+          display: block;
+          width: 100%;
+          height: 300px;
+          object-fit: cover;
+        }
+
+        /* Imagen de móvil oculta por defecto */
+        .s_cover_custom .img-mobile {
+          display: none;
+        }
+
+        /* En pantallas pequeñas */
+        @media (max-width: 767px) {
+          .s_cover_custom .img-web {
+            display: none !important;
+          }
+          .s_cover_custom .img-mobile {
+            display: block !important;
+            width: 100%;
+            height: auto;
+            object-fit: contain; /* mostrar completa sin recortar */
+          }
+        }
+      </style>
+    </xpath>
+  </template>
+</odoo>
