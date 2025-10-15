@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+  <template id="extend_product_card_styles" inherit_id="theme_prime.snippet_options">
+    <xpath expr="//we-select[@data-attribute='style']/we-option[@data-value='s_card_style_8']" position="after">
+      <we-option string="Card Style 8 Custom" data-value="s_card_style_8_custom"
+                 data-img="/tu_modulo/static/src/img/options/s_card_style_8_custom.svg"/>
+    </xpath>
+  </template>
+
   <template id="s_card_style_8_custom" name="Card Style 8 Custom">
     <t t-name="s_card_style_8_custom">
       <div t-attf-class="card h-100 tp-rounded-border border s_card_style_8_custom dr-image-fill-#{widget.imageFill} dr-image-size-#{widget.imageSize}">
