@@ -18,7 +18,7 @@
     ],
     'assets': {
         'web.assets_frontend': [
-            'theme_prime_image/static/src/xml/style_8.xml',
+            #'theme_prime_image/static/src/xml/style_8.xml',
         ],
     },
     'installable': True,

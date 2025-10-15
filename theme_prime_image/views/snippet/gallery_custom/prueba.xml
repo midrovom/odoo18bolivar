@@ -1,101 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <!-- Registro del snippet -->
   <template id="s_gallery_snippet" inherit_id="theme_prime.snippets" name="Products Gallery - 6 Registry">
-    <xpath expr="//t[@t-snippet='theme_prime.s_gallery_5']" position="after">
-      <t t-snippet="theme_prime_image.s_products_gallery"
+    <xpath expr="//t[@t-snippet='theme_prime.theme_prime.s_banner_15']" position="after">
+      <t t-snippet="theme_prime_image.s_products_gallery_simple"
          string="Products Gallery - 6"
-         group="theme_prime_gallery"
+         group="theme_prime_banner"
          t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
-        <keywords>gallery, album, portfolio</keywords>
+        <keywords>banner, hero</keywords>
       </t>
     </xpath>
   </template>
 
-  <!-- Snippet de productos -->
-  <template id="s_products_gallery" name="Products Gallery">
-    <section class="s_products_gallery o_snippet py-4">
-      <div class="container">
-        <!-- Responsive: 2 columnas en móvil, 5 en desktop -->
-        <div class="row row-cols-2 row-cols-md-5 g-3">
+<template id="s_products_gallery_simple" name="Products Gallery Simple">
+  <section class="s_products_gallery_simple o_snippet py-4">
+    <div class="container">
+      <!-- Responsive: 2 columnas en móvil, 5 en desktop -->
+      <div class="row row-cols-2 row-cols-md-5 g-3">
 
-          <!-- Definir categoría (si se pasa como parámetro) -->
-          <t t-set="category_id" t-value="request.params.get('category_id') and int(request.params.get('category_id')) or False"/>
+        <!-- Selección de productos (limit 5, sin categoría) -->
+        <t t-set="products" t-value="request.env['product.template'].sudo().search([], limit=5)"/>
 
-          <!-- Selección de productos -->
-          <t t-if="category_id">
-            <t t-set="products" t-value="request.env['product.template'].sudo().search([('public_categ_ids','in',[category_id])], limit=10)"/>
-          </t>
-          <t t-else="">
-            <t t-set="products" t-value="request.env['product.template'].sudo().search([], limit=10)"/>
-          </t>
+        <!-- Iterar productos -->
+        <t t-foreach="products" t-as="product">
+          <div class="col">
+            <div class="product-card text-center p-3 h-100">
 
-          <!-- Iterar productos -->
-          <t t-foreach="products" t-as="product" t-foreach-index="i">
+              <!-- Imagen del producto -->
+              <img t-att-src="'/web/image/product.template/%s/image_1920' % product.id"
+                   t-att-alt="product.name"
+                   class="img-fluid mb-2"/>
 
-            <!-- Botón Ver más antes de la 5ta card -->
-            <t t-if="i == 4">
-              <div class="col text-center">
-                <a t-att-href="'/shop/category/%s' % category_id if category_id else '/shop'"
-                   class="btn btn-primary rounded-pill px-4 mb-3">
-                  Ver más
-                </a>
-              </div>
-            </t>
+              <!-- Línea separadora -->
+              <hr class="my-2"/>
 
-            <div class="col">
-              <div class="product-card text-center p-3 h-100">
+              <!-- Nombre -->
+              <h5 class="fw-bold text-truncate" t-att-title="product.name">
+                <t t-esc="product.name"/>
+              </h5>
 
-                <!-- Imagen del producto -->
-                <img t-att-src="'/web/image/product.template/%s/image_1920' % product.id"
-                     t-att-alt="product.name"
-                     class="img-fluid mb-2"/>
-
-                <!-- Línea separadora -->
-                <hr class="my-2"/>
-
-                <!-- Nombre -->
-                <h5 class="fw-bold text-truncate" t-att-title="product.name">
-                  <t t-esc="product.name"/>
-                </h5>
-
-                <!-- Especificaciones con icono + valor (excluyendo Marca) -->
-                <ul class="list-unstyled small text-muted text-start text-wrap">
-                  <t t-foreach="product.attribute_line_ids" t-as="attr">
-                    <t t-if="attr.attribute_id.name != 'Marca'">
-                      <t t-foreach="attr.value_ids" t-as="val">
-                        <li class="d-flex align-items-center mb-1 text-truncate">
-                          <t t-if="val.dr_image">
-                            <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % val.id"
-                                 t-att-alt="val.name"
-                                 class="attr-icon me-2"/>
-                          </t>
-                          <span><t t-esc="val.name"/></span>
-                        </li>
-                      </t>
+              <!-- Especificaciones con icono + valor (excluyendo Marca) -->
+              <ul class="list-unstyled small text-muted text-start text-wrap">
+                <t t-foreach="product.attribute_line_ids" t-as="attr">
+                  <t t-if="attr.attribute_id.name != 'Marca'">
+                    <t t-foreach="attr.value_ids" t-as="val">
+                      <li class="d-flex align-items-center mb-1 text-truncate">
+                        <t t-if="val.dr_image">
+                          <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % val.id"
+                               t-att-alt="val.name"
+                               class="attr-icon me-2"/>
+                        </t>
+                        <span><t t-esc="val.name"/></span>
+                      </li>
                     </t>
                   </t>
-                </ul>
+                </t>
+              </ul>
 
-                <!-- Precio + Botón responsivo -->
-                <div class="d-flex flex-wrap justify-content-between align-items-center mt-auto">
-                  <div class="price fw-bold mb-2 text-truncate">
-                    $<t t-esc="product.list_price"/>
-                  </div>
-                  <form t-att-action="'/shop/cart/update'" method="post" class="m-0 flex-grow-1 flex-md-grow-0">
-                    <input type="hidden" name="product_id" t-att-value="product.id"/>
-                    <button type="submit"
-                            class="btn o_we_button rounded-pill btn-sm w-100 w-md-auto mt-2 mt-md-0">
-                      <span>COMPRAR</span>
-                    </button>
-                  </form>
-                </div>
-
-              </div>
             </div>
-          </t>
-        </div>
+          </div>
+        </t>
       </div>
-    </section>
-  </template>
+    </div>
+  </section>
+</template>
 </odoo>
+
+
