@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <!-- Registro del snippet -->
   <template id="s_gallery_snippet" inherit_id="theme_prime.snippets" name="Products Gallery - 6 Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_gallery_5']" position="after">
-      <t t-snippet="theme_prime_image.s_banner_9_products_dynamic"
+      <t t-snippet="theme_prime_image.s_banner_9_products_two_cols"
          string="Products Gallery - 6"
          group="theme_prime_gallery"
          t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
@@ -12,104 +11,69 @@
     </xpath>
   </template>
 
-  <template id="s_banner_9_products_dynamic" name="Banner 9 Products Dynamic">
-    <section class="s_banner_9_products o_container mt-5 mb-5 bg-white"
-             style="max-width:1000px; margin:40px auto; padding:40px 0;">
 
-      <div class="container">
-        <div class="row">
+<template id="s_banner_9_products_two_cols" name="Banner 9 Products 2 Cols">
+  <section class="s_banner_9_products o_container mt-5 mb-5 bg-white"
+           style="max-width:1000px; margin:40px auto; padding:40px 0;">
 
-          <!-- Botón editable como en Banner 9 -->
-          <div class="text-center mb-4">
-            <a href="/shop/category/celulares-2"
-               class="btn btn-primary rounded-pill px-4">
-              Ver más
-            </a>
-          </div>
+    <div class="container">
+      <div class="row">
 
-          <!-- Obtener la URL desde el botón -->
-          <t t-set="category_url" t-value="'/shop/category/celulares-2'"/>
-
-          <!-- Extraer el slug de la URL -->
-          <t t-set="slug" t-value="category_url.split('/shop/category/')[-1]"/>
-
-          <!-- Buscar categoría por slug -->
-          <t t-set="category"
-             t-value="request.env['product.public.category'].sudo().search([('slug','=', slug)], limit=1)"/>
-
-          <!-- Selección de productos -->
-          <t t-if="category">
-            <t t-set="products"
-               t-value="request.env['product.template'].sudo().search([('public_categ_ids','in',[category.id])], limit=10)"/>
-          </t>
-          <t t-else="">
-            <t t-set="products"
-               t-value="request.env['product.template'].sudo().search([], limit=10)"/>
-          </t>
-
-          <!-- Mostrar productos en 2 columnas -->
-          <div class="col-md-6">
-            <t t-foreach="products[0:5]" t-as="product">
-              <div class="card border rounded mb-3 h-100">
-                <img t-att-src="'/web/image/product.template/%s/image_1920' % product.id"
-                     t-att-alt="product.name"
-                     class="img img-fluid card-img-top rounded-top"/>
-                <div class="p-3 text-center">
-                  <h6 class="fw-bold text-truncate"><t t-esc="product.name"/></h6>
-                  <div class="price fw-bold mb-2">$<t t-esc="product.list_price"/></div>
-                  <ul class="list-unstyled small text-muted text-start text-wrap">
-                    <t t-foreach="product.attribute_line_ids" t-as="attr">
-                      <t t-if="attr.attribute_id.name != 'Marca'">
-                        <t t-foreach="attr.value_ids" t-as="val">
-                          <li class="d-flex align-items-center mb-1 text-truncate">
-                            <t t-if="val.dr_image">
-                              <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % val.id"
-                                   t-att-alt="val.name"
-                                   class="attr-icon me-2"/>
-                            </t>
-                            <span><t t-esc="val.name"/></span>
-                          </li>
-                        </t>
-                      </t>
-                    </t>
-                  </ul>
-                </div>
+        <!-- Columna izquierda -->
+        <div class="col-md-6">
+          <t t-foreach="products[0:5]" t-as="product" t-foreach-index="i">
+            
+            <!-- Botón Ver más antes del 5to producto -->
+            <t t-if="i == 4">
+              <div class="text-center mb-2">
+                <a t-att-href="category_url"
+                   class="btn btn-primary rounded-pill px-4">
+                  Ver más
+                </a>
               </div>
             </t>
-          </div>
 
-          <div class="col-md-6">
-            <t t-foreach="products[5:10]" t-as="product">
-              <div class="card border rounded mb-3 h-100">
-                <img t-att-src="'/web/image/product.template/%s/image_1920' % product.id"
-                     t-att-alt="product.name"
-                     class="img img-fluid card-img-top rounded-top"/>
-                <div class="p-3 text-center">
-                  <h6 class="fw-bold text-truncate"><t t-esc="product.name"/></h6>
-                  <div class="price fw-bold mb-2">$<t t-esc="product.list_price"/></div>
-                  <ul class="list-unstyled small text-muted text-start text-wrap">
-                    <t t-foreach="product.attribute_line_ids" t-as="attr">
-                      <t t-if="attr.attribute_id.name != 'Marca'">
-                        <t t-foreach="attr.value_ids" t-as="val">
-                          <li class="d-flex align-items-center mb-1 text-truncate">
-                            <t t-if="val.dr_image">
-                              <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % val.id"
-                                   t-att-alt="val.name"
-                                   class="attr-icon me-2"/>
-                            </t>
-                            <span><t t-esc="val.name"/></span>
-                          </li>
-                        </t>
-                      </t>
-                    </t>
-                  </ul>
-                </div>
+            <!-- Card de producto -->
+            <div class="card border rounded mb-3 h-100">
+              <img t-att-src="'/web/image/product.template/%s/image_1920' % product.id"
+                   t-att-alt="product.name"
+                   class="img img-fluid card-img-top rounded-top"/>
+              <div class="p-3 text-center">
+                <h6 class="fw-bold text-truncate"><t t-esc="product.name"/></h6>
+                <div class="price fw-bold mb-2">$<t t-esc="product.list_price"/></div>
               </div>
-            </t>
-          </div>
-
+            </div>
+          </t>
         </div>
+
+        <!-- Columna derecha -->
+        <div class="col-md-6">
+          <t t-foreach="products[5:10]" t-as="product" t-foreach-index="j">
+            
+            <!-- Botón Ver más antes del 5to producto -->
+            <t t-if="j == 4">
+              <div class="text-center mb-2">
+                <a t-att-href="category_url"
+                   class="btn btn-primary rounded-pill px-4">
+                  Ver más
+                </a>
+              </div>
+            </t>
+
+            <!-- Card de producto -->
+            <div class="card border rounded mb-3 h-100">
+              <img t-att-src="'/web/image/product.template/%s/image_1920' % product.id"
+                   t-att-alt="product.name"
+                   class="img img-fluid card-img-top rounded-top"/>
+              <div class="p-3 text-center">
+                <h6 class="fw-bold text-truncate"><t t-esc="product.name"/></h6>
+                <div class="price fw-bold mb-2">$<t t-esc="product.list_price"/></div>
+              </div>
+            </div>
+          </t>
+        </div>
+
       </div>
-    </section>
-  </template>
-</odoo>
+    </div>
+  </section>
+</template>
