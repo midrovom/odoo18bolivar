@@ -20,14 +20,7 @@
 
           <!-- Detectar categoría desde la URL -->
           <t t-set="category_id" t-value="request.params.get('category') and int(request.params.get('category')) or False"/>
-
-          <!-- Obtener productos de la categoría -->
-          <t t-if="category_id">
-            <t t-set="products" t-value="request.env['product.template'].sudo().search([('public_categ_ids','in',[category_id])])"/>
-          </t>
-          <t t-else="">
-            <t t-set="products" t-value="request.env['product.template'].sudo().search([])"/>
-          </t>
+          <t t-set="products" t-value="category_id and request.env['product.template'].sudo().search([('public_categ_ids','in',[category_id])]) or []"/>
 
           <!-- Mostrar 10 tarjetas fijas -->
           <t t-foreach="range(10)" t-as="i">
