@@ -13,7 +13,7 @@
         'views/snippet/shop_offert_custom/shop_offer_6.xml',
         'views/snippet/clients_custom/clients_custom.xml',
         'views/snippet/Header_custom/header_custom.xml',
-        #'views/snippet/gallery_custom/prueba.xml',
+        'views/snippet/gallery_custom/prueba.xml',
         #'views/snippet/gallery_custom/gallery_custom.xml',
     ],
     'assets': {
