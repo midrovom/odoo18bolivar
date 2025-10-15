@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="s_gallery_snippet" inherit_id="theme_prime.snippets" name="Products Gallery - 6 Registry">
-    <xpath expr="//t[@t-snippet='theme_prime.s_gallery_5']" position="after">
+    <xpath expr="//t[@t-snippet='theme_prime.s_banner_15']" position="after">
       <t t-snippet="theme_prime_image.s_banner_9_products_two_cols"
          string="Products Gallery - 6"
-         group="theme_prime_gallery"
+         group="theme_prime_banner"
          t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
         <keywords>gallery, album, portfolio</keywords>
       </t>
