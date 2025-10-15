@@ -4,19 +4,18 @@ odoo.define('theme_prime_extension.dynamic_gallery', function (require) {
 
   publicWidget.registry.DynamicGallery = publicWidget.Widget.extend({
     selector: '.s_products_gallery',
-    events: {
-      'click .o_we_button': '_onButtonClick',
-    },
+    start: function () {
+      const button = this.$el.find('.o_we_button');
+      if (!button.length) return;
 
-    _onButtonClick: function (ev) {
-      ev.preventDefault();
-      const url = ev.currentTarget.getAttribute('href');
-      const match = url.match(/category\/[\w-]+-(\d+)/);
-      const categoryId = match ? parseInt(match[1]) : null;
+      const url = button.attr('href');
+      const match = url.match(/category\/([\w-]+)-\d+/);
+      const slug = match ? match[1].replace(/-/g, ' ') : null;
 
-      if (categoryId) {
-        ajax.jsonRpc('/get_products_by_category', 'call', { category_id: categoryId })
-          .then(products => this._renderCards(products));
+      if (slug) {
+        ajax.jsonRpc('/get_products_by_slug', 'call', { slug }).then(products => {
+          this._renderCards(products);
+        });
       }
     },
 
