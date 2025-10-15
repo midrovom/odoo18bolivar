@@ -23,28 +23,30 @@
 
           <!-- Selección de productos -->
           <t t-if="category_id">
-            <t t-set="products" t-value="request.env['product.template'].sudo().search([('public_categ_ids','in',[category_id])])"/>
+            <t t-set="products" t-value="request.env['product.template'].sudo().search([('public_categ_ids','in',[category_id])], limit=10)"/>
           </t>
           <t t-else="">
-            <t t-set="products" t-value="request.env['product.template'].sudo().search([])"/>
+            <t t-set="products" t-value="request.env['product.template'].sudo().search([], limit=10)"/>
           </t>
 
-          <!-- Calcular tarjetas vacías -->
-          <t t-set="max_cards" t-value="10"/>
-          <t t-set="product_count" t-value="len(products)"/>
-          <t t-set="empty_slots" t-value="max_cards - product_count"/>
-
-          <!-- Tarjetas con productos -->
+          <!-- Iterar productos -->
           <t t-foreach="products" t-as="product">
             <div class="col">
               <div class="product-card text-center p-3 h-100">
+
+                <!-- Imagen del producto -->
                 <img t-att-src="'/web/image/product.template/%s/image_1920' % product.id"
                      t-att-alt="product.name"
                      class="img-fluid mb-2"/>
+
                 <hr class="my-2"/>
+
+                <!-- Nombre -->
                 <h5 class="fw-bold text-truncate" t-att-title="product.name">
                   <t t-esc="product.name"/>
                 </h5>
+
+                <!-- Especificaciones con icono + valor (excluyendo Marca) -->
                 <ul class="list-unstyled small text-muted text-start text-wrap">
                   <t t-foreach="product.attribute_line_ids" t-as="attr">
                     <t t-if="attr.attribute_id.name != 'Marca'">
@@ -61,28 +63,15 @@
                     </t>
                   </t>
                 </ul>
-              </div>
-            </div>
-          </t>
 
-          <!-- Tarjetas vacías -->
-          <t t-foreach="range(empty_slots)" t-as="i">
-            <div class="col">
-              <div class="product-card text-center p-3 h-100 opacity-25 border">
-                <div class="img-fluid mb-2" style="height:150px; background:#f0f0f0;"></div>
-                <hr class="my-2"/>
-                <h5 class="fw-bold text-truncate">Próximamente</h5>
-                <ul class="list-unstyled small text-muted text-start text-wrap">
-                  <li class="text-muted">Sin información</li>
-                </ul>
               </div>
             </div>
           </t>
         </div>
 
-        <!-- Botón Ver más -->
+        <!-- Botón Ver másss -->
         <div class="text-center mt-4">
-          <a href="/shop/category/celulares-2"
+          <a href="/shop"
              class="btn o_we_button rounded-pill btn-lg">
             VER MÁS
           </a>
