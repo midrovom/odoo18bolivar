@@ -1,4 +1,5 @@
 <odoo>
+  <!-- Registro del snippet -->
   <template id="s_gallery_snippet" inherit_id="theme_prime.snippets" name="Products Gallery - 6 Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_gallery_5']" position="after">
       <t t-snippet="theme_prime_image.s_products_gallery"
@@ -17,8 +18,8 @@
         <!-- Responsive: 2 columnas en móvil, 5 en desktop -->
         <div class="row row-cols-2 row-cols-md-5 g-3">
 
-          <!-- Detectar categoría desde la URL actual -->
-          <t t-set="category_id" t-value="request.params.get('category') and int(request.params.get('category')) or False"/>
+          <!-- Detectar categoría activa desde el contexto -->
+          <t t-set="category_id" t-value="category and category.id or False"/>
 
           <!-- Selección de productos -->
           <t t-if="category_id">
@@ -68,7 +69,7 @@
           </t>
         </div>
 
-        <!-- Botón Ver más -->
+        <!-- Botón Ver másss -->
         <div class="text-center mt-4">
           <a href="/shop"
              class="btn o_we_button rounded-pill btn-lg">
