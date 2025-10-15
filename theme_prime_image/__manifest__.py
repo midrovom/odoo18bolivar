@@ -17,7 +17,7 @@
     ],
     'assets': {
         'web.assets_frontend': [
-            'advance_theme_custom/static/src/xml/prueba.xml',
+            'theme_prime_image/static/src/xml/prueba.xml',
         ],
     },
     'installable': True,
