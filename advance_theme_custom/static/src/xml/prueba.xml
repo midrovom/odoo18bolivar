@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <t t-inherit="s_card_style_8" t-inherit-mode="extension" owl="1">
-        <xpath expr="//button[contains(@class,'d_add_to_cart_btn')]" position="replace">
-            <button class="btn btn-success">Comprar ahora</button>
+        <xpath expr="//div[@class='d_product_box position-relative h-100']" position="inside">
+            <div class="extra-info mt-2">Información adicional heredada</div>
         </xpath>
     </t>
-
 </odoo>
