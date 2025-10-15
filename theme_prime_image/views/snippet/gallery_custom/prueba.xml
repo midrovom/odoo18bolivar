@@ -18,15 +18,8 @@
         <!-- Responsive: 2 columnas en móvil, 5 en desktop -->
         <div class="row row-cols-2 row-cols-md-5 g-3">
 
-          <!-- Extraer nombre de categoría desde la URL -->
-          <t t-set="path" t-value="request.httprequest.path"/>
-          <t t-set="slug" t-value="path.split('/')[-1].split('-')[0].replace('-', ' ')"/>
-
-          <!-- Buscar categoría pública por nombre -->
-          <t t-set="category" t-value="request.env['product.public.category'].sudo().search([('name', 'ilike', slug)], limit=1)"/>
-          <t t-set="category_id" t-value="category and category.id or False"/>
-
-          <!-- Buscar productos por categoría pública -->
+          <!-- Detectar categoría desde la URL -->
+          <t t-set="category_id" t-value="request.params.get('category') and int(request.params.get('category')) or False"/>
           <t t-set="products" t-value="category_id and request.env['product.template'].sudo().search([('public_categ_ids','in',[category_id])]) or []"/>
 
           <!-- Mostrar 10 tarjetas fijas -->
