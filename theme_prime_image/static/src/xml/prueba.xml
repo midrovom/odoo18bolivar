@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <template id="s_card_style_8_custom" name="Card style - 8 Custom" inherit_id="theme_prime.s_card_style_8" owl="1">
+<templates>
+    <t t-inherit="s_card_style_8" t-inherit-mode="extension" owl="1">
         <xpath expr="//h6[@class='card-title mb-1 fw-light text-truncate d-product-name']" position="after">
             <p class="text-muted small">Texto agregado desde mi módulo</p>
         </xpath>
-    </template>
-</odoo>
+    </t>
+</templates>
+
