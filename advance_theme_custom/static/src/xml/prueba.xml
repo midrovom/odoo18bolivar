@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <t t-inherit="s_card_style_8" t-inherit-mode="extension" owl="1">
+        <xpath expr="//button[contains(@class,'d_add_to_cart_btn')]" position="replace">
+            <button class="btn btn-success">Comprar ahora</button>
+        </xpath>
+    </t>
+
+</odoo>
