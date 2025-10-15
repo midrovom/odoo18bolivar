@@ -18,65 +18,71 @@
         <!-- Responsive: 2 columnas en móvil, 5 en desktop -->
         <div class="row row-cols-2 row-cols-md-5 g-3">
 
-          <!-- Detectar categoría activa desde el contexto -->
-          <t t-set="category_id" t-value="category and category.id or False"/>
+          <!-- Detectar categoría desde la URL -->
+          <t t-set="category_id" t-value="request.params.get('category') and int(request.params.get('category')) or False"/>
 
-          <!-- Selección de productos -->
+          <!-- Obtener productos de la categoría -->
           <t t-if="category_id">
-            <t t-set="products" t-value="request.env['product.template'].sudo().search([('public_categ_ids','in',[category_id])], limit=10)"/>
+            <t t-set="products" t-value="request.env['product.template'].sudo().search([('public_categ_ids','in',[category_id])])"/>
           </t>
           <t t-else="">
-            <t t-set="products" t-value="request.env['product.template'].sudo().search([], limit=10)"/>
+            <t t-set="products" t-value="request.env['product.template'].sudo().search([])"/>
           </t>
 
-          <!-- Iterar productos -->
-          <t t-foreach="products" t-as="product">
+          <!-- Mostrar 10 tarjetas fijas -->
+          <t t-foreach="range(10)" t-as="i">
+            <t t-set="product" t-value="i &lt; len(products) and products[i] or False"/>
             <div class="col">
               <div class="product-card text-center p-3 h-100">
-
-                <!-- Imagen del producto -->
-                <img t-att-src="'/web/image/product.template/%s/image_1920' % product.id"
-                     t-att-alt="product.name"
-                     class="img-fluid mb-2"/>
-
-                <hr class="my-2"/>
-
-                <!-- Nombre -->
-                <h5 class="fw-bold text-truncate" t-att-title="product.name">
-                  <t t-esc="product.name"/>
-                </h5>
-
-                <!-- Especificaciones con icono + valor (excluyendo Marca) -->
-                <ul class="list-unstyled small text-muted text-start text-wrap">
-                  <t t-foreach="product.attribute_line_ids" t-as="attr">
-                    <t t-if="attr.attribute_id.name != 'Marca'">
-                      <t t-foreach="attr.value_ids" t-as="val">
-                        <li class="d-flex align-items-center mb-1 text-truncate">
-                          <t t-if="val.dr_image">
-                            <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % val.id"
-                                 t-att-alt="val.name"
-                                 class="attr-icon me-2"/>
-                          </t>
-                          <span><t t-esc="val.name"/></span>
-                        </li>
+                <t t-if="product">
+                  <!-- Imagen -->
+                  <img t-att-src="'/web/image/product.template/%s/image_1920' % product.id"
+                       t-att-alt="product.name"
+                       class="img-fluid mb-2"/>
+                  <hr class="my-2"/>
+                  <!-- Nombre -->
+                  <h5 class="fw-bold text-truncate" t-att-title="product.name">
+                    <t t-esc="product.name"/>
+                  </h5>
+                  <!-- Atributos -->
+                  <ul class="list-unstyled small text-muted text-start text-wrap">
+                    <t t-foreach="product.attribute_line_ids" t-as="attr">
+                      <t t-if="attr.attribute_id.name != 'Marca'">
+                        <t t-foreach="attr.value_ids" t-as="val">
+                          <li class="d-flex align-items-center mb-1 text-truncate">
+                            <t t-if="val.dr_image">
+                              <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % val.id"
+                                   t-att-alt="val.name"
+                                   class="attr-icon me-2"/>
+                            </t>
+                            <span><t t-esc="val.name"/></span>
+                          </li>
+                        </t>
                       </t>
                     </t>
-                  </t>
-                </ul>
-
+                  </ul>
+                </t>
+                <t t-else="">
+                  <!-- Tarjeta vacía -->
+                  <div class="img-fluid mb-2" style="height:150px; background:#f0f0f0;"></div>
+                  <hr class="my-2"/>
+                  <h5 class="fw-bold text-truncate text-muted">Próximamente</h5>
+                  <ul class="list-unstyled small text-muted text-start text-wrap">
+                    <li class="text-muted">Sin información</li>
+                  </ul>
+                </t>
               </div>
             </div>
           </t>
         </div>
 
-        <!-- Botón Ver másss -->
+        <!-- Botón Ver más -->
         <div class="text-center mt-4">
           <a href="/shop"
              class="btn o_we_button rounded-pill btn-lg">
             VER MÁS
           </a>
         </div>
-
       </div>
     </section>
   </template>
