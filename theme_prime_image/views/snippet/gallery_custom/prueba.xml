@@ -18,7 +18,7 @@
         <div class="row row-cols-2 row-cols-md-5 g-3">
 
           <!-- Detectar categoría desde la URL actual -->
-          <t t-set="category_id" t-value="request.env['product.public.category']._get_current_category_id()"/>
+          <t t-set="category_id" t-value="request.params.get('category') and int(request.params.get('category')) or False"/>
 
           <!-- Selección de productos -->
           <t t-if="category_id">
