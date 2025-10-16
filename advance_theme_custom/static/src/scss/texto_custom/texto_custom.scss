@@ -4,8 +4,8 @@
     align-items: center; // alinea verticalmente ambos elementos
     justify-content: center;
     gap: 0.5rem;
-    max-width: 960px !important;
-    width: 100% !important;
+    max-width: 960px;
+    width: 100%;
     margin: 0 auto;
     text-align: center;
 
@@ -15,7 +15,7 @@
       font-size: 1.4rem;
     }
 
-    h4 {
+    p {
       margin-bottom: 0;
       color: #6c757d;
       font-size: 1.2rem;
