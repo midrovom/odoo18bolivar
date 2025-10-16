@@ -1,41 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="s_trending_box_snippet_snippet" inherit_id="theme_prime.snippets" name="Trending Text Box - Registry">
+  <template id="s_trending_box_with_image_snippet_snippet" inherit_id="theme_prime.snippets" name="Trending Box with Image - Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_shop_offer_5']" position="after">
-      <t t-snippet="theme_prime_image.s_trending_box_snippet"
-         string="Trending Text Box - 6"
+      <t t-snippet="theme_prime_image.s_trending_box_with_image_snippet"
+         string="Trending Box with Image"
          group="theme_prime_shop_offer"
          t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
-        <keywords>call to action, trending, cta</keywords>
+        <keywords>trending, image, link</keywords>
       </t>
     </xpath>
   </template>
 
-  <!-- Snippet visual -->
-  <template id="s_trending_box_snippet" name="Trending Text Box">
-    <section class="s_trending_box o_snippet_editable py-3">
+  <template id="s_trending_box_with_image_snippet" name="Trending Box with Image">
+    <section class="s_trending_box_with_image o_snippet_editable py-3">
       <div class="container-fluid">
         <div class="row justify-content-center">
           <div class="col-12 col-md-11 col-lg-10">
-            <div class="text-block d-flex flex-column flex-md-row align-items-center justify-content-center gap-3 text-center text-md-start o_editable">
+            <div class="d-flex align-items-center justify-content-between gap-4 flex-wrap o_editable">
               
-              <!-- Texto principal -->
-              <div class="text-content">
-                <h4 class="mb-0">Difiere tu compra hasta</h4>
-                <div class="d-flex flex-column flex-md-row align-items-center gap-2 mt-1">
-                  <h3 class="mb-0 text-o-color-1">36 MESES</h3>
-                  
-                  <!-- Imagen pequeña en móvil -->
-                  <div class="image-box rounded shadow-sm overflow-hidden" style="width: 120px; height: 80px;">
-                    <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
-                         alt="Imagen destacada"
-                         class="img-fluid h-100 w-100"
-                         style="object-fit: cover;"/>
-                  </div>
-                </div>
+              <!-- Texto -->
+              <div class="text-block d-flex align-items-center gap-2">
+                <h3 class="mb-0">#Trending</h3>
+                <p class="mb-0 text-muted">Esto podría interesarte</p>
+              </div>
 
-                <!-- Texto inferior -->
-                <small class="text-muted d-block mt-2">*Aplica términos y condiciones</small>
+              <!-- Imagen dentro de div rectangular -->
+              <div class="image-box rounded shadow-sm overflow-hidden" style="width: 220px; height: 120px;">
+                <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
+                     alt="Imagen destacada"
+                     class="img-fluid h-100 w-100"
+                     style="object-fit: cover;"/>
               </div>
 
             </div>
