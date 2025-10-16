@@ -24,17 +24,14 @@
             <p class="mt-1 mb-0" style="font-size: 12px;">*Aplican términos y condiciones</p>
           </div>
 
-          <div class="flex-shrink-0">
+          <!-- Imagen + Botón agrupados -->
+          <div class="offer-action-block d-flex flex-column flex-md-row align-items-center gap-3 flex-shrink-0 text-center text-md-start o_editable">
             <div class="rounded overflow-hidden shadow-sm" style="width: 220px; height: 120px;">
               <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
                    alt="Oferta Especial"
                    class="img-fluid h-100 w-100"
                    style="object-fit: cover;"/>
             </div>
-          </div>
-
-          <!-- Botón -->
-          <div class="flex-shrink-0 text-center text-md-start">
             <a href="#" class="btn btn-primary rounded-pill shadow-sm">Ver Ofertas</a>
           </div>
         </div>

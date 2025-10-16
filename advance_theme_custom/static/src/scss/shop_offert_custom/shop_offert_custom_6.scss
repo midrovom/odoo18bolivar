@@ -1,0 +1,16 @@
+.s_shop_offer_6 {
+  .offer-action-block {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    img {
+      border-radius: 0.5rem;
+      object-fit: cover;
+    }
+
+    a {
+      white-space: nowrap;
+    }
+  }
+}
