@@ -1,10 +1,11 @@
-.s_trending_banner {
+.s_trending_box {
   .trending-box {
     max-width: 600px;
     width: 100%;
+    background-color: #f0f0f0; // editable desde el builder
+    border-radius: 12px;
     font-size: 1.2rem;
     color: #212529;
-    background-color: #f0f0f0; // valor base, editable con o_we_bg_color
   }
 
   @media (max-width: 768px) {
