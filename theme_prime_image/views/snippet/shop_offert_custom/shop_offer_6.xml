@@ -16,28 +16,38 @@
       <div class="container-fluid">
         <div class="row justify-content-center">
           <div class="col-12 col-md-11 col-lg-10">
-            <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-4 o_editable">
 
-              <!-- Bloque de texto -->
-              <div class="text-block d-flex flex-column align-items-start text-start w-100">
-                <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-1 gap-md-2">
+            <!-- Versión Web -->
+            <div class="d-none d-md-flex flex-md-row align-items-center justify-content-between gap-4 o_editable">
+              <div class="text-block d-flex flex-column align-items-start text-start">
+                <div class="d-flex flex-row align-items-center gap-2">
                   <p class="mb-0 text-muted">Difiere tus compras hasta</p>
                   <h3 class="mb-0">36 MESES</h3>
                 </div>
+                <p class="mt-1 mb-0 text-muted" style="font-size: 0.75rem;">Aplican términos y condiciones</p>
               </div>
 
-              <!-- Imagen + texto inferior agrupados -->
-              <div class="image-container d-flex flex-column align-items-center w-100">
-                <div class="image-box rounded shadow-sm overflow-hidden o_editable" style="width: 220px; height: 120px;">
-                  <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
-                       alt="Imagen destacada"
-                       class="img-fluid h-100 w-100"
-                       style="object-fit: cover; border-radius: 0.5rem;"/>
-                </div>
-                <p class="mt-2 mb-0 text-muted text-end w-100" style="font-size: 0.75rem;">*Aplican términos y condiciones</p>
+              <div class="image-box rounded shadow-sm overflow-hidden o_editable" style="width: 220px; height: 120px;">
+                <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
+                     alt="Imagen destacada"
+                     class="img-fluid h-100 w-100"
+                     style="object-fit: cover; border-radius: 0.5rem;"/>
               </div>
-
             </div>
+
+            <!-- Versión Móvil -->
+            <div class="d-flex d-md-none flex-column align-items-center text-center gap-2 o_editable mt-3">
+              <p class="mb-0 text-muted">Difiere tus compras hasta</p>
+              <h3 class="mb-0">36 MESES</h3>
+              <div class="image-box rounded shadow-sm overflow-hidden o_editable" style="width: 180px; height: 100px;">
+                <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1_mobile.jpg"
+                     alt="Imagen móvil"
+                     class="img-fluid h-100 w-100"
+                     style="object-fit: cover; border-radius: 0.5rem;"/>
+              </div>
+              <p class="mb-0 text-muted" style="font-size: 0.75rem;">*Aplica términos y condiciones</p>
+            </div>
+
           </div>
         </div>
       </div>
