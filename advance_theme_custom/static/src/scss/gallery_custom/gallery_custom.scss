@@ -1,9 +1,9 @@
 .s_products_gallery {
   .gallery-header {
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
 
     h3 {
       font-size: 1.5rem;
@@ -11,6 +11,13 @@
 
     p {
       font-size: 0.95rem;
+      margin-bottom: 0;
+    }
+
+    a {
+      font-weight: 500;
+      font-size: 0.95rem;
+      white-space: nowrap;
     }
   }
 
@@ -37,19 +44,14 @@
     }
   }
 
-  .gallery-footer {
-    text-align: right;
-
-    a {
-      font-weight: 500;
-      font-size: 0.95rem;
-    }
-  }
-
   @media (max-width: 768px) {
-    .gallery-header,
-    .gallery-footer {
+    .gallery-header {
+      flex-direction: column;
       text-align: center;
+
+      a {
+        margin-top: 0.5rem;
+      }
     }
   }
 }

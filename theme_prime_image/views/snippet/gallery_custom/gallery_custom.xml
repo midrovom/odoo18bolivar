@@ -14,12 +14,17 @@
 
   <template id="s_products_gallery" name="Products Gallery">
     <section class="s_products_gallery py-4">
-      <div class="container position-relative">
+      <div class="container">
 
-        <!-- Texto editable alineado a la primera tarjeta -->
-        <div class="gallery-header o_editable mb-4">
-          <h3 class="fw-bold mb-1">Título de la galería</h3>
-          <p class="text-muted mb-0">Descripción breve de los productos destacados.</p>
+        <!-- Texto + botón en la misma fila -->
+        <div class="gallery-header d-flex justify-content-between align-items-center mb-4 o_editable">
+          <div>
+            <h3 class="fw-bold mb-1">Título de la galería</h3>
+            <p class="text-muted mb-0">Descripción breve de los productos destacados.</p>
+          </div>
+          <div>
+            <a href="#" class="btn btn-link text-decoration-none">Ver más</a>
+          </div>
         </div>
 
         <!-- Tarjetas de productos -->
@@ -71,11 +76,6 @@
               </div>
             </div>
           </t>
-        </div>
-
-        <!-- Botón editable alineado a la última tarjeta -->
-        <div class="gallery-footer o_editable mt-4 text-end">
-          <a href="#" class="btn btn-link text-decoration-none">Ver más</a>
         </div>
 
       </div>
