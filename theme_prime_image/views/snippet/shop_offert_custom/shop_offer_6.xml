@@ -1,38 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="s_shop_offer_snippet" inherit_id="theme_prime.snippets" name="Shop Offer - 6 Registry">
-    <xpath expr="//t[@t-snippet='theme_prime.s_shop_offer_5']" position="after">
-      <t t-snippet="theme_prime_image.s_shop_offer_6"
-         string="Shop Offer - 6"
-         group="theme_prime_shop_offer"
+  <template id="s_trending_box_with_image_snippet_snippet" inherit_id="theme_prime.snippets" name="Trending Box with Image - Registry">
+    <xpath expr="//t[@t-snippet='theme_prime.s_call_to_action_5']" position="after">
+      <t t-snippet="theme_prime_image.s_trending_box_with_image_snippet"
+         string="Trending Box with Image"
+         group="theme_prime_cta"
          t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
-        <keywords>offer</keywords>
+        <keywords>trending, image, link</keywords>
       </t>
     </xpath>
   </template>
 
-  <template id="s_shop_offer_6" name="Shop Offer - 6">
-    <section class="s_shop_offer_6 o_container mt-5 mb-5 py-4 o_cc o_cc2 rounded shadow-sm"
-             style="max-width:1000px; margin:40px auto;">
-      <div class="container">
-        <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 flex-md-nowrap">      
-          <!-- Texto -->
-          <div class="flex-grow-1 text-center text-md-start">
-            <h3 class="fw-bold mb-0">
-              Difere tu compra hasta <span class="text-o-color-1">36 meses</span>
-            </h3>
-            <p class="mt-1 mb-0" style="font-size: 12px;">*Aplican términos y condiciones</p>
-          </div>
+  <template id="s_trending_box_with_image_snippet" name="Trending Box with Image">
+    <section class="s_trending_box_with_image o_snippet_editable py-3">
+      <div class="container-fluid">
+        <div class="row justify-content-center">
+          <div class="col-12 col-md-11 col-lg-10">
+            <div class="d-flex align-items-center justify-content-between gap-4 flex-wrap o_editable">
+              
+              <!-- Texto -->
+              <div class="text-block d-flex align-items-center gap-2">
+                <h3 class="mb-0">#Trending</h3>
+                <p class="mb-0 text-muted">Esto podría interesarte</p>
+              </div>
 
-          <!-- Imagen + Botón agrupados -->
-          <div class="offer-action-block d-flex flex-column flex-md-row align-items-center gap-3 flex-shrink-0 text-center text-md-start o_editable">
-            <div class="rounded overflow-hidden shadow-sm" style="width: 220px; height: 120px;">
-              <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
-                   alt="Oferta Especial"
-                   class="img-fluid h-100 w-100"
-                   style="object-fit: cover;"/>
+              <!-- Imagen dentro de div rectangular -->
+              <div class="image-box rounded shadow-sm overflow-hidden" style="width: 220px; height: 120px;">
+                <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
+                     alt="Imagen destacada"
+                     class="img-fluid h-100 w-100"
+                     style="object-fit: cover;"/>
+              </div>
+
+              <!-- Botón tipo link -->
+              <div class="link-box text-center">
+                <a href="#" class="btn btn-link text-decoration-none">Ver ofertas</a>
+              </div>
+
             </div>
-            <a href="#" class="btn btn-primary rounded-pill shadow-sm">Ver Ofertas</a>
           </div>
         </div>
       </div>
