@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="s_delivery_guarantee_snippet_snippet" inherit_id="theme_prime.snippets" name="Delivery Guarantee Image - Registry">
+    <xpath expr="//t[@t-snippet='theme_prime.s_gallery_5']" position="after">
+      <t t-snippet="theme_prime_image.s_delivery_guarantee_snippet"
+         string="Delivery Guarantee Image"
+         group="theme_prime_gallery"
+         t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
+        <keywords>image, guarantee, delivery</keywords>
+      </t>
+    </xpath>
+  </template>
+
+  <template id="s_delivery_guarantee_snippet" name="Delivery Guarantee Image">
+    <section class="s_delivery_guarantee o_snippet_editable py-3">
+      <div class="container-fluid">
+        <div class="row justify-content-center">
+          <div class="col-12 col-md-11 col-lg-10">
+            <div class="image-block text-center o_editable">
+              <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg" class="img-fluid" alt="Garantía de entrega"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </template>
+</odoo>
