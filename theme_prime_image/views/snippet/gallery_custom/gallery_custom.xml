@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <!-- Registro del snippet -->
   <template id="s_gallery_snippet" inherit_id="theme_prime.snippets" name="Products Gallery - 6 Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_gallery_5']" position="after">
       <t t-snippet="theme_prime_image.s_products_gallery"
@@ -13,25 +12,20 @@
     </xpath>
   </template>
 
-  <!-- Snippet de productos solo visual -->
   <template id="s_products_gallery" name="Products Gallery">
     <section class="s_products_gallery py-4">
-      <div class="container">
+      <div class="container position-relative">
 
-        <!-- Bloque editable con texto + botón -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <div class="o_editable">
-            <h3 class="fw-bold mb-0">Título de la galería</h3>
-            <p class="text-muted mb-0">Agrega aquí una descripción breve de los productos destacados.</p>
-          </div>
-          <a href="#" class="btn btn-link text-decoration-none">Ver más</a>
+        <!-- Texto editable alineado a la primera tarjeta -->
+        <div class="gallery-header o_editable mb-4">
+          <h3 class="fw-bold mb-1">Título de la galería</h3>
+          <p class="text-muted mb-0">Descripción breve de los productos destacados.</p>
         </div>
 
-        <!-- Tarjetas de productos (no editables) -->
-        <div class="row row-cols-2 row-cols-md-5 g-3">
+        <!-- Tarjetas de productos -->
+        <div class="row row-cols-2 row-cols-md-5 g-3 justify-content-center">
 
           <t t-set="category_id" t-value="request.params.get('category_id') and int(request.params.get('category_id')) or False"/>
-
           <t t-if="category_id">
             <t t-set="products" t-value="request.env['product.template'].sudo().search([('public_categ_ids','in',[category_id])], limit=10)"/>
           </t>
@@ -39,7 +33,7 @@
             <t t-set="products" t-value="request.env['product.template'].sudo().search([], limit=10)"/>
           </t>
 
-          <t t-foreach="products" t-as="product">
+          <t t-foreach="products[:10]" t-as="product">
             <div class="col">
               <div class="product-card text-center p-3 h-100 border rounded shadow-sm">
 
@@ -78,6 +72,12 @@
             </div>
           </t>
         </div>
+
+        <!-- Botón editable alineado a la última tarjeta -->
+        <div class="gallery-footer o_editable mt-4 text-end">
+          <a href="#" class="btn btn-link text-decoration-none">Ver más</a>
+        </div>
+
       </div>
     </section>
   </template>
