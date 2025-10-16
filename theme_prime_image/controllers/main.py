@@ -1,19 +1,29 @@
-from odoo.http import route
-from odoo.addons.website_sale.controllers.main import WebsiteSale
+from odoo import http
+from odoo.http import request
+from odoo.addons.theme_prime.controllers.main import ThemePrimeController
 
-class WebsiteProductControllerExtended(WebsiteSale):
+class ThemePrimeControllerExtended(ThemePrimeController):
 
-    @route('/theme_prime/get_products_by_category', type='json', auth='public', website=True)
+    @http.route('/theme_prime/get_products_by_category', type='json', auth='public', website=True)
     def get_products_by_category(self, domain, fields=[], options={}, **kwargs):
         # Llamar al controlador original
         result = super().get_products_by_category(domain, fields, options, **kwargs)
 
-        # Tu lógica personalizada: agregar valores de atributos con imagen
+        # Agregar atributos personalizados agrupados por producto
         if options.get('get_attribute_values'):
-            product_ids = result.get('products', [])
-            attribute_values = request.env['product.attribute.value'].sudo().search([
-                ('product_template_value_ids.product_tmpl_id', 'in', [p['id'] for p in product_ids])
+            product_ids = [p['id'] for p in result['products']]
+            values = request.env['product.template.attribute.value'].sudo().search([
+                ('product_tmpl_id', 'in', product_ids)
             ])
-            result['attribute_values'] = attribute_values.read(['name', 'dr_image', 'attribute_id'])
+            grouped = {}
+            for val in values:
+                pid = val.product_tmpl_id.id
+                grouped.setdefault(pid, []).append({
+                    'id': val.product_attribute_value_id.id,
+                    'name': val.product_attribute_value_id.name,
+                    'dr_image': val.product_attribute_value_id.dr_image,
+                    'attribute_id': val.product_attribute_value_id.attribute_id.id,
+                })
+            result['attribute_values'] = grouped
 
         return result
