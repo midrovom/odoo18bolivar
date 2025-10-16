@@ -17,7 +17,6 @@
     ],
     'assets': {
         'web.assets_frontend': [
-            'theme_prime_image/static/src/js/s_category_snippet_extend.js',
         ],
     },
     'installable': True,
