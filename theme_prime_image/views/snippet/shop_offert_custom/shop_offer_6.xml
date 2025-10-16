@@ -16,24 +16,24 @@
       <div class="container-fluid">
         <div class="row justify-content-center">
           <div class="col-12 col-md-11 col-lg-10">
-            <div class="text-block d-flex flex-column align-items-center text-center gap-3 o_editable">
+            <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-4 o_editable">
 
-              <!-- Texto superior alineado -->
-              <div class="d-flex flex-row align-items-center gap-2 flex-wrap justify-content-center">
-                <p class="mb-0 text-muted">Difiere tus compras hasta</p>
-                <h3 class="mb-0">36 MESES</h3>
+              <!-- Bloque de texto -->
+              <div class="text-block d-flex flex-column align-items-start text-start">
+                <div class="d-flex flex-row align-items-center gap-2">
+                  <p class="mb-0 text-muted">Difiere tus compras hasta</p>
+                  <h3 class="mb-0">36 MESES</h3>
+                </div>
+                <p class="mt-1 mb-0 text-muted" style="font-size: 0.75rem;">Aplican términos y condiciones</p>
               </div>
 
-              <!-- Imagen centrada con espacio y borde redondeado -->
-              <div class="image-box rounded shadow-sm overflow-hidden" style="width: 220px; height: 120px; padding: 10px;">
+              <!-- Imagen alineada horizontalmente -->
+              <div class="image-box rounded shadow-sm overflow-hidden" style="width: 220px; height: 120px;">
                 <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
                      alt="Imagen destacada"
                      class="img-fluid h-100 w-100"
                      style="object-fit: cover; border-radius: 0.5rem;"/>
               </div>
-
-              <!-- Texto inferior editable -->
-              <p class="mb-0 text-muted" style="font-size: 0.75rem;">Aplican términos y condiciones</p>
 
             </div>
           </div>
