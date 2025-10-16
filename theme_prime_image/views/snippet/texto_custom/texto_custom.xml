@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <!-- Registro del snippet en el editor visual -->
   <template id="s_trending_box_snippet_snippet" inherit_id="theme_prime.snippets" name="Trending Text Box - Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_call_to_action_5']" position="after">
       <t t-snippet="theme_prime_image.s_trending_box_snippet"
@@ -12,15 +11,14 @@
     </xpath>
   </template>
 
-  <!-- Snippet visual -->
   <template id="s_trending_box_snippet" name="Trending Text Box">
     <section class="s_trending_box o_snippet_editable py-3">
       <div class="container">
         <div class="row justify-content-center">
           <div class="col-12 col-md-10 col-lg-8">
-            <div class="text-block o_editable">
-              <h3>#Trending</h3>
-              <p>Esto podría interesarte</p>
+            <div class="text-block d-flex align-items-center justify-content-center gap-2 o_editable">
+              <h3 class="mb-0">#Trending</h3>
+              <p class="mb-0 text-muted">Esto podría interesarte</p>
             </div>
           </div>
         </div>
