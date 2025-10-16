@@ -1,82 +1,48 @@
-<odoo>
-  <!-- Registro del snippet -->
-  <template id="s_gallery_snippet" inherit_id="theme_prime.snippets" name="Products Gallery - 6 Registry">
-    <xpath expr="//t[@t-snippet='theme_prime.s_gallery_5']" position="after">
-      <t t-snippet="theme_prime_image.s_products_gallery"
-         string="Products Gallery - 6"
-         group="theme_prime_gallery"
-         t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
-        <keywords>gallery, album, portfolio</keywords>
-      </t>
-    </xpath>
-  </template>
 
-  <!-- Snippet de productos -->
-  <template id="s_products_gallery" name="Products Gallery">
-    <section class="s_products_gallery o_snippet py-4">
-      <div class="container">
-        <!-- Responsive: 2 columnas en móvil, 5 en desktop -->
-        <div class="row row-cols-2 row-cols-md-5 g-3">
-
-          <!-- Detectar categoría desde la URL -->
-          <t t-set="category_id" t-value="request.params.get('category') and int(request.params.get('category')) or False"/>
-          <t t-set="products" t-value="category_id and request.env['product.template'].sudo().search([('public_categ_ids','in',[category_id])]) or []"/>
-
-          <!-- Mostrar 10 tarjetas fijas -->
-          <t t-foreach="range(10)" t-as="i">
-            <t t-set="product" t-value="i &lt; len(products) and products[i] or False"/>
-            <div class="col">
-              <div class="product-card text-center p-3 h-100">
-                <t t-if="product">
-                  <!-- Imagen -->
-                  <img t-att-src="'/web/image/product.template/%s/image_1920' % product.id"
-                       t-att-alt="product.name"
-                       class="img-fluid mb-2"/>
-                  <hr class="my-2"/>
-                  <!-- Nombre -->
-                  <h5 class="fw-bold text-truncate" t-att-title="product.name">
-                    <t t-esc="product.name"/>
-                  </h5>
-                  <!-- Atributos -->
-                  <ul class="list-unstyled small text-muted text-start text-wrap">
-                    <t t-foreach="product.attribute_line_ids" t-as="attr">
-                      <t t-if="attr.attribute_id.name != 'Marca'">
-                        <t t-foreach="attr.value_ids" t-as="val">
-                          <li class="d-flex align-items-center mb-1 text-truncate">
-                            <t t-if="val.dr_image">
-                              <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % val.id"
-                                   t-att-alt="val.name"
-                                   class="attr-icon me-2"/>
-                            </t>
-                            <span><t t-esc="val.name"/></span>
-                          </li>
-                        </t>
-                      </t>
-                    </t>
-                  </ul>
-                </t>
-                <t t-else="">
-                  <!-- Tarjeta vacía -->
-                  <div class="img-fluid mb-2" style="height:150px; background:#f0f0f0;"></div>
-                  <hr class="my-2"/>
-                  <h5 class="fw-bold text-truncate text-muted">Próximamente</h5>
-                  <ul class="list-unstyled small text-muted text-start text-wrap">
-                    <li class="text-muted">Sin información</li>
-                  </ul>
-                </t>
-              </div>
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="s_card_style_8_extended">
+    <div t-attf-class="card h-100 tp-rounded-border border s_card_style_8 dr-image-fill-#{widget.imageFill} dr-image-size-#{widget.imageSize}">
+        <div class="d_product_box position-relative h-100">
+            <t t-call="tp_product_snippet_action_drawer"/>
+            <div class="overflow-hidden d_img_block position-relative border-bottom d-flex justify-content-center">
+                <a t-att-href="item.website_url" t-att-class="hasTimer and 'h-100'">
+                    <img loading="lazy" t-att-alt="item.name" t-att-src="item.img_medium" class="img img-fluid d-product-img h-100 w-100 position-absolute top-0 start-0 end-0 bottom-0"/>
+                </a>
+                <t t-call="dr_s_lable_tmpl"/>
             </div>
-          </t>
-        </div>
+            <div class="row px-3 g-1 pb-2 pt-3">
+                <div class="col-8 text-start">
+                    <t t-call="tp_category_info"/>
+                    <h6 class="card-title mb-1 fw-light text-truncate d-product-name">
+                        <a t-att-href="item.website_url">
+                            <t t-out="item.name"/>
+                        </a>
+                    </h6>
+                    <t t-call="tp-snippet-product-price"/>
+                    <span t-if="widget._isActionEnabled('rating')" class="w-auto px-0 small mt-n1 d-block">
+                        <t t-raw="item.rating"/>
+                    </span>
 
-        <!-- Botón Ver más -->
-        <div class="text-center mt-4">
-          <a href="/shop"
-             class="btn o_we_button rounded-pill btn-lg">
-            VER MÁS
-          </a>
+                    <!-- ✅ Atributos personalizados -->
+                    <t t-if="item.attribute_values">
+                        <div class="product-attributes mt-2 d-flex flex-wrap">
+                            <t t-foreach="item.attribute_values" t-as="attr">
+                                <div class="me-2 mb-1 d-flex align-items-center">
+                                    <img t-att-src="'/web/image/product.attribute.value/' + str(attr.id) + '/dr_image'" class="me-1" style="width:20px; height:20px;" alt="attr.name"/>
+                                    <span class="small"><t t-out="attr.name"/></span>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                </div>
+                <div class="col-4 d-flex justify-content-end align-items-center">
+                    <button style="transform:scale(1.1);" t-if="widget._isActionEnabled('add_to_cart')" t-att-data-product-product-id="item.product_variant_id" data-bs-toggle="tooltip" data-placement="bottom" class="btn btn-lg tp-rounded-border btn-primary tp-icon-center-2 d_action_btn d_add_to_cart_btn" title="Add to Cart">
+                        <i style="font-size:16px;" class="d_action_btn_icon dri dri-cart"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-    </section>
-  </template>
-</odoo>
+    </div>
+    </t>
+</templates>
