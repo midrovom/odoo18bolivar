@@ -19,9 +19,10 @@
             <div class="d-flex align-items-center justify-content-between gap-4 flex-wrap o_editable">
               
               <!-- Texto -->
-              <div class="text-block d-flex align-items-center gap-2">
-                <h3 class="mb-0">#Trending</h3>
-                <p class="mb-0 text-muted">Esto podría interesarte</p>
+              <div class="text-block d-flex flex-column align-items-start gap-1">
+                <p class="mb-0 text-muted">Difiere tus compras hasta</p>
+                <h3 class="mb-0">36 MESES</h3>
+                <p class="mb-0 text-muted" style="font-size: 0.75rem;">Aplican términos y condiciones</p>
               </div>
 
               <!-- Imagen dentro de div rectangular -->
