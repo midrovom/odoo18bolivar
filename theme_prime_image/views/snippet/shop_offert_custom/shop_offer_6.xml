@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="s_trending_box_snippet_snippet" inherit_id="theme_prime.snippets" name="Trending Text Box - Registry">
-    <xpath expr="//t[@t-snippet='theme_prime.s_shop_offer_5']" position="after">
+    <xpath expr="//t[@t-snippet='theme_prime.s_call_to_action_5']" position="after">
       <t t-snippet="theme_prime_image.s_trending_box_snippet"
          string="Trending Text Box - 6"
-         group="theme_prime_shop_offer"
+         group="theme_prime_cta"
          t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
-        <keywords>offer</keywords>
+        <keywords>call to action, trending, cta</keywords>
       </t>
     </xpath>
   </template>
