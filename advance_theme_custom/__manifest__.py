@@ -10,6 +10,7 @@
         'web.assets_frontend': [
             'advance_theme_custom/static/src/scss/cover_custom/snippet_cover_custom.scss',
             'advance_theme_custom/static/src/scss/gallery_custom/gallery_custom.scss',
+            'advance_theme_custom/static/src/scss/texto_custom/texto_custom.scss',
            # 'advance_theme_custom/static/src/scss/clients_custom/clients_custom.scss'
         ],
     },

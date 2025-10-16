@@ -15,6 +15,7 @@
         'views/snippet/Header_custom/header_custom.xml',
         'views/snippet/gallery_custom/gallery_custom.xml',
         'views/snippet/banner_custom/banner_custom.xml',
+        'views/snippet/texto_custom/texto_custom.xml',
     ],
     'assets': {
         'web.assets_frontend': [
