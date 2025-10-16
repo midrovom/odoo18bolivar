@@ -13,13 +13,14 @@
   </template>
 
   <!-- Snippet visual -->
-  <template id="s_trending_box_snippet" name="Trending Text Box">
-    <section class="s_trending_box o_snippet o_snippet_editable py-4">
-      <div class="container d-flex justify-content-center">
-        <div class="trending-box o_we_bg_color rounded-3 px-5 py-3 o_editable text-center">
-          <p class="o_we_bg_color rounded px-3 py-2 mb-0 fw-bold o_editable">
-             #Trending esto podría interesarte
-         </p>
+  <template id="s_trending_text_snippet" name="Trending Text Block">
+    <section class="s_trending_text_snippet py-4">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-12 col-md-10 col-lg-8 text-center">
+            <h2 class="trending-title fw-bold mb-2">#Trending</h2>
+            <p class="trending-subtitle lead text-muted mb-0">Esto podría interesarte</p>
+          </div>
         </div>
       </div>
     </section>
