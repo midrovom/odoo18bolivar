@@ -1,6 +1,10 @@
-<template id="s_d_category_snippet_extended" inherit_id="theme_prime.s_d_category_snippet" name="Product Category Tabs Extended">
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="s_d_category_snippet_extended" inherit_id="theme_prime.s_d_category_snippet" name="Product Category Tabs Extended">
     <xpath expr="//section" position="inside">
         <!-- Contenedor para mostrar los atributos personalizados -->
         <div class="attribute-container row justify-content-center mt-3"/>
     </xpath>
 </template>
+
+</odoo>
