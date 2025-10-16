@@ -32,11 +32,6 @@
                      style="object-fit: cover;"/>
               </div>
 
-              <!-- Botón tipo link -->
-              <div class="link-box text-center">
-                <a href="#" class="btn btn-link text-decoration-none">Ver ofertas</a>
-              </div>
-
             </div>
           </div>
         </div>
