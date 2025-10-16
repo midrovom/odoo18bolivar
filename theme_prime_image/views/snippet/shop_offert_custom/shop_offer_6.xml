@@ -27,7 +27,7 @@
               </div>
 
               <div class="image-box rounded shadow-sm overflow-hidden o_editable" style="width: 220px; height: 120px;">
-                <div>
+                <div class="col-12 col-md-11 col-lg-10">
                   <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
                        alt="Imagen destacada"
                        class="img-fluid h-100 w-100"
