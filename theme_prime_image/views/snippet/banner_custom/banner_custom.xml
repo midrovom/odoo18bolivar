@@ -5,7 +5,7 @@
     <xpath expr="//t[@t-snippet='theme_prime.s_cover_1']" position="after">
       <t t-snippet="theme_prime_image.s_cover_banner"
          string="Cover Banner - Promo"
-         group="theme_prime_banner"
+         group="theme_prime_cover"
          t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
         <keywords>cover, banner, promo</keywords>
       </t>
@@ -23,7 +23,7 @@
             <a href="/shop" class="btn btn-primary o_we_button">Ver productos</a>
           </div>
           <div class="col-md-6 text-center">
-            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_sample.png"
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
                  class="img-fluid rounded"
                  alt="Promoción destacada"/>
           </div>
