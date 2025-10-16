@@ -1,0 +1,23 @@
+.s_trending_box {
+  background-color: #f0f0f0; // color base editable desde el builder
+
+  h3 {
+    font-size: 1.6rem;
+    color: #212529;
+  }
+
+  p {
+    font-size: 1rem;
+    color: #6c757d;
+  }
+
+  @media (max-width: 768px) {
+    h3 {
+      font-size: 1.3rem;
+    }
+
+    p {
+      font-size: 0.95rem;
+    }
+  }
+}
