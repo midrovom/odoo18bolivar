@@ -1,18 +1,18 @@
 .s_trending_box {
-  .trending-box {
-    max-width: 1080px; // ancho aumentado
-    width: 100%;
-    background-color: #f0f0f0; // editable desde el builder
-    border-radius: 0.75rem;
-    font-size: 1.3rem;
-    color: #212529;
-  }
+  .text-block {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
 
-  @media (max-width: 768px) {
-    .trending-box {
-      font-size: 1.1rem;
-      padding: 1rem;
+    h3 {
+      font-weight: bold;
+      margin-bottom: 0;
+    }
+
+    p {
+      margin-bottom: 0;
+      color: #6c757d;
     }
   }
 }
-
