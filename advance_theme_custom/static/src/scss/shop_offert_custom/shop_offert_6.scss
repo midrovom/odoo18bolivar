@@ -1,0 +1,23 @@
+.s_trending_box_with_image {
+  .text-block {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 1rem 0;
+
+    .image-box {
+      padding: 10px;
+      background-color: #fff;
+      border-radius: 0.75rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    img {
+      object-fit: cover;
+      border-radius: 0.5rem;
+    }
+
+    p {
+      font-size: 0.75rem;
+    }
+  }
+}
