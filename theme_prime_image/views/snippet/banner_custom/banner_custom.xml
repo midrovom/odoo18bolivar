@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Registro del snippet -->
+  <template id="s_cover_banner_snippet" inherit_id="theme_prime.snippets" name="Cover Banner - Promo">
+    <xpath expr="//t[@t-snippet='theme_prime.s_cover_1']" position="after">
+      <t t-snippet="theme_prime_image.s_cover_banner"
+         string="Cover Banner - Promo"
+         group="theme_prime_banner"
+         t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_cover.png">
+        <keywords>cover, banner, promo</keywords>
+      </t>
+    </xpath>
+  </template>
+
+  <!-- Snippet editable -->
+  <template id="s_cover_banner" name="Cover Banner">
+    <section class="s_cover_banner o_snippet o_editable bg-light py-5">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-md-6 text-center text-md-start">
+            <h2 class="display-5 fw-bold mb-3">¡Hasta 50% OFF!</h2>
+            <p class="lead mb-4">Descubre nuestras ofertas en laptops, celulares y más.</p>
+            <a href="/shop" class="btn btn-primary o_we_button">Ver productos</a>
+          </div>
+          <div class="col-md-6 text-center">
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_sample.png"
+                 class="img-fluid rounded"
+                 alt="Promoción destacada"/>
+          </div>
+        </div>
+      </div>
+    </section>
+  </template>
+</odoo>
