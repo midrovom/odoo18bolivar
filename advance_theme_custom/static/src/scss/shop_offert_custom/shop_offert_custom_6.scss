@@ -1,26 +1,43 @@
-.s_trending_box_with_image {
+.s_trending_box {
   .text-block {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 1rem 0;
 
-  .image-box {
-    width: 220px;
-    height: 120px;
-    border-radius: 0.5rem;
-    overflow: hidden;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-
-    img {
-      object-fit: cover;
-      width: 100%;
-      height: 100%;
+    h4 {
+      font-weight: 600;
     }
-  }
 
-  .link-box a {
-    font-weight: 500;
-    color: #007bff;
+    h3 {
+      font-weight: bold;
+      color: #007bff;
+    }
+
+    .image-box {
+      width: 120px;
+      height: 80px;
+      border-radius: 0.5rem;
+      overflow: hidden;
+
+      img {
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    small {
+      font-size: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+      .text-content {
+        text-align: center;
+      }
+
+      .image-box {
+        margin-top: 0.5rem;
+      }
+    }
   }
 }
