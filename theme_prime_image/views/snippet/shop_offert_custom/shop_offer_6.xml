@@ -6,7 +6,7 @@
          string="Trending Text Box - 6"
          group="theme_prime_shop_offer"
          t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
-        <keywords>call to action, trending, cta</keywords>
+        <keywords>offer</keywords>
       </t>
     </xpath>
   </template>
