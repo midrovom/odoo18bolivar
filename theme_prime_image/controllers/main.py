@@ -1,31 +1,19 @@
-from odoo import http
-from odoo.http import request
-from odoo.addons.theme_prime.controllers.main import ThemePrimeController
+from odoo.http import route
+from odoo.addons.website_sale.controllers.main import WebsiteSale
 
-class ThemePrimeImageController(ThemePrimeController):
+class WebsiteProductControllerExtended(WebsiteSale):
 
-    @http.route('/theme_prime/get_products_by_category', type='json', auth='public', website=True)
+    @route('/theme_prime/get_products_by_category', type='json', auth='public', website=True)
     def get_products_by_category(self, domain, fields=[], options={}, **kwargs):
-        # Ejecuta el controlador original
+        # Llamar al controlador original
         result = super().get_products_by_category(domain, fields, options, **kwargs)
 
-        # Añade atributos personalizados a cada producto
-        for product in result.get('products', []):
-            product_record = request.env['product.template'].sudo().browse(product['id'])
-            attribute_data = []
-            for line in product_record.attribute_line_ids:
-                if line.attribute_id.name != 'Marca':
-                    values = []
-                    for val in line.value_ids:
-                        values.append({
-                            'id': val.id,
-                            'name': val.name,
-                            'dr_image': bool(val.dr_image),
-                        })
-                    attribute_data.append({
-                        'attribute_id': {'name': line.attribute_id.name},
-                        'value_ids': values,
-                    })
-            product['attribute_line_ids'] = attribute_data
+        # Tu lógica personalizada: agregar valores de atributos con imagen
+        if options.get('get_attribute_values'):
+            product_ids = result.get('products', [])
+            attribute_values = request.env['product.attribute.value'].sudo().search([
+                ('product_template_value_ids.product_tmpl_id', 'in', [p['id'] for p in product_ids])
+            ])
+            result['attribute_values'] = attribute_values.read(['name', 'dr_image', 'attribute_id'])
 
         return result
