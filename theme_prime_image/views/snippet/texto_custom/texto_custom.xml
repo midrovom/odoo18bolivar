@@ -18,7 +18,7 @@
           <div class="col-12 col-md-10 col-lg-8">
             <div class="text-block d-flex align-items-center justify-content-center gap-2 o_editable">
               <h3 class="mb-0">#Trending</h3>
-              <p class="mb-0 text-muted">Esto podría interesarte</p>
+              <h4 class="mb-0 text-muted">Esto podría interesarte</h4>
             </div>
           </div>
         </div>
