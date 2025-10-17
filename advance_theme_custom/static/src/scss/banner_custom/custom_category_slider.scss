@@ -1,40 +1,56 @@
 .card-row {
   gap: 0.25rem;
 
-  @media (max-width: 768px) {
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-  }
-
   .card {
-    scroll-snap-align: start;
-    flex: 0 0 auto;
     width: 120px;
     border: 1px solid #ddd;
     border-radius: 8px;
     text-align: center;
     position: relative;
+    overflow: hidden;
 
     &.o_snippet_editable {
       background-color: inherit;
     }
 
-    img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      display: block;
-    }
+    .card-body {
+      padding: 0;
+      position: relative;
 
-    .btn {
-      position: absolute;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 2;
-      font-size: 0.75rem;
-      padding: 0.25rem 0.5rem;
+      img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        display: block;
+      }
+
+      .btn {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+      }
     }
+  }
+}
+
+/* Scroll infinito en móvil */
+@media (max-width: 768px) {
+  .card-slider {
+    display: flex;
+    animation: scroll-cards 10s linear infinite;
+  }
+
+  @keyframes scroll-cards {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .card-slider .card {
+    flex-shrink: 0;
+    margin-right: 0.5rem;
   }
 }
