@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="s_trending_box_with_image_snippet_snippet" inherit_id="theme_prime.snippets" name="Trending Box with Image - Registry">
+    <xpath expr="//t[@t-snippet='theme_prime.s_shop_offer_5']" position="after">
+      <t t-snippet="theme_prime_image.s_shop_offer_hot"
+         string="Trending Box with Image"
+         group="theme_prime_shop_offer"
+         t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
+        <keywords>trending, image, link</keywords>
+      </t>
+    </xpath>
+  </template>
+
+<template id="s_shop_offer_hot" name="Shop Offer - Hot">
+  <section class="s_shop_offer_hot parallax s_parallax_is_fixed pt120 pb120 s_parallax_no_overflow_hidden"
+           data-scroll-background-ratio="0"
+           data-snippet="s_shop_offer_hot"
+           data-name="Shop Offer - Hot">
+    <span class="s_parallax_bg oe_img_bg o_bg_img_center"
+          style="background-image: url('/web/image/theme_prime.s_shop_offer_1_1'); background-position: 50% 0;"/>
+    <div class="container">
+      <div class="row s_nb_column_fixed">
+        <div class="col-12 text-center">
+          <h3 class="text-uppercase fw-bold">Ofertas Hot</h3>
+          <p class="lead">Precios que no puedes dejar escapar</p>
+          <a href="#" class="btn btn-primary mt-4">Ver más</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+</odoo>
+
+
