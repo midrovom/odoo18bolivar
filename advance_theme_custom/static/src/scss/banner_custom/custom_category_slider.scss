@@ -3,20 +3,11 @@
   flex-direction: row;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 0.25rem; // equivalente a gap-1 (4px)
-
-  // Tamaño máximo del contenedor
+  gap: 0.25rem;
   max-width: 980px;
   margin: 0 auto;
   padding: 0 10px;
 
-  // Responsive ajustes si deseas
-  @media (max-width: 768px) {
-    justify-content: center;
-    gap: 0.5rem;
-  }
-
-  // Estilo para las tarjetas internas
   .card {
     width: 120px;
     border: 1px solid #ddd;
@@ -25,22 +16,26 @@
     padding: 0.75rem;
     background-color: #fff;
 
-    // Fondo editable desde Odoo
     &.o_snippet_editable {
-      background-color: inherit; // editable desde el editor visual
+      background-color: inherit;
     }
 
-    img {
-      height: 90px;
-      object-fit: contain;
-      margin: 0 auto;
-      display: block;
-    }
+    .card-body {
+      padding: 0;
 
-    .btn {
-      margin-top: 0.5rem;
-      font-size: 0.75rem;
-      padding: 0.25rem 0.5rem;
+      img {
+        height: 90px;
+        object-fit: contain;
+        margin: 0 auto;
+        display: block;
+      }
+
+      .btn {
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+      }
     }
   }
 }
+

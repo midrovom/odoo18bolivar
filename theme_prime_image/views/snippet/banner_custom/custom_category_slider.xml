@@ -26,7 +26,7 @@
           ('Promociones', 'banner8.jpg')
         ]" t-as="item">
           <div class="card o_snippet_editable">
-            <div class="card-body">
+            <div class="card-body o_snippet_editable">
               <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
                    class="o_image"
                    t-att-alt="item[0]"/>
