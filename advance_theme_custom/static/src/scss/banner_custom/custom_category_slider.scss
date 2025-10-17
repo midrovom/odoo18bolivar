@@ -1,50 +1,30 @@
-.card-row {
-  gap: 0.25rem;
+.mobile-slider {
+  position: relative;
 
-  .card {
-    scroll-snap-align: start;
-    flex: 0 0 auto;
-    width: 120px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    text-align: center;
-    position: relative;
-
-    &.o_snippet_editable {
-      background-color: inherit;
-    }
-
-    .o_image {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-    }
-
-    .o_button {
-      position: absolute;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 2;
-      font-size: 0.75rem;
-      padding: 0.25rem 0.5rem;
-    }
-  }
-}
-
-// Scroll infinito solo en móvil
-@media (max-width: 768px) {
-  .card-row.d-md-none {
+  .card-group {
     display: flex;
-    flex-wrap: nowrap;
-    overflow-x: hidden;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    animation: scroll-cards 10s linear infinite;
+    justify-content: space-between;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+  }
+
+  .card-group.active {
+    opacity: 1;
+    position: relative;
   }
 }
 
-@keyframes scroll-cards {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+@media (max-width: 768px) {
+  @keyframes slideGroups {
+    0%, 49% { .mobile-slider .card-group:nth-child(1) { opacity: 1; } }
+    50%, 100% { .mobile-slider .card-group:nth-child(2) { opacity: 1; } }
+  }
+
+  .mobile-slider {
+    animation: slideGroups 8s infinite;
+  }
 }
