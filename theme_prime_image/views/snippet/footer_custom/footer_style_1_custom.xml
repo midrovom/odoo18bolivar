@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <data inherit_id="template_footer_style_1" name="Footer Style - 1 (Logo Left)">
+<template id="template_footer_style_1_inherit" name="Template footer style 1" inherit_id="theme_prime.template_footer_style_1">
     <xpath expr="//div[@id='footer']//div[@class='col-12 text-center mb-5']" position="replace">
       <div class="col-12 text-start mb-5">
         <a href="/" class="o_footer_logo logo">
           <img src="/website/static/src/img/website_logo.svg" class="img-fluid" aria-label="Logo of MyCompany" title="MyCompany" role="img"/>
         </a>
       </div>
-    </xpath>
-  </data>
+</template>
 </odoo>
 
