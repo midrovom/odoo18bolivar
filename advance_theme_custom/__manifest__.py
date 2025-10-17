@@ -14,6 +14,7 @@
             'advance_theme_custom/static/src/scss/banner_custom/custom_category_slider.scss',
             'advance_theme_custom/static/src/scss/clients_custom/clients_custom.scss',
             'advance_theme_custom/static/src/scss/shop_offert_custom/s_shop_offer_custom.scss',
+            'advance_theme_custom/static/src/scss/shop_offert_custom/s_shop_offer_hot.scss',
         ],
     },
     'installable': True,
