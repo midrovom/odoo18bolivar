@@ -18,14 +18,14 @@
           <!-- Desktop -->
           <div class="card-row d-none d-md-flex flex-row justify-content-between flex-wrap">
             <t t-foreach="[
-              ('Celulares', 'banner1.jpg'),
-              ('Laptops', 'banner2.jpg'),
-              ('Tablets', 'banner3.jpg'),
-              ('Gamer', 'banner4.jpg'),
+              ('Celulares', 'banner5.jpg'),
+              ('Laptops', 'banner5.jpg'),
+              ('Tablets', 'banner5.jpg'),
+              ('Gamer', 'banner5.jpg'),
               ('Audio', 'banner5.jpg'),
-              ('Accesorios', 'banner6.jpg'),
-              ('Smart TV', 'banner7.jpg'),
-              ('Promociones', 'banner8.jpg')
+              ('Accesorios', 'banner5.jpg'),
+              ('Smart TV', 'banner5.jpg'),
+              ('Promociones', 'banner5.jpg')
             ]" t-as="item">
               <div class="card o_snippet_editable py-3 text-center">
                 <div class="card-body">
@@ -42,14 +42,14 @@
           <div class="d-md-none overflow-hidden">
             <div class="card-slider d-flex align-items-center">
               <t t-foreach="[
-                ('Celulares', 'banner1.jpg'),
-                ('Laptops', 'banner2.jpg'),
-                ('Tablets', 'banner3.jpg'),
-                ('Gamer', 'banner4.jpg'),
+                ('Celulares', 'banner5.jpg'),
+                ('Laptops', 'banner5.jpg'),
+                ('Tablets', 'banner5.jpg'),
+                ('Gamer', 'banner5.jpg'),
                 ('Audio', 'banner5.jpg'),
-                ('Accesorios', 'banner6.jpg'),
-                ('Smart TV', 'banner7.jpg'),
-                ('Promociones', 'banner8.jpg')
+                ('Accesorios', 'banner5.jpg'),
+                ('Smart TV', 'banner5.jpg'),
+                ('Promociones', 'banner5.jpg')
               ]" t-as="item">
                 <div class="card o_snippet_editable py-3 text-center mx-2 flex-shrink-0">
                   <div class="card-body">
@@ -61,14 +61,14 @@
                 </div>
               </t>
               <t t-foreach="[
-                ('Celulares', 'banner1.jpg'),
-                ('Laptops', 'banner2.jpg'),
-                ('Tablets', 'banner3.jpg'),
-                ('Gamer', 'banner4.jpg'),
+                ('Celulares', 'banner5.jpg'),
+                ('Laptops', 'banner5.jpg'),
+                ('Tablets', 'banner5.jpg'),
+                ('Gamer', 'banner5.jpg'),
                 ('Audio', 'banner5.jpg'),
-                ('Accesorios', 'banner6.jpg'),
-                ('Smart TV', 'banner7.jpg'),
-                ('Promociones', 'banner8.jpg')
+                ('Accesorios', 'banner5.jpg'),
+                ('Smart TV', 'banner5.jpg'),
+                ('Promociones', 'banner5.jpg')
               ]" t-as="item">
                 <div class="card o_snippet_editable py-3 text-center mx-2 flex-shrink-0">
                   <div class="card-body">
