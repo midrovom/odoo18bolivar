@@ -29,7 +29,7 @@
             <t t-set="brand_attr"
                t-value="request.env['product.attribute'].sudo().search([('name','=','Marca')], limit=1)"/>
             <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
-              <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
+              <a t-att-href="'/shop?attribute_value=%s-%s' % (brand.attribute_id.id, brand.id)"
                  class="brand-link text-decoration-none mx-2">
                 <t t-if="brand.dr_image">
                   <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
@@ -50,7 +50,7 @@
             <t t-set="brand_attr"
                t-value="request.env['product.attribute'].sudo().search([('name','=','Marca')], limit=1)"/>
             <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
-              <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
+              <a t-att-href="'/shop?attribute_value=%s-%s' % (brand.attribute_id.id, brand.id)"
                  class="brand-link text-decoration-none mx-3 flex-shrink-0">
                 <t t-if="brand.dr_image">
                   <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
@@ -63,7 +63,7 @@
               </a>
             </t>
             <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="'dup-%s' % brand.id">
-              <a t-att-href="'/shop?attrib=%s-%s' % (brand.attribute_id.id, brand.id)"
+              <a t-att-href="'/shop?attribute_value=%s-%s' % (brand.attribute_id.id, brand.id)"
                  class="brand-link text-decoration-none mx-3 flex-shrink-0">
                 <t t-if="brand.dr_image">
                   <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
