@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 1rem;
   text-align: left;
+  gap: 1rem;
 }
 
 .s_shop_offer_hot .text-content {
@@ -19,10 +19,11 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    text-align: start;
   }
 
   .s_shop_offer_hot .text-content {
-    text-align: right;
+    text-align: start;
   }
 
   .s_shop_offer_hot .action-button {
