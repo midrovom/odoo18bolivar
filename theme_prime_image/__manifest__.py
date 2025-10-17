@@ -18,6 +18,7 @@
         'views/snippet/gallery_custom/image_delivery_guarantee.xml',
         'views/snippet/banner_custom/custom_category_slider.xml',
         'views/snippet/shop_offert_custom/s_shop_offer_hot.xml',
+        'views/snippet/footer_custom/footer_style_1_custom.xml',
     ],
     'assets': {
         'web.assets_frontend': [
