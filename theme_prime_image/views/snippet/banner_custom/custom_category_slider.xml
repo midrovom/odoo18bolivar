@@ -25,16 +25,11 @@
           ('Smart TV', 'banner5.jpg'),
           ('Promociones', 'banner5.jpg')
         ]" t-as="item">
-          <div style="width: 120px; height: 150px; position: relative; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+          <div class="card-banner">
             <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
                  t-att-alt="item[0]"
-                 style="width: 100%; height: 100%; object-fit: cover;"/>
-            <a href="#"
-               t-esc="item[0]"
-               style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
-                      background-color: #007bff; color: white; text-decoration: none;
-                      padding: 4px 8px; font-size: 0.75rem; border-radius: 2px; z-index: 2;
-                      display: inline-block;"/>
+                 class="card-banner-img"/>
+            <a href="#" t-esc="item[0]" class="card-banner-btn"/>
           </div>
         </t>
       </div>
@@ -53,16 +48,11 @@
                   ('Tablets', 'banner5.jpg'),
                   ('Gamer', 'banner5.jpg')
                 ]" t-as="item">
-                  <div style="width: 120px; height: 150px; position: relative; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+                  <div class="card-banner">
                     <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
                          t-att-alt="item[0]"
-                         style="width: 100%; height: 100%; object-fit: cover;"/>
-                    <a href="#"
-                       t-esc="item[0]"
-                       style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
-                              background-color: #007bff; color: white; text-decoration: none;
-                              padding: 4px 8px; font-size: 0.75rem; border-radius: 2px; z-index: 2;
-                              display: inline-block;"/>
+                         class="card-banner-img"/>
+                    <a href="#" t-esc="item[0]" class="card-banner-btn"/>
                   </div>
                 </t>
               </div>
@@ -77,16 +67,11 @@
                   ('Smart TV', 'banner5.jpg'),
                   ('Promociones', 'banner5.jpg')
                 ]" t-as="item">
-                  <div style="width: 120px; height: 150px; position: relative; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+                  <div class="card-banner">
                     <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
                          t-att-alt="item[0]"
-                         style="width: 100%; height: 100%; object-fit: cover;"/>
-                    <a href="#"
-                       t-esc="item[0]"
-                       style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
-                              background-color: #007bff; color: white; text-decoration: none;
-                              padding: 4px 8px; font-size: 0.75rem; border-radius: 2px; z-index: 2;
-                              display: inline-block;"/>
+                         class="card-banner-img"/>
+                    <a href="#" t-esc="item[0]" class="card-banner-btn"/>
                   </div>
                 </t>
               </div>
@@ -98,4 +83,3 @@
     </section>
   </template>
 </odoo>
-
