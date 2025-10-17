@@ -26,14 +26,16 @@
               ('Smart TV', 'banner5.jpg'),
               ('Promociones', 'banner5.jpg')
             ]" t-as="item">
-              <div class="card o_snippet_editable py-3 text-center" style="width: 120px; position: relative; overflow: hidden; border: 1px solid #ddd; border-radius: 8px;">
-                <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
-                     class="o_image img-fluid"
-                     t-att-alt="item[0]"
-                     style="width: 100%; height: 120px; object-fit: cover;"/>
-                <a href="#" class="o_button btn btn-primary btn-sm rounded-pill"
-                   style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2;"
-                   t-esc="item[0]"/>
+              <div class="card o_snippet_editable py-3 text-center" style="width: 120px; position: relative; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+                <div style="position: relative;">
+                  <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
+                       class="o_image img-fluid"
+                       t-att-alt="item[0]"
+                       style="width: 100%; height: 120px; object-fit: cover;"/>
+                  <a href="#" class="o_button btn btn-primary btn-sm rounded-pill"
+                     style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 2;"
+                     t-esc="item[0]"/>
+                </div>
               </div>
             </t>
           </div>
