@@ -11,24 +11,24 @@
     </xpath>
   </template>
 
-<template id="s_shop_offer_hot" name="Shop Offer - Hot">
-  <section class="s_shop_offer_hot parallax s_parallax_is_fixed pt120 pb120 s_parallax_no_overflow_hidden"
-           data-scroll-background-ratio="0"
-           data-snippet="s_shop_offer_hot"
-           data-name="Shop Offer - Hot">
-    <span class="s_parallax_bg oe_img_bg o_bg_img_center"
-          style="background-image: url('/web/image/theme_prime.s_shop_offer_1_1'); background-position: 50% 0;"/>
-    <div class="container">
-      <div class="row s_nb_column_fixed">
-        <div class="col-12 text-center">
-          <h3 class="text-uppercase fw-bold">Ofertas Hot</h3>
-          <p class="lead">Precios que no puedes dejar escapar</p>
-          <a href="#" class="btn btn-primary mt-4">Ver más</a>
+  <template id="s_shop_offer_hot" name="Shop Offer - Hot">
+    <section class="s_shop_offer_hot parallax s_parallax_is_fixed pt120 pb120 s_parallax_no_overflow_hidden"
+             data-scroll-background-ratio="0"
+             data-snippet="s_shop_offer_hot"
+             data-name="Shop Offer - Hot">
+      <span class="s_parallax_bg oe_img_bg o_bg_img_center"
+            style="background-image: url('/web/image/theme_prime.s_shop_offer_1_1'); background-position: 50% 0;"/>
+      <div class="container">
+        <div class="row s_nb_column_fixed">
+          <div class="col-12 col-md-11 col-lg-10 mx-auto text-center">
+            <div class="shop-offer-hot-wrapper d-flex flex-column align-items-center">
+              <h3 class="text-uppercase fw-bold">Ofertas Hot</h3>
+              <p class="lead">Precios que no puedes dejar escapar</p>
+              <a href="#" class="btn btn-primary">Ver más</a>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
-</template>
+    </section>
+  </template>
 </odoo>
-
-
