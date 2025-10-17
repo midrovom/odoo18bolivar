@@ -11,73 +11,27 @@
     </xpath>
   </template>
 
-<template id="s_banner_custom_8cards" name="Banner 9 - 8 Cards Custom">
-  <section class="s_banner_9 o_container mt-5 mb-5 bg-white animated-background">
-    <div class="row justify-content-center">
-      <div class="col-12 col-md-11 col-lg-10 o_colored_level">
-
-        <!-- Tarjetas alineadas -->
-        <div class="card-row d-flex flex-row justify-content-between flex-wrap">
-          <t t-foreach="[
-            ('Celulares', 'banner5.jpg'),
-            ('Laptops', 'banner5.jpg'),
-            ('Tablets', 'banner5.jpg'),
-            ('Gamer', 'banner5.jpg'),
-            ('Audio', 'banner5.jpg'),
-            ('Accesorios', 'banner5.jpg'),
-            ('Smart TV', 'banner5.jpg'),
-            ('Promociones', 'banner5.jpg')
-          ]" t-as="item">
-            <div class="card o_snippet_editable py-3 text-center" style="width: 120px; margin: 0.5rem; position: relative; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
-              <div style="position: relative;">
-                <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
-                     class="o_image img-fluid"
-                     t-att-alt="item[0]"
-                     style="width: 100%; height: 120px; object-fit: cover;"/>
-                <a href="#" class="o_button btn btn-primary btn-sm rounded-pill"
-                   style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 2;"
-                   t-esc="item[0]"/>
-              </div>
-            </div>
-          </t>
-        </div>
-
+  <template id="s_banner_custom_8cards" name="Banner 9 - 8 Cards Custom">
+    <section class="s_banner_9 o_container mt-5 mb-5 bg-white">
+      <div class="col-12 col-md-11 col-lg-10 d-flex flex-wrap justify-content-between gap-2">
+        <t t-foreach="[
+          ('Celulares', 'banner5.jpg'),
+          ('Laptops', 'banner5.jpg'),
+          ('Tablets', 'banner5.jpg'),
+          ('Gamer', 'banner5.jpg'),
+          ('Audio', 'banner5.jpg'),
+          ('Accesorios', 'banner5.jpg'),
+          ('Smart TV', 'banner5.jpg'),
+          ('Promociones', 'banner5.jpg')
+        ]" t-as="item">
+          <t t-set="img_path" t-value="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"/>
+          <img t-att-src="img_path"
+               t-att-alt="item[0]"
+               class="o_image img-fluid"
+               style="width: 120px; height: 120px; object-fit: cover; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 0.5rem;"/>
+          <a href="#" class="o_button btn btn-primary btn-sm rounded-pill d-block text-center mb-3" style="width: 120px;" t-esc="item[0]"/>
+        </t>
       </div>
-    </div>
-
-    <!-- Estilos embebidos -->
-    <style>
-      .animated-background {
-        background-image: url('/theme_prime_image/static/src/img/s_banner_custom/bg_pattern.png');
-        background-repeat: repeat-x;
-        background-size: cover;
-        animation: scrollBackground 30s linear infinite;
-      }
-
-      @keyframes scrollBackground {
-        0% { background-position: 0 0; }
-        100% { background-position: -1000px 0; }
-      }
-
-      .o_colored_level {
-        position: relative !important;
-        z-index: 0 !important;
-        overflow: visible !important;
-      }
-
-      .card-row {
-        position: relative;
-        z-index: 1;
-        min-height: 150px;
-      }
-    </style>
-  </section>
-</template>
-
+    </section>
+  </template>
 </odoo>
-
-
-
-
-
-
