@@ -13,7 +13,7 @@
 
   <template id="s_banner_custom_8cards" name="Banner 9 - 8 Cards Custom">
     <section class="s_banner_9 o_container mt-5 mb-5 bg-white">
-      <div class="col-12 col-md-11 col-lg-10 d-flex flex-wrap justify-content-center gap-3">
+      <div class="col-12 col-md-11 col-lg-10 d-flex flex-wrap justify-content-between gap-2 mx-auto">
         <t t-foreach="[
           ('Celulares', 'banner5.jpg'),
           ('Laptops', 'banner5.jpg'),
