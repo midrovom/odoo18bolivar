@@ -1,13 +1,5 @@
 .card-row {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  flex-wrap: wrap;
   gap: 0.25rem;
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 0 10px;
-
   .card {
     width: 120px;
     border: 1px solid #ddd;
@@ -20,21 +12,17 @@
       background-color: inherit;
     }
 
-    .card-body {
-      padding: 0;
+    img {
+      height: 90px;
+      object-fit: contain;
+      margin: 0 auto;
+      display: block;
+    }
 
-      img {
-        height: 90px;
-        object-fit: contain;
-        margin: 0 auto;
-        display: block;
-      }
-
-      .btn {
-        margin-top: 0.5rem;
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
-      }
+    .btn {
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
     }
   }
 }

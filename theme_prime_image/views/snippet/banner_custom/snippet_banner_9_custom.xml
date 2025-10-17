@@ -6,9 +6,7 @@
       <attribute name="style">max-width:1000px; margin:40px auto; padding:40px 0;</attribute>
     </xpath>
 
-    <!-- Reemplazo del contenido interno -->
     <xpath expr="//div[@class='row s_col_no_bgcolor s_nb_column_fixed']" position="replace">
-
       <!-- Desktop: 4 cards en grilla -->
       <div class="row justify-content-center s_col_no_bgcolor s_nb_column_fixed d-none d-md-flex">
         <div class="col-6 col-md-6 col-lg-3 py-3 d-flex justify-content-center">
