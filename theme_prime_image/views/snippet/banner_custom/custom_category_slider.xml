@@ -11,8 +11,7 @@
     </xpath>
   </template>
 
-  <!-- Template del banner con 8 tarjetas alineadas -->
-  <template id="s_banner_custom_8cards" name="Banner 9 - 8 Cards Custom">
+  <template id="s_banner_9_custom_8cards" name="Banner 9 - 8 Cards Custom">
     <section class="s_banner_9 o_container mt-5 mb-5 bg-white">
       <div class="card-row mx-auto">
         <t t-foreach="[
@@ -26,7 +25,7 @@
           ('Promociones', 'banner8.jpg')
         ]" t-as="item">
           <div class="card o_snippet_editable">
-            <div class="card-body o_snippet_editable">
+            <div class="card-body">
               <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
                    class="o_image"
                    t-att-alt="item[0]"/>
