@@ -1,12 +1,6 @@
 .card-row {
   gap: 0.25rem;
 
-  @media (max-width: 768px) {
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-  }
-
   .card {
     scroll-snap-align: start;
     flex: 0 0 auto;
@@ -20,14 +14,13 @@
       background-color: inherit;
     }
 
-    img {
+    .o_image {
       width: 100%;
       height: 120px;
       object-fit: cover;
-      display: block;
     }
 
-    .btn {
+    .o_button {
       position: absolute;
       bottom: 8px;
       left: 50%;
@@ -37,4 +30,19 @@
       padding: 0.25rem 0.5rem;
     }
   }
+
+  // Scroll infinito solo en móvil
+  @media (max-width: 768px) {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    animation: scroll-cards 10s linear infinite;
+  }
+}
+
+@keyframes scroll-cards {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
