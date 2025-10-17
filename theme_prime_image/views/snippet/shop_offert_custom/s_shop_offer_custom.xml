@@ -7,7 +7,7 @@
     </xpath>
 
     <xpath expr="//div[@class='col-12 text-center']" position="replace">
-      <div class="w-100 text-center">
+      <div class="col-12 col-md-11 col-lg-10 mx-auto text-center">
         <div class="shop-offer-wrapper">
           <h3 class="shop-offer-title text-uppercase mb-0">
             HASTA EL <span class="text-o-color-1">30%</span> OFF EN TU PRIMERA COMPRA

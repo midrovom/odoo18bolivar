@@ -26,8 +26,6 @@
                 </div>
                 <p class="mt-1 mb-0 text-muted" style="font-size: 0.75rem;">*Aplican términos y condiciones</p>
               </div>
-
-              <!-- Imagen alineada con padding -->
               <div class="image-box o_editable px-3 py-3">
                 <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg"
                      alt="Imagen destacada"
