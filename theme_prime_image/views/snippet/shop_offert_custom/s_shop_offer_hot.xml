@@ -11,37 +11,28 @@
     </xpath>
   </template>
 
-<template id="s_shop_offer_hot" name="Shop Offer - Hot">
-  <section class="s_shop_offer_hot parallax s_parallax_is_fixed pt120 pb120 s_parallax_no_overflow_hidden"
-           data-scroll-background-ratio="0"
-           data-snippet="s_shop_offer_hot"
-           data-name="Shop Offer - Hot">
-    <span class="s_parallax_bg oe_img_bg o_bg_img_center"
-          style="background-image: url('/web/image/theme_prime.s_shop_offer_1_1'); background-position: 50% 0;"/>
-    <div class="container">
-      <div class="row s_nb_column_fixed">
-        <div class="col-12 col-md-11 col-lg-10 mx-auto">
-          <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
-            <!-- Texto como botón en móvil -->
-            <div class="text-content text-md-end text-center w-100 d-flex flex-column flex-md-row justify-content-md-end align-items-md-center">
-              <div class="d-none d-md-block me-md-3">
+  <template id="s_shop_offer_hot" name="Shop Offer - Hot">
+    <section class="s_shop_offer_hot parallax s_parallax_is_fixed pt120 pb120 s_parallax_no_overflow_hidden"
+             data-scroll-background-ratio="0"
+             data-snippet="s_shop_offer_hot"
+             data-name="Shop Offer - Hot">
+      <span class="s_parallax_bg oe_img_bg o_bg_img_center"
+            style="background-image: url('/web/image/theme_prime.s_shop_offer_1_1'); background-position: 50% 0;"/>
+      <div class="container">
+        <div class="row s_nb_column_fixed">
+          <div class="col-12 col-md-11 col-lg-10 mx-auto">
+            <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center text-end text-md-start">
+              <div class="text-content">
                 <h3 class="text-uppercase fw-bold mb-1">Ofertas Hot</h3>
                 <p class="lead mb-0">Precios que no puedes dejar escapar</p>
               </div>
-              <div class="d-block d-md-none">
-                <a href="#" class="btn btn-outline-light text-dark border-0 fw-bold">Ofertas Hot: Precios que no puedes dejar escapar</a>
+              <div class="mt-3 mt-md-0">
+                <a href="#" class="btn btn-primary">Ver más</a>
               </div>
-            </div>
-            <!-- Botón principal -->
-            <div class="mt-3 mt-md-0">
-              <a href="#" class="btn btn-primary">Ver más</a>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
-</template>
-
-
+    </section>
+  </template>
 </odoo>
