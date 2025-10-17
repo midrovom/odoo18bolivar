@@ -30,9 +30,11 @@
       padding: 0.25rem 0.5rem;
     }
   }
+}
 
-  // Scroll infinito solo en móvil
-  @media (max-width: 768px) {
+// Scroll infinito solo en móvil
+@media (max-width: 768px) {
+  .card-row.d-md-none {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: hidden;
