@@ -12,9 +12,9 @@
           <h3 class="shop-offer-title text-uppercase mb-0">
             HASTA EL <span class="text-o-color-1">30%</span> OFF EN TU PRIMERA COMPRA
           </h3>
+          <p class="shop-offer-note mb-1">*Aplican términos y condiciones</p>
           <div class="shop-offer-actions">
             <a href="#" class="btn btn-primary rounded-pill">Ver Ofertas</a>
-            <p class="shop-offer-note mb-0">*Aplican términos y condiciones</p>
           </div>
         </div>
       </div>

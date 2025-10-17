@@ -12,6 +12,12 @@
   line-height: 1.4;
 }
 
+.shop-offer-note {
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 0.25rem;
+}
+
 .shop-offer-actions {
   display: flex;
   flex-direction: column;
@@ -20,20 +26,21 @@
   font-size: 0.75rem;
 }
 
-.shop-offer-note {
-  font-size: 12px;
-  color: #6c757d;
-}
-
 @media (min-width: 768px) {
   .shop-offer-wrapper {
     flex-direction: row;
     justify-content: center;
     align-items: center;
     gap: 1rem;
+    text-align: left;
   }
 
   .shop-offer-title {
+    margin-bottom: 0;
+  }
+
+  .shop-offer-note {
+    margin-top: 0;
     margin-bottom: 0;
   }
 
