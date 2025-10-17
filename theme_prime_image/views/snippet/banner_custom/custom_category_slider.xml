@@ -13,7 +13,7 @@
 
   <template id="s_banner_custom_8cards" name="Banner 9 - 8 Cards Custom">
     <section class="s_banner_9 o_container mt-5 mb-5 bg-white">
-      <div class="col-12 col-md-11 col-lg-10 d-flex flex-wrap justify-content-between gap-2">
+      <div class="col-12 col-md-11 col-lg-10 d-flex flex-wrap justify-content-center gap-3">
         <t t-foreach="[
           ('Celulares', 'banner5.jpg'),
           ('Laptops', 'banner5.jpg'),
@@ -32,10 +32,12 @@
                t-esc="item[0]"
                style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
                       background-color: #007bff; color: white; text-decoration: none;
-                      padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; z-index: 2;"/>
+                      padding: 4px 8px; font-size: 0.75rem; border-radius: 2px; z-index: 2;
+                      display: inline-block;"/>
           </div>
         </t>
       </div>
     </section>
   </template>
 </odoo>
+
