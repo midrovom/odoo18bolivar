@@ -11,28 +11,32 @@
     </xpath>
   </template>
 
-  <template id="s_banner_9_custom_8cards" name="Banner 9 - 8 Cards Custom">
+  <template id="s_banner_custom_8cards" name="Banner 9 - 8 Cards Custom">
     <section class="s_banner_9 o_container mt-5 mb-5 bg-white">
-      <div class="card-row mx-auto">
-        <t t-foreach="[
-          ('Celulares', 'banner1.jpg'),
-          ('Laptops', 'banner2.jpg'),
-          ('Tablets', 'banner3.jpg'),
-          ('Gamer', 'banner4.jpg'),
-          ('Audio', 'banner5.jpg'),
-          ('Accesorios', 'banner6.jpg'),
-          ('Smart TV', 'banner7.jpg'),
-          ('Promociones', 'banner8.jpg')
-        ]" t-as="item">
-          <div class="card o_snippet_editable">
-            <div class="card-body">
-              <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
-                   class="o_image"
-                   t-att-alt="item[0]"/>
-              <a href="#" class="o_button btn btn-primary" t-esc="item[0]"/>
-            </div>
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-11 col-lg-10">
+          <div class="card-row">
+            <t t-foreach="[
+              ('Celulares', 'banner5.jpg'),
+              ('Laptops', 'banner5.jpg'),
+              ('Tablets', 'banner5.jpg'),
+              ('Gamer', 'banner5.jpg'),
+              ('Audio', 'banner5.jpg'),
+              ('Accesorios', 'banner5.jpg'),
+              ('Smart TV', 'banner5.jpg'),
+              ('Promociones', 'banner5.jpg')
+            ]" t-as="item">
+              <div class="card o_snippet_editable py-3">
+                <div class="card-body o_snippet_editable">
+                  <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
+                       class="o_image"
+                       t-att-alt="item[0]"/>
+                  <a href="#" class="o_button btn btn-primary btn-sm rounded-pill mt-2" t-esc="item[0]"/>
+                </div>
+              </div>
+            </t>
           </div>
-        </t>
+        </div>
       </div>
     </section>
   </template>
