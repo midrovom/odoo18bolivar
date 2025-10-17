@@ -1,3 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="s_cover_banner_snippet" inherit_id="theme_prime.snippets" name="Cover Banner - Promo">
+    <xpath expr="//t[@t-snippet='theme_prime.s_banner_15']" position="after">
+      <t t-snippet="theme_prime_image.s_banner_custom_8cards"
+         string="Cover Banner - Promo"
+         group="theme_prime_banner"
+         t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
+        <keywords>cover, banner, promo</keywords>
+      </t>
+    </xpath>
+  </template>
+
 <template id="s_banner_custom_8cards" name="Banner 9 - 8 Cards Custom">
   <section class="s_banner_9 o_container mt-5 mb-5 bg-white">
     <div class="row justify-content-center">
@@ -75,6 +88,11 @@
     </div>
   </section>
 </template>
+
+</odoo>
+
+
+
 
 
 
