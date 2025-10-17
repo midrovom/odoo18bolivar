@@ -7,15 +7,23 @@
   text-align: center;
 }
 
+.shop-offer-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
 .shop-offer-title {
   font-size: 1.25rem;
   line-height: 1.4;
+  margin-bottom: 0.25rem;
 }
 
 .shop-offer-note {
   font-size: 12px;
   color: #6c757d;
-  margin-top: 0.25rem;
+  margin: 0;
 }
 
 .shop-offer-actions {
@@ -35,13 +43,9 @@
     text-align: left;
   }
 
-  .shop-offer-title {
-    margin-bottom: 0;
-  }
-
-  .shop-offer-note {
-    margin-top: 0;
-    margin-bottom: 0;
+  .shop-offer-text {
+    align-items: flex-start;
+    text-align: left;
   }
 
   .shop-offer-actions {
