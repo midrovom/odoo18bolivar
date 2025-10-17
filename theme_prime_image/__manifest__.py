@@ -16,6 +16,7 @@
         'views/snippet/gallery_custom/gallery_custom.xml',
         'views/snippet/texto_custom/texto_custom.xml',
         'views/snippet/gallery_custom/image_delivery_guarantee.xml',
+        'views/snippet/banner_custom/custom_category_slider.xml',
     ],
     'assets': {
         'web.assets_frontend': [
