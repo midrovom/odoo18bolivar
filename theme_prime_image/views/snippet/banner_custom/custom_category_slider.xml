@@ -11,9 +11,10 @@
     </xpath>
   </template>
 
+  <!-- Template del banner con 8 tarjetas alineadas -->
   <template id="s_banner_9_custom_8cards" name="Banner 9 - 8 Cards Custom">
-    <section class="s_banner_9 o_container mt-5 mb-5 bg-white" style="max-width:1000px; margin:40px auto; padding:40px 0;">
-      <div class="row justify-content-center s_col_no_bgcolor s_nb_column_fixed">
+    <section class="s_banner_9 o_container mt-5 mb-5 bg-white" style="max-width:1200px; margin:40px auto; padding:30px 0;">
+      <div class="d-flex flex-row justify-content-between flex-wrap gap-1">
         <t t-foreach="[
           ('Celulares', 'banner1.jpg'),
           ('Laptops', 'banner2.jpg'),
@@ -24,13 +25,12 @@
           ('Smart TV', 'banner7.jpg'),
           ('Promociones', 'banner8.jpg')
         ]" t-as="item">
-          <div class="col-6 col-md-3 col-lg-2 py-2 d-flex justify-content-center">
-            <div class="card border rounded tp-animation-scale h-100">
+          <div class="card border rounded tp-animation-scale text-center" style="width: 135px;">
+            <div class="p-2">
               <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
-                   class="o_image img img-fluid card-img-top rounded-top" t-att-alt="item[0]"/>
-              <div class="p-2 text-center">
-                <a href="#" class="o_button btn btn-primary btn-sm rounded-pill" t-esc="item[0]"/>
-              </div>
+                   class="o_image img-fluid rounded mx-auto d-block" t-att-alt="item[0]"
+                   style="height: 90px; object-fit: contain;"/>
+              <a href="#" class="o_button btn btn-primary btn-sm rounded-pill mt-2" t-esc="item[0]"/>
             </div>
           </div>
         </t>
