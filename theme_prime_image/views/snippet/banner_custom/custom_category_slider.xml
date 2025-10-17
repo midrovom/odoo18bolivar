@@ -11,57 +11,83 @@
     </xpath>
   </template>
 
-  <template id="s_banner_custom_8cards" name="Banner 9 - 8 Cards Custom">
-    <section class="s_banner_9 o_container mt-5 mb-5 bg-white">
-      <div class="row justify-content-center">
-        <div class="col-12 col-md-11 col-lg-10">
-          <div class="card-row d-flex flex-row flex-nowrap">
-            <t t-foreach="[
-              ('Celulares', 'banner5.jpg'),
-              ('Laptops', 'banner5.jpg'),
-              ('Tablets', 'banner5.jpg'),
-              ('Gamer', 'banner5.jpg'),
-              ('Audio', 'banner5.jpg'),
-              ('Accesorios', 'banner5.jpg'),
-              ('Smart TV', 'banner5.jpg'),
-              ('Promociones', 'banner5.jpg')
-            ]" t-as="item">
-              <div class="card o_snippet_editable py-3 text-center">
-                <div style="position: relative;">
-                  <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
-                       class="o_image img-fluid"
-                       t-att-alt="item[0]"/>
-                  <a href="#" class="o_button o_editable btn btn-primary btn-sm rounded-pill"
-                     style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 2;"
-                     t-esc="item[0]"/>
-                </div>
+<template id="s_banner_custom_8cards" name="Banner 9 - 8 Cards Custom">
+  <section class="s_banner_9 o_container mt-5 mb-5 bg-white">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-11 col-lg-10">
+        <div class="card-row d-none d-md-flex flex-row justify-content-between flex-wrap">
+          <t t-foreach="[
+            ('Celulares', 'banner5.jpg'),
+            ('Laptops', 'banner5.jpg'),
+            ('Tablets', 'banner5.jpg'),
+            ('Gamer', 'banner5.jpg'),
+            ('Audio', 'banner5.jpg'),
+            ('Accesorios', 'banner5.jpg'),
+            ('Smart TV', 'banner5.jpg'),
+            ('Promociones', 'banner5.jpg')
+          ]" t-as="item">
+            <div class="card o_snippet_editable py-3 text-center">
+              <div style="position: relative;">
+                <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
+                     class="o_image img-fluid"
+                     t-att-alt="item[0]"/>
+                <a href="#" class="o_button o_editable btn btn-primary btn-sm rounded-pill"
+                   style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 2;"
+                   t-esc="item[0]"/>
               </div>
-            </t>
-            <!-- Duplicado para scroll infinito -->
-            <t t-foreach="[
-              ('Celulares', 'banner5.jpg'),
-              ('Laptops', 'banner5.jpg'),
-              ('Tablets', 'banner5.jpg'),
-              ('Gamer', 'banner5.jpg'),
-              ('Audio', 'banner5.jpg'),
-              ('Accesorios', 'banner5.jpg'),
-              ('Smart TV', 'banner5.jpg'),
-              ('Promociones', 'banner5.jpg')
-            ]" t-as="item">
-              <div class="card o_snippet_editable py-3 text-center">
-                <div style="position: relative;">
-                  <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
-                       class="o_image img-fluid"
-                       t-att-alt="item[0]"/>
-                  <a href="#" class="o_button o_editable btn btn-primary btn-sm rounded-pill"
-                     style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 2;"
-                     t-esc="item[0]"/>
-                </div>
-              </div>
-            </t>
-          </div>
+            </div>
+          </t>
         </div>
+
+        <!-- Móvil: duplicado para scroll infinito -->
+        <div class="card-row d-flex d-md-none flex-row flex-nowrap">
+          <t t-foreach="[
+            ('Celulares', 'banner5.jpg'),
+            ('Laptops', 'banner5.jpg'),
+            ('Tablets', 'banner5.jpg'),
+            ('Gamer', 'banner5.jpg'),
+            ('Audio', 'banner5.jpg'),
+            ('Accesorios', 'banner5.jpg'),
+            ('Smart TV', 'banner5.jpg'),
+            ('Promociones', 'banner5.jpg')
+          ]" t-as="item">
+            <div class="card o_snippet_editable py-3 text-center scroll-snap-align">
+              <div style="position: relative;">
+                <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
+                     class="o_image img-fluid"
+                     t-att-alt="item[0]"/>
+                <a href="#" class="o_button o_editable btn btn-primary btn-sm rounded-pill"
+                   style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 2;"
+                   t-esc="item[0]"/>
+              </div>
+            </div>
+          </t>
+          <t t-foreach="[
+            ('Celulares', 'banner5.jpg'),
+            ('Laptops', 'banner5.jpg'),
+            ('Tablets', 'banner5.jpg'),
+            ('Gamer', 'banner5.jpg'),
+            ('Audio', 'banner5.jpg'),
+            ('Accesorios', 'banner5.jpg'),
+            ('Smart TV', 'banner5.jpg'),
+            ('Promociones', 'banner5.jpg')
+          ]" t-as="item">
+            <div class="card o_snippet_editable py-3 text-center scroll-snap-align">
+              <div style="position: relative;">
+                <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
+                     class="o_image img-fluid"
+                     t-att-alt="item[0]"/>
+                <a href="#" class="o_button o_editable btn btn-primary btn-sm rounded-pill"
+                   style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 2;"
+                   t-esc="item[0]"/>
+              </div>
+            </div>
+          </t>
+        </div>
+
       </div>
-    </section>
-  </template>
+    </div>
+  </section>
+</template>
+
 </odoo>
