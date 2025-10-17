@@ -28,7 +28,7 @@
             ('Promociones', 'banner8.jpg')
           ]" t-as="item">
             <div class="card border rounded tp-animation-scale text-center o_snippet_editable py-3" style="width: 135px;">
-              <div class="p-2">
+              <div class="p-2 o_snippet_editable py-3">
                 <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
                      class="o_image img-fluid rounded mx-auto d-block"
                      t-att-alt="item[0]"
