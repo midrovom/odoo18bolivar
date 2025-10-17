@@ -2,7 +2,7 @@
 <odoo>
   <template id="s_cover_banner_snippet" inherit_id="theme_prime.snippets" name="Cover Banner - Promo">
     <xpath expr="//t[@t-snippet='theme_prime.s_banner_15']" position="after">
-      <t t-snippet="theme_prime_image.custom_category_slider"
+      <t t-snippet="theme_prime_image.s_banner_9_custom_8cards"
          string="Cover Banner - Promo"
          group="theme_prime_banner"
          t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
@@ -11,52 +11,33 @@
     </xpath>
   </template>
 
-<template id="custom_category_slider" name="Category Slider">
-  <section class="o_container o_snippet category-slider my-5">
-    <div class="d-flex flex-wrap justify-content-center gap-3">
-      <!-- Tarjeta 1 -->
-      <div class="card text-center p-2" style="width: 180px;">
-        <img src="/theme_prime_image/static/src/img/celulares.jpg" class="o_image img-fluid rounded" alt="Celulares"/>
-        <a href="#" class="o_button btn btn-primary mt-2">Celulares</a>
+  <template id="s_banner_9_custom_8cards" name="Banner 9 - 8 Cards Custom">
+    <section class="s_banner_9 o_container mt-5 mb-5 bg-white" style="max-width:1000px; margin:40px auto; padding:40px 0;">
+      <div class="row justify-content-center s_col_no_bgcolor s_nb_column_fixed">
+        <t t-foreach="[
+          ('Celulares', 'banner1.jpg'),
+          ('Laptops', 'banner2.jpg'),
+          ('Tablets', 'banner3.jpg'),
+          ('Gamer', 'banner4.jpg'),
+          ('Audio', 'banner5.jpg'),
+          ('Accesorios', 'banner6.jpg'),
+          ('Smart TV', 'banner7.jpg'),
+          ('Promociones', 'banner8.jpg')
+        ]" t-as="item">
+          <div class="col-6 col-md-3 col-lg-2 py-2 d-flex justify-content-center">
+            <div class="card border rounded tp-animation-scale h-100">
+              <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
+                   class="o_image img img-fluid card-img-top rounded-top" t-att-alt="item[0]"/>
+              <div class="p-2 text-center">
+                <a href="#" class="o_button btn btn-primary btn-sm rounded-pill" t-esc="item[0]"/>
+              </div>
+            </div>
+          </div>
+        </t>
       </div>
-      <!-- Tarjeta 2 -->
-      <div class="card text-center p-2" style="width: 180px;">
-        <img src="/theme_prime_image/static/src/img/laptops.jpg" class="o_image img-fluid rounded" alt="Laptops"/>
-        <a href="#" class="o_button btn btn-primary mt-2">Laptops</a>
-      </div>
-      <!-- Tarjeta 3 -->
-      <div class="card text-center p-2" style="width: 180px;">
-        <img src="/theme_prime_image/static/src/img/tablets.jpg" class="o_image img-fluid rounded" alt="Tablets"/>
-        <a href="#" class="o_button btn btn-primary mt-2">Tablets</a>
-      </div>
-      <!-- Tarjeta 4 -->
-      <div class="card text-center p-2" style="width: 180px;">
-        <img src="/your_module/static/src/img/gamer.jpg" class="o_image img-fluid rounded" alt="Gamer"/>
-        <a href="#" class="o_button btn btn-primary mt-2">Gamer</a>
-      </div>
-      <!-- Tarjeta 5 -->
-      <div class="card text-center p-2" style="width: 180px;">
-        <img src="/theme_prime_image/static/src/img/audio.jpg" class="o_image img-fluid rounded" alt="Audio"/>
-        <a href="#" class="o_button btn btn-primary mt-2">Audio</a>
-      </div>
-      <!-- Tarjeta 6 -->
-      <div class="card text-center p-2" style="width: 180px;">
-        <img src="/theme_prime_image/static/src/img/accesorios.jpg" class="o_image img-fluid rounded" alt="Accesorios"/>
-        <a href="#" class="o_button btn btn-primary mt-2">Accesorios</a>
-      </div>
-      <!-- Tarjeta 7 -->
-      <div class="card text-center p-2" style="width: 180px;">
-        <img src="/theme_prime_image/static/src/img/smarttv.jpg" class="o_image img-fluid rounded" alt="Smart TV"/>
-        <a href="#" class="o_button btn btn-primary mt-2">Smart TV</a>
-      </div>
-      <!-- Tarjeta 8 -->
-      <div class="card text-center p-2" style="width: 180px;">
-        <img src="/theme_prime_image/static/src/img/promociones.jpg" class="o_image img-fluid rounded" alt="Promociones"/>
-        <a href="#" class="o_button btn btn-primary mt-2">Importación</a>
-      </div>
-    </div>
-  </section>
-</template>  
+    </section>
+  </template>
 </odoo>
+
 
 
