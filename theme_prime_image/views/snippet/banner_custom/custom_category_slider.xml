@@ -15,7 +15,7 @@
     <section class="s_banner_9 o_container mt-5 mb-5 bg-white">
       <div class="row justify-content-center">
         <div class="col-12 col-md-11 col-lg-10">
-          <div class="card-row d-flex flex-row justify-content-between flex-wrap">
+          <div class="card-row d-flex flex-row flex-nowrap overflow-auto scroll-snap-x">
             <t t-foreach="[
               ('Celulares', 'banner5.jpg'),
               ('Laptops', 'banner5.jpg'),
@@ -26,7 +26,7 @@
               ('Smart TV', 'banner5.jpg'),
               ('Promociones', 'banner5.jpg')
             ]" t-as="item">
-              <div class="card o_snippet_editable py-3 text-center" style="width: 120px; position: relative; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+              <div class="card o_snippet_editable py-3 text-center scroll-snap-align" style="width: 120px; position: relative; border: 1px solid #ddd; border-radius: 8px; flex: 0 0 auto;">
                 <div style="position: relative;">
                   <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
                        class="o_image img-fluid"
@@ -44,6 +44,7 @@
     </section>
   </template>
 </odoo>
+
 
 
 
