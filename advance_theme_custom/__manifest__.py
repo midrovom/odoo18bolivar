@@ -12,7 +12,7 @@
             'advance_theme_custom/static/src/scss/gallery_custom/gallery_custom.scss',
             'advance_theme_custom/static/src/scss/texto_custom/texto_custom.scss',
             'advance_theme_custom/static/src/scss/banner_custom/custom_category_slider.scss',
-           # 'advance_theme_custom/static/src/scss/clients_custom/clients_custom.scss'
+            'advance_theme_custom/static/src/scss/clients_custom/clients_custom.scss',
         ],
     },
     'installable': True,
