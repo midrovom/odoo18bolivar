@@ -16,14 +16,14 @@
     <section class="s_banner_9 o_container mt-5 mb-5 bg-white" style="max-width:1200px; margin:40px auto; padding:30px 0;">
       <div class="d-flex flex-row justify-content-between flex-wrap gap-1">
         <t t-foreach="[
-          ('Celulares', 'banner1.jpg'),
-          ('Laptops', 'banner2.jpg'),
-          ('Tablets', 'banner3.jpg'),
-          ('Gamer', 'banner4.jpg'),
+          ('Celulares', 'banner5.jpg'),
+          ('Laptops', 'banner5.jpg'),
+          ('Tablets', 'banner5.jpg'),
+          ('Gamer', 'banner5.jpg'),
           ('Audio', 'banner5.jpg'),
-          ('Accesorios', 'banner6.jpg'),
-          ('Smart TV', 'banner7.jpg'),
-          ('Promociones', 'banner8.jpg')
+          ('Accesorios', 'banner5.jpg'),
+          ('Smart TV', 'banner5.jpg'),
+          ('Promociones', 'banner5.jpg')
         ]" t-as="item">
           <div class="card border rounded tp-animation-scale text-center" style="width: 135px;">
             <div class="p-2">
