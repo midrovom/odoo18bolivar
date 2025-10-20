@@ -11,7 +11,7 @@
         </xpath>
 
         <!-- Reemplazar bloque de contacto para mostrar solo teléfono y correo -->
-        <xpath expr="//div[@id='footer']//div[@class='col-lg-6 col-xl-4 mb-4']" position="replace">
+        <xpath expr="//div[@id='footer']//div[contains(@class, 'col-xl-4') and .//h5[contains(text(), 'MyCompany')]]" position="replace">
             <div class="col-lg-6 col-xl-4 mb-4">
                 <h5>Contact Us</h5>
                 <ul class="list-unstyled">
