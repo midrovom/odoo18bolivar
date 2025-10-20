@@ -1,14 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<template id="template_footer_logo_left" inherit_id="theme_prime.template_footer_style_1" name="Footer Logo Left">
-    <xpath expr="//div[@id='footer']//div[contains(@class, 'text-center')]" position="replace">
-        <div class="col-12 text-start mb-5">
-            <a href="/" class="o_footer_logo logo">
-                <img src="/website/static/src/img/website_logo.svg" class="img-fluid" aria-label="Logo of MyCompany" title="MyCompany" role="img"/>
-            </a>
-        </div>
-    </xpath>
-</template>
+    <template id="template_footer_logo_left" inherit_id="theme_prime.template_footer_style_1" name="Footer Logo Left">
+        <xpath expr="//div[@id='footer']//div[contains(@class, 'text-center')]" position="replace">
+            <div class="col-12 text-start mb-5">
+                <a href="/" class="o_footer_logo logo">
+                    <img src="/website/static/src/img/website_logo.svg" class="img-fluid" aria-label="Logo of MyCompany" title="MyCompany" role="img"/>
+                </a>
+            </div>
+        </xpath>
+
+        <!-- Reemplazar sección de contacto y agregar redes sociales -->
+        <xpath expr="//div[@id='footer']//div[contains(@class, 'col-xl-4') and .//h5[contains(text(), 'MyCompany')]]" position="replace">
+            <div class="col-lg-6 col-xl-4 mb-4">
+                <h5>Contact Us</h5>
+                <ul class="list-unstyled">
+                    <li class="py-1">
+                        <i class="fa fa-1x fa-fw fa-phone me-1"/>
+                        <span class="o_force_ltr">
+                            <a href="tel:+1 555-555-5556">+1 555-555-5556</a>
+                        </span>
+                    </li>
+                    <li class="py-1">
+                        <i class="fa fa-1x fa-fw fa-envelope me-1"/>
+                        <a href="mailto:info@yourcompany.com">info@yourcompany.com</a>
+                    </li>
+                </ul>
+
+                <!-- Redes sociales alineadas horizontalmente -->
+                <div class="mt-3">
+                    <h5>Follow Us On</h5>
+                    <div class="d-flex gap-3">
+                        <a href="/website/social/tiktok" class="s_social_media_tiktok" target="_blank" aria-label="TikTok">
+                            <i class="fa fa-tiktok o_editable_media"/>
+                        </a>
+                        <a href="/website/social/instagram" class="s_social_media_instagram" target="_blank" aria-label="Instagram">
+                            <i class="fa fa-instagram o_editable_media"/>
+                        </a>
+                        <a href="/website/social/facebook" class="s_social_media_facebook" target="_blank" aria-label="Facebook">
+                            <i class="fa fa-facebook o_editable_media"/>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
 </odoo>
 
 
