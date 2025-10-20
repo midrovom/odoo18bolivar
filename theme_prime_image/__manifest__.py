@@ -24,6 +24,7 @@
     'assets': {
         'web.assets_frontend': [
             'theme_prime_image/static/src/js/banner_dynamic.js',
+            'theme_prime_image/static/src/scss/prueba.scss',
         ],
     },
     'installable': True,
