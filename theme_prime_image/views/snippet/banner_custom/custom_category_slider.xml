@@ -28,7 +28,7 @@
           <div class="card border rounded tp-animation-scale" style="width:120px;">
             <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
                  t-att-alt="item[0]"
-                 class="img img-fluid card-img-top rounded-top"/>
+                 class="card-img-top card-banner-img"/>
             <div class="p-2 text-center">
               <a href="#" class="btn btn-link">
                 <t t-esc="item[0]"/>
@@ -55,7 +55,7 @@
                   <div class="card border rounded tp-animation-scale" style="width:45%;">
                     <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
                          t-att-alt="item[0]"
-                         class="img img-fluid card-img-top rounded-top"/>
+                         class="card-img-top card-banner-img"/>
                     <div class="p-2 text-center">
                       <a href="#" class="btn btn-link btn-sm">
                         <t t-esc="item[0]"/>
@@ -78,7 +78,7 @@
                   <div class="card border rounded tp-animation-scale" style="width:45%;">
                     <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
                          t-att-alt="item[0]"
-                         class="img img-fluid card-img-top rounded-top"/>
+                         class="card-img-top card-banner-img"/>
                     <div class="p-2 text-center">
                       <a href="#" class="btn btn-link btn-sm">
                         <t t-esc="item[0]"/>
@@ -95,4 +95,3 @@
     </section>
   </template>
 </odoo>
-
