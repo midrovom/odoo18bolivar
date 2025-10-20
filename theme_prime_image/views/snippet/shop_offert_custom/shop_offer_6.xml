@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="s_trending_box_with_image_snippet_snippet" inherit_id="theme_prime.snippets" name="Trending Box with Image - Registry">
-    <xpath expr="//t[@t-snippet='theme_prime.s_shop_offer_4']" position="after">
+    <xpath expr="//t[@t-snippet='theme_prime.s_shop_offer_5']" position="after">
       <t t-snippet="theme_prime_image.s_trending_box_with_image_snippet"
          string="Trending Box with Image"
          group="theme_prime_shop_offer"
