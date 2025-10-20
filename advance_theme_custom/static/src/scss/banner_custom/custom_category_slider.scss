@@ -5,25 +5,29 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
+  display: flex;
+  align-items: flex-end;   // asegura que el botón quede abajo
+  justify-content: center; // centra horizontalmente
 }
 
 .card-banner-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .card-banner-btn {
+  @extend .btn;
+  @extend .btn-primary;
   position: absolute;
   bottom: 8px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #007bff;
-  color: white;
-  text-decoration: none;
-  padding: 4px 8px;
   font-size: 0.75rem;
-  border-radius: 2px;
+  padding: 4px 8px;
+  border-radius: 4px;
   z-index: 2;
-  display: inline-block;
+  text-decoration: none;
+  white-space: nowrap; // evita que el texto se rompa en varias líneas
 }

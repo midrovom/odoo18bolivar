@@ -28,7 +28,9 @@
             <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
                  t-att-alt="item[0]"
                  class="card-banner-img"/>
-            <a href="#" t-esc="item[0]" class="card-banner-btn"/>
+            <a href="#" class="btn btn-primary card-banner-btn">
+              <t t-esc="item[0]"/>
+            </a>
           </div>
         </t>
       </div>
@@ -51,7 +53,9 @@
                     <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
                          t-att-alt="item[0]"
                          class="card-banner-img"/>
-                    <a href="#" t-esc="item[0]" class="card-banner-btn"/>
+                    <a href="#" class="btn btn-primary card-banner-btn">
+                      <t t-esc="item[0]"/>
+                    </a>
                   </div>
                 </t>
               </div>
@@ -70,7 +74,9 @@
                     <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
                          t-att-alt="item[0]"
                          class="card-banner-img"/>
-                    <a href="#" t-esc="item[0]" class="card-banner-btn"/>
+                    <a href="#" class="btn btn-primary card-banner-btn">
+                      <t t-esc="item[0]"/>
+                    </a>
                   </div>
                 </t>
               </div>
