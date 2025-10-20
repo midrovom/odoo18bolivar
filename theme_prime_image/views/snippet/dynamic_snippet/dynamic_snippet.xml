@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="s_banner_dynamic_custom" inherit_id="theme_prime.snippets" name="Cover Banner - Promo">
+    <xpath expr="//t[@t-snippet='theme_prime.s_banner_15']" position="after">
+      <t t-snippet="theme_prime_image.s_banner_custom_8cards"
+         string="Cover Banner - Promo"
+         group="theme_prime_banner"
+         t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
+        <keywords>cover, banner, promo</keywords>
+      </t>
+    </xpath>
+  </template>
+
+<template id="s_banner_dynamic" name="Banner - Dynamic Products">
+  <section class="s_banner_dynamic pt16 pb16">
+    <div class="container">
+      <div class="row s_col_no_bgcolor s_nb_column_fixed">
+        <t t-foreach="data" t-as="product" t-key="product.id">
+          <div class="col-12 col-md-6 col-lg-4 py-3">
+            <div class="card border-0 tp-bg-gradient-50-black tp-animation-scale h-100">
+              <!-- Imagen del producto -->
+              <a t-att-href="product.website_url">
+                <img t-att-src="'/web/image/product.template/' + str(product.id) + '/image_1920'"
+                     t-att-alt="product.name"
+                     class="img img-fluid card-img-top"/>
+              </a>
+              <div class="tp-content p-3 text-center">
+                <!-- Nombre -->
+                <h3 class="text-white"><t t-out="product.name"/></h3>
+                <!-- Precio -->
+                <h6 class="text-white">
+                  <t t-out="product.list_price"/> USD
+                </h6>
+                <!-- Botón -->
+                <div class="mt-4">
+                  <a t-att-href="product.website_url" class="text-white">+ Ver más</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </t>
+      </div>
+    </div>
+  </section>
+</template>
+</odoo>
