@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 <template id="my_snippets" inherit_id="website.snippets">
-    <t t-snippet="theme_prime.s_d_products_snippet" position="before">
+    <t t-snippet="theme_prime.s_category_brands" position="before">
         <t t-snippet="theme_prime_image.my_s_d_products_snippet"
            string="My Products"
            group="theme_prime_dynamic">
