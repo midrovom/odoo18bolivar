@@ -1,19 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-  <template id="s_banner_dynamic_custom" inherit_id="theme_prime.snippets" name="Cover Banner - Promo">
-    <xpath expr="//t[@t-snippet='theme_prime.s_category_brands']" position="after">
-      <t t-snippet="theme_prime_image.s_d_single_product_snippet_custom"
-         string="s_banner_dynamic_custom"
-         group="theme_prime_dynamic"
-         t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
-        <keywords>cover, banner, promo</keywords>
-      </t>
+<template id="my_snippets" inherit_id="website.snippets">
+    <xpath expr="//t[@id='installed_snippets_hook']" position="after">
+        <t snippet-group="my_dynamic" t-snippet="website.s_snippet_group" string="My Dynamic Snippets" t-thumbnail="/my_module/static/src/img/snippets_thumbs/my_dynamic.svg"/>
     </xpath>
-  </template>
 
-  <template id="s_d_single_product_snippet_custom" name="Full Products">
-    <section contenteditable="false" class="s_d_single_product_snippet_wrapper tp-droggol-18-builder-snippet pt32 pb32" data-tp-snippet-id="s_d_single_product_snippet">
-            <div class="d_single_product_continer container dr_not_editable o_not_editable mb-4"/>
-     </section>
-    </template>
-</odoo>
+    <t t-snippet="website.s_banner" position="before">
+        <t t-snippet="my_module.my_s_d_products_snippet" string="My Products" group="my_dynamic">
+            <keywords>products, dynamic</keywords>
+        </t>
+    </t>
+</template>
