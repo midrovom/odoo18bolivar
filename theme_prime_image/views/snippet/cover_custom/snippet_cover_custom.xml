@@ -1,39 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="s_cover_custom_slider" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Slider Web/Mobile">
-    <!-- Activamos autoplay -->
     <xpath expr="//div[contains(@class,'carousel-inner')]/.." position="attributes">
       <attribute name="data-bs-ride">carousel</attribute>
       <attribute name="data-bs-interval">5000</attribute>
     </xpath>
 
-    <!-- Reemplazamos el contenido del carrusel -->
     <xpath expr="//div[contains(@class,'carousel-inner')]" position="replace">
       <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
         
         <!-- Slide #01 -->
         <div class="carousel-item active" data-name="Slide">
-          <!-- Imagen escritorio (ocupa todo el ancho del viewport) -->
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-               class="d-none d-md-block w-100 img-web"
-               style="width:100vw; max-width:100vw;"
+               class="d-none d-md-block w-100"
                alt="Banner Web"/>
-          <!-- Imagen móvil -->
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
-               class="d-block d-md-none w-100 img-mobile"
+               class="d-block d-md-none w-100"
                alt="Banner Móvil"/>
         </div>
 
         <!-- Slide #02 -->
         <div class="carousel-item" data-name="Slide">
-          <!-- Imagen escritorio -->
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-               class="d-none d-md-block w-100 img-web"
-               style="width:100vw; max-width:100vw;"
+               class="d-none d-md-block w-100"
                alt="Banner Web 2"/>
-          <!-- Imagen móvil -->
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
-               class="d-block d-md-none w-100 img-mobile"
+               class="d-block d-md-none w-100"
                alt="Banner Móvil 2"/>
         </div>
 
