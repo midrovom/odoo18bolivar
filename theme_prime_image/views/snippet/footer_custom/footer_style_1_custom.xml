@@ -107,6 +107,27 @@
         </section>
       </div>
     </xpath>
+
+    <xpath expr="//div[hasclass('o_footer_copyright')]/div[hasclass('container')]" position="after">
+        <div class="container">
+            <div class="row justify-content-center text-center">
+                <div class="col-12">
+                    <div class="my-2">
+                        © MyCompany
+                    </div>
+                </div>
+            </div>
+        </div>
+    </xpath>
+
+    <xpath expr="//div[hasclass('o_footer_copyright')]//div[hasclass('col-12') or hasclass('col-lg-auto')][div[contains(text(),'Copyright') or contains(text(),'©')]]" position="replace">
+      <div class="col-12 text-center">
+        <div class="my-2">
+          © MyCompany
+        </div>
+      </div>
+    </xpath>
+    
   </template>
 </odoo>
 
