@@ -5,9 +5,6 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
-  display: flex;
-  align-items: flex-end;   // asegura que el botón quede abajo
-  justify-content: center; // centra horizontalmente
 }
 
 .card-banner-img {
@@ -17,17 +14,20 @@
   display: block;
 }
 
-.card-banner-btn {
+.card-banner-link {
   @extend .btn;
-  @extend .btn-primary;
+  @extend .btn-link; // estilo de enlace tipo texto
   position: absolute;
   bottom: 8px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.75rem;
-  padding: 4px 8px;
-  border-radius: 4px;
+  font-size: 0.8rem;
   z-index: 2;
   text-decoration: none;
-  white-space: nowrap; // evita que el texto se rompa en varias líneas
+  color: #007bff;
+
+  &:hover {
+    text-decoration: underline;
+    color: darken(#007bff, 10%);
+  }
 }

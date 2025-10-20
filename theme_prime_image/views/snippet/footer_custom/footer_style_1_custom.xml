@@ -119,8 +119,6 @@
             </div>
         </div>
     </xpath>
-    <xpath expr="//div[hasclass('o_footer_copyright')]//div[hasclass('col-12') and hasclass('col-lg-auto') and hasclass('text-lg-end')]" position="replace"/>
-
   </template>
 </odoo>
 
