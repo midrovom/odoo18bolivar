@@ -1,16 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<template id="template_footer_logo_left" inherit_id="theme_prime.template_footer_style_1" name="Footer Logo Left">
-    <xpath expr="//div[@id='footer']//div[contains(@class, 'text-center')]" position="replace">
-        <div class="col-12 text-start mb-5">
-            <a href="/" class="o_footer_logo logo">
-                <img src="/website/static/src/img/website_logo.svg" class="img-fluid" aria-label="Logo of MyCompany" title="MyCompany" role="img"/>
-            </a>
-        </div>
-    </xpath>
-</template>
-</odoo>
+    <template id="template_footer_logo_left" inherit_id="theme_prime.template_footer_style_1" name="Footer Logo Left">
+        <xpath expr="//div[@id='footer']//div[contains(@class, 'text-center')]" position="replace">
+            <div class="col-12 text-start mb-5">
+                <a href="/" class="o_footer_logo logo">
+                    <img src="/website/static/src/img/website_logo.svg" class="img-fluid" aria-label="Logo of MyCompany" title="MyCompany" role="img"/>
+                </a>
+            </div>
+        </xpath>
 
+        <!-- Reordenar y simplificar la sección de contacto -->
+        <xpath expr="//div[@id='footer']//div[h5[text()='MyCompany']]" position="replace">
+            <div class="col-lg-6 col-xl-4 mb-4">
+                <h5>Contactos</h5>
+                <ul class="list-unstyled">
+                    <li class="py-1">
+                        <i class="fa fa-1x fa-fw fa-phone me-1"/>
+                        <span class="o_force_ltr">
+                            <a href="tel:0989608323">0989608323</a>
+                        </span>
+                    </li>
+                    <li class="py-1">
+                        <i class="fa fa-1x fa-fw fa-envelope me-1"/>
+                        <a href="mailto:advance@viteltek.com">advance@viteltek.com</a>
+                    </li>
+                </ul>
+            </div>
+        </xpath>
+    </template>
+</odoo>
 
 
 
