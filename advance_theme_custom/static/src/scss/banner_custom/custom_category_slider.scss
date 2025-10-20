@@ -5,7 +5,11 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
 }
+
 
 .card-banner-img {
   width: 100%;

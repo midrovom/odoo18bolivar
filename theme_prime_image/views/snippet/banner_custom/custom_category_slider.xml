@@ -13,6 +13,7 @@
 
   <template id="s_banner_custom_8cards" name="Banner 9 - 8 Cards Custom">
     <section class="s_banner_9 o_container mt-5 mb-5 bg-white">
+      <!-- Desktop -->
       <div class="col-12 col-md-11 col-lg-10 d-none d-md-flex flex-wrap justify-content-between gap-2 mx-auto">
         <t t-foreach="[
           ('Celulares', 'banner5.jpg'),
@@ -24,13 +25,15 @@
           ('Smart TV', 'banner5.jpg'),
           ('Promociones', 'banner5.jpg')
         ]" t-as="item">
-          <div class="card-banner">
+          <div class="card border rounded tp-animation-scale" style="width:120px;">
             <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
                  t-att-alt="item[0]"
-                 class="card-banner-img"/>
-            <a href="#" class="btn btn-link card-banner-link">
-              <t t-esc="item[0]"/>
-            </a>
+                 class="img img-fluid card-img-top rounded-top"/>
+            <div class="p-2 text-center">
+              <a href="#" class="btn btn-link">
+                <t t-esc="item[0]"/>
+              </a>
+            </div>
           </div>
         </t>
       </div>
@@ -49,13 +52,15 @@
                   ('Tablets', 'banner5.jpg'),
                   ('Gamer', 'banner5.jpg')
                 ]" t-as="item">
-                  <div class="card-banner">
+                  <div class="card border rounded tp-animation-scale" style="width:45%;">
                     <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
                          t-att-alt="item[0]"
-                         class="card-banner-img"/>
-                    <a href="#" class="btn btn-link card-banner-link">
-                      <t t-esc="item[0]"/>
-                    </a>
+                         class="img img-fluid card-img-top rounded-top"/>
+                    <div class="p-2 text-center">
+                      <a href="#" class="btn btn-link btn-sm">
+                        <t t-esc="item[0]"/>
+                      </a>
+                    </div>
                   </div>
                 </t>
               </div>
@@ -70,13 +75,15 @@
                   ('Smart TV', 'banner5.jpg'),
                   ('Promociones', 'banner5.jpg')
                 ]" t-as="item">
-                  <div class="card-banner">
+                  <div class="card border rounded tp-animation-scale" style="width:45%;">
                     <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
                          t-att-alt="item[0]"
-                         class="card-banner-img"/>
-                    <a href="#" class="btn btn-link card-banner-link">
-                      <t t-esc="item[0]"/>
-                    </a>
+                         class="img img-fluid card-img-top rounded-top"/>
+                    <div class="p-2 text-center">
+                      <a href="#" class="btn btn-link btn-sm">
+                        <t t-esc="item[0]"/>
+                      </a>
+                    </div>
                   </div>
                 </t>
               </div>
@@ -88,3 +95,4 @@
     </section>
   </template>
 </odoo>
+
