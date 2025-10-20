@@ -1,19 +1,8 @@
-odoo.define('theme_prime.banner_dynamic', function (require) {
-    'use strict';
+/** @odoo-module **/
 
-    var publicWidget = require('web.public.widget');
-    var qweb = require('web.core').qweb;
+import { registry } from "@web/core/registry";
 
-    publicWidget.registry.BannerDynamic = publicWidget.Widget.extend({
-        selector: '.s_banner_dynamic',
-        start: function () {
-            var self = this;
-            this._rpc({
-                route: '/banner/products',
-                params: { limit: 3 }
-            }).then(function (data) {
-                self.$el.html(qweb.render('s_banner_dynamic', { data: data }));
-            });
-        },
-    });
+// Extender el registry de estilos de tarjetas
+registry.category("theme_prime_card_registry").add("my_card_style_custom", {
+    supportedActions: ["add_to_cart", "wishlist", "rating"], // acciones que soporta
 });

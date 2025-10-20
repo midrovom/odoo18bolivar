@@ -1,0 +1,11 @@
+.my_card_style_custom {
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    padding: 16px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: #e9ecef;
+    }
+}
