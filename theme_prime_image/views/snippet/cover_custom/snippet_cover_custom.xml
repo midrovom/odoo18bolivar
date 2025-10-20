@@ -1,4 +1,7 @@
-<template id="s_cover_custom_slider" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Slider Web/Mobile">
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <template id="s_cover_custom_slider" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Slider Web/Mobile">
   <xpath expr="//div[contains(@class,'carousel-inner')]/.." position="attributes">
     <attribute name="data-bs-ride">carousel</attribute>
     <attribute name="data-bs-interval">5000</attribute>
@@ -28,3 +31,6 @@
     </div>
   </xpath>
 </template>
+
+</odoo>
+
