@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="template_footer_logo_left" inherit_id="theme_prime.template_footer_style_1" name="Footer Logo Left">
+        <!-- Mover el logo a la izquierda -->
         <xpath expr="//div[@id='footer']//div[contains(@class, 'text-center')]" position="replace">
             <div class="col-12 text-start mb-5">
                 <a href="/" class="o_footer_logo logo">
@@ -10,7 +11,7 @@
         </xpath>
 
         <!-- Reemplazar sección de contacto y agregar redes sociales -->
-        <xpath expr="//div[@id='footer']//div[contains(@class, 'col-xl-4') and .//h5[contains(text(), 'MyCompany')]]" position="replace">
+        <xpath expr="//div[@id='footer']//div[@class='col-lg-6 col-xl-4 mb-4']" position="replace">
             <div class="col-lg-6 col-xl-4 mb-4">
                 <h5>Contact Us</h5>
                 <ul class="list-unstyled">
@@ -45,6 +46,7 @@
         </xpath>
     </template>
 </odoo>
+
 
 
 
