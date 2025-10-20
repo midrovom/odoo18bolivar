@@ -119,15 +119,8 @@
             </div>
         </div>
     </xpath>
+    <xpath expr="//div[hasclass('o_footer_copyright')]//div[hasclass('col-12') and hasclass('col-lg-auto') and hasclass('text-lg-end')]" position="replace"/>
 
-    <xpath expr="//div[hasclass('o_footer_copyright')]//div[hasclass('col-12') or hasclass('col-lg-auto')][div[contains(text(),'Copyright') or contains(text(),'©')]]" position="replace">
-      <div class="col-12 text-center">
-        <div class="my-2">
-          © MyCompany
-        </div>
-      </div>
-    </xpath>
-    
   </template>
 </odoo>
 
