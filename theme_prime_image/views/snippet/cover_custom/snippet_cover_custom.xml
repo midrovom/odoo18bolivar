@@ -11,11 +11,12 @@
         
         <!-- Slide #01 -->
         <div class="carousel-item active" data-name="Slide">
-          <!-- Imagen escritorio -->
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-               class="d-none d-md-block w-100"
-               alt="Banner Web"/>
-          <!-- Imagen móvil -->
+          <div class="d-none d-md-block w-100" style="width:100vw; overflow:hidden;">
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
+                 class="w-100"
+                 style="width:100vw; height:auto; object-fit:cover;"
+                 alt="Banner Web"/>
+          </div>
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
                class="d-block d-md-none w-100"
                alt="Banner Móvil"/>
@@ -23,11 +24,12 @@
 
         <!-- Slide #02 -->
         <div class="carousel-item" data-name="Slide">
-          <!-- Imagen escritorio -->
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-               class="d-none d-md-block w-100"
-               alt="Banner Web 2"/>
-          <!-- Imagen móvil -->
+          <div class="d-none d-md-block w-100" style="width:100vw; overflow:hidden;">
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
+                 class="w-100"
+                 style="width:100vw; height:auto; object-fit:cover;"
+                 alt="Banner Web 2"/>
+          </div>
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
                class="d-block d-md-none w-100"
                alt="Banner Móvil 2"/>
