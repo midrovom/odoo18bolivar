@@ -1,17 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<template id="template_footer_logo_left" inherit_id="theme_prime.template_footer_style_1" name="Footer Logo Left">
-    <xpath expr="//div[@id='footer']//div[contains(@class, 'text-center')]" position="replace">
-        <div class="col-12 text-start mb-5">
-            <a href="/" class="o_footer_logo logo">
-                <img src="/website/static/src/img/website_logo.svg" class="img-fluid" aria-label="Logo of MyCompany" title="MyCompany" role="img"/>
-            </a>
-        </div>
-    </xpath>
-</template>
+    <template id="template_footer_logo_left" inherit_id="theme_prime.template_footer_style_1" name="Footer Logo Left">
+        <!-- Mover el logo a la izquierda -->
+        <xpath expr="//div[@id='footer']//div[contains(@class, 'text-center')]" position="replace">
+            <div class="col-12 text-start mb-5">
+                <a href="/" class="o_footer_logo logo">
+                    <img src="/website/static/src/img/website_logo.svg" class="img-fluid" aria-label="Logo of MyCompany" title="MyCompany" role="img"/>
+                </a>
+            </div>
+        </xpath>
+
+        <!-- Reemplazar bloque de contacto para mostrar solo teléfono y correo -->
+        <xpath expr="//div[@id='footer']//div[@class='col-lg-6 col-xl-4 mb-4']" position="replace">
+            <div class="col-lg-6 col-xl-4 mb-4">
+                <h5>Contact Us</h5>
+                <ul class="list-unstyled">
+                    <li class="py-1">
+                        <i class="fa fa-1x fa-fw fa-phone me-1"/>
+                        <span class="o_force_ltr">
+                            <a href="tel:+1 555-555-5556">+1 555-555-5556</a>
+                        </span>
+                    </li>
+                    <li class="py-1">
+                        <i class="fa fa-1x fa-fw fa-envelope me-1"/>
+                        <a href="mailto:info@yourcompany.com">info@yourcompany.com</a>
+                    </li>
+                </ul>
+            </div>
+        </xpath>
+    </template>
 </odoo>
-
-
 
 
 
