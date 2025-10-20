@@ -2,8 +2,8 @@
 <odoo>
   <template id="s_banner_dynamic_custom" inherit_id="theme_prime.snippets" name="Cover Banner - Promo">
     <xpath expr="//t[@t-snippet='theme_prime.s_banner_15']" position="after">
-      <t t-snippet="theme_prime_image.s_banner_custom_8cards"
-         string="Cover Banner - Promo"
+      <t t-snippet="theme_prime_image.s_banner_dynamic"
+         string="s_banner_dynamic_custom"
          group="theme_prime_banner"
          t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
         <keywords>cover, banner, promo</keywords>
