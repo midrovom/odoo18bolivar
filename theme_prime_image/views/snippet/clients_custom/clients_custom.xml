@@ -24,17 +24,31 @@
         </div>
 
         <!-- Desktop -->
-        <div class="d-none d-md-block">
-          <div class="d-flex flex-wrap justify-content-between align-items-center">
+        <div class="d-none d-md-block overflow-hidden">
+          <div class="logo-slider d-flex align-items-center">
             <t t-set="brand_attr"
-               t-value="request.env['product.attribute'].sudo().search([('name','=','Marca')], limit=1)"/>
+              t-value="request.env['product.attribute'].sudo().search([('name','=','Marca')], limit=1)"/>
             <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="brand.id">
               <a t-att-href="'/shop?attribute_value=%s-%s' % (brand.attribute_id.id, brand.id)"
-                 class="brand-link text-decoration-none mx-2">
+                class="brand-link text-decoration-none mx-3 flex-shrink-0">
                 <t t-if="brand.dr_image">
                   <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
-                       t-att-alt="brand.name"
-                       class="brand-logo"/>
+                      t-att-alt="brand.name"
+                      class="brand-logo"/>
+                </t>
+                <t t-else="">
+                  <span class="brand-name"><t t-esc="brand.name"/></span>
+                </t>
+              </a>
+            </t>
+            <!-- duplicamos para efecto infinito -->
+            <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="'dup-%s' % brand.id">
+              <a t-att-href="'/shop?attribute_value=%s-%s' % (brand.attribute_id.id, brand.id)"
+                class="brand-link text-decoration-none mx-3 flex-shrink-0">
+                <t t-if="brand.dr_image">
+                  <img t-att-src="'/web/image/product.attribute.value/%s/dr_image' % brand.id"
+                      t-att-alt="brand.name"
+                      class="brand-logo"/>
                 </t>
                 <t t-else="">
                   <span class="brand-name"><t t-esc="brand.name"/></span>
