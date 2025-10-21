@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates>
+  <!-- Definición del nuevo estilo 6 -->
   <t t-name="tp_brand_card_style_6">
     <div class="tp-brand-card-custom card p-2 text-center">
       <span class="brand-name">
@@ -8,6 +9,7 @@
     </div>
   </t>
 
+  <!-- Sobrescribimos el wrapper OWL para que use el estilo 6 -->
   <t t-name="s_tp_hierarchical_category_wrapper" owl="1">
     <div class="row h-100" style="margin:auto;">
       <t t-call="#{widget.uiConfigInfo.style}"/>
