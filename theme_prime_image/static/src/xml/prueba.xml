@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates>
-  <t t-name="tp_brand_card_style_custom">
+  <t t-name="tp_brand_card_style_6">
     <div class="tp-brand-card-custom card p-2 text-center">
       <span class="brand-name">
         <t t-esc="record.name"/>
@@ -8,5 +8,3 @@
     </div>
   </t>
 </templates>
-
-
