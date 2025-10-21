@@ -23,9 +23,9 @@
     ],
     'assets': {
         'web.assets_frontend': [
-            'theme_prime_image/static/src/js/banner_dynamic.js',
             'theme_prime_image/static/src/scss/prueba.scss',
-            'theme_prime_image/static/src/xml/prueba.xml',
+            'theme_prime_image/static/src/xml/frontend/prueba.xml',
+
         ],
     },
     'installable': True,
