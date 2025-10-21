@@ -11,24 +11,87 @@
     </xpath>
   </template>
 
-  <!-- Snippet dinámico solo web -->
   <template id="s_banner_custom_8cards" name="Banner 9 - 8 Cards Custom">
     <section class="s_banner_9 o_container mt-5 mb-5 bg-white">
-      <div class="col-12 col-md-11 col-lg-10 d-flex flex-wrap justify-content-center gap-2 mx-auto">
-        <t t-foreach="options.cards" t-as="card" t-key="card['title']">
+      <!-- Desktop -->
+      <div class="col-12 col-md-11 col-lg-10 d-none d-md-flex flex-wrap justify-content-between gap-2 mx-auto">
+        <t t-foreach="[
+          ('Celulares', 'banner5.jpg'),
+          ('Laptops', 'banner5.jpg'),
+          ('Tablets', 'banner5.jpg'),
+          ('Gamer', 'banner5.jpg'),
+          ('Audio', 'banner5.jpg'),
+          ('Accesorios', 'banner5.jpg'),
+          ('Smart TV', 'banner5.jpg'),
+          ('Promociones', 'banner5.jpg')
+        ]" t-as="item">
           <div class="card border rounded tp-animation-scale" style="width:120px;">
-            <img t-att-src="card['image']"
-                 t-att-alt="card['title']"
+            <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
+                 t-att-alt="item[0]"
                  class="card-img-top card-banner-img"/>
             <div class="p-2 text-center">
-              <a t-att-href="card['url'] or '#'" class="btn btn-link">
-                <t t-esc="card['title']"/>
+              <a href="#" class="btn btn-link">
+                <t t-esc="item[0]"/>
               </a>
             </div>
           </div>
         </t>
       </div>
+
+      <!-- Móvil: carrusel automático de 4 tarjetas por slide -->
+      <div class="d-md-none w-100">
+        <div id="bannerCarouselMobile" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+          <div class="carousel-inner">
+
+            <!-- Slide 1 -->
+            <div class="carousel-item active">
+              <div class="d-flex justify-content-center gap-2">
+                <t t-foreach="[
+                  ('Celulares', 'banner5.jpg'),
+                  ('Laptops', 'banner5.jpg'),
+                  ('Tablets', 'banner5.jpg'),
+                  ('Gamer', 'banner5.jpg')
+                ]" t-as="item">
+                  <div class="card border rounded tp-animation-scale" style="width:45%;">
+                    <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
+                         t-att-alt="item[0]"
+                         class="card-img-top card-banner-img"/>
+                    <div class="p-2 text-center">
+                      <a href="#" class="btn btn-link btn-sm">
+                        <t t-esc="item[0]"/>
+                      </a>
+                    </div>
+                  </div>
+                </t>
+              </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="carousel-item">
+              <div class="d-flex justify-content-center gap-2">
+                <t t-foreach="[
+                  ('Audio', 'banner5.jpg'),
+                  ('Accesorios', 'banner5.jpg'),
+                  ('Smart TV', 'banner5.jpg'),
+                  ('Promociones', 'banner5.jpg')
+                ]" t-as="item">
+                  <div class="card border rounded tp-animation-scale" style="width:45%;">
+                    <img t-att-src="'/theme_prime_image/static/src/img/s_banner_custom/' + item[1]"
+                         t-att-alt="item[0]"
+                         class="card-img-top card-banner-img"/>
+                    <div class="p-2 text-center">
+                      <a href="#" class="btn btn-link btn-sm">
+                        <t t-esc="item[0]"/>
+                      </a>
+                    </div>
+                  </div>
+                </t>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
     </section>
   </template>
 </odoo>
-
