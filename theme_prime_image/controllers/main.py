@@ -1,15 +1,15 @@
 from odoo import http
 from odoo.http import request
-from odoo.addons.theme_prime.controllers.main import ThemePrimeWebsiteSale
+from odoo.addons.theme_prime.controllers.main import ThemePrimeMainClass
 
-class ThemePrimeWebsiteSaleExtended(ThemePrimeWebsiteSale):
+class ThemePrimeMainClassExtended(ThemePrimeMainClass):
 
     @http.route('/theme_prime/get_products_by_category', type='json', auth='public', website=True)
     def get_products_by_category(self, domain, fields=[], options={}, **kwargs):
-        result = ThemePrimeWebsiteSale.get_products_by_category(
-            self, domain, fields=fields, options=options, **kwargs
-        )
+        # 1. Llamamos al método original de Theme Prime
+        result = super().get_products_by_category(domain, fields=fields, options=options, **kwargs)
 
+        # 2. Añadimos atributos de producto al resultado
         for product in result.get('products', []):
             pt = request.env['product.template'].sudo().browse(product['id'])
             attributes = []
