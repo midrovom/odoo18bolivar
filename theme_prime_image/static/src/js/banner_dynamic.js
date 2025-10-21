@@ -1,8 +1,12 @@
 /** @odoo-module **/
 
-import { registry } from "@web/core/registry";
+import { registry } from '@web/core/registry';
 
-// Extender el registry de estilos de tarjetas
-registry.category("theme_prime_card_registry").add("my_card_style_custom", {
-    supportedActions: ["add_to_cart", "wishlist", "rating"], // acciones que soporta
-});
+const originalProductsData = registry.category('theme_prime_data').get('PRODUCTS_DATA');
+const extendedProductsData = {
+    ...originalProductsData,
+    fields: [...originalProductsData.fields, 'attributes'], 
+};
+
+// Registramos de nuevo, forzando la sobreescritura
+registry.category('theme_prime_data').add('PRODUCTS_DATA', extendedProductsData, { force: true });
