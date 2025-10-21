@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates>
-  <!-- Definición del nuevo estilo 6 -->
   <t t-name="tp_brand_card_style_6">
     <div class="tp-brand-card-custom card p-2 text-center">
       <span class="brand-name">
@@ -8,19 +7,5 @@
       </span>
     </div>
   </t>
-
-  <!-- Sobrescribimos el wrapper OWL para que use el estilo 6 -->
-  <t t-name="s_tp_hierarchical_category_wrapper" owl="1">
-    <div class="row h-100" style="margin:auto;">
-      <t t-call="#{widget.uiConfigInfo.style}"/>
-      <section t-if="widget._isActionEnabled('brand')"
-               t-att-data-categories="widget.JaysonStringify(widget.recordsIDs)"
-               class="s_d_brand_snippet_wrapper px-0 tp-droggol-18-builder-snippet mt-auto"
-               data-snippet="s_d_brand_snippet"
-               data-name="Brands"
-               data-ui-config-info='{"style":"tp_brand_card_style_6","mode":"slider"}'>
-        <div class="s_d_brand_snippet container w-100 px-0"/>
-      </section>
-    </div>
-  </t>
 </templates>
+
