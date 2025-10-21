@@ -1,17 +1,17 @@
-from odoo import http
-from odoo.http import request
+class WebsiteProductsExtended(WebsiteProducts):
 
-class BannerDynamic(http.Controller):
+    @http.route('/theme_prime/get_products_by_category', type='json', auth='public', website=True)
+    def get_products_by_category(self, domain, fields=[], options={}, **kwargs):
+        result = super().get_products_by_category(domain, fields=fields, options=options, **kwargs)
 
-    @http.route('/banner/products', type='json', auth='public', website=True)
-    def banner_products(self, limit=3):
-        products = request.env['product.template'].search([('website_published', '=', True)], limit=limit)
-        return [
-            {
-                'id': p.id,
-                'name': p.name,
-                'list_price': p.list_price,
-                'website_url': p.website_url,
-            }
-            for p in products
-        ]
+        for product in result.get('products', []):
+            pt = request.env['product.template'].browse(product['id'])
+            attributes = []
+            for line in pt.attribute_line_ids:
+                attributes.append({
+                    'attribute': line.attribute_id.name,
+                    'values': [val.name for val in line.value_ids],
+                })
+            product['attributes'] = attributes
+
+        return result
