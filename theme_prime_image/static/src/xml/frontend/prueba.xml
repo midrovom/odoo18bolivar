@@ -1,33 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates>
-    <t t-name="s_tp_hierarchical_category_style_slider" t-inherit="s_tp_hierarchical_category_style_1" t-inherit-mode="primary">
-        <!-- Reemplazamos el contenedor principal -->
-        <xpath expr="//div[@t-foreach]" position="replace">
-            <div class="swiper-container s_tp_category_slider">
-                <div class="swiper-wrapper">
-                    <div t-foreach="data" t-as="category_data" t-key="category_data_index+1" class="swiper-slide text-center">
-                        <div class="tp-animation-scale">
-                            <a t-att-href="category_data.category.website_url">
-                                <img loading="lazy"
-                                    t-att-alt="category_data.category.name"
-                                    class="img my-2 tp_image_120_contain img-fluid"
-                                    t-att-src="category_data.category.image_url"/>
-                            </a>
-                        </div>
-                        <t t-call="tp_category_list_template_1">
-                            <t t-set="ui_class" t-value="'mt-2'"/>
-                            <t t-set="hasArrow" t-value="true"/>
-                            <t t-set="titleClass" t-value="'text-truncate'"/>
-                        </t>
-                    </div>
+    <t t-name="s_tp_hierarchical_category_style_slider" owl="1">
+        <div class="swiper-container">
+            <div class="swiper-wrapper">
+                <div t-foreach="props.data" t-as="category_data" t-key="category_data_index" class="swiper-slide">
+                    <t t-call="s_tp_hierarchical_category_style_1"/>
                 </div>
-                <!-- Botones de navegación -->
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
-                <!-- Paginación -->
-                <div class="swiper-pagination"></div>
             </div>
-        </xpath>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
     </t>
 
 </templates>
