@@ -39,4 +39,14 @@
       transform: translateX(-50%);
     }
   }
+
+  /* 👇 Espaciado solo en escritorio */
+  @media (min-width: 768px) {
+    .logo-slider {
+      gap: 3rem; /* espacio uniforme entre marcas */
+    }
+    .brand-link {
+      margin: 0 2rem; /* refuerzo de espacio adicional */
+    }
+  }
 }
