@@ -20,11 +20,13 @@
         'views/snippet/shop_offert_custom/shop_offer_6.xml',
         'views/snippet/shop_offert_custom/s_shop_offer_hot.xml',
         'views/snippet/dynamic_snippet/dynamic_snippet.xml',
+        'views/snippet/banner_custom/prueba.xml',
     ],
     'assets': {
         'web.assets_frontend': [
             'theme_prime_image/static/src/js/banner_dynamic.js',
             'theme_prime_image/static/src/scss/prueba.scss',
+            'theme_prime_image/static/src/xml/prueba.xml',
         ],
     },
     'installable': True,
