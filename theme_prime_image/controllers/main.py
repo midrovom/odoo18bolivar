@@ -6,7 +6,9 @@ class ThemePrimeWebsiteSaleExtended(ThemePrimeWebsiteSale):
 
     @http.route('/theme_prime/get_products_by_category', type='json', auth='public', website=True)
     def get_products_by_category(self, domain, fields=[], options={}, **kwargs):
-        result = super().get_products_by_category(domain, fields=fields, options=options, **kwargs)
+        result = ThemePrimeWebsiteSale.get_products_by_category(
+            self, domain, fields=fields, options=options, **kwargs
+        )
 
         for product in result.get('products', []):
             pt = request.env['product.template'].sudo().browse(product['id'])
