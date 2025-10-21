@@ -41,7 +41,7 @@
                 </t>
               </a>
             </t>
-            <!-- duplicamos para efecto infinito -->
+            <!-- duplicado para efecto infinito -->
             <t t-foreach="brand_attr.value_ids" t-as="brand" t-key="'dup-%s' % brand.id">
               <a t-att-href="'/shop?attribute_value=%s-%s' % (brand.attribute_id.id, brand.id)"
                 class="brand-link text-decoration-none mx-3 flex-shrink-0">
