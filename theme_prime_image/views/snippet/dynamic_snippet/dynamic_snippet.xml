@@ -2,7 +2,7 @@
 <odoo>
   <template id="s_clients_brand_snippet" inherit_id="theme_prime.snippets" name="Clients Brand Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_clients_4']" position="after">
-      <t t-snippet="theme_prime_image.s_category_slider"
+      <t t-snippet="theme_prime_image.s_category_slider_template"
          string="Clients - 5 (Marcas destacadas)"
          group="theme_prime_clients"
          t-thumbnail="/theme_prime_image/static/src/img/snippets/brands_thumb.png">
@@ -11,7 +11,7 @@
     </xpath>
   </template>
 
-<template id="s_category_slider" name="Category Slider Snippet">
+<template id="s_category_slider_template" name="Category Slider Template">
     <section class="s_category_slider pt32 pb32" data-snippet="s_category_slider" data-name="Category Slider">
         <div id="categoryCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
@@ -31,7 +31,6 @@
                     </div>
                 </t>
             </div>
-            <!-- Controles -->
             <button class="carousel-control-prev" type="button" data-bs-target="#categoryCarousel" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon"></span>
             </button>
@@ -41,7 +40,6 @@
         </div>
     </section>
 </template>
-
 
 </odoo>
 
