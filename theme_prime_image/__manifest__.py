@@ -23,8 +23,8 @@
     'assets': {
         'web.assets_frontend': [
             'theme_prime_image/static/src/scss/prueba.scss',
-            'theme_prime_image/static/src/xml/frontend/dynamic_snippet.xml',
-            #'theme_prime_image/static/src/xml/frontend/prueba.xml',
+            'theme_prime_image/static/src/components/registries.js',
+            #'theme_prime_image/static/src/xml/frontend/dynamic_snippet.xml',
 
         ],
     },
