@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <template xml:space="preserve">
 
-    <t t-name="theme_prime_custom.s_tp_hierarchical_category_wrapper_inherit"
-       t-inherit="s_tp_hierarchical_category_wrapper"
+    <t t-name="s_tp_hierarchical_category_wrapper_inherit"
+       t-inherit="theme_prime.s_tp_hierarchical_category_wrapper"
        t-inherit-mode="primary"
        owl="1">
 
