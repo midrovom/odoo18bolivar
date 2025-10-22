@@ -4,23 +4,17 @@
             inherit_id="s_tp_hierarchical_category_style_1"
             name="Custom Hierarchical Category Style 1">
 
-    <xpath expr="//div[@t-foreach='data']" position="replace">
-      <!-- Contenedor de fila horizontal (eje X) -->
-      <div class="d-flex flex-nowrap overflow-auto py-2 gap-4" style="scrollbar-width: none; -ms-overflow-style: none;">
-        <t t-foreach="data" t-as="category_data">
-          <div class="flex-shrink-0 text-center" style="width: 100px;">
-            <a t-att-href="category_data.category.website_url" class="text-decoration-none">
-              <img loading="lazy"
-                   t-att-alt="category_data.category.name"
-                   class="img-fluid tp_image_120_contain rounded mb-2"
-                   t-att-src="category_data.category.image_url"
-                   style="width: 80px; height: 80px; object-fit: contain;"/>
-              <div class="fw-medium text-truncate fs-6" t-esc="category_data.category.name"/>
-            </a>
-          </div>
-        </t>
-      </div>
+    <!-- 1. Eliminar el bloque de subcategorías -->
+    <xpath expr="//t[@t-call='tp_category_list_template_1']" position="replace"/>
+
+    <!-- 2. Cambiar las clases de columna para alinearlas en fila horizontal -->
+    <xpath expr="//div[@t-foreach='data']" position="attributes">
+      <attribute name="class">
+        d-inline-block px-3 text-center s_tp_hierarchical_category_style_1
+      </attribute>
     </xpath>
 
   </template>
 </odoo>
+
+
