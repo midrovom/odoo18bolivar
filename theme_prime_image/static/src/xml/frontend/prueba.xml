@@ -1,23 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <template xml:space="preserve">
 
-    <t t-name="theme_prime_custom.s_tp_hierarchical_category_style_1_inherit"
-       t-inherit="s_tp_hierarchical_category_style_1"
+    <t t-name="theme_prime_custom.s_tp_hierarchical_category_wrapper_inherit"
+       t-inherit="s_tp_hierarchical_category_wrapper"
        t-inherit-mode="primary"
        owl="1">
 
-        <!-- Envolver todos los items en un contenedor flex horizontal -->
-        <xpath expr="//div[@t-foreach]" position="before">
-            <div class="d-flex flex-row flex-wrap gap-3">
-        </xpath>
-
-        <xpath expr="//div[@t-foreach]" position="after">
-            </div>
-        </xpath>
-
-        <!-- Quitar las clases de grid (col-6 col-lg-3) de cada item -->
-        <xpath expr="//div[contains(@class,'s_tp_hierarchical_category_style_1')]" position="attributes">
-            <attribute name="class" replace="s_tp_hierarchical_category_style_1 card p-2"/>
+        <xpath expr="//div[contains(@class,'row') and contains(@class,'h-100')]" position="attributes">
+            <attribute name="class" replace="d-flex flex-row flex-wrap align-items-start gap-3 h-100"/>
         </xpath>
 
     </t>
