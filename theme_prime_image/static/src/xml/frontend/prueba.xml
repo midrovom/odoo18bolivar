@@ -2,7 +2,7 @@
 <templates xml:space="preserve">
 
     <!-- Herencia del template de theme_prime -->
-    <t t-name="theme_prime_custom.s_tp_hierarchical_category_style_1_inherit"
+    <t t-name="theme_prime.s_tp_hierarchical_category_style_1_inherit"
        t-inherit="s_tp_hierarchical_category_style_1"
        t-inherit-mode="primary">
 
