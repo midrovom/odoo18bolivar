@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="s_tp_hierarchical_category_style_1_custom"
-            inherit_id="s_tp_hierarchical_category_style_1"
+            inherit_id="theme_prime.s_tp_hierarchical_category_style_1"
             name="Custom Hierarchical Category Style 1">
 
     <!-- 1. Eliminar el bloque de subcategorías -->
