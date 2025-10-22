@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template t-name="s_tp_hierarchical_category_style_1_custom" inherit_id="s_tp_hierarchical_category_style_1">
-        <xpath expr="//div[@t-foreach='data']" position="replace">
-            <!-- Contenedor de fila horizontal (eje X) -->
-            <div class="d-flex flex-nowrap overflow-auto py-2 gap-4" style="scrollbar-width: none; -ms-overflow-style: none;">
-                <t t-foreach="data" t-as="category_data">
-                    <!-- Solo mostramos categorías que NO tienen padres (nivel raíz) -->
-                    <!-- Pero si 'data' ya solo contiene raíces, no necesitas filtro -->
-                    <!-- IMPORTANTE: NO renderizamos 'child' en absoluto -->
-                    <div class="flex-shrink-0 text-center" style="width: 100px;">
-                        <a t-att-href="category_data.category.website_url" class="text-decoration-none">
-                            <img loading="lazy"
-                                 t-att-alt="category_data.category.name"
-                                 class="img-fluid tp_image_120_contain rounded mb-2"
-                                 t-att-src="category_data.category.image_url"
-                                 style="width: 80px; height: 80px; object-fit: contain;" />
-                            <div class="fw-medium text-truncate fs-6" t-esc="category_data.category.name"/>
-                        </a>
-                    </div>
-                </t>
-            </div>
-        </xpath>
-    </template>
-</odoo>
+  <template id="s_tp_hierarchical_category_style_1_custom"
+            inherit_id="s_tp_hierarchical_category_style_1"
+            name="Custom Hierarchical Category Style 1">
 
+    <xpath expr="//div[@t-foreach='data']" position="replace">
+      <!-- Contenedor de fila horizontal (eje X) -->
+      <div class="d-flex flex-nowrap overflow-auto py-2 gap-4" style="scrollbar-width: none; -ms-overflow-style: none;">
+        <t t-foreach="data" t-as="category_data">
+          <div class="flex-shrink-0 text-center" style="width: 100px;">
+            <a t-att-href="category_data.category.website_url" class="text-decoration-none">
+              <img loading="lazy"
+                   t-att-alt="category_data.category.name"
+                   class="img-fluid tp_image_120_contain rounded mb-2"
+                   t-att-src="category_data.category.image_url"
+                   style="width: 80px; height: 80px; object-fit: contain;"/>
+              <div class="fw-medium text-truncate fs-6" t-esc="category_data.category.name"/>
+            </a>
+          </div>
+        </t>
+      </div>
+    </xpath>
+
+  </template>
+</odoo>
