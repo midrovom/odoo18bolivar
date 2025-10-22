@@ -24,7 +24,7 @@
     'assets': {
         'web.assets_frontend': [
             'theme_prime_image/static/src/scss/prueba.scss',
-            'theme_prime_image/static/src/xml/frontend/prueba.xml',
+            #'theme_prime_image/static/src/xml/frontend/prueba.xml',
 
         ],
     },

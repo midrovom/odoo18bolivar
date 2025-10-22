@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template xml:space="preserve">
+
+    <t t-name="s_tp_hierarchical_category_wrapper_inherit"
+       t-inherit="s_tp_hierarchical_category_wrapper"
+       t-inherit-mode="primary">
+
+        <!-- Modificamos el div con row h-100 -->
+        <xpath expr="//div[contains(@class,'row') and contains(@class,'h-100')]" position="attributes">
+            <attribute name="class">d-flex flex-row flex-nowrap align-items-start gap-3 h-100</attribute>
+        </xpath>
+
+    </t>
+
+  </template>
+</odoo>
+
+
+
+
