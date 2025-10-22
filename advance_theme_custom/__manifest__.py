@@ -5,7 +5,6 @@
     'category': 'eCommerce',
     'depends': ['website'],
     'data': [
-        'views/snippets/prueba.xml',
     ],
     'assets': {
         'web.assets_frontend': [
