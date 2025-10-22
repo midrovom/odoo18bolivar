@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<template>
-<t t-name="tp_category_tabs_submenu_container">
-    <t t-set="configData" t-value="widget._getUIConfigData(category_info.category.id)"/>
-    <div t-attf-class="tp-category-submenu h-100 #{category_info_index === 0 ?  ' ' : 'd-none'}" t-att-data-submenu-id="category_info.category.id">
-        <section t-att-style="configData.background ? 'background-image: url(' + configData.background + '); background-position: center;background-size: cover;' : None" class="s_tp_mega_menu_category_snippet tp-mega-menu-snippet tp-droggol-18-builder-snippet h-100" t-att-data-selection-info="widget._getSelectionData(category_info.child)" t-att-data-ui-config-info="widget.JaysonStringify(configData)">
-            <div class="container px-0 s_tp_mega_menu_category_snippet_wrapper h-100"/>
-        </section>
-    </div>
-</t>
-</template>
+<templates xml:space="preserve">
+
+    <!-- Herencia del template de theme_prime -->
+    <t t-name="theme_prime_custom.s_tp_hierarchical_category_style_1_inherit"
+       t-inherit="s_tp_hierarchical_category_style_1"
+       t-inherit-mode="primary">
+
+        <!-- Localizamos el div que se repite en el foreach -->
+        <xpath expr="//div[contains(@class,'s_tp_hierarchical_category_style_1')]" position="attributes">
+            <!-- Quitamos las clases de grid col-6/col-lg-3 y añadimos flex -->
+            <attribute name="class" replace="s_tp_hierarchical_category_style_1 d-flex flex-row align-items-start gap-3"/>
+        </xpath>
+
+    </t>
+
+</templates>
+
 
 
