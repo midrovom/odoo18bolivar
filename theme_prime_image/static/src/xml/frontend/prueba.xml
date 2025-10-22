@@ -1,33 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<template id="s_tp_hierarchical_category_style_1_slider" name="Slider de categorías">
-  <t t-inherit="s_tp_hierarchical_category_style_1" t-inherit-mode="extension">
-    <xpath expr="//div[@t-foreach='data']" position="replace">
-      <div id="categoryCarousel" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-inner">
-          <div t-foreach="data" t-as="category_data" t-key="category_data_index">
-            <div t-attf-class="carousel-item #{category_data_index == 0 and 'active' or ''}">
-              <div class="tp-animation-scale text-center">
-                <a t-att-href="category_data.category.website_url">
-                  <img loading="lazy" t-att-alt="category_data.category.name" class="img-fluid" t-att-src="category_data.category.image_url"/>
+<template id="tp_category_tabs_submenu_slider" name="Submenú de categorías en slider">
+  <t t-inherit="tp_category_tabs_submenu_container" t-inherit-mode="extension">
+    <xpath expr="//div[contains(@class, 's_tp_mega_menu_category_snippet_wrapper')]" position="replace">
+      <div id="submenuSlider" class="carousel slide h-100" data-bs-ride="carousel">
+        <div class="carousel-inner h-100">
+          <div t-foreach="category_info.child" t-as="subcat" t-key="subcat.id">
+            <div t-attf-class="carousel-item #{loop.index0 == 0 and 'active' or ''}">
+              <div class="text-center">
+                <a t-att-href="subcat.website_url">
+                  <img t-att-src="subcat.image_url" t-att-alt="subcat.name" class="img-fluid"/>
                 </a>
-                <t t-call="tp_category_list_template_1">
-                  <t t-set="ui_class" t-value="'mt-2'"/>
-                  <t t-set="hasArrow" t-value="true"/>
-                  <t t-set="titleClass" t-value="'text-truncate'"/>
-                </t>
+                <h5 class="mt-2" t-esc="subcat.name"/>
               </div>
             </div>
           </div>
         </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#categoryCarousel" data-bs-slide="prev">
+        <button class="carousel-control-prev" type="button" data-bs-target="#submenuSlider" data-bs-slide="prev">
           <span class="carousel-control-prev-icon" aria-hidden="true"></span>
         </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#categoryCarousel" data-bs-slide="next">
+        <button class="carousel-control-next" type="button" data-bs-target="#submenuSlider" data-bs-slide="next">
           <span class="carousel-control-next-icon" aria-hidden="true"></span>
         </button>
       </div>
     </xpath>
   </t>
 </template>
+
 
 
