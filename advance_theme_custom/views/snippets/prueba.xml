@@ -1,21 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<template id="s_tp_mega_menu_category_snippet_horizontal" inherit_id="droggol_theme_common.s_tp_mega_menu_category_snippet" name="Mega Menu Horizontal Layout">
-  <t t-inherit="s_tp_mega_menu_category_snippet" t-inherit-mode="extension">
-    <xpath expr="//div[contains(@class, 's_tp_mega_menu_category_snippet_wrapper')]" position="replace">
-      <div class="container s_tp_mega_menu_category_snippet_wrapper d-flex flex-row overflow-auto gap-3 py-3">
-        <t t-foreach="category_data" t-as="cat">
-          <div class="flex-shrink-0 text-center" style="min-width: 200px;">
-            <a t-att-href="cat.website_url">
-              <img t-att-src="cat.image_url" t-att-alt="cat.name" class="img-fluid mb-2"/>
-            </a>
-            <h5 t-esc="cat.name"/>
-          </div>
-        </t>
-      </div>
+<template id="s_tp_mega_menu_category_snippet_inherit" inherit_id="droggol_theme_common.s_tp_mega_menu_category_snippet" name="Categories Listing Horizontal">
+    <xpath expr="//div[@class='container s_tp_mega_menu_category_snippet_wrapper']" position="replace">
+        <div class="container s_tp_mega_menu_category_snippet_wrapper d-flex flex-row justify-content-center align-items-center gap-3">
+            <div class="alert alert-primary text-center mb-0" role="alert">
+                <span class="tp-config-link fw-bold tp-cursor-pointer">Click Here!</span> to configure snippet.
+            </div>
+            
+        </div>
     </xpath>
-  </t>
 </template>
+
 
 </odoo>
 
