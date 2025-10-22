@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template t-name="s_tp_hierarchical_category_style_1" inherit_id="theme_prime.s_tp_hierarchical_category_style_1">
-        <!-- Reemplazamos TODO el contenido del template original -->
+    <template t-name="s_tp_hierarchical_category_style_1_custom" inherit_id="s_tp_hierarchical_category_style_1">
         <xpath expr="//div[@t-foreach='data']" position="replace">
             <!-- Contenedor de fila horizontal (eje X) -->
             <div class="d-flex flex-nowrap overflow-auto py-2 gap-4" style="scrollbar-width: none; -ms-overflow-style: none;">
