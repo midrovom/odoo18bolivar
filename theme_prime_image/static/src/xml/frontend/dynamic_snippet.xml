@@ -1,13 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="s_tp_hierarchical_category_style_1_custom"
-            inherit_id="theme_prime.s_tp_hierarchical_category_style_1"
+            t-inherit="s_tp_hierarchical_category_style_1"
+            t-inherit-mode="extension"
             name="Custom Hierarchical Category Style 1">
 
-    <!-- 1. Eliminar el bloque de subcategorías -->
     <xpath expr="//t[@t-call='tp_category_list_template_1']" position="replace"/>
 
-    <!-- 2. Cambiar las clases de columna para alinearlas en fila horizontal -->
     <xpath expr="//div[@t-foreach='data']" position="attributes">
       <attribute name="class">
         d-inline-block px-3 text-center s_tp_hierarchical_category_style_1
