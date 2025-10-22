@@ -12,26 +12,8 @@ megaMenuRegistry.add("s_tp_hierarchical_category_style_1", {
         "count",
         "style",
         "background",
-        "layout",   // nueva opcion
+        "mode",   // nueva opcion
     ],
 });
 
 
-// Extender el snippet de mega menú
-const megaMenusRegistry = registry.category("theme_prime_mega_menus");
-
-megaMenusRegistry.add("s_tp_mega_menu_category_snippet", {
-    widgets: {
-        TpUiComponent: {
-            cardRegistry: "theme_prime_mega_menu_cards",
-            defaultVal: {
-                style: "s_tp_hierarchical_category_style_1",
-                layout: "slider",   
-                childOrder: "sequence",
-                productListing: "newArrived",
-                limit: 5,
-                activeActions: ["brand", "label", "count"],
-            },
-        },
-    },
-});
