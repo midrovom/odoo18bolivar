@@ -1,30 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<template id="tp_category_tabs_submenu_slider" name="Submenú de categorías en slider">
-  <t t-inherit="tp_category_tabs_submenu_container" t-inherit-mode="extension">
-    <xpath expr="//div[contains(@class, 's_tp_mega_menu_category_snippet_wrapper')]" position="replace">
-      <div id="submenuSlider" class="carousel slide h-100" data-bs-ride="carousel">
-        <div class="carousel-inner h-100">
-          <div t-foreach="category_info.child" t-as="subcat" t-key="subcat.id">
-            <div t-attf-class="carousel-item #{loop.index0 == 0 and 'active' or ''}">
-              <div class="text-center">
-                <a t-att-href="subcat.website_url">
-                  <img t-att-src="subcat.image_url" t-att-alt="subcat.name" class="img-fluid"/>
-                </a>
-                <h5 class="mt-2" t-esc="subcat.name"/>
-              </div>
-            </div>
-          </div>
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#submenuSlider" data-bs-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#submenuSlider" data-bs-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        </button>
-      </div>
-    </xpath>
-  </t>
+<template>
+<t t-name="tp_category_tabs_submenu_container">
+    <t t-set="configData" t-value="widget._getUIConfigData(category_info.category.id)"/>
+    <div t-attf-class="tp-category-submenu h-100 #{category_info_index === 0 ?  ' ' : 'd-none'}" t-att-data-submenu-id="category_info.category.id">
+        <section t-att-style="configData.background ? 'background-image: url(' + configData.background + '); background-position: center;background-size: cover;' : None" class="s_tp_mega_menu_category_snippet tp-mega-menu-snippet tp-droggol-18-builder-snippet h-100" t-att-data-selection-info="widget._getSelectionData(category_info.child)" t-att-data-ui-config-info="widget.JaysonStringify(configData)">
+            <div class="container px-0 s_tp_mega_menu_category_snippet_wrapper h-100"/>
+        </section>
+    </div>
+</t>
 </template>
-
 
 
