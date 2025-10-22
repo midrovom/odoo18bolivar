@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="s_tp_hierarchical_category_style_1_layout_slider"
-            t-inherit="theme_prime.s_tp_hierarchical_category_style_1"
+            t-inherit="s_tp_hierarchical_category_style_1"
             t-inherit-mode="extension"
             name="Hierarchical Category Style 1 con Layout Slider">
 
