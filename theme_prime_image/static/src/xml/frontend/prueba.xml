@@ -1,20 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
 
-    <!-- Herencia del template de theme_prime -->
-    <t t-name="theme_prime.s_tp_hierarchical_category_style_1_inherit"
-       t-inherit="s_tp_hierarchical_category_style_1"
+    <t t-name="s_tp_hierarchical_category_style_1_inherit"
+       t-inherit="theme_pime.s_tp_hierarchical_category_style_1"
        t-inherit-mode="primary">
 
-        <!-- Localizamos el div que se repite en el foreach -->
+        <!-- Antes del foreach abrimos un contenedor flex -->
+        <xpath expr="//div[@t-foreach]" position="before">
+            <div class="d-flex flex-row flex-wrap gap-3">
+        </xpath>
+
+        <!-- Después del foreach cerramos el contenedor -->
+        <xpath expr="//div[@t-foreach]" position="after">
+            </div>
+        </xpath>
+
+        <!-- Quitamos las clases de grid a cada item -->
         <xpath expr="//div[contains(@class,'s_tp_hierarchical_category_style_1')]" position="attributes">
-            <!-- Quitamos las clases de grid col-6/col-lg-3 y añadimos flex -->
-            <attribute name="class" replace="s_tp_hierarchical_category_style_1 d-flex flex-row align-items-start gap-3"/>
+            <attribute name="class" replace="s_tp_hierarchical_category_style_1 card p-2"/>
         </xpath>
 
     </t>
 
 </templates>
+
 
 
 
