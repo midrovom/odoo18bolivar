@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="s_shop_offer_1_inherit" inherit_id="theme_prime.s_shop_offer_1" name="Shop Offer 1 Custom">
-    <xpath expr="//section[contains(@class,'s_shop_offer_1')]" position="attributes">
-    </xpath>
-
+    <xpath expr="//span[contains(@class,'s_parallax_bg')]" position="replace"/>
     <xpath expr="//div[@class='col-12 text-center']" position="replace">
       <div class="col-12 col-md-11 col-lg-10 mx-auto text-center">
         <div class="shop-offer-wrapper">
@@ -21,3 +19,4 @@
     </xpath>
   </template>
 </odoo>
+
