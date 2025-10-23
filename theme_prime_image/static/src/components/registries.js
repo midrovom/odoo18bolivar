@@ -10,5 +10,5 @@ let SELECTOR_DATA = { TpRecordSelector: { ...PRODUCTS_DATA, defaultVal: { select
 let EXTRA_OPTIONS = { TpExtraOpts: { startDate: '', endDate: '', priceList: '*' } };
 
 registry.category('theme_prime_card_registry')
-    .add('s_card_style_9', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar']])]})
+    .add('s_card_style_9_', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar']])]})
 
