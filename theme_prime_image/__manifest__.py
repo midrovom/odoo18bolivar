@@ -22,7 +22,7 @@
     ],
     'assets': {
         'web.assets_frontend': [
-            #'theme_prime_image/static/src/xml/style_custom.xml',
+            'theme_prime_image/static/src/xml/style_custom.xml',
             
         ],
         'website.assets_wysiwyg': [
