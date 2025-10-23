@@ -25,6 +25,9 @@
             'theme_prime_image/static/src/xml/style_custom.xml',
             
         ],
+            'web.assets_frontend_lazy': [
+        'theme_prime_image/static/src/xml/style_custom.xml',
+        ],
         'website.assets_wysiwyg': [
             'theme_prime_image/static/src/components/*'
             

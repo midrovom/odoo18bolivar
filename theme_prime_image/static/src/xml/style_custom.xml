@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<templates xml:space="preserve">
+<templates>
     <t t-name="s_card_style_9_">
         <div t-attf-class="card h-100 tp-rounded-border border s_card_style_9_ dr-image-fill-#{widget.imageFill} dr-image-size-#{widget.imageSize}">
             <div class="d_product_box position-relative h-100">
