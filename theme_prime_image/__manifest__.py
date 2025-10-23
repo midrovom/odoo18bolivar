@@ -19,7 +19,6 @@
         'views/snippet/footer_custom/footer_style_1_custom.xml',
         'views/snippet/shop_offert_custom/shop_offer_6.xml',
         'views/snippet/shop_offert_custom/s_shop_offer_hot.xml',
-        'theme_prime_image/static/src/xml/cards_custom.xml',
     ],
     'assets': {
         'web.assets_frontend': [
