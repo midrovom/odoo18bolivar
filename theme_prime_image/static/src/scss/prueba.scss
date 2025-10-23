@@ -1,11 +1,12 @@
-.my_card_style_custom {
-    border: 2px solid #007bff;
-    border-radius: 8px;
-    padding: 16px;
-    background: #f8f9fa;
-    transition: all 0.3s ease;
+.s_card_style_9 {
+    @include tp-products-actions-mixin();
+}
 
-    &:hover {
-        background: #e9ecef;
+@include product-image-card-mixin('.s_card_style_9', '.d_img_block', '.d-product-img');
+
+.s_two_column_card_wrapper {
+    .tp-product-image {
+        max-height: 365px;
+        object-fit: cover;
     }
 }
