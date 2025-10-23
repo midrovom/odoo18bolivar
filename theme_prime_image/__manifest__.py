@@ -26,6 +26,7 @@
             
         ],
         'website.assets_wysiwyg': [
+            'theme_prime_image/static/src/xml/style_custom.xml',
             'theme_prime_image/static/src/components/*'
             
         ],
