@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="s_d_products_snippet_inherit" inherit_id="theme_prime.s_d_products_snippet">
+        <xpath expr="//section" position="attributes">
+            <attribute name="class" add=" s_card_style_9_enabled" separator=" "/>
+        </xpath>
+    </template>
+</odoo>
