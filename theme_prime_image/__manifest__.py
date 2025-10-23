@@ -23,7 +23,7 @@
     ],
     'assets': {
         'web.assets_frontend': [
-            #'theme_prime_image/static/src/xml/s_card_style_9.xml',
+            'theme_prime_image/static/src/xml/s_card_style_9.xml',
             
         ],
         'website.assets_wysiwyg': [
