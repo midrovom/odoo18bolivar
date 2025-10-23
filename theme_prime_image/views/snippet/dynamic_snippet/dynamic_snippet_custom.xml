@@ -2,7 +2,7 @@
 <odoo>
     <template id="s_d_products_snippet_inherit" inherit_id="theme_prime.s_d_products_snippet">
         <xpath expr="//section" position="attributes">
-            <attribute name="class" add=" s_card_style_9_enabled" separator=" "/>
+            <attribute name="class" add=" s_card_style_9" separator=" "/>
         </xpath>
     </template>
 </odoo>
