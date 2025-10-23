@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
 
 <templates>
 
@@ -35,8 +34,4 @@
             </div>
         </div>
     </t>
-</templates>   
-
-</odoo>
-
-
+</templates>
