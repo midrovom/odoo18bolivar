@@ -23,7 +23,7 @@
     'assets': {
         'web.assets_frontend': [
             'theme_prime_image/static/src/scss/prueba.scss',
-            'theme_prime_image/static/src/xml/frontend/cards_custom.xml',
+            'theme_prime_image/static/src/xml/cards_custom.xml',
         ],
         'website.assets_wysiwyg': [
             'theme_prime_image/static/src/components/*'
