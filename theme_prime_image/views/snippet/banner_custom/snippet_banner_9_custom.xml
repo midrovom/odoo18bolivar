@@ -2,8 +2,6 @@
 <odoo>
   <template id="s_banner_9_inherit" inherit_id="theme_prime.s_banner_9" name="Banner 9 Custom">
     <xpath expr="//section[contains(@class,'s_banner_9')]" position="attributes">
-      <attribute name="class">s_banner_9 o_container mt-5 mb-5 bg-white</attribute>
-      <attribute name="style">max-width:1000px; margin:40px auto; padding:40px 0;</attribute>
     </xpath>
 
     <xpath expr="//div[@class='row s_col_no_bgcolor s_nb_column_fixed']" position="replace">
