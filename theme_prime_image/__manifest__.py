@@ -3,7 +3,7 @@
     'version': '18.0.1.0.0',
     'summary': 'Extensión visual para theme prime',
     'category': 'Theme/eCommerce',
-    'depends': ['website','theme_prime'],
+    'depends': ['theme_prime'],
     'data': [
         'views/theme_shop_layout_views.xml',
         'views/snippet/banner_custom/snippet_banner_9_custom.xml',
