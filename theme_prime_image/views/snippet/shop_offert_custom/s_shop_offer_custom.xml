@@ -2,8 +2,6 @@
 <odoo>
   <template id="s_shop_offer_1_inherit" inherit_id="theme_prime.s_shop_offer_1" name="Shop Offer 1 Custom">
     <xpath expr="//section[contains(@class,'s_shop_offer_1')]" position="attributes">
-      <attribute name="class">s_shop_offer_1 w-100 mt-5 mb-5 bg-white</attribute>
-      <attribute name="style">margin:0; padding:0;</attribute>
     </xpath>
 
     <xpath expr="//div[@class='col-12 text-center']" position="replace">
