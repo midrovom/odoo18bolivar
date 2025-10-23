@@ -11,9 +11,8 @@
     </xpath>
   </template>
 
-<template id="s_shop_offer_hot" name="Shop Offer - Hot">
-    <section class="s_shop_offer_hot parallax s_parallax_is_fixed pt120 pb120 s_parallax_no_overflow_hidden"
-             data-scroll-background-ratio="0"
+  <template id="s_shop_offer_hot" name="Shop Offer - Hot">
+    <section class="s_shop_offer_hot"
              data-snippet="s_shop_offer_hot"
              data-name="Shop Offer - Hot">
       <div class="container">
@@ -32,6 +31,5 @@
         </div>
       </div>
     </section>
-</template>
-
+  </template>
 </odoo>
