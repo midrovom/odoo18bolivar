@@ -24,7 +24,7 @@
     'assets': {
         'web.assets_frontend': [
             ('prepend', 'theme_prime/static/src/js/website_sale_utils.js'),
-            'theme_prime_image/static/src/xml/s_card_style_9.xml',
+            'theme_prime_image/static/src/xml/cards.xml',
             
         ],
         'website.assets_wysiwyg': [
