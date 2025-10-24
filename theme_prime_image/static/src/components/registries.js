@@ -11,14 +11,6 @@ let CATEGORY_SELECTOR_DATA = { TpRecordSelector: { ...CATEGORIES_DATA, defaultVa
 
 
 registry.category('theme_prime_card_registry')
-    .add('s_card_style_1', {supportedActions: PRODUCTS_ACTIONS})
-    .add('s_card_style_2', {supportedActions: PRODUCTS_ACTIONS})
-    .add('s_card_style_3', {supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar']])]})
-    .add('s_card_style_4', {supportedActions: PRODUCTS_ACTIONS})
-    .add('s_card_style_5', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['colors']])]})
-    .add('s_card_style_6', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar', 'colors']])]})
-    .add('s_card_style_7', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar', 'colors']])]})
-    .add('s_card_style_8', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar']])]})
     .add('s_card_style_9', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar']])]})
 
 registry.category('theme_prime_snippet_registry')
