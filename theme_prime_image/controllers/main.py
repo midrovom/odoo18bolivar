@@ -1,11 +1,12 @@
 from odoo import http
 from odoo.http import request
+from odoo.addons.theme_prime.controllers.main import ThemePrimeMainClass
 
 
-class ThemePrimeMainClassExtended(http.Controller):
+class ThemePrimeMainClassExtended(ThemePrimeMainClass):
 
     def _prepare_product_data(self, products, fields, pricelist, options=None):
-        # Aseguramos que se incluyan los campos necesarios para los atributos
+        # Asegurar que los campos necesarios para atributos estén incluidos
         fields = list(set(fields or []))
         fields += [
             'attribute_line_ids',
@@ -15,10 +16,10 @@ class ThemePrimeMainClassExtended(http.Controller):
             'attribute_line_ids.value_ids.dr_image',
         ]
 
-        # Llamamos al método original con super para no perder la lógica base
+        # Llamar al método original para conservar toda la lógica base
         result = super()._prepare_product_data(products, fields, pricelist, options)
 
-        # Agregamos los atributos personalizados a cada producto
+        # Agregar atributos personalizados a cada producto
         for res_product, product in zip(result, products):
             res_product['attributes'] = []
             for line in product.attribute_line_ids:
