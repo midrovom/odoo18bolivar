@@ -24,6 +24,7 @@
     'assets': {
         'web.assets_frontend': [
             ('prepend', 'theme_prime/static/src/js/website_sale_utils.js'),
+            'theme_prime_image/static/src/js/new_registries.js',
             'theme_prime_image/static/src/xml/cards.xml',
             
         ],
