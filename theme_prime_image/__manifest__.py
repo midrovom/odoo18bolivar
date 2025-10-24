@@ -27,7 +27,7 @@
             
         ],
         'website.assets_wysiwyg': [
-            'theme_prime_image/static/src/components/*'
+            #'theme_prime_image/static/src/components/*'
             
         ],
     },
