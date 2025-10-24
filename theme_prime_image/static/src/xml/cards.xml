@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- <?xml version="1.0" encoding="utf-8"?>
 <templates>
 <!--Estilos para Snippet Product Card-->
     <t t-name="s_card_style_9">
@@ -24,4 +24,4 @@
     </t>
 </templates>
 
-
+ -->
