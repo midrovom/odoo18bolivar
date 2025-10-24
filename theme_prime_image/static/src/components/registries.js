@@ -11,4 +11,4 @@ let CATEGORY_SELECTOR_DATA = { TpRecordSelector: { ...CATEGORIES_DATA, defaultVa
 
 
 registry.category('theme_prime_card_registry')
-    .add('s_card_style_9', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar']])]})
+    .add('s_card_style_custom_9', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar']])]})
