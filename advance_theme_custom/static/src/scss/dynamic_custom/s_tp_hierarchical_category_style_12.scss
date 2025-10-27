@@ -1,23 +1,56 @@
 .s_tp_hierarchical_category_style_12 {
   .tp-animation-scale {
-    border-radius: 12px; // bordes redondeados
-    padding: 1rem;       // espacio interno
+    border-radius: 12px;
+    padding: 1rem;
     background-color: #fff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); // sombra suave
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     transition: transform 0.3s ease;
 
     &:hover {
-      transform: scale(1.03); // efecto al pasar el mouse
+      transform: scale(1.03);
     }
 
     img {
-      border-radius: 8px; 
+      border-radius: 8px;
     }
   }
 
-  // Espaciado entre columnas
-  [class*="col-"] {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+  .owl-carousel .item {
+    scroll-snap-align: start;
+  }
+
+  .owl-nav {
+    display: flex !important;
+    justify-content: space-between;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    z-index: 2;
+    pointer-events: none;
+
+    button {
+      background: rgba(0, 0, 0, 0.1);
+      border: none;
+      font-size: 2rem;
+      color: #333;
+      pointer-events: all;
+      padding: 0.5rem 1rem;
+      border-radius: 50%;
+      transition: background 0.3s ease;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.2);
+      }
+    }
+
+    .owl-prev::before {
+      content: "‹";
+    }
+
+    .owl-next::before {
+      content: "›";
+    }
   }
 }
