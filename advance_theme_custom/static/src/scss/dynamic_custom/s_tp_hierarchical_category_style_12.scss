@@ -1,8 +1,6 @@
 .s_tp_hierarchical_category_style_12 {
-  // Espaciado entre tarjetas
   margin: 0.5rem;
 
-  // Estilo de la tarjeta
   .tp-animation-scale {
     border-radius: 12px;
     padding: 1rem;
@@ -14,12 +12,10 @@
       transform: scale(1.03);
     }
 
-    // Imagen
     img {
       border-radius: 8px;
     }
 
-    // Título de categoría
     .category-title {
       padding-top: 1rem;
       margin-top: 1rem;
@@ -27,12 +23,15 @@
       text-align: center;
     }
 
-    // Línea decorativa como texto
+    // Línea decorativa como texto editable
     .tp-category-line {
-      display: block;
       font-size: 1.5rem;
       line-height: 1;
       margin-bottom: 0.5rem;
+    }
+
+    .o_we_color {
+      color: inherit;
     }
   }
 }
