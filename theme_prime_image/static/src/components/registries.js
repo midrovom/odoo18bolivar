@@ -13,11 +13,10 @@ let CATEGORY_SELECTOR_DATA = { TpRecordSelector: { ...CATEGORIES_DATA, defaultVa
 //web
 registry.category('theme_prime_card_registry')
     .add('s_card_style_9', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar']])]})
-    .add('s_card_style_10', {supportedActions: PRODUCTS_ACTIONS})
 //mobile
 registry.category('theme_prime_mobile_card_registry')
     .add('s_mobile_card_style_3', {supportedActions: []})
 
 
-// registry.category('theme_prime_category_card_registry')
-//     .add('s_tp_category_style_6', { supportedActions: [] });
+registry.category('theme_prime_mega_menu_cards')
+    .add('s_tp_hierarchical_category_style_12', {supportedActions: ['limit', 'brand', 'label', 'count', 'style', 'background']});
