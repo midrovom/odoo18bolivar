@@ -18,5 +18,5 @@ registry.category('theme_prime_mobile_card_registry')
     .add('s_mobile_card_style_3', {supportedActions: []})
 
 
-registry.category('theme_prime_mega_menu_cards')
-    .add('s_tp_hierarchical_category_style_12', {supportedActions: ['limit', 'brand', 'label', 'count', 'style', 'background']});
+registry.category('theme_prime_category_card_registry')
+    .add('s_tp_category_style_6', { supportedActions: [] });
