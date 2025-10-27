@@ -1,42 +1,60 @@
 .s_tp_hierarchical_category_style_12 {
-  // Espaciado entre tarjetas
-  margin: 0.5rem;
+  position: relative;
 
-  // Estilo de la tarjeta
-  .tp-animation-scale {
-    border-radius: 12px;
-    padding: 1rem;
-    background-color: #fff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
+  .tp-slider-container {
+    scroll-snap-type: x mandatory;
+    gap: 1rem;
+    padding: 1rem 0;
+    overflow-x: auto;
 
-    &:hover {
-      transform: scale(1.03);
+    .tp-slider-item {
+      scroll-snap-align: start;
+      width: 12.5%; // 100 / 8 = 12.5% → 8 cards visibles
     }
 
-    // Imagen
-    img {
-      border-radius: 8px;
-    }
+    .card {
+      border-radius: 12px;
+      padding: 1rem;
+      background-color: #fff;
+      transition: transform 0.3s ease;
 
-    // Línea decorativa encima del nombre
-    .category-title {
-      position: relative;
-      padding-top: 1rem;
-      margin-top: 1rem;
-      font-weight: 600;
-
-      &::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 40px;
-        height: 3px;
-        background-color: var(--tp-category-line-color, #007bff); // Personalizable
-        border-radius: 2px;
+      &:hover {
+        transform: scale(1.03);
       }
+
+      .category-title {
+        position: relative;
+        padding-top: 1rem;
+        font-weight: 600;
+
+        &::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 40px;
+          height: 3px;
+          background-color: var(--tp-category-line-color, #007bff);
+          border-radius: 2px;
+        }
+      }
+    }
+  }
+
+  .tp-slider-prev,
+  .tp-slider-next {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    display: none; // Ocultas por defecto
+  }
+
+  // Mostrar flechas solo si hay más de 8 tarjetas
+  &.tp-slider[data-count]:not([data-count="0"]):not([data-count="1"]):not([data-count="2"]):not([data-count="3"]):not([data-count="4"]):not([data-count="5"]):not([data-count="6"]):not([data-count="7"]):not([data-count="8"]) {
+    .tp-slider-prev,
+    .tp-slider-next {
+      display: flex;
     }
   }
 }
