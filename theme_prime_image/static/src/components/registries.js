@@ -12,3 +12,6 @@ let CATEGORY_SELECTOR_DATA = { TpRecordSelector: { ...CATEGORIES_DATA, defaultVa
 
 registry.category('theme_prime_card_registry')
     .add('s_card_style_9', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar']])]})
+
+registry.category('theme_prime_mega_menu_cards')
+    .add('s_tp_hierarchical_category_style_12', {supportedActions: ['limit', 'brand', 'label', 'count', 'style', 'background']});
