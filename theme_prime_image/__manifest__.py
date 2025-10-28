@@ -12,7 +12,6 @@
         'views/snippet/cover_custom/snippet_cover_custom.xml',
         'views/snippet/clients_custom/clients_custom.xml',
         'views/snippet/Header_custom/header_custom.xml',
-        'views/snippet/gallery_custom/gallery_custom.xml',
         'views/snippet/texto_custom/texto_custom.xml',
         'views/snippet/gallery_custom/image_delivery_guarantee.xml',
         'views/snippet/banner_custom/custom_category_slider.xml',
