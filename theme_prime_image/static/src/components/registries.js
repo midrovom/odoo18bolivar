@@ -14,8 +14,8 @@ let CATEGORY_SELECTOR_DATA = { TpRecordSelector: { ...CATEGORIES_DATA, defaultVa
 registry.category('theme_prime_card_registry')
     .add('s_card_style_9', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar']])]})
 //mobile
-registry.category('theme_prime_mobile_card_registry')
-    .add('s_mobile_card_style_3', {supportedActions: []})
+// registry.category('theme_prime_mobile_card_registry')
+//     .add('s_mobile_card_style_3', {supportedActions: []})
 
 
 registry.category('theme_prime_mega_menu_cards')
