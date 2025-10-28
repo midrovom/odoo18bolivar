@@ -1,0 +1,47 @@
+// Estilos generales
+#tpCategorySlider {
+  display: flex;
+  overflow-x: auto;
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+.category-card {
+  width: 115px;
+  margin-right: 16px; // puedes ajustar este valor según tu diseño
+  border-radius: 5px;
+}
+
+// Botones de navegación
+.tp-slider-button {
+  width: 30px;
+  background: transparent;
+  border: none;
+  padding: 0;
+
+  i {
+    color: gray;
+  }
+}
+
+// Estilos responsivos
+@media (max-width: 576px) {
+  #tpCategorySlider {
+    max-width: 100%; // o 246px si quieres limitar a 2 tarjetas
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .category-card {
+    width: 115px;
+    margin-right: 16px;
+  }
+
+  .tp-slider-button {
+    width: 30px;
+
+    i {
+      color: gray;
+    }
+  }
+}
