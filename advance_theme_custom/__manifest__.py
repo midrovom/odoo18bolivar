@@ -17,7 +17,7 @@
             'advance_theme_custom/static/src/scss/shop_offert_custom/s_shop_offer_hot.scss',
             'advance_theme_custom/static/src/scss/footer_custom/footer_custom.scss',
             'advance_theme_custom/static/src/scss/dynamic_custom/prueba.scss',
-            #'advance_theme_custom/static/src/scss/dynamic_custom/s_tp_hierarchical_category_style_12.scss',
+            'advance_theme_custom/static/src/js/s_tp_hierarchical_category_style_12.js',
         ],
     },
     'installable': True,
