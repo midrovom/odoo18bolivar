@@ -1,64 +1,56 @@
-// CONTENEDOR PRINCIPAL DEL SNIPPET
-
 .tp-slider-wrapper {
-  position: relative;
-  padding: 0.5rem 0.75rem; // equivalente a px-3 py-2
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding: 10px;
 }
 
-// TRACK DEL SLIDER (CARRUSEL DE TARJETAS)
+.tp-slider-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 2;
+
+    &-left {
+        position: absolute;
+        left: 0;
+    }
+
+    &-right {
+        position: absolute;
+        right: 0;
+    }
+
+    .tp-slider-icon {
+        color: #333;
+    }
+}
+
 .tp-slider-track {
-  display: flex;
-  overflow: hidden;
-  gap: 1.5rem; // gap-3 ≈ 24px
-  padding-left: 30px;
-  padding-right: 40px;
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 0 40px;
+    gap: 10px;
 }
-
-// TARJETAS DE CATEGORÍA (CARDS)
 
 .tp-slider-card {
-  width: 115px;
-  border-radius: 5px;
-  background-color: white;
-  padding: 0.5rem;
-  text-align: center;
-  flex-shrink: 0;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); // shadow-sm
+    flex: 0 0 auto;
+    width: 120px;
+    text-align: center;
 }
 
 .tp-slider-image {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
 }
 
 .tp-slider-title {
-  margin-top: 0.5rem;
-}
-
-// BOTONES DE NAVEGACIÓN
-
-.tp-slider-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 1;
-  width: 30px;
-  background: transparent;
-  border: none;
-  padding: 0;
-}
-
-.tp-slider-btn-left {
-  left: 0;
-}
-
-.tp-slider-btn-right {
-  right: 0;
-}
-
-// ÍCONOS DE LOS BOTONES
-
-.tp-slider-icon {
-  color: gray;
-  font-size: 2rem; 
+    margin-top: 8px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
