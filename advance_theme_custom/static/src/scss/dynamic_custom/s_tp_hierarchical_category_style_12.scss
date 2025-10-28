@@ -8,7 +8,7 @@
 
 .category-card {
   width: 115px;
-  margin-right: 16px; // puedes ajustar este valor según tu diseño
+  margin-right: 16px;
   border-radius: 5px;
 }
 
@@ -27,18 +27,28 @@
 // Estilos responsivos
 @media (max-width: 576px) {
   #tpCategorySlider {
-    max-width: 100%; // o 246px si quieres limitar a 2 tarjetas
+    max-width: 100%;
     padding-left: 0;
     padding-right: 0;
+    overflow-x: auto;
+    display: flex;
   }
 
   .category-card {
-    width: 115px;
-    margin-right: 16px;
+    width: 84px;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  .category-card:last-child {
+    margin-right: 0;
   }
 
   .tp-slider-button {
     width: 30px;
+    background: transparent;
+    border: none;
+    padding: 0;
 
     i {
       color: gray;
