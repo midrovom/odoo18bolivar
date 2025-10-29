@@ -20,24 +20,4 @@ registry.category('theme_prime_card_registry')
 
 registry.category('theme_prime_mega_menu_cards')
     .add('s_tp_hierarchical_category_style_12', {supportedActions: ['limit', 'brand', 'label', 'count', 'style', 'background']});
-
-
-registry.category("theme_prime_snippet_registry")
-    .add("s_tp_mega_menu_category_snippet", {
-        widgets: {
-            ...CATEGORY_SELECTOR_DATA,
-            TpUiComponent: {
-                cardRegistry: "theme_prime_mega_menu_cards",
-                defaultVal: {
-                    style: "s_tp_hierarchical_category_style_1",
-                    childOrder: "sequence",
-                    productListing: "newArrived",
-                    limit: 5,
-                    activeActions: ["brand", "label", "count"],
-                    mode: "slider",   
-                },
-            },
-            ...EXTRA_OPTIONS,
-        },
-        defaultValue: { maxValue: 10, minValue: 2 },
-    });
+    
