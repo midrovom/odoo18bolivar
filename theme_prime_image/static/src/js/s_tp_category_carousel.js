@@ -1,14 +1,19 @@
 odoo.define('theme_prime_image.category_carousel', function (require) {
     'use strict';
 
-    // Importación del sistema de widgets públicos de Odoo
     const publicWidget = require('web.public.widget');
 
-    // Registro de tu widget
     publicWidget.registry.CategoryCarousel = publicWidget.Widget.extend({
         selector: '.owl-carousel.droggol_product_slider',
+        on_attach_callback: function () {
+            this._initCarousel();
+        },
         start: function () {
-            if (!this.$el.hasClass('owl-loaded')) {
+            this._initCarousel();
+            return this._super.apply(this, arguments);
+        },
+        _initCarousel: function () {
+            if (this.$el.length && !this.$el.hasClass('owl-loaded')) {
                 this.$el.owlCarousel({
                     items: 8,
                     margin: 10,
@@ -23,7 +28,6 @@ odoo.define('theme_prime_image.category_carousel', function (require) {
                     }
                 });
             }
-            return this._super.apply(this, arguments);
         },
     });
 });
