@@ -22,10 +22,10 @@
     ],
     'assets': {
         'web.assets_frontend': [
-            'theme_prime_image/static/src/js/s_tp_category_carousel.js',
+            'theme_prime_image/static/src/components/s_tp_category_carousel.js',
         ],
         'website.assets_wysiwyg': [
-            #'theme_prime_image/static/src/components/*'
+            'theme_prime_image/static/src/components/*'
             
         ],
     },
