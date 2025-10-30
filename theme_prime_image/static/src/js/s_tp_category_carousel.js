@@ -1,4 +1,4 @@
-odoo.define('theme_prime_image.style1_slider', function (require) {
+odoo.define('theme_prime_image.style12_slider', function (require) {
     'use strict';
 
     const publicWidget = require('web.public.widget');
