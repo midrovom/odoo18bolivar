@@ -1,21 +1,28 @@
-odoo.define('theme_prime_image.style12_slider', function (require) {
-    'use strict';
+/** @odoo-module **/
 
-    const publicWidget = require('web.public.widget');
+import { Component, onMounted } from "@odoo/owl";
 
-    publicWidget.registry.Style1Slider = publicWidget.Widget.extend({
-        selector: '.js_style_12',
-        start: function () {
-            this.$el.owlCarousel({
-                items: 1,   
-                margin: 10,
-                loop: true,
-                nav: true,
-                dots: true,
-                autoplay: true,
-                autoplayTimeout: 4000,
-            });
-            return this._super.apply(this, arguments);
-        },
-    });
-});
+export class Style12Slider extends Component {
+    setup() {
+        onMounted(() => {
+            const $el = $(this.el).find(".js_style_12");
+            if ($el.length && $.fn.owlCarousel) {
+                $el.owlCarousel({
+                    items: 8,
+                    margin: 10,
+                    loop: true,
+                    nav: true,
+                    dots: false,
+                    responsive: {
+                        0: { items: 2 },
+                        576: { items: 4 },
+                        768: { items: 6 },
+                        992: { items: 8 }
+                    }
+                });
+            }
+        });
+    }
+}
+Style12Slider.template = "s_tp_hierarchical_category_style_12";
+
