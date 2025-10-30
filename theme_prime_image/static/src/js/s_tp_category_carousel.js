@@ -4,7 +4,7 @@ odoo.define('theme_prime_image.style1_slider', function (require) {
     const publicWidget = require('web.public.widget');
 
     publicWidget.registry.Style1Slider = publicWidget.Widget.extend({
-        selector: '.js_style1_slider',
+        selector: '.js_style_12',
         start: function () {
             this.$el.owlCarousel({
                 items: 1,   
