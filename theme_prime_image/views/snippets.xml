@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="snippets" inherit_id="website.snippets">
+        <t t-snippet="website.s_banner" position="before">
+            <!-- Dynamic -->
+            <t t-snippet="theme_prime.s_d_categories_snippet" string="Products" group="theme_prime_dynamic">
+                <keywords>products, dynamic</keywords>
+            </t>
+        </t>
+    </template>
+
+
+</odoo>
