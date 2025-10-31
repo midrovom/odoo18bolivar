@@ -5,20 +5,21 @@ import { localization } from "@web/core/l10n/localization";
 
 publicWidget.registry.TpCategorySlider12 = publicWidget.Widget.extend({
     selector: '.tp-category-slider-12',
-
     jsLibs: ['/theme_prime/static/lib/OwlCarousel2-2.3.4/owl.carousel.js'],
 
     on_attach_callback: function () {
-        console.log("TpCategorySlider12 activo (editor y frontend)");
+        console.log("TpCategorySlider12 activo (snippet dinámico)");
         this._initializeOWL();
     },
 
     _initializeOWL: function () {
         const $owlSlider = this.$el;
+
         if ($owlSlider.hasClass("owl-loaded")) {
             $owlSlider.trigger("refresh.owl.carousel");
             return;
         }
+
         $owlSlider.owlCarousel({
             dots: false,
             margin: 10,
