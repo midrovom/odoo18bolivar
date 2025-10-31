@@ -4,11 +4,11 @@ import publicWidget from "@web/legacy/js/public/public_widget";
 import { localization } from "@web/core/l10n/localization";
 
 publicWidget.registry.TpCategorySlider12 = publicWidget.Widget.extend({
-    selector: '.tp-category-slider-12',   
-    bodyTemplate: 's_tp_hierarchical_category_style_12',
+    selector: '.tp-category-slider-12',
     jsLibs: ['/theme_prime/static/lib/OwlCarousel2-2.3.4/owl.carousel.js'],
 
     start: function () {
+        console.log("TpCategorySlider12 activo "); 
         this._initializeOWL();
         return this._super.apply(this, arguments);
     },
