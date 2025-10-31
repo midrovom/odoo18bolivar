@@ -19,6 +19,8 @@ registry.category('theme_prime_card_registry')
 
 
 registry.category('theme_prime_mega_menu_cards')
-    .add('s_tp_hierarchical_category_style_12', {supportedActions: ['limit', 'brand', 'label', 'count', 'style', 'background', PRODUCTS_ACTIONS]})
+   // .add('s_tp_hierarchical_category_style_12', {supportedActions: ['limit', 'brand', 'label', 'count', 'style', 'background', PRODUCTS_ACTIONS]})
     .add('s_tp_hierarchical_category_style_13', {supportedActions: ['limit', 'brand', 'label', 'count', 'style', 'background', PRODUCTS_ACTIONS]});
     
+registry.category('theme_prime_category_card_registry')
+    .add('s_tp_category_style_6', { supportedActions: [] });
