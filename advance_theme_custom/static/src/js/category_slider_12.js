@@ -7,10 +7,10 @@ publicWidget.registry.TpCategorySlider12 = publicWidget.Widget.extend({
     selector: '.tp-category-slider-12',
     jsLibs: ['/theme_prime/static/lib/OwlCarousel2-2.3.4/owl.carousel.js'],
 
-    start: function () {
-        console.log("TpCategorySlider12 activo "); 
+    _modifyElementsAfterAppend: function () {
+        this._super.apply(this, arguments);
+        console.log("TpCategorySlider12 activo (snippet dinámico)");
         this._initializeOWL();
-        return this._super.apply(this, arguments);
     },
 
     _initializeOWL: function () {
