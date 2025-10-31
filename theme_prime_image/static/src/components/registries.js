@@ -12,7 +12,8 @@ let CATEGORY_SELECTOR_DATA = { TpRecordSelector: { ...CATEGORIES_DATA, defaultVa
 //Registro para snippet product card 
 //web
 registry.category('theme_prime_card_registry')
-    .add('s_card_style_9', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar']])]});
+    .add('s_card_style_9', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar']])]})
+    .add('s_card_style_10', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar']])]});
 //mobile
 // registry.category('theme_prime_mobile_card_registry')
 //     .add('s_mobile_card_style_3', {supportedActions: []})
