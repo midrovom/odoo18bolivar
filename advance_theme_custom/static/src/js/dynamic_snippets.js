@@ -18,7 +18,7 @@ import { _t } from "@web/core/l10n/translation";
 publicWidget.registry.s_d_categories_snippet = ProductRootWidget.extend(OwlMixin, ProductsBlockMixins, {
     selector: '.s_d_categories_snippet_wrapper',
 
-    bodyTemplate: 'd_s_cards_wrapper',
+    bodyTemplate: 'd_s_cards_wrapper_categories',
     bodySelector: '.s_d_products_snippet',
     controllerRoute: '/theme_prime/get_categories_info',
     fieldstoFetch: ['dr_category_label_id'],
