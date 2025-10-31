@@ -1,6 +1,7 @@
 /** @odoo-module **/
-import { registry } from '@web/core/registry';
 
+import { registry } from '@web/core/registry';
+// All of our work will be trash because registry will be no longer useful in next version.
 let PRODUCTS_ACTIONS = ['rating', 'quick_view', 'add_to_cart', 'comparison', 'wishlist', 'category_info', 'label'];
 let PRODUCTS_ACTIONS_2 = ['rating', 'category_info', 'add_to_cart', 'wishlist', 'comparison', 'description_ecommerce', 'label'];
 let PRODUCTS_DATA = { models: ['product.template', 'product.product'], fields: ['name', 'list_price', 'dr_stock_label'], fieldsToMarkUp: ['price', 'list_price', 'dr_stock_label']}
@@ -8,6 +9,19 @@ let CATEGORIES_DATA = { fields: ['name'], fieldsToMarkUp: []};
 let SELECTOR_DATA = { TpRecordSelector: { ...PRODUCTS_DATA, defaultVal: { selectionType: 'manual', recordsIDs: [], model: 'product.template'}}};
 let EXTRA_OPTIONS = { TpExtraOpts: { startDate: '', endDate: '', priceList: '*' } };
 let CATEGORY_SELECTOR_DATA = { TpRecordSelector: { ...CATEGORIES_DATA, defaultVal: { selectionType: 'manual', recordsIDs: [], model: 'product.public.category'}}};
+
+
+let CATEGORY_SELECTOR_DATA_CUSTOM = { TpRecordSelector: { ...CATEGORIES_DATA, defaultVal: { selectionType: 'manual', recordsIDs: [], model: 'product.public.category'}}};
+
+registry.category('theme_prime_snippet_registry')
+    .add('s_d_categories_snippet', {
+        widgets: {
+            ...CATEGORY_SELECTOR_DATA_CUSTOM,
+            TpUiComponent: { cardRegistry: 'theme_prime_card_registry', defaultVal: { style: 's_card_style_1', mode: 'slider', ppr: 4, activeActions: PRODUCTS_ACTIONS, mobileConfig: { style: 'default', mode: 'default' } } },
+            ...EXTRA_OPTIONS
+        },
+        defaultValue: { hasSwitcher: true, }
+    });
 
 //Registro para snippet product card 
 //web

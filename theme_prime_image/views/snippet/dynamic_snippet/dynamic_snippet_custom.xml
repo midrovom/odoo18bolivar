@@ -17,7 +17,6 @@
         </section>
     </template>
 
-<<<<<<< HEAD
     <template id="s_d_categories_snippet" name="Categories Cards">
         <section contenteditable="false" class="tp-droggol-18-builder-snippet dr_not_editable s_d_categories_snippet_wrapper text-center" data-tp-snippet-id="s_d_categories_snippet">
             <div class="s_d_categories_snippet container o_not_editable"/>
@@ -28,6 +27,3 @@
     </template>
 
 </odoo>
-=======
-</odoo>
->>>>>>> 4aa3b718696c814611d2d2cb4c499e97ffa27bc8

@@ -18,12 +18,8 @@
         'views/snippet/footer_custom/footer_style_1_custom.xml',
         'views/snippet/shop_offert_custom/shop_offer_6.xml',
         'views/snippet/shop_offert_custom/s_shop_offer_hot.xml',
-<<<<<<< HEAD
         'views/snippets.xml',
        #'views/snippet/dynamic_snippet/dynamic_snippet_custom.xml',
-=======
-        #'views/snippet/dynamic_snippet/dynamic_snippet_custom.xml',
->>>>>>> 4aa3b718696c814611d2d2cb4c499e97ffa27bc8
     ],
     'assets': {
         'web.assets_frontend': [
