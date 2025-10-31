@@ -4,28 +4,44 @@ import publicWidget from "@web/legacy/js/public/public_widget";
 import { localization } from "@web/core/l10n/localization";
 
 publicWidget.registry.TpCategorySlider12 = publicWidget.Widget.extend({
-    selector: '.owl-carousel.tp-category-slider-12',
+    selector: '.tp-category-slider-12',   
+
+    jsLibs: ['/theme_prime/static/lib/OwlCarousel2-2.3.4/owl.carousel.js'],
 
     start: function () {
+        this._initializeOWL();
+        return this._super.apply(this, arguments);
+    },
+
+    _initializeOWL: function () {
         const $owlSlider = this.$el;
+
+        const responsiveParams = {
+            0: { items: 2 },
+            576: { items: 4 },
+            768: { items: 6 },
+            992: { items: 8 }
+        };
+
+        $owlSlider.removeClass('d-none container');
         $owlSlider.owlCarousel({
-            items: 8,
+            dots: false,
             margin: 10,
             loop: true,
             nav: true,
-            dots: false,
             autoplay: true,
             autoplayTimeout: 3000,
             autoplayHoverPause: true,
             rewind: true,
             rtl: localization.direction === 'rtl',
-            responsive: {
-                0: { items: 2 },
-                576: { items: 4 },
-                768: { items: 6 },
-                992: { items: 8 }
-            }
+            responsive: responsiveParams
         });
-        return this._super.apply(this, arguments);
+
+        this.$('.tp-prev').click(function () {
+            $owlSlider.trigger('prev.owl.carousel');
+        });
+        this.$('.tp-next').click(function () {
+            $owlSlider.trigger('next.owl.carousel');
+        });
     },
 });
