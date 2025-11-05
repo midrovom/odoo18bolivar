@@ -19,6 +19,7 @@
         'views/snippet/shop_offert_custom/shop_offer_6.xml',
         'views/snippet/shop_offert_custom/s_shop_offer_hot.xml',
         'views/snippet/dynamic_snippet/register.xml',
+        'theme_prime_image/views/snippet/dynamic_snippet/dynamic_snippet_custom.xml',
        
     ],
     'assets': {
