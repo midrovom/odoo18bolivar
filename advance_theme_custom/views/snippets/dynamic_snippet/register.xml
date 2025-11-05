@@ -3,7 +3,7 @@
     <template id="snippets" inherit_id="website.snippets">
         <t t-snippet="website.s_banner" position="before">
             <!-- Dynamic -->
-            <t t-snippet="theme_prime_image.s_d_categories_snippet" string="categories" group="catalog">
+            <t t-snippet="advance_theme_custom.alternative_products_custom" string="categories" group="catalog">
                 <keywords>products, dynamic</keywords>
             </t>
         </t>
