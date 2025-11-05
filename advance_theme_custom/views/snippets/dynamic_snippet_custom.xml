@@ -9,8 +9,6 @@
     </t>
   </template>
 </odoo> -->
-
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="s_dynamic_snippet_categories" name="Categories">
         <t t-call="website.s_dynamic_snippet_template">
