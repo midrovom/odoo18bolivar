@@ -1,4 +1,4 @@
-<odoo>
+<!-- <odoo>
   <template id="s_dynamic_snippet_categories" name="Categories">
     <t t-call="website.s_dynamic_snippet_template">
       <t t-set="snippet_name" t-value="'s_dynamic_snippet_categories'"/>
@@ -7,5 +7,26 @@
       <t t-set="main_page_url" t-value="'/shop/category'"/>
       <t t-call="advance_theme_custom.s_dynamic_snippet_categories_preview_data"/>
     </t>
+  </template>
+</odoo> -->
+
+<odoo>
+  <template id="s_dynamic_snippet_categories" name="Categories">
+    <section class="s_dynamic_snippet_categories s_dynamic_snippet_products o_wsale_products s_dynamic pt32 pb32 o_colored_level"
+             data-name="Categories Carousel"
+             data-template-key="advance_theme_custom.dynamic_filter_template_category_item"
+             data-model-name="product.public.category"
+             data-category-ids="[]"
+             data-number-of-records="8"
+             data-carousel-interval="5000"
+             data-carousel-slide-by="1">
+      <div class="container">
+        <div class="row s_nb_column_fixed">
+          <section class="s_dynamic_snippet_content oe_unremovable oe_unmovable o_not_editable col o_colored_level">
+            <div class="dynamic_snippet_template"></div>
+          </section>
+        </div>
+      </div>
+    </section>
   </template>
 </odoo>
