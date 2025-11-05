@@ -5,6 +5,7 @@
     'category': 'eCommerce',
     'depends': ['website'],
     'data': [
+        'advance_theme_custom/views/snippets/dynamic_snippet/register.xml',
     ],
     'assets': {
         'web.assets_frontend': [
