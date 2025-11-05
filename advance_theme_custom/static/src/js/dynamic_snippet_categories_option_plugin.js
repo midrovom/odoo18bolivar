@@ -5,7 +5,6 @@ import { withSequence } from "@html_editor/utils/resource";
 import { registry } from "@web/core/registry";
 import { DynamicSnippetOptionComponent } from "@website/builder/plugins/options/dynamic_snippet_option_component";
 
-
 class DynamicSnippetCategoriesOptionPlugin extends Plugin {
     static id = "dynamicSnippetCategoriesOption";
     static dependencies = ["dynamicSnippetCarouselOption"];

@@ -1,19 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="dynamic_filter_template_category_item" name="Category Item Template">
-    <t t-foreach="records" t-as="data">
-      <t t-set="category" t-value="data['_record']"/>
-      <div class="oe_product_cart o_carousel_product_card d-flex" role="article">
-        <a class="o_carousel_product_img_link stretched-link" t-att-href="'/shop/category/%s' % category.id">
-          <div class="overflow-hidden rounded">
-            <img class="card-img-top o_img_product_square o_img_product_cover h-auto"
-                 t-att-src="'/web/image/product.public.category/%s/image_1920' % category.id"
-                 t-att-alt="category.name"/>
-          </div>
-        </a>
-        <div class="card-body text-center">
-          <h5 class="card-title"><t t-esc="category.name"/></h5>
-        </div>
-      </div>
-    </t>
-  </template>
+    <template id="dynamic_filter_template_category_item" name="Category Item Template">
+        <t t-foreach="records" t-as="data">
+            <t t-set="category" t-value="data['_record']"/>
+            <div class="oe_product_cart o_carousel_product_card d-flex" role="article">
+                <a class="o_carousel_product_img_link stretched-link" t-att-href="'/shop/category/%s' % category.id">
+                    <div class="overflow-hidden rounded">
+                        <img class="card-img-top o_img_product_square o_img_product_cover h-auto"
+                            t-att-src="'/web/image/product.public.category/%s/image_1920' % category.id"
+                            t-att-alt="category.name"/>
+                    </div>
+                </a>
+                <div class="card-body text-center">
+                    <h5 class="card-title"><t t-esc="category.name"/></h5>
+                </div>
+            </div>
+        </t>
+    </template>
+
+
 </odoo>
