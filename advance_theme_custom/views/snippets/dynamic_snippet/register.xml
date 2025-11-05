@@ -1,12 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="snippet_catalog_registro_custom" inherit_id="website.snippets">
-    <xpath expr="//snippets[@id='snippet_structure']/t[@t-snippet='website.s_banner_product']" position="after">
-      <t t-snippet="advance_theme_prime.alternative_products_custom"
-         string="Snippet de Categorías"
-         group="catalog"
-         t-image-preview="/mi_modulo/static/src/img/snippets_previews/mi_snippet_catalog_banner_preview.webp">
-         <keywords>banner, ecommerce, productos, promoción, catálogo, tienda</keywords>
-      </t>
+  <template id="category_snippet" inherit_id="website.snippets" priority="20">
+    <xpath expr="//snippets[@id='snippet_structure']" position="inside">
+      <t t-install="category" string="My Product Carousel" group="catalog"
+         t-image-preview="/my_module/static/src/img/snippets_previews/my_product_carousel_preview.webp"/>
     </xpath>
   </template>
 </odoo>

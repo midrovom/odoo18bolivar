@@ -3,7 +3,7 @@
     'version': '18.0.1.0.0',
     'summary': 'Extensión de estilos',
     'category': 'eCommerce',
-    'depends': ['website'],
+    'depends': ['website', 'website_sale'],
     'data': [
         'views/snippets/dynamic_snippet/register.xml',
     ],
