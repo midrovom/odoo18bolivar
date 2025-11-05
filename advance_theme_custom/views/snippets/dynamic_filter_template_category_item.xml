@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="dynamic_filter_template_category_item" name="Category Item Template">
         <t t-foreach="records" t-as="data">
@@ -16,6 +16,6 @@
                 </div>
             </div>
         </t>
-    </template>
+    </template> -->
 
 </odoo>

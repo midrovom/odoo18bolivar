@@ -1,4 +1,4 @@
-<!-- <odoo>
+<odoo>
   <template id="s_dynamic_snippet_categories" name="Categories">
     <t t-call="website.s_dynamic_snippet_template">
       <t t-set="snippet_name" t-value="'s_dynamic_snippet_categories'"/>
@@ -8,17 +8,6 @@
       <t t-call="advance_theme_custom.s_dynamic_snippet_categories_preview_data"/>
     </t>
   </template>
-</odoo> -->
-<odoo>
-    <template id="s_dynamic_snippet_categories" name="Categories">
-        <t t-call="website.s_dynamic_snippet_template">
-            <t t-set="snippet_name" t-value="'s_dynamic_snippet_categories'"/>
-            <t t-set="snippet_classes" t-value="'o_wsale_categories_opt_design_cards'"/>
-            <t t-set="main_page_url" t-value="'/shop'"/>
-            <t t-call="advance_theme_custom.s_dynamic_snippet_categories_preview_data"/>
-        </t>
-    </template>
-
 </odoo>
 
 
