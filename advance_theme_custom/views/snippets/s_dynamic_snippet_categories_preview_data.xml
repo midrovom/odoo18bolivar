@@ -3,7 +3,7 @@
     <div class="carousel slide s_dialog_preview">
       <div class="carousel-inner row w-100 mx-auto">
         <div role="option" class="carousel-item active">
-          <div class="row">
+          <div class="row s_dynamic_snippet_row">
             <t t-foreach="request.env['product.public.category'].search([], limit=4)" t-as="category">
               <div class="d-flex flex-grow-0 flex-shrink-0 col-3">
                 <div class="o_carousel_product_card bg-transparent w-100 card border-0">
@@ -23,6 +23,12 @@
           </div>
         </div>
       </div>
+      <a class="carousel-control-prev" data-bs-slide="prev" role="button" href="#s_dynamic_snippet_1">
+        <span class="fa fa-chevron-circle-left fa-2x"></span>
+      </a>
+      <a class="carousel-control-next" data-bs-slide="next" role="button" href="#s_dynamic_snippet_1">
+        <span class="fa fa-chevron-circle-right fa-2x"></span>
+      </a>
     </div>
   </template>
 </odoo>
