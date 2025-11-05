@@ -1,8 +1,8 @@
 <odoo>
   <template id="snippet_catalog_registro_custom" inherit_id="website.snippets">
-    <xpath expr="//t[@t-snippet='website.s_banner_product']" position="after">
+    <xpath expr="//snippets[@id='snippet_structure']/t[@t-snippet='website.s_banner_product']" position="after">
       <t t-snippet="advance_theme_prime.alternative_products_custom"
-         string="snippet de categorias"
+         string="Snippet de Categorías"
          group="catalog"
          t-image-preview="/mi_modulo/static/src/img/snippets_previews/mi_snippet_catalog_banner_preview.webp">
          <keywords>banner, ecommerce, productos, promoción, catálogo, tienda</keywords>
