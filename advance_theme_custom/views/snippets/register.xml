@@ -8,8 +8,6 @@
     </xpath>
   </template>
 </odoo>  -->
-
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="snippets" inherit_id="website.snippets" name="e-commerce snippets">
         <xpath expr="//t[@id='sale_products_hook']" position="inside">
