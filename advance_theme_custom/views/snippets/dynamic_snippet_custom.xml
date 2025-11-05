@@ -18,6 +18,7 @@
             <t t-call="advance_theme_custom.s_dynamic_snippet_categories_preview_data"/>
         </t>
     </template>
+
 </odoo>
 
 
