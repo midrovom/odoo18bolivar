@@ -1,4 +1,4 @@
-<odoo>
+<!-- <odoo>
   <template id="s_dynamic_snippet_categories_preview_data" name="Categories Preview Data">
     <div class="carousel slide s_dialog_preview">
       <div class="carousel-inner row w-100 mx-auto">
@@ -32,4 +32,33 @@
     </div>
   </template>
 </odoo>
+ -->
 
+<odoo>
+  <template id="s_dynamic_snippet_categories_preview_data" name="Categories Preview Data">
+    <div class="carousel slide s_dialog_preview">
+      <div class="carousel-inner row w-100 mx-auto">
+        <div role="option" class="carousel-item active">
+          <div class="row s_dynamic_snippet_row">
+            <t t-foreach="request.env['product.public.category'].search([], limit=4)" t-as="category">
+              <div class="d-flex flex-grow-0 flex-shrink-0 col-3">
+                <div class="o_carousel_product_card bg-transparent w-100 card border-0">
+                  <a class="o_carousel_product_img_link stretched-link" t-att-href="'/shop/category/%s' % category.id">
+                    <div class="overflow-hidden rounded">
+                      <img class="card-img-top o_img_product_square o_img_product_cover h-auto"
+                           t-att-src="'/web/image/product.public.category/%s/image_1920' % category.id"
+                           t-att-alt="category.name"/>
+                    </div>
+                  </a>
+                  <div class="card-body text-center">
+                    <h5 class="card-title"><t t-esc="category.name"/></h5>
+                  </div>
+                </div>
+              </div>
+            </t>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+</odoo>

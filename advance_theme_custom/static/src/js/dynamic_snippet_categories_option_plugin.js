@@ -22,34 +22,20 @@ class DynamicSnippetCategoriesOptionPlugin extends Plugin {
         on_snippet_dropped_handlers: this.onSnippetDropped.bind(this),
     };
 
-    setup() {
-        this.categories = undefined;
-    }
-
     async onSnippetDropped({ snippetEl }) {
-        if (snippetEl.matches(this.selector)) {
-            setDatasetIfUndefined(snippetEl, "categoryIds", "[]");
-            setDatasetIfUndefined(snippetEl, "numberOfRecords", "8");
-            setDatasetIfUndefined(snippetEl, "carouselInterval", "5000");
-            setDatasetIfUndefined(snippetEl, "carouselSlideBy", "1");
-        }
+        setDatasetIfUndefined(snippetEl, "categoryIds", "[]");
+        setDatasetIfUndefined(snippetEl, "numberOfRecords", "8");
+        setDatasetIfUndefined(snippetEl, "carouselInterval", "5000");
+        setDatasetIfUndefined(snippetEl, "carouselSlideBy", "1");
     }
 
     async fetchCategories() {
-        if (!this.categories) {
-            const websiteDomain = [
-                "|",
-                ["website_id", "=", false],
-                ["website_id", "=", this.services.website.currentWebsite.id],
-            ];
-            this.categories = this.services.orm.searchRead(
-                "product.public.category",
-                websiteDomain,
-                ["id", "name"],
-                { order: "name asc" }
-            );
-        }
-        return this.categories;
+        return this.services.orm.searchRead(
+            "product.public.category",
+            [["website_id", "in", [false, this.services.website.currentWebsite.id]]],
+            ["id", "name"],
+            { order: "name asc" }
+        );
     }
 }
 

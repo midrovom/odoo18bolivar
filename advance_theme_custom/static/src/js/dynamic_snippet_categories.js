@@ -5,15 +5,14 @@ export class DynamicSnippetCategories extends DynamicSnippetCarousel {
     static selector = ".s_dynamic_snippet_categories";
 
     getSearchDomain() {
-        const searchDomain = [];
         const categoryIds = this.el.dataset.categoryIds;
         if (categoryIds) {
             const parsed = JSON.parse(categoryIds);
             if (parsed.length) {
-                searchDomain.push(["id", "in", parsed.map(c => c.id)]);
+                return [["id", "in", parsed.map(c => c.id)]];
             }
         }
-        return searchDomain;
+        return [];
     }
 
     getRpcParameters() {
