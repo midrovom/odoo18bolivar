@@ -9,6 +9,7 @@
   </template>
 </odoo> -->
 
+
 <odoo>
   <template id="snippets_categories" inherit_id="website.snippets">
     <xpath expr="//t[@id='installed_snippets_hook']" position="before">

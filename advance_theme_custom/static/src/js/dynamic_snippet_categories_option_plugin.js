@@ -12,7 +12,7 @@ class DynamicSnippetCategoriesOptionPlugin extends Plugin {
 
     resources = {
         builder_options: withSequence(DYNAMIC_SNIPPET_CAROUSEL, {
-            OptionComponent: null, // se peude crear un componente si se requiere UI personalizada
+            OptionComponent: null,
             props: {
                 modelNameFilter: this.modelNameFilter,
                 fetchCategories: this.fetchCategories.bind(this),
@@ -31,6 +31,7 @@ class DynamicSnippetCategoriesOptionPlugin extends Plugin {
             setDatasetIfUndefined(snippetEl, "categoryIds", "[]");
             setDatasetIfUndefined(snippetEl, "numberOfRecords", "8");
             setDatasetIfUndefined(snippetEl, "carouselInterval", "5000");
+            setDatasetIfUndefined(snippetEl, "carouselSlideBy", "1");
         }
     }
 
