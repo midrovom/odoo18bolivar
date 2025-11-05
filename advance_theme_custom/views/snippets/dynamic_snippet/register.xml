@@ -1,9 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-  <template id="category_snippet" inherit_id="website.snippets" priority="20">
-    <xpath expr="//snippets[@id='snippet_structure']" position="inside">
-      <t t-install="category" string="My Product Carousel" group="catalog"
-         t-image-preview="/my_module/static/src/img/snippets_previews/my_product_carousel_preview.webp"/>
-    </xpath>
-  </template>
+    <template id="custom_snippet_catalog_registration" inherit_id="website.snippets" name="Custom Snippet in Catalog">
+        <xpath expr="//t[@t-install='website_sale' and @string='Products Carousel']" position="after">
+            <t t-install="category" string="category custom" group="catalog"
+               t-snippet="advance_theme_custom.s_my_custom_snippet"
+               t-image-preview="/your_module/static/src/img/snippets_previews/s_my_custom_snippet_preview.webp"/>
+        </xpath>
+    </template>
 </odoo>
+
