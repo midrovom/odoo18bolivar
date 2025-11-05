@@ -5,7 +5,7 @@
         <t t-snippet="website.s_banner" position="before">
             <!-- Dynamic -->
             <t t-snippet="theme_prime_image.s_d_categories_snippet" string="Products" group="theme_prime_dynamic">
-                <keywords>products, dynamic</keywords>
+                <keywords>categories, dynamic, carousel</keywords>
             </t>
         </t>
     </template>
