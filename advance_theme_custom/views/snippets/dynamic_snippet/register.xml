@@ -1,10 +1,9 @@
 <odoo>
-    <template id="custom_snippet_after_products_carousel" inherit_id="external_snippets" name="Custom Snippet After Products Carousel">
-        <xpath expr="//t[@t-install='website_sale' and @string='Products Carousel']" position="after">
-            <t t-install="your_module" string="My Custom Snippet" group="catalog"
-               t-snippet="advance_theme_custom.s_my_custom_snippet"
-               t-image-preview="/your_module/static/src/img/snippets_previews/s_my_custom_snippet_preview.webp"/>
+    <template id="custom_snippet_categories_registration" inherit_id="external_snippets" name="Categories Carousel Snippet">
+        <xpath expr="//snippets[@id='snippet_structure']" position="inside">
+            <t t-install="advance_theme_custom" string="Categories Carousel" group="catalog"
+               t-snippet="advance_theme_custom.alternative_products_custom"
+               t-image-preview="/your_module/static/src/img/snippets_previews/s_dynamic_snippet_categories_preview.webp"/>
         </xpath>
     </template>
 </odoo>
-
