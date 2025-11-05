@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <template id="custom_snippet_catalog_registration" inherit_id="website.snippets" name="Custom Snippet in Catalog">
+    <template id="custom_snippet_after_products_carousel" inherit_id="external_snippets" name="Custom Snippet After Products Carousel">
         <xpath expr="//t[@t-install='website_sale' and @string='Products Carousel']" position="after">
-            <t t-install="category" string="category custom" group="catalog"
+            <t t-install="your_module" string="My Custom Snippet" group="catalog"
                t-snippet="advance_theme_custom.s_my_custom_snippet"
                t-image-preview="/your_module/static/src/img/snippets_previews/s_my_custom_snippet_preview.webp"/>
         </xpath>
