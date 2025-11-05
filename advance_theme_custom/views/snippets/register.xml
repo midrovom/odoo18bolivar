@@ -1,4 +1,4 @@
-<!-- <odoo>
+<odoo>
   <template id="snippets_categories" inherit_id="website.snippets">
     <xpath expr="//t[@id='installed_snippets_hook']" position="before">
       <t t-snippet="advance_theme_custom.s_dynamic_snippet_categories"
@@ -7,14 +7,8 @@
          t-image-preview="/advance_theme_custom/static/src/img/snippets_previews/s_dynamic_snippet_categories_preview.webp"/>
     </xpath>
   </template>
-</odoo>  -->
-<odoo>
-    <template id="snippets" inherit_id="website.snippets" name="e-commerce snippets">
-        <xpath expr="//t[@id='sale_products_hook']" position="inside">
-            <t t-snippet="advance_theme_custom.s_dynamic_snippet_categories" string="Categories" label="Dynamic Content" group="catalog"/>
-        </xpath>
-    </template>
-</odoo>
+</odoo> 
+
 
 
 
