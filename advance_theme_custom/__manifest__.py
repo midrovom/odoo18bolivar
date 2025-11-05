@@ -7,6 +7,7 @@
     'data': [
         'views/snippets/register.xml',
         'views/snippets/dynamic_snippet_custom.xml',
+        'views/snippets/s_dynamic_snippet_categories_preview_data.xml',
     ],
     'assets': {
         'web.assets_frontend': [
