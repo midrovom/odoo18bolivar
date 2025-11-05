@@ -1,0 +1,15 @@
+<odoo>
+  <template id="custom_snippet_catalog" inherit_id="website.snippets" priority="9">
+    <xpath expr="//snippets[@id='snippet_structure']/t[@string='Products Carousel']" position="after">
+      <t t-snippet="theme_prime_image.custom_products_carousel_snippet"
+         string="Custom Products Carousel"
+         group="catalog"
+         t-image-preview="/theme_prime_image/static/src/img/snippets_previews/custom_products_carousel_preview.webp"/>
+    </xpath>
+  </template>
+</odoo>
+
+        
+        
+        
+        
