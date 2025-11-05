@@ -5,7 +5,7 @@
     'category': 'eCommerce',
     'depends': ['website', 'website_sale'],
     'data': [
-        'views/snippets/dynamic_snippet/register.xml',
+        #'views/snippets/dynamic_snippet/register.xml',
         #'views/snippets/dynamic_snippet/dynamic_snippet_custom.xml',
     ],
     'assets': {
