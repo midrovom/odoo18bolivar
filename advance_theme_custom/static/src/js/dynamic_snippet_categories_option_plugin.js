@@ -3,6 +3,8 @@ import { setDatasetIfUndefined } from "@website/builder/plugins/options/dynamic_
 import { Plugin } from "@html_editor/plugin";
 import { withSequence } from "@html_editor/utils/resource";
 import { registry } from "@web/core/registry";
+import { DynamicSnippetOptionComponent } from "@website/builder/plugins/options/dynamic_snippet_option_component";
+
 
 class DynamicSnippetCategoriesOptionPlugin extends Plugin {
     static id = "dynamicSnippetCategoriesOption";
@@ -12,7 +14,7 @@ class DynamicSnippetCategoriesOptionPlugin extends Plugin {
 
     resources = {
         builder_options: withSequence(DYNAMIC_SNIPPET_CAROUSEL, {
-            OptionComponent: null,
+            OptionComponent: DynamicSnippetOptionComponent,
             props: {
                 modelNameFilter: this.modelNameFilter,
                 fetchCategories: this.fetchCategories.bind(this),
