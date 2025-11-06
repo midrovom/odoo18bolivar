@@ -3,7 +3,7 @@
 
     <template id="snippets" inherit_id="website.snippets" name="e-commerce snippets">
         <xpath expr="//t[@id='installed_snippets_hook']" position="after">
-            <t snippet-group="categories" t-snippet="website.s_snippet_group" string="Categorias"/>
+            <t snippet-group="products" t-snippet="website.s_snippet_group" string="Categorias"/>
         </xpath>
     </template>
 
