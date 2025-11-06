@@ -11,7 +11,7 @@
 
 <odoo>
     <template id="snippets_inherit" inherit_id="website.snippets" name="Custom e-commerce snippets">
-        <xpath expr="//t[@id='sale_products_hook']" position="inside">
+        <xpath expr="//t[@id='installed_snippets_hook']" position="before">
             <t t-snippet="advance_theme_custom.s_dynamic_snippet_categories"
                string="Categories Carousel"
                label="Dynamic Content"
