@@ -8,17 +8,3 @@
     </xpath>
   </template>
 </odoo>  -->
-
-<odoo>
-    <template id="snippets_inherit_custom" inherit_id="website_sale.snippets" name="Custom e-commerce snippets">
-        <xpath expr="//t[@t-snippet='website_sale.s_dynamic_snippet_products']" position="after">
-            <t t-snippet="advance_theme_custom.s_dynamic_snippet_categories"
-               string="Categories Carousel"
-               label="Dynamic Content"
-               group="catalog"
-               t-image-preview="/advance_theme_custom/static/src/img/snippets_previews/s_dynamic_snippet_categories_preview.webp"/>
-        </xpath>
-    </template>
-</odoo>
-
-
