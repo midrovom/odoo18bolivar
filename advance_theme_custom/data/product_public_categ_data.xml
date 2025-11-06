@@ -15,11 +15,11 @@
                 </t>
 
                 <a class="o_carousel_product_img_link stretched-link"
-                   t-att-href="record.image_1920">
+                   t-att-href="record.get_website_url()">
                     <div class="overflow-hidden rounded">
                         <img class="card-img-top o_img_product_square o_img_product_cover h-auto"
                              loading="lazy"
-                             t-att-src="record.image_512"
+                             t-att-src="'/web/image/%s/%s/image_1920' % ('product.public.category', record.id)"
                              t-att-alt="record.display_name"/>
                     </div>
                 </a>
