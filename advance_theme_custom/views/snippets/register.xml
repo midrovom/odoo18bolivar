@@ -9,7 +9,6 @@
   </template>
 </odoo>  -->
 
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="snippets_inherit_custom" inherit_id="website.snippets" name="Custom e-commerce snippets">
         <xpath expr="//t[@id='sale_products_hook']" position="inside">
