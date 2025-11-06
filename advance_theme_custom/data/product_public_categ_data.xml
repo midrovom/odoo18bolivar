@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="dynamic_filter_template_product_public_category_borderless_1"
+            name="Borderless Category n°1">
+        <t t-foreach="records" t-as="data"
+        data-thumb="/website_sale/static/src/img/snippets_options/product_borderless_1.svg">
+
+            <t t-set="record" t-value="data['_record']"/>
+
+            <div class="o_carousel_product_card bg-transparent w-100 card border-0">
+                <div t-if="is_sample" class="h5 o_ribbon_right bg-primary text-uppercase">
+                    Sample
+                </div>
+
+                <a class="o_carousel_product_img_link stretched-link"
+                t-att-href="record.website_url">
+                    <div class="overflow-hidden rounded">
+                        <img class="card-img-top o_img_product_square o_img_product_cover h-auto"
+                            loading="lazy"
+                            t-att-src="data['image_512']"
+                            t-att-alt="record.display_name" />
+                    </div>
+                </a>
+
+                <div class="o_carousel_product_card_body d-flex flex-column justify-content-between h-100 p-3">
+                    <div class="h6 card-title">
+                        <t t-esc="record.display_name"/>
+                    </div>
+                </div>
+            </div>
+
+        </t>
+    </template>
+
+
+</odoo>
