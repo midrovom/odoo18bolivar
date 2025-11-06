@@ -9,14 +9,16 @@
   </template>
 </odoo>  -->
 
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="snippets_inherit" inherit_id="website.snippets" name="Custom e-commerce snippets">
-        <xpath expr="//t[@id='installed_snippets_hook']" position="before">
+    <template id="snippets_inherit_custom" inherit_id="website.snippets" name="Custom e-commerce snippets">
+        <xpath expr="//t[@id='sale_products_hook']" position="inside">
             <t t-snippet="advance_theme_custom.s_dynamic_snippet_categories"
                string="Categories Carousel"
                label="Dynamic Content"
                group="catalog"
-               t-image-preview="/my_module/static/src/img/snippets_previews/s_dynamic_snippet_categories_preview.webp"/>
+               t-image-preview="/advance_theme_custom/static/src/img/snippets_previews/s_dynamic_snippet_categories_preview.webp"/>
         </xpath>
     </template>
 </odoo>
+
