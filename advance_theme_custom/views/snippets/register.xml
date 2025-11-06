@@ -10,8 +10,9 @@
 </odoo>  -->
 
 
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <!-- Snippet principal -->
+  <!-- Snippet de categorías -->
   <template id="s_dynamic_snippet_categories" name="Categories">
     <t t-call="website.s_dynamic_snippet_template">
       <t t-set="snippet_name" t-value="'s_dynamic_snippet_categories'"/>
@@ -43,7 +44,8 @@
 
   <!-- Template dinámico para categorías -->
   <template id="dynamic_filter_template_product_public_category_item" name="Dynamic Category Template">
-    <t t-foreach="records" t-as="category" t-index="index">
+    <t t-set="categories" t-value="request.env['product.public.category'].search([])"/>
+    <t t-foreach="categories" t-as="category" t-index="index">
       <div t-attf-class="carousel-item #{index == 0 and 'active' or ''}">
         <div class="col-3">
           <div class="card border-0">
