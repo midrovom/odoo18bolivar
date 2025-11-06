@@ -34,7 +34,6 @@
 </odoo>
  -->
 
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="s_dynamic_snippet_categories_preview_data" name="Categories Preview Data">
         <div class="carousel slide s_dialog_preview">
