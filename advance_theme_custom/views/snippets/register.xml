@@ -11,12 +11,55 @@
 
 
 <odoo>
-  <template id="s_dynamic_snippet_products_inherit" inherit_id="s_dynamic_snippet_products" name="Products Extended">
-    <xpath expr="//t[@t-call='website_sale.s_dynamic_snippet_products_preview_data']" position="after">
-      <!-- Aquí tu nuevo bloque -->
+  <!-- Snippet principal -->
+  <template id="s_dynamic_snippet_categories" name="Categories">
+    <t t-call="website.s_dynamic_snippet_template">
+      <t t-set="snippet_name" t-value="'s_dynamic_snippet_categories'"/>
+      <t t-set="snippet_classes" t-value="'oe_website_sale o_wsale_products_opt_layout_catalog'"/>
+      <t t-set="main_page_url" t-value="'/shop'"/>
       <t t-call="advance_theme_custom.s_dynamic_snippet_categories_preview_data"/>
-    </xpath>
+    </t>
+  </template>
+
+  <!-- Vista previa estática -->
+  <template id="s_dynamic_snippet_categories_preview_data" name="Categories Preview Data">
+    <div class="carousel slide s_dialog_preview">
+      <div class="carousel-inner row w-100 mx-auto">
+        <div class="carousel-item active">
+          <div class="row">
+            <div class="col-3">
+              <div class="card border-0">
+                <img src="/website_sale/static/src/img/product_previews/product_1.jpg" class="card-img-top"/>
+                <div class="card-body text-center">
+                  <h6 class="card-title">Category Example</h6>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Template dinámico para categorías -->
+  <template id="dynamic_filter_template_product_public_category_item" name="Dynamic Category Template">
+    <t t-foreach="records" t-as="category" t-index="index">
+      <div t-attf-class="carousel-item #{index == 0 and 'active' or ''}">
+        <div class="col-3">
+          <div class="card border-0">
+            <a t-att-href="'/shop/category/%s' % category.id">
+              <img t-att-src="'/web/image/product.public.category/%s/image_1920' % category.id"
+                   class="card-img-top" t-att-alt="category.name"/>
+            </a>
+            <div class="card-body text-center">
+              <h6 class="card-title"><t t-esc="category.name"/></h6>
+            </div>
+          </div>
+        </div>
+      </div>
+    </t>
   </template>
 </odoo>
+
 
 
