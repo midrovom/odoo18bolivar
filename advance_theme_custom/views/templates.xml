@@ -3,7 +3,7 @@
 
     <template id="alternative_categories" name="Alternative Categories" active="True">
         <div itemprop="description" position="after">
-            <div class="oe_structure oe_structure_solo oe_unremovable oe_unmovable" id="oe_structure_website_sale_recommended_products" t-ignore="true" t-if="product.alternative_product_ids">
+            <div class="oe_structure oe_structure_solo oe_unremovable oe_unmovable" id="oe_structure_website_sale_recommended_products">
                 <section data-snippet="s_dynamic_snippet_categories"
                     class="oe_unmovable oe_unremovable s_dynamic_snippet_categories o_wsale_alternative_products s_dynamic pt32 pb32 o_colored_level s_product_product_borderless_1"
                     data-name="Alternative Categories" style="background-image: none;" t-att-data-filter-id="advance_theme_custom._get_public_product_categories_filter()"
