@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <template id="snippets" inherit_id="website.snippets">
+    <template id="snippets" inherit_id="website.snippets" name="e-commerce snippets">
         <xpath expr="//snippets[@id='snippet_structure']" position="inside">
             <t id="sale_categories_hook"/>
         </xpath>
-    </template>
-
-    <template id="snippets" inherit_id="website.snippets" name="e-commerce snippets">
+        
         <xpath expr="//t[@id='installed_snippets_hook']" position="after">
             <t snippet-group="products" t-snippet="website.s_snippet_group" string="Categorias"/>
         </xpath>
