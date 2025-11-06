@@ -20,11 +20,6 @@
                     o_wsale_products_opt_wishlist_fixed o_wsale_products_opt_actions_theme
                     o_wsale_products_opt_has_cta'"
             />
-            <!--
-                TODO: `.oe_website_sale` is used as a selector in `tracking.js`. This
-                is a temporary solution to load the tracking utilities and will be removed once
-                tracking utilities will be fully integrated into a service.
-            -->
             <t
                 t-set="snippet_classes"
                 t-value="'oe_website_sale ' + default_design_classes"
@@ -33,9 +28,41 @@
             <t t-call="website_sale.s_dynamic_snippet_categories_preview_data"/>
         </t>
     </template>
-    <!-- Multi record snippets (coming soon...) -->
-    <!-- Single record snippets (coming soon...) -->
 
 </odoo> -->
 
-
+<odoo>
+  <template id="s_dynamic_snippet_products_custom" name="Categories Carousel">
+    <div class="carousel slide s_dialog_preview" data-bs-ride="carousel">
+      <div class="carousel-inner row w-100 mx-auto">
+        <t t-set="categories" t-value="request.env['product.public.category'].search([('website_published', '=', True)])"/>
+        <t t-foreach="categories" t-as="category" t-index="index">
+          <div t-attf-class="carousel-item #{index == 0 and 'active' or ''}">
+            <div class="row justify-content-center">
+              <div class="col-3">
+                <div class="card border-0">
+                  <a t-att-href="'/shop/category/%s' % category.id">
+                    <img class="card-img-top"
+                         t-att-src="'/web/image/product.public.category/%s/image_1920' % category.id"
+                         t-att-alt="category.name"/>
+                  </a>
+                  <div class="card-body text-center">
+                    <h5 class="card-title"><t t-esc="category.name"/></h5>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </t>
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target=".s_dialog_preview" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"/>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target=".s_dialog_preview" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"/>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+  </template>
+</odoo>
