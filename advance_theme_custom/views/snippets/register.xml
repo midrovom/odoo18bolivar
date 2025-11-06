@@ -1,4 +1,4 @@
-<odoo>
+<!-- <odoo>
   <template id="snippets_categories" inherit_id="website.snippets">
     <xpath expr="//t[@id='installed_snippets_hook']" position="before">
       <t t-snippet="advance_theme_custom.s_dynamic_snippet_products_custom"
@@ -7,8 +7,16 @@
          t-image-preview="/advance_theme_custom/static/src/img/snippets_previews/s_dynamic_snippet_categories_preview.webp"/>
     </xpath>
   </template>
-</odoo> 
+</odoo>  -->
 
 
+<odoo>
+  <template id="s_dynamic_snippet_products_inherit" inherit_id="s_dynamic_snippet_products" name="Products Extended">
+    <xpath expr="//t[@t-call='website_sale.s_dynamic_snippet_products_preview_data']" position="after">
+      <!-- Aquí tu nuevo bloque -->
+      <t t-call="advance_theme_custom.s_dynamic_snippet_categories_preview_data"/>
+    </xpath>
+  </template>
+</odoo>
 
 

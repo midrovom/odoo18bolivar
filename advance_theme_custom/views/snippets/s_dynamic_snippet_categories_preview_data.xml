@@ -1,4 +1,4 @@
-<odoo>
+<!-- <odoo>
   <template id="s_dynamic_snippet_categories_preview_data" name="Categories Preview Data">
     <div class="carousel slide s_dialog_preview">
       <div class="carousel-inner row w-100 mx-auto">
@@ -31,6 +31,34 @@
       </a>
     </div>
   </template>
+</odoo> -->
+
+
+<odoo>
+  <template id="s_dynamic_snippet_categories_preview_data" name="Categories Preview Data">
+    <div class="carousel slide s_dialog_preview">
+      <div class="carousel-inner row w-100 mx-auto">
+        <t t-set="categories" t-value="request.env['product.public.category'].search([])"/>
+        <t t-foreach="categories" t-as="category" t-index="index">
+          <div t-attf-class="carousel-item #{index == 0 and 'active' or ''}">
+            <div class="card mx-2" style="width: 18rem;">
+              <a t-att-href="'/shop/category/%s' % category.id">
+                <img t-att-src="'/web/image/product.public.category/%s/image_1920' % category.id"
+                     class="card-img-top" t-att-alt="category.name"/>
+              </a>
+              <div class="card-body text-center">
+                <h5 class="card-title"><t t-esc="category.name"/></h5>
+              </div>
+            </div>
+          </div>
+        </t>
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target=".s_dialog_preview" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"/>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target=".s_dialog_preview" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"/>
+      </button>
+    </div>
+  </template>
 </odoo>
-
-
