@@ -3,69 +3,80 @@ import { setDatasetIfUndefined } from "@website/builder/plugins/options/dynamic_
 import { Plugin } from "@html_editor/plugin";
 import { withSequence } from "@html_editor/utils/resource";
 import { registry } from "@web/core/registry";
-import { DynamicSnippetCarousel } from "@website/snippets/s_dynamic_snippet_carousel/dynamic_snippet_carousel";
+import {
+    DynamicSnippetProductsOption,
+    getContextualFilterDomain,
+} from "./dynamic_snippet_products_option";
 
-class DynamicSnippetCategoriesOptionPlugin extends Plugin {
-    static id = "dynamicSnippetCategoriesOption";
+class DynamicSnippetProductsOptionPlugin extends Plugin {
+    static id = "dynamicSnippetProductsOption";
     static dependencies = ["dynamicSnippetCarouselOption"];
-    selector = ".s_dynamic_snippet_categories";
-    modelNameFilter = "product.public.category";
-
+    selector = ".s_dynamic_snippet_products";
+    modelNameFilter = "product.product";
     resources = {
         builder_options: withSequence(DYNAMIC_SNIPPET_CAROUSEL, {
-            OptionComponent: DynamicSnippetCategoriesOption,
+            OptionComponent: DynamicSnippetProductsOption,
             props: {
                 modelNameFilter: this.modelNameFilter,
+                fetchCategories: this.fetchCategories.bind(this),
             },
             selector: this.selector,
         }),
         dynamic_snippet_template_updated: this.onTemplateUpdated.bind(this),
         on_snippet_dropped_handlers: this.onSnippetDropped.bind(this),
     };
-
+    setup() {
+        this.categories = undefined;
+    }
+    destroy() {
+        super.destroy();
+        this.categories = undefined;
+    }
     async onSnippetDropped({ snippetEl }) {
         if (snippetEl.matches(this.selector)) {
             for (const [optionName, value] of [
-                ["categoryId", "all"],
+                ["productCategoryId", "all"],
+                ["showVariants", true],
             ]) {
                 setDatasetIfUndefined(snippetEl, optionName, value);
             }
             await this.dependencies.dynamicSnippetCarouselOption.setOptionsDefaultValues(
                 snippetEl,
                 this.modelNameFilter,
-                []
+                getContextualFilterDomain(this.editable)
             );
         }
     }
-
     onTemplateUpdated({ el, template }) {
         if (el.matches(this.selector)) {
-            this.dependencies.dynamicSnippetCarouselOption.updateTemplateSnippetCarousel(el, template);
+            this.dependencies.dynamicSnippetCarouselOption.updateTemplateSnippetCarousel(
+                el,
+                template
+            );
         }
+    }
+    async fetchCategories() {
+        if (!this.categories) {
+            this.categories = this._fetchCategories();
+        }
+        return this.categories;
+    }
+    async _fetchCategories() {
+        // TODO put in an utility function
+        const websiteDomain = [
+            "|",
+            ["website_id", "=", false],
+            ["website_id", "=", this.services.website.currentWebsite.id],
+        ];
+        return this.services.orm.searchRead(
+            "product.public.category",
+            websiteDomain,
+            ["id", "name"],
+            { order: "name asc" }
+        );
     }
 }
 
-export class DynamicSnippetCategories extends DynamicSnippetCarousel {
-    static selector = ".s_dynamic_snippet_categories";
-
-    getSearchDomain() {
-        const searchDomain = [];
-        let categoryId = this.el.dataset.categoryId;
-        if (categoryId && categoryId !== "all") {
-            searchDomain.push(["id", "=", parseInt(categoryId)]);
-        }
-        const categoryNames = this.el.dataset.categoryNames;
-        if (categoryNames) {
-            for (const name of categoryNames.split(",")) {
-                if (name.length) {
-                    searchDomain.push(["name", "ilike", name]);
-                }
-            }
-        }
-        return searchDomain;
-    }
-}
-
-registry.category("website-plugins").add(DynamicSnippetCategoriesOptionPlugin.id, DynamicSnippetCategoriesOptionPlugin);
-registry.category("public.interactions").add("website_sale.dynamic_snippet_categories", DynamicSnippetCategories);
-registry.category("public.interactions.edit").add("website_sale.dynamic_snippet_categories", { Interaction: DynamicSnippetCategories });
+registry
+    .category("website-plugins")
+    .add(DynamicSnippetProductsOptionPlugin.id, DynamicSnippetProductsOptionPlugin);
