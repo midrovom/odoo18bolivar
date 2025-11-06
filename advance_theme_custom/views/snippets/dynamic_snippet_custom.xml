@@ -60,7 +60,7 @@
             />
             <t t-set="main_page_url" t-value="'/shop'"/>
             <!-- Aquí puedes llamar a tu propio preview -->
-            <t t-call="advance_theme_custom.s_dynamic_snippet_products_preview_data_custom"/>
+            <t t-call="advance_theme_custom.s_dynamic_snippet_products_preview_data"/>
         </t>
     </template>
 </odoo>
