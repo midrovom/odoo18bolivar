@@ -33,32 +33,97 @@
   </template>
 </odoo> -->
 
-
 <odoo>
-  <template id="s_dynamic_snippet_categories_preview_data" name="Categories Preview Data">
-    <div class="carousel slide s_dialog_preview">
-      <div class="carousel-inner row w-100 mx-auto">
-        <t t-set="categories" t-value="request.env['product.public.category'].search([])"/>
-        <t t-foreach="categories" t-as="category" t-index="index">
-          <div t-attf-class="carousel-item #{index == 0 and 'active' or ''}">
-            <div class="card mx-2" style="width: 18rem;">
-              <a t-att-href="'/shop/category/%s' % category.id">
-                <img t-att-src="'/web/image/product.public.category/%s/image_1920' % category.id"
-                     class="card-img-top" t-att-alt="category.name"/>
-              </a>
-              <div class="card-body text-center">
-                <h5 class="card-title"><t t-esc="category.name"/></h5>
-              </div>
+    <template id="s_dynamic_snippet_products_preview_data_custom" name="Products Preview Data">
+        <div class="carousel slide s_dialog_preview">
+            <div class="carousel-inner row w-100 mx-auto">
+                <div role="option" class="carousel-item active" style="min-height: 357.875px;">
+                    <div class="row">
+                        <div class="d-flex flex-grow-0 flex-shrink-0 col-3">
+                            <div class="o_carousel_product_card bg-transparent w-100 card border-0">
+                                <a class="o_carousel_product_img_link o_dynamic_product_hovered stretched-link" href="#">
+                                    <div class="overflow-hidden rounded">
+                                        <img class="card-img-top o_img_product_square o_img_product_cover h-auto" loading="lazy" src="/website_sale/static/src/img/product_previews/product_1.jpg"/>
+                                    </div>
+                                </a>
+                                <div class="o_carousel_product_card_body d-flex flex-wrap flex-column justify-content-between h-100 p-3">
+                                    <div class="h6 card-title">Three-Seat Sofa</div>
+                                    <div>
+                                        <div class="mt-2">
+                                            <span class="fw-bold" name="product_price" data-oe-type="monetary" data-oe-expression="data['price']">
+                                                <span class="oe_currency_value">1,500.00</span>
+                                            </span>
+                                        </div>
+                                    </div> 
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-grow-0 flex-shrink-0 col-3">
+                            <div class="o_carousel_product_card bg-transparent w-100 card border-0">
+                                <a class="o_carousel_product_img_link o_dynamic_product_hovered stretched-link" href="#">
+                                    <div class="overflow-hidden rounded">
+                                        <img class="card-img-top o_img_product_square o_img_product_cover h-auto" loading="lazy" src="/website_sale/static/src/img/product_previews/product_2.jpg" alt="Warranty (2 year)"/>
+                                    </div>
+                                </a>
+                                <div class="o_carousel_product_card_body d-flex flex-wrap flex-column justify-content-between h-100 p-3">
+                                    <div class="h6 card-title">Customizable Desk</div>
+                                    <div>
+                                        <div class="mt-2">
+                                            <span class="fw-bold" name="product_price" data-oe-type="monetary" data-oe-expression="data['price']">
+                                                <span class="oe_currency_value">750.00</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-grow-0 flex-shrink-0 col-3">
+                            <div class="o_carousel_product_card bg-transparent w-100 card border-0">
+                                <a class="o_carousel_product_img_link o_dynamic_product_hovered stretched-link" href="#">
+                                    <div class="overflow-hidden rounded">
+                                        <img class="card-img-top o_img_product_square o_img_product_cover h-auto" loading="lazy" src="/website_sale/static/src/img/product_previews/product_3.jpg" alt="Warranty (2 year)"/>
+                                    </div>
+                                </a>
+                                <div class="o_carousel_product_card_body d-flex flex-wrap flex-column justify-content-between h-100 p-3">
+                                    <div class="h6 card-title">Conference Chair</div>
+                                    <div>
+                                        <div class="mt-2">
+                                            <span class="fw-bold" name="product_price" data-oe-type="monetary" data-oe-expression="data['price']">
+                                                <span class="oe_currency_value">33.00</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-grow-0 flex-shrink-0 col-3">
+                            <div class="o_carousel_product_card bg-transparent w-100 card border-0">
+                                <a class="o_carousel_product_img_link o_dynamic_product_hovered stretched-link" href="#">
+                                    <div class="overflow-hidden rounded">
+                                        <img class="card-img-top o_img_product_square o_img_product_cover h-auto" loading="lazy" src="/website_sale/static/src/img/product_previews/product_4.jpg" alt="Warranty (2 year)"/>
+                                    </div>
+                                </a>
+                                <div class="o_carousel_product_card_body d-flex flex-wrap flex-column justify-content-between h-100 p-3">
+                                    <div class="h6 card-title">Cabinet with Doors</div>
+                                    <div>
+                                        <div class="mt-2">
+                                            <span class="fw-bold" name="product_price" data-oe-type="monetary" data-oe-expression="data['price']">
+                                                <span class="oe_currency_value">140.00</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </t>
-      </div>
-      <button class="carousel-control-prev" type="button" data-bs-target=".s_dialog_preview" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"/>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target=".s_dialog_preview" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"/>
-      </button>
-    </div>
-  </template>
+            <a class="carousel-control-prev" data-bs-slide="prev" role="button" aria-label="Previous" title="Previous" href="#s_dynamic_snippet_1">
+                <span class="fa fa-chevron-circle-left fa-2x"></span>
+            </a>
+            <a class="carousel-control-next" data-bs-slide="next" role="button" aria-label="Next" title="Next" href="#s_dynamic_snippet_1">
+                <span class="fa fa-chevron-circle-right fa-2x"></span>
+            </a>
+        </div>
+    </template>
 </odoo>
