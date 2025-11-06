@@ -8,9 +8,7 @@
             <field name="model_id" ref="website_sale.model_product_public_category"/>
             <field name="state">code</field>
             <field name="code">
-categories = env['product.public.category'].search([
-    ('website_published', '=', True)
-], limit=12)
+categories = env['product.public.category'].search([], limit=12)
 
 action = categories
             </field>
