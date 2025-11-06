@@ -10,8 +10,8 @@
 </odoo>  -->
 
 <odoo>
-    <template id="snippets_inherit_custom" inherit_id="website.snippets" name="Custom e-commerce snippets">
-        <xpath expr="//t[@id='sale_products_hook']" position="inside">
+    <template id="snippets_inherit_custom" inherit_id="website_sale.snippets" name="Custom e-commerce snippets">
+        <xpath expr="//t[@t-snippet='website_sale.s_dynamic_snippet_products']" position="after">
             <t t-snippet="advance_theme_custom.s_dynamic_snippet_categories"
                string="Categories Carousel"
                label="Dynamic Content"
@@ -20,4 +20,5 @@
         </xpath>
     </template>
 </odoo>
+
 
