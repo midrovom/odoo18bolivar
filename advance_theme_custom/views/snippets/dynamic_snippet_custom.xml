@@ -31,7 +31,7 @@
 
 </odoo> -->
 
-<odoo>
+<!-- <odoo>
     <template id="s_dynamic_snippet_categories" name="Categories">
         <t t-call="website.s_dynamic_snippet_template">
             <t t-set="snippet_name" t-value="'s_dynamic_snippet_categories'"/> 
@@ -52,5 +52,32 @@
             <t t-call="advance_theme_custom.s_dynamic_snippet_categories_preview_data"/>
         </t>
     </template>
+</odoo> -->
+
+<odoo>
+    <template id="s_dynamic_snippet_categories" name="Dynamic Categories Snippet">
+        <section class="s_dynamic_categories py-4">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <t t-foreach="records" t-as="cat">
+                        <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-4 d-flex justify-content-center">
+                            <a t-att-href="cat.website_url" class="o_carousel_product_card bg-transparent w-100 card border-0 text-center">
+                                <div class="overflow-hidden rounded">
+                                    <img class="card-img-top o_img_product_square o_img_product_cover h-auto"
+                                         loading="lazy"
+                                         t-att-src="cat['image_512']"
+                                         t-att-alt="cat.name"/>
+                                </div>
+                                <div class="o_carousel_product_card_body p-3">
+                                    <div class="h6 card-title mb-0" t-esc="cat.name"/>
+                                </div>
+                            </a>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </section>
+    </template>
 </odoo>
+
 
