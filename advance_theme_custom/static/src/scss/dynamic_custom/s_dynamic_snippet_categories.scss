@@ -1,5 +1,62 @@
-@import 'website_sale/static/src/scss/website_sale';
-
 .s_dynamic_snippet_categories {
-  @extend .s_dynamic_snippet_products;
+    @mixin o-aligns-controlers {
+        .carousel-control-next,
+        .carousel-control-prev {
+            aspect-ratio: 1/1;
+            width: var(--o-wsale-dynamic-snippet-col-size) !important;
+            transform: scaleX(.2);
+            bottom: auto;
+            isolation: isolate;
+            padding-top: 1rem;
+
+            .oi {
+                transform: scaleX(5);
+            }
+        }
+
+        .carousel-control-next {
+            transform-origin: center right;
+        }
+
+        .carousel-control-prev {
+            transform-origin: center left;
+        }
+    }
+
+    @mixin o-adapts-col-size {
+        .carousel {
+            --o-wsale-dynamic-snippet-col-size: var(--o-carousel-item-width-percentage);
+
+            &:where(:has(.col-6)) {
+                --o-wsale-dynamic-snippet-col-size: 50%;
+            }
+
+            &:where(:has(.col-3)) {
+                --o-wsale-dynamic-snippet-col-size: 25%;
+            }
+        }
+    }
+
+    .s_dynamic_snippet_row.row {
+        --gutter-x: 16px;
+    }
+
+    .carousel-item {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    &:where(.o_wsale_products_opt_design_thumbs) {
+        &:not(:has(.s_dynamic_snippet_title_aside)) {
+            @include o-aligns-controlers;
+            @include o-adapts-col-size;
+        }
+
+        @include media-breakpoint-down(lg) {
+            &:has(.s_dynamic_snippet_title_aside) {
+                @include o-aligns-controlers;
+                @include o-adapts-col-size;
+            }
+        }
+    }
 }
