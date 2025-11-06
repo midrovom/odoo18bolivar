@@ -22,9 +22,9 @@
             'advance_theme_custom/static/src/scss/dynamic_custom/prueba.scss',
             # 'advance_theme_custom/static/src/js/category_slider_12.js',
 
-            'advance_theme_custom/static/src/snippets/carousel_product_card.js',
-            'advance_theme_custom/static/src/snippets/dynamic_snippet_products.js',
-            'advance_theme_custom/static/src/snippets/000.scss',
+            #'advance_theme_custom/static/src/snippets/carousel_product_card.js',
+            #'advance_theme_custom/static/src/snippets/dynamic_snippet_products.js',
+            #'advance_theme_custom/static/src/snippets/000.scss',
         ],
     },
     'installable': True,
