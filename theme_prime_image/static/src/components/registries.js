@@ -18,6 +18,4 @@ let CATEGORY_SELECTOR_DATA_CUSTOM = { TpRecordSelector: { ...CATEGORIES_DATA, de
 //web
 registry.category('theme_prime_card_registry')
     .add('s_card_style_9', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar']])]});
-//mobile
-// registry.category('theme_prime_mobile_card_registry')
-//   .add('s_mobile_card_style_3', {supportedActions: []})
+
