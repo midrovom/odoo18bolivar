@@ -14,16 +14,6 @@ let CATEGORY_ACTIONS = ['category_info', 'label'];
 
 let CATEGORY_SELECTOR_DATA_CUSTOM = { TpRecordSelector: { ...CATEGORIES_DATA, defaultVal: { selectionType: 'manual', recordsIDs: [], model: 'product.public.category'}}};
 
-registry.category('theme_prime_snippet_registry')
-    .add('s_d_categories_snippet', {
-        widgets: {
-            ...CATEGORY_SELECTOR_DATA_CUSTOM,
-            TpUiComponent: { cardRegistry: 'theme_prime_card_registry', defaultVal: { style: 's_card_style_1', mode: 'slider', ppr: 4, activeActions: CATEGORY_ACTIONS, mobileConfig: { style: 'default', mode: 'default' } } },
-            ...EXTRA_OPTIONS
-        },
-        defaultValue: { hasSwitcher: true, }
-    });
-
 //Registro para snippet product card 
 //web
 registry.category('theme_prime_card_registry')
@@ -31,11 +21,3 @@ registry.category('theme_prime_card_registry')
 //mobile
 // registry.category('theme_prime_mobile_card_registry')
 //     .add('s_mobile_card_style_3', {supportedActions: []})
-
-
-registry.category('theme_prime_mega_menu_cards')
-   // .add('s_tp_hierarchical_category_style_12', {supportedActions: ['limit', 'brand', 'label', 'count', 'style', 'background', PRODUCTS_ACTIONS]})
-    .add('s_tp_hierarchical_category_style_13', {supportedActions: ['limit', 'brand', 'label', 'count', 'style', 'background', PRODUCTS_ACTIONS]});
-    
-registry.category('theme_prime_category_card_registry')
-    .add('s_tp_category_style_6', { supportedActions: [] });
