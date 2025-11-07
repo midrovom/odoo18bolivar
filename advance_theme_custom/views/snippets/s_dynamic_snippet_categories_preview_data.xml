@@ -7,7 +7,7 @@
                 <t t-set="categories" t-value="request.env['product.public.category'].search([], limit=6)"/>
 
                 <t t-foreach="categories" t-as="cat" t-key="cat.id">
-                    <div role="option" t-attf-class="carousel-item #{'active' if loop.first else ''}" style="min-height: 357.875px;">
+                    <div role="option" class="carousel-item" style="min-height: 357.875px;">
                         <div class="row">
                             <div class="d-flex flex-grow-0 flex-shrink-0 col-3">
                                 <a t-att-href="'/shop/category/%s' % cat.id">
