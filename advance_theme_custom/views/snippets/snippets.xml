@@ -23,7 +23,7 @@
             t-thumbnail="/website/static/src/img/snippets_thumbs/s_dynamic_products.svg"/>
             
             <!-- Aquí insertamos nuestro nuevo snippet -->
-            <t t-snippet="your_module.s_dynamic_snippet_categories"
+            <t t-snippet="advance_theme_custom.s_dynamic_snippet_categories"
             string="Product Categories"
             group="products"
             t-thumbnail="/website/static/src/img/snippets_thumbs/s_dynamic_products.svg"/>
