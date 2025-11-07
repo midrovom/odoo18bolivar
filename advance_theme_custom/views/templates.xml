@@ -26,7 +26,7 @@
 
     <template id="s_dynamic_snippet_categories" name="Dynamic Category Snippet">
         <section class="s_dynamic_snippet_product_categories"
-                data-snippet="s_dynamic_snippet_product_categories"
+                data-snippet="s_dynamic_snippet_categories"
                 data-name="Dynamic Product Categories"
                 data-template-key="advance_theme_custom.dynamic_filter_template_product_public_category_borderless_1"
                 data-number-of-elements="6"
