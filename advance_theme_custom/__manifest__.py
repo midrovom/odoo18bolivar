@@ -7,7 +7,6 @@
     'data': [
         'data/data.xml',
         'data/product_public_categ_data.xml',
-        #'views/snippets/register.xml',
         'views/templates.xml',
         'views/snippets/dynamic_snippet_custom.xml',
         'views/snippets/snippets.xml',
