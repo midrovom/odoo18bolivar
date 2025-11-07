@@ -1,36 +1,39 @@
 /** @odoo-module **/
 
-import publicWidget from "@web/legacy/js/public/public_widget";
-import DynamicSnippet from "@website/snippets/s_dynamic_snippet/000";
+import DynamicSnippetCarousel from "@website/snippets/s_dynamic_snippet_carousel/000";
 
-const DynamicSnippetCategories = DynamicSnippet.extend({
-    selector: ".s_dynamic_snippet_categories",
-    disabledInEditableMode: false,
+const DynamicSnippetCategories = DynamicSnippetCarousel.extend({
+    selector: '.s_dynamic_snippet_categories',
 
     /**
-     * Override: Return categories instead of products
+     * Override to search public categories
      */
     _getSearchDomain() {
-        const domain = [];
-        if (this.el.dataset.onlyRoot === "true") {
-            domain.push(["parent_id", "=", false]);
-        }
-        return domain;
+        return []; // no filtros por ahora
     },
 
     /**
-     * Fetch data for product.public.category instead of product.product
+     * Override RPC target
      */
-    async _fetchRecords() {
-        const domain = this._getSearchDomain();
-        const records = await this.rpc("/web/dataset/call_kw/product.public.category/search_read", {
+    async _getRecords() {
+        return await this.rpc("/web/dataset/search_read", {
             model: "product.public.category",
-            method: "search_read",
-            args: [domain],
-            kwargs: { fields: ["id", "name", "display_name", "image_1920"] },
+            fields: ["id", "display_name", "image_1920"],
+            domain: this._getSearchDomain(),
+            limit: parseInt(this.el.dataset.numberOfRecords) || 12,
         });
-        return records;
+    },
+
+    /**
+     * Build dataset for template render
+     */
+    _getRecordRenderData(record) {
+        return {
+            name: record.display_name,
+            image: `/web/image/product.public.category/${record.id}/image_1920`,
+            url: `/shop/category/${record.id}`,
+        };
     },
 });
 
-publicWidget.registry.dynamic_snippet_categories = DynamicSnippetCategories;
+export default DynamicSnippetCategories;

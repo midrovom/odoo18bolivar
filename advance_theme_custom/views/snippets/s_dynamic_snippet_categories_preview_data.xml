@@ -1,3 +1,86 @@
+<!-- <?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="s_dynamic_snippet_categories_preview_data" name="Categories Preview Data">
+        <div class="carousel slide s_dialog_preview">
+            <div class="carousel-inner row w-100 mx-auto">
+                <div role="option" class="carousel-item active" style="min-height: 250px;">
+                    <div class="row">
+
+                        <div class="d-flex flex-grow-0 flex-shrink-0 col-3">
+                            <div class="o_carousel_product_card bg-transparent w-100 card border-0 text-center">
+                                <a class="stretched-link" href="#">
+                                    <div class="overflow-hidden rounded">
+                                        <img class="card-img-top o_img_product_square o_img_product_cover h-auto"
+                                             loading="lazy"
+                                             src="/website_sale/static/src/img/categories_preview/category_1.jpg"/>
+                                    </div>
+                                </a>
+                                <div class="o_carousel_product_card_body p-3">
+                                    <div class="h6 card-title mb-0">Living Room</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-grow-0 flex-shrink-0 col-3">
+                            <div class="o_carousel_product_card bg-transparent w-100 card border-0 text-center">
+                                <a class="stretched-link" href="#">
+                                    <div class="overflow-hidden rounded">
+                                        <img class="card-img-top o_img_product_square o_img_product_cover h-auto"
+                                             loading="lazy"
+                                             src="/website_sale/static/src/img/categories_preview/category_2.jpg"/>
+                                    </div>
+                                </a>
+                                <div class="o_carousel_product_card_body p-3">
+                                    <div class="h6 card-title mb-0">Office</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-grow-0 flex-shrink-0 col-3">
+                            <div class="o_carousel_product_card bg-transparent w-100 card border-0 text-center">
+                                <a class="stretched-link" href="#">
+                                    <div class="overflow-hidden rounded">
+                                        <img class="card-img-top o_img_product_square o_img_product_cover h-auto"
+                                             loading="lazy"
+                                             src="/website_sale/static/src/img/categories_preview/category_3.jpg"/>
+                                    </div>
+                                </a>
+                                <div class="o_carousel_product_card_body p-3">
+                                    <div class="h6 card-title mb-0">Kitchen</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-grow-0 flex-shrink-0 col-3">
+                            <div class="o_carousel_product_card bg-transparent w-100 card border-0 text-center">
+                                <a class="stretched-link" href="#">
+                                    <div class="overflow-hidden rounded">
+                                        <img class="card-img-top o_img_product_square o_img_product_cover h-auto"
+                                             loading="lazy"
+                                             src="/website_sale/static/src/img/categories_preview/category_4.jpg"/>
+                                    </div>
+                                </a>
+                                <div class="o_carousel_product_card_body p-3">
+                                    <div class="h6 card-title mb-0">Decor</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <a class="carousel-control-prev" data-bs-slide="prev" role="button" aria-label="Previous" title="Previous" href="#">
+                <span class="fa fa-chevron-circle-left fa-2x"></span>
+            </a>
+            <a class="carousel-control-next" data-bs-slide="next" role="button" aria-label="Next" title="Next" href="#">
+                <span class="fa fa-chevron-circle-right fa-2x"></span>
+            </a>
+        </div>
+    </template>
+</odoo> -->
+
+
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="s_dynamic_snippet_categories_preview_data" name="Categories Preview Data">
