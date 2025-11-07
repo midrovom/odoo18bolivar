@@ -5,7 +5,7 @@
         <div itemprop="description" position="after">
             <div class="oe_structure oe_structure_solo oe_unremovable oe_unmovable" id="oe_structure_website_sale_recommended_products">
                 <section data-snippet="s_dynamic_snippet_categories"
-                    class="oe_unmovable oe_unremovable s_dynamic_snippet_categories o_wsale_alternative_products s_dynamic pt32 pb32 o_colored_level s_product_product_borderless_1"
+                    class="oe_unmovable oe_unremovable s_dynamic_snippet_categories o_wsale_alternative_categories s_dynamic pt32 pb32 o_colored_level s_product_categories_borderless_1"
                     data-name="Alternative Categories" style="background-image: none;" t-att-data-filter-id="advance_theme_custom._get_public_product_categories_filter()"
                     data-template-key="advance_theme_custom.dynamic_filter_template_product_public_category_borderless_1" data-number-of-elements="4"
                     data-number-of-elements-small-devices="1" data-number-of-records="16" data-carousel-interval="5000" data-bs-original-title="" title="">
