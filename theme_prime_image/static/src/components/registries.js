@@ -15,7 +15,6 @@ let CATEGORY_ACTIONS = ['category_info', 'label'];
 let CATEGORY_SELECTOR_DATA_CUSTOM = { TpRecordSelector: { ...CATEGORIES_DATA, defaultVal: { selectionType: 'manual', recordsIDs: [], model: 'product.public.category'}}};
 
 //Registro para snippet product card 
-//web
 registry.category('theme_prime_card_registry')
     .add('s_card_style_9', { supportedActions: [...new Set([...PRODUCTS_ACTIONS, ...['show_similar']])]});
 
