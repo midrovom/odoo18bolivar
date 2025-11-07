@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <template id="alternative_categories" name="Alternative Categories" active="True">
+    <!-- <template id="alternative_categories" name="Alternative Categories" active="True">
         <div itemprop="description" position="after">
             <div class="oe_structure oe_structure_solo oe_unremovable oe_unmovable" id="oe_structure_website_sale_recommended_products">
                 <section data-snippet="s_dynamic_snippet_categories"
@@ -21,6 +21,22 @@
                 </section>
             </div>
         </div>
+    </template> -->
+
+
+    <template id="s_dynamic_snippet_categories" name="Dynamic Category Snippet">
+        <section class="s_dynamic_snippet_product_categories"
+                data-snippet="s_dynamic_snippet_product_categories"
+                data-name="Dynamic Product Categories"
+                data-template-key="advance_theme_custom.dynamic_filter_template_product_public_category_borderless_1"
+                data-number-of-elements="6"
+                data-number-of-records="12">
+
+            <div class="container">
+                <div class="dynamic_snippet_template"></div>
+            </div>
+
+        </section>
     </template>
 
 
