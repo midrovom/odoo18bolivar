@@ -31,9 +31,11 @@
     </template>
 
     <template id="s_dynamic_snippet_categories_custom" name="Custom Snippet">
-        <h1>
-            Hello World
-        </h1>
+        <section>
+            <h1>
+                Hello World
+            </h1>
+        </section>
     </template>
 
 </odoo>
