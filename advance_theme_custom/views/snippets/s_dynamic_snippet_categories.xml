@@ -1,35 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Main Snippet Template -->
-    <template id="s_dynamic_snippet_categories" name="Product Categories">
+    <template id="s_dynamic_snippet_categories" name="Public Categories">
         <t t-call="website.s_dynamic_snippet_template">
             <t t-set="snippet_name" t-value="'s_dynamic_snippet_categories'"/>
-            <t t-call="advance_theme_custom.s_dynamic_snippet_categories_preview_data"/>
+            <t t-call="advance_theme_custom.s_dynamic_snippet_categories_template"/>
         </t>
     </template>
 
-    <!-- Snippet Options -->
     <template id="s_dynamic_snippet_categories_options" inherit_id="website.snippet_options">
         <xpath expr="." position="inside">
             <t t-call="website.dynamic_snippet_carousel_options_template">
                 <t t-set="snippet_name" t-value="'dynamic_snippet_categories'"/>
                 <t t-set="snippet_selector" t-value="'.s_dynamic_snippet_categories'"/>
-            </t>
-        </xpath>
-    </template>
-
-    <!-- Template Options -->
-    <template id="s_dynamic_snippet_categories_template_options" inherit_id="website.s_dynamic_snippet_options_template">
-        <xpath expr="//we-select[@data-name='filter_opt']" position="after">
-            <t t-if="snippet_name == 'dynamic_snippet_categories'">
-                <we-select string="Parent Category" data-name="parent_category_opt" data-attribute-name="parentCategoryId" data-no-preview="true">
-                    <we-button data-select-data-attribute="all">All Categories</we-button>
-                    <we-button data-select-data-attribute="root">Root Categories Only</we-button>
-                    <we-button data-select-data-attribute="current">Current Category Children</we-button>
-                </we-select>
-                <we-input string="Category Names" class="o_we_large" data-name="category_names_opt"
-                    data-attribute-name="categoryNames" data-no-preview="true" data-select-data-attribute=""
-                    placeholder="e.g. furniture,electronics" title="Comma-separated list of parts of category names"/>
             </t>
         </xpath>
     </template>

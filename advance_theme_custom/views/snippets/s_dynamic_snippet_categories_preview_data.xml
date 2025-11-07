@@ -1,67 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="s_dynamic_snippet_categories_preview_data" name="Categories Preview Data">
-        <div class="carousel slide s_dialog_preview">
+    <template id="s_dynamic_snippet_categories_template" inherit_id="website.s_dynamic_snippet" name="Dynamic Product Categories Snippet">
+        <xpath expr="//div[contains(@class, 'carousel-inner')]" position="replace">
             <div class="carousel-inner row w-100 mx-auto">
-                <div role="option" class="carousel-item active" style="min-height: 357.875px;">
-                    <div class="row">
-                        <div class="d-flex flex-grow-0 flex-shrink-0 col-3">
-                            <div class="o_carousel_category_card bg-transparent w-100 card border-0">
-                                <a class="o_carousel_category_img_link o_dynamic_category_hovered stretched-link" href="#">
-                                    <div class="overflow-hidden rounded">
-                                        <img class="card-img-top o_img_category_square o_img_category_cover h-auto" loading="lazy" src="/web/image/product.public.category/1/image_1920"/>
+                <t t-set="categories" t-value="request.env['product.public.category'].sudo().search([], limit=8)"/>
+
+                <t t-foreach="categories" t-as="cat" t-key="cat.id">
+                    <div role="option" t-attf-class="carousel-item #{'active' if loop.first else ''}" style="min-height: 357px;">
+                        <div class="row">
+                            <div class="d-flex flex-grow-0 flex-shrink-0 col-3">
+                                <div class="o_carousel_category_card bg-transparent w-100 card border-0">
+                                    <a class="o_carousel_category_img_link o_dynamic_category_hovered stretched-link"
+                                    t-att-href="'/shop/category/%s' % cat.id">
+                                        <div class="overflow-hidden rounded">
+                                            <img class="card-img-top o_img_category_square o_img_category_cover h-auto"
+                                                loading="lazy"
+                                                t-att-src="'/web/image/product.public.category/%s/image_1920' % cat.id"/>
+                                        </div>
+                                    </a>
+                                    <div class="o_carousel_category_card_body d-flex flex-wrap flex-column justify-content-between h-100 p-3">
+                                        <div class="h6 card-title">
+                                            <t t-esc="cat.name"/>
+                                        </div>
                                     </div>
-                                </a>
-                                <div class="o_carousel_category_card_body d-flex flex-wrap flex-column justify-content-between h-100 p-3">
-                                    <div class="h6 card-title">Office Furniture</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-flex flex-grow-0 flex-shrink-0 col-3">
-                            <div class="o_carousel_category_card bg-transparent w-100 card border-0">
-                                <a class="o_carousel_category_img_link o_dynamic_category_hovered stretched-link" href="#">
-                                    <div class="overflow-hidden rounded">
-                                        <img class="card-img-top o_img_category_square o_img_category_cover h-auto" loading="lazy" src="/web/image/product.public.category/2/image_1920"/>
-                                    </div>
-                                </a>
-                                <div class="o_carousel_category_card_body d-flex flex-wrap flex-column justify-content-between h-100 p-3">
-                                    <div class="h6 card-title">Home Decor</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-flex flex-grow-0 flex-shrink-0 col-3">
-                            <div class="o_carousel_category_card bg-transparent w-100 card border-0">
-                                <a class="o_carousel_category_img_link o_dynamic_category_hovered stretched-link" href="#">
-                                    <div class="overflow-hidden rounded">
-                                        <img class="card-img-top o_img_category_square o_img_category_cover h-auto" loading="lazy" src="/web/image/product.public.category/3/image_1920"/>
-                                    </div>
-                                </a>
-                                <div class="o_carousel_category_card_body d-flex flex-wrap flex-column justify-content-between h-100 p-3">
-                                    <div class="h6 card-title">Electronics</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-flex flex-grow-0 flex-shrink-0 col-3">
-                            <div class="o_carousel_category_card bg-transparent w-100 card border-0">
-                                <a class="o_carousel_category_img_link o_dynamic_category_hovered stretched-link" href="#">
-                                    <div class="overflow-hidden rounded">
-                                        <img class="card-img-top o_img_category_square o_img_category_cover h-auto" loading="lazy" src="/web/image/product.public.category/4/image_1920"/>
-                                    </div>
-                                </a>
-                                <div class="o_carousel_category_card_body d-flex flex-wrap flex-column justify-content-between h-100 p-3">
-                                    <div class="h6 card-title">Kitchen</div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </t>
             </div>
-            <a class="carousel-control-prev" data-bs-slide="prev" role="button" aria-label="Previous" title="Previous" href="#s_dynamic_snippet_categories_1">
-                <span class="fa fa-chevron-circle-left fa-2x"></span>
-            </a>
-            <a class="carousel-control-next" data-bs-slide="next" role="button" aria-label="Next" title="Next" href="#s_dynamic_snippet_categories_1">
-                <span class="fa fa-chevron-circle-right fa-2x"></span>
-            </a>
-        </div>
+        </xpath>
     </template>
+
 </odoo>
