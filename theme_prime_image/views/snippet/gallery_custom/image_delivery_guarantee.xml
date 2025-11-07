@@ -2,10 +2,7 @@
 <odoo>
   <template id="s_delivery_guarantee_snippet_snippet" inherit_id="theme_prime.snippets" name="Delivery Guarantee Image - Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_gallery_5']" position="after">
-      <t t-snippet="theme_prime_image.s_delivery_guarantee_snippet"
-         string="Delivery Guarantee Image"
-         group="theme_prime_gallery"
-         t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
+      <t t-snippet="theme_prime_image.s_delivery_guarantee_snippet" string="Delivery Guarantee Image" group="theme_prime_gallery">
         <keywords>image, guarantee, delivery</keywords>
       </t>
     </xpath>

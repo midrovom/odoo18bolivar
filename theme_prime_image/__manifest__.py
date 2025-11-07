@@ -10,7 +10,6 @@
         'views/snippet/subscribe_custom/snippet_subscribe.xml',
         'views/snippet/shop_offert_custom/s_shop_offer_custom.xml',
         'views/snippet/cover_custom/snippet_cover_custom.xml',
-        'views/snippet/clients_custom/clients_custom.xml',
         'views/snippet/Header_custom/header_custom.xml',
         'views/snippet/texto_custom/texto_custom.xml',
         'views/snippet/gallery_custom/image_delivery_guarantee.xml',
