@@ -3,3 +3,9 @@
     width: 60px !important;       /* ancho del botón */
     height: 60px !important;      /* alto del botón */
 }
+
+/*Para estilos del filtro de productos*/
+.o_carousel_product_card {
+  border-radius: 6px;
+  background-color: #f8f9fa; // equivalente a Bootstrap bg-light
+}
