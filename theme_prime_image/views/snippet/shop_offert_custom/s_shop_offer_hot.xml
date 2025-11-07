@@ -2,28 +2,23 @@
 <odoo>
   <template id="s_shop_offer_hot_snippet" inherit_id="theme_prime.snippets" name="Trending Box with Image - Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_shop_offer_5']" position="after">
-      <t t-snippet="theme_prime_image.s_shop_offer_hot"
-         string="Trending Box with Image"
-         group="theme_prime_shop_offer"
-         t-thumbnail="/theme_prime_image/static/src/img/s_banner_custom/thumb_banner.png">
+      <t t-snippet="theme_prime_image.s_shop_offer_hot" string="Trending Box with Image" group="theme_prime_shop_offer">
         <keywords>trending, image, link</keywords>
       </t>
     </xpath>
   </template>
 
   <template id="s_shop_offer_hot" name="Shop Offer - Hot">
-    <section class="s_shop_offer_hot"
-             data-snippet="s_shop_offer_hot"
-             data-name="Shop Offer - Hot">
+    <section class="s_shop_offer_hot" data-snippet="s_shop_offer_hot" data-name="Shop Offer - Hot">
       <div class="container">
         <div class="row s_nb_column_fixed">
           <div class="col-12 col-md-11 col-lg-10 mx-auto">
             <div class="shop-offer-hot-wrapper">
               <div class="text-content">
                 <h3 class="text-uppercase fw-bold mb-1">Ofertas Hot</h3>
-                <p class="lead mb-0">Precios que no puedes dejar escapar</p>
-              </div>
-              <div class="action-button">
+                  <p class="lead mb-0">Precios que no puedes dejar escapar</p>
+                  </div>
+                 <div class="action-button">
                 <a href="#" class="btn btn-primary">Ver más</a>
               </div>
             </div>
