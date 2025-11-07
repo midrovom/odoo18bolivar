@@ -23,11 +23,17 @@
             t-thumbnail="/website/static/src/img/snippets_thumbs/s_dynamic_products.svg"/>
             
             <!-- Aquí insertamos nuestro nuevo snippet -->
-            <t t-snippet="advance_theme_custom.s_dynamic_snippet_categories"
+            <t t-snippet="advance_theme_custom.s_dynamic_snippet_categories_custom"
             string="Product Categories"
             group="products"
             t-thumbnail="/website/static/src/img/snippets_thumbs/s_dynamic_products.svg"/>
         </xpath>
+    </template>
+
+    <template id="s_dynamic_snippet_categories_custom" name="Custom Snippet">
+        <h1>
+            Hello World
+        </h1>
     </template>
 
 </odoo>
