@@ -1,39 +1,33 @@
-/** @odoo-module **/
+/** @odoo-module */
 
-import DynamicSnippetCarousel from "@website/snippets/s_dynamic_snippet_carousel/000";
+import DynamicSnippet from "@website/snippets/s_dynamic_snippet/000";
 
-const DynamicSnippetCategories = DynamicSnippetCarousel.extend({
-    selector: '.s_dynamic_snippet_categories',
+const DynamicSnippetProductCategories = DynamicSnippet.extend({
+    selector: ".s_dynamic_snippet_product_categories",
 
-    /**
-     * Override to search public categories
-     */
-    _getSearchDomain() {
-        return []; // no filtros por ahora
-    },
+    // Datos reales
+    async _fetch_records() {
+        const domain = []; // si necesitas filtrar agrega dominio aquí
 
-    /**
-     * Override RPC target
-     */
-    async _getRecords() {
-        return await this.rpc("/web/dataset/search_read", {
+        const categories = await this._rpc({
             model: "product.public.category",
-            fields: ["id", "display_name", "image_1920"],
-            domain: this._getSearchDomain(),
-            limit: parseInt(this.el.dataset.numberOfRecords) || 12,
+            method: "search_read",
+            domain,
+            fields: ["id", "name", "image_1920", "parent_id"],
+            limit: this.props.limit || 6,
         });
+
+        return categories;
     },
 
-    /**
-     * Build dataset for template render
-     */
-    _getRecordRenderData(record) {
-        return {
-            name: record.display_name,
-            image: `/web/image/product.public.category/${record.id}/image_1920`,
-            url: `/shop/category/${record.id}`,
-        };
+    // Datos de preview
+    _get_default_data() {
+        return [
+            { name: "Categoría A", image_1920: false },
+            { name: "Categoría B", image_1920: false },
+            { name: "Categoría C", image_1920: false },
+        ];
     },
 });
 
-export default DynamicSnippetCategories;
+export default DynamicSnippetProductCategories;
