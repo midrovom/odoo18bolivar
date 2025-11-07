@@ -23,7 +23,7 @@ action = categories
 
         <record id="dynamic_filter_categories_all" model="website.snippet.filter">
             <field name="name">All Categories</field>
-            <field name="model_id" ref="product.model_product_public_category"/>
+            <field name="model_id" ref="website_sale.model_product_public_category"/>
             <field name="field_names">display_name,image_512,image_1920</field>
             <field name="limit">16</field>
             <field name="action_server_id" ref="base.action_server_module_immediate_install"/>
@@ -32,7 +32,7 @@ action = categories
         <!-- Filter: Root Categories Only -->
         <record id="dynamic_filter_categories_root" model="website.snippet.filter">
             <field name="name">Root Categories</field>
-            <field name="model_id" ref="product.model_product_public_category"/>
+            <field name="model_id" ref="website_sale.model_product_public_category"/>
             <field name="field_names">display_name,image_512,image_1920</field>
             <field name="limit">16</field>
             <field name="filter_domain">[('parent_id', '=', False)]</field>
@@ -41,7 +41,7 @@ action = categories
         <!-- Filter: Featured Categories (can be customized) -->
         <record id="dynamic_filter_categories_featured" model="website.snippet.filter">
             <field name="name">Featured Categories</field>
-            <field name="model_id" ref="product.model_product_public_category"/>
+            <field name="model_id" ref="website_sale.model_product_public_category"/>
             <field name="field_names">display_name,image_512,image_1920</field>
             <field name="limit">8</field>
             <field name="filter_domain">[]</field>
