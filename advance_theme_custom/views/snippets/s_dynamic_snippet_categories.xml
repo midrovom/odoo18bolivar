@@ -1,25 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
     <!-- Snippet dinámico de categorías -->
     <template id="s_dynamic_snippet_categories" name="Categories">
         <t t-call="website.s_dynamic_snippet_template">
             <t t-set="snippet_name" t-value="'s_dynamic_snippet_categories'"/>
-            <!-- Datos de preview para el editor -->
-            <t t-set="categories" t-value="request.env['product.public.category'].search([], limit=4)"/>
-            <div class="s_dynamic_snippet_categories">
-                <t t-foreach="categories" t-as="categ">
-                    <div class="o_category_card">
-                        <img t-att-src="'/web/image/product.public.category/' + str(categ.id) + '/image_1920'"
-                             t-att-alt="categ.name"/>
-                        <h3><t t-esc="categ.name"/></h3>
-                        <p><t t-esc="categ.description"/></p>
-                    </div>
-                </t>
-            </div>
+            <!-- Preview data para el editor -->
+            <t t-call="advance_theme_custom.s_dynamic_snippet_categories_preview_data"/>
         </t>
     </template>
 
-    <!-- Opciones del snippet dinámico de categorías -->
+    <!-- Opciones generales del snippet (carousel, autoplay, etc.) -->
     <template id="s_dynamic_snippet_categories_options" inherit_id="website.snippet_options">
         <xpath expr="." position="inside">
             <t t-call="website.dynamic_snippet_carousel_options_template">
@@ -40,19 +31,29 @@
                     <we-button data-select-data-attribute="current">Current Parent</we-button>
                 </we-select>
 
-                <!-- Filtro por mostrar solo categorías con imagen -->
-                <we-checkbox string="Only with Image"
-                             data-select-data-attribute="true"
-                             data-attribute-name="onlyWithImage"
-                             data-no-preview="true"/>
+                <!-- Filtro por etiquetas (si usas tags en categorías) -->
+                <we-many2many string="Tags"
+                    data-name="category_tag_opt"
+                    data-attribute-name="categoryTagIds"
+                    data-no-preview="true"
+                    data-model="product.tag"
+                    data-allow-delete="true"
+                    data-fakem2m="true"
+                    data-select-data-attribute=""/>
 
-                <!-- Filtro por nombres -->
+                <!-- Mostrar solo categorías con imagen -->
+                <we-checkbox string="Only with Image"
+                    data-select-data-attribute="true"
+                    data-attribute-name="onlyWithImage"
+                    data-no-preview="true"/>
+
+                <!-- Filtrar por nombres -->
                 <we-input string="Category Names" class="o_we_large"
-                          data-name="category_names_opt"
-                          data-attribute-name="categoryNames"
-                          data-no-preview="true"
-                          data-select-data-attribute=""
-                          placeholder="e.g. Furniture, Chairs, Lamps"/>
+                    data-name="category_names_opt"
+                    data-attribute-name="categoryNames"
+                    data-no-preview="true"
+                    data-select-data-attribute=""
+                    placeholder="e.g. Furniture, Chairs, Lamps"/>
             </t>
         </xpath>
     </template>
@@ -64,6 +65,7 @@
     </asset>
 
 </odoo>
+
 
 
 
