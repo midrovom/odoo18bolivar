@@ -1,13 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <!-- Acción de servidor que obtiene categorías relacionadas -->
         <record id="dynamic_snippet_related_categories" model="ir.actions.server">
             <field name="name">Related Categories</field>
             <field name="model_id" ref="website_sale.model_product_public_category"/>
             <field name="state">code</field>
             <field name="code">
 DynamicFilter = model.env['website.snippet.filter']
-response = DynamicFilter._get_categories('related',product_template_id=request.params.get('productTemplateId'))
+response = DynamicFilter._get_categories(
+    'related',
+    product_template_id=request.params.get('productTemplateId')
+)
             </field>
         </record>
 
@@ -20,7 +23,6 @@ response = DynamicFilter._get_categories('related',product_template_id=request.p
         </record>
     </data>
 </odoo>
-
 
 
 
