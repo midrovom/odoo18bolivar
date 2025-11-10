@@ -1,27 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
     <template id="dynamic_filter_template_category_borderless_1" name="Borderless Category n°1">
         <t t-foreach="records" t-as="data" data-thumb="/website_sale/static/src/img/snippets_options/product_borderless_1.svg">
+            <t t-set="record" t-value="data['_record']"/>
             <div class="o_carousel_category_card bg-transparent w-100 card border-0">
                 <div t-if="is_sample" class="h5 o_ribbon_right bg-primary text-uppercase">Sample</div>
-                <input type="hidden" name="category-id" t-att-data-category-id="data['id']"/>
-                <a class="o_carousel_category_img_link o_dynamic_category_hovered stretched-link" t-att-href="data['website_url']">
+                <input type="hidden" name="category-id" t-att-data-category-id="record.id"/>
+                <a class="o_carousel_category_img_link o_dynamic_category_hovered stretched-link" t-att-href="'/shop/category/%s' % slug(record)">
                     <div class="overflow-hidden rounded">
-                        <img class="card-img-top o_img_category_square o_img_category_cover h-auto"
-                             loading="lazy"
-                             t-att-src="data['image_1920']"
-                             t-att-alt="data['display_name']"/>
+                        <img class="card-img-top o_img_category_square o_img_category_cover h-auto" 
+                             loading="lazy" 
+                             t-att-src="data['image_512']"
+                             t-att-alt="record.display_name"/>
                     </div>
                 </a>
                 <div class="o_carousel_category_card_body d-flex flex-wrap flex-column justify-content-between h-100 p-3">
-                    <div class="h6 card-title" t-esc="data['display_name']"/>
+                    <div class="h6 card-title" t-field="record.display_name"/>
                 </div>
             </div>
         </t>
     </template>
 
-    <!-- Assets -->
-    <asset id="advance_theme_custom.s_dynamic_snippet_categories_000_js" name="Dynamic snippet products 000 JS">
-        <bundle>web.assets_frontend</bundle>
-        <path>advance_theme_custom/static/src/snippets/s_dynamic_snippet_categories/000.js</path>
-    </asset>
 </odoo>
