@@ -9,9 +9,7 @@
                 <a class="o_carousel_category_img_link o_dynamic_category_hovered stretched-link" t-att-href="record.website_url">
                     <div class="overflow-hidden rounded">
                         <img class="card-img-top o_img_category_square o_img_category_cover h-auto" 
-                            loading="lazy" 
-                            t-att-src="data['image_1920']"
-                            t-att-alt="record.display_name"/>
+                            loading="lazy" t-att-src="data['image_1920']" t-att-alt="record.display_name"/>
                     </div>
                 </a>
                 <div class="o_carousel_category_card_body d-flex flex-wrap flex-column justify-content-between h-100 p-3">

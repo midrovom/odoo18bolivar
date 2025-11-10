@@ -18,6 +18,7 @@ response = DynamicFilter._get_categories('related', product_template_id=request.
             <field name="limit" eval="16"/>
             <field name="name">Related Categories</field>
         </record>
+
     </data>
 </odoo>
 
