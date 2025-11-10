@@ -1,1 +1,1 @@
-from . import product_public_categ
+from . import advance_snippet_filter

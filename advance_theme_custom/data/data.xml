@@ -5,13 +5,17 @@
 
         <record id="dynamic_snippet_related_categories" model="ir.actions.server">
             <field name="name">Related Categories</field>
-            <field name="model_id" ref="product.model_product_public_category"/>
+            <!-- Aquí apuntas al modelo de categorías públicas -->
+            <field name="model_id" ref="website_sale.model_product_public_category"/>
             <field name="state">code</field>
             <field name="code">
         DynamicFilter = model.env['website.snippet.filter']
-        response = DynamicFilter._get_categories('alternative_categories', category_id=request.params.get('categoryId'))
+        response = DynamicFilter._get_categories('related', product_template_id=request.params.get('productTemplateId'))
             </field>
         </record>
+
+
+
 
 <!--     
         <record id="dynamic_snippet_product_public_category" model="ir.actions.server">
