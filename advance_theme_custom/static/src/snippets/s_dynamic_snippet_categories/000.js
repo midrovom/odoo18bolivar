@@ -15,74 +15,75 @@ const DynamicSnippetCategories = DynamicSnippetCarousel.extend({
      *
      * @private
      */
-    _getParentCategorySearchDomain() {
+    _getParentCategoryDomain() {
         const searchDomain = [];
         let parentCategoryId = this.$el.get(0).dataset.parentCategoryId;
-        
         if (parentCategoryId && parentCategoryId !== 'all') {
             if (parentCategoryId === 'current') {
-                parentCategoryId = undefined;
-                
-                // Try to get current category from URL or context
-                this.trigger_up('main_object_request', {
-                    callback: function (value) {
-                        if (value.model === "product.public.category") {
-                            parentCategoryId = value.id;
-                        }
-                    },
-                });
-                
-                if (parentCategoryId) {
-                    searchDomain.push(['parent_id', '=', parseInt(parentCategoryId)]);
+                // Si el dataset dice "current", intentamos obtener la categoría actual
+                const categoryField = document.querySelector("#category_details .category_id");
+                if (categoryField) {
+                    parentCategoryId = parseInt(categoryField.value);
                 }
-            } else if (parentCategoryId === 'root') {
-                searchDomain.push(['parent_id', '=', false]);
-            } else {
+            }
+            if (parentCategoryId) {
                 searchDomain.push(['parent_id', '=', parseInt(parentCategoryId)]);
             }
         }
-        
         return searchDomain;
     },
 
     /**
-     * Gets the category names search domain
+     * Gets the tag search domain
      *
      * @private
      */
-    _getCategoryNamesSearchDomain() {
+    _getTagSearchDomain() {
         const searchDomain = [];
-        const categoryNames = this.$el.get(0).dataset.categoryNames;
-        
-        if (categoryNames) {
-            const nameDomain = [];
-            for (const categoryName of categoryNames.split(',')) {
-                // Ignore empty names
-                if (!categoryName.trim().length) {
-                    continue;
-                }
-                
-                if (nameDomain.length) {
-                    nameDomain.unshift('|');
-                }
-                nameDomain.push(['name', 'ilike', categoryName.trim()]);
-            }
-            searchDomain.push(...nameDomain);
+        let categoryTagIds = this.$el.get(0).dataset.categoryTagIds;
+        categoryTagIds = categoryTagIds ? JSON.parse(categoryTagIds) : [];
+        if (categoryTagIds.length) {
+            searchDomain.push(['tag_ids', 'in', categoryTagIds.map(tag => tag.id)]);
         }
-        
         return searchDomain;
     },
 
     /**
-     * Method to be overridden in child components in order to provide a search
-     * domain if needed.
+     * Gets the name search domain
+     *
+     * @private
+     */
+    _getNameSearchDomain() {
+        const searchDomain = [];
+        const categoryNames = this.$el.get(0).dataset.categoryNames;
+        if (categoryNames) {
+            for (const name of categoryNames.split(',')) {
+                if (!name.length) {
+                    continue;
+                }
+                if (searchDomain.length) {
+                    searchDomain.unshift('|');
+                }
+                searchDomain.push(['name', 'ilike', name]);
+            }
+        }
+        return searchDomain;
+    },
+
+    /**
+     * Override: build the full search domain for categories
+     *
      * @override
      * @private
      */
     _getSearchDomain: function () {
         const searchDomain = this._super.apply(this, arguments);
-        searchDomain.push(...this._getParentCategorySearchDomain());
-        searchDomain.push(...this._getCategoryNamesSearchDomain());
+        searchDomain.push(...this._getParentCategoryDomain());
+        searchDomain.push(...this._getTagSearchDomain());
+        searchDomain.push(...this._getNameSearchDomain());
+        if (this.el.dataset.onlyWithImage === 'true') {
+            searchDomain.push(['image_1920', '!=', false]);
+        }
         return searchDomain;
     },
 
@@ -91,27 +92,10 @@ const DynamicSnippetCategories = DynamicSnippetCarousel.extend({
      * @private
      */
     _getMainPageUrl() {
-        return "/shop";
+        return "/shop/categories";
     },
 });
 
-const DynamicSnippetCategoriesCard = publicWidget.Widget.extend({
-    selector: '.o_carousel_category_card',
-    
-    init(root, options) {
-        const parent = options.parent || root;
-        this._super(parent, options);
-    },
-
-    //--------------------------------------------------------------------------
-    // Handlers
-    //--------------------------------------------------------------------------
-
-    // You can add custom handlers here if needed
-    // For example, tracking category clicks, hover effects, etc.
-});
-
-publicWidget.registry.dynamic_snippet_categories_card = DynamicSnippetCategoriesCard;
 publicWidget.registry.dynamic_snippet_categories = DynamicSnippetCategories;
 
 export default DynamicSnippetCategories;
