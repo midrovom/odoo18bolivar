@@ -9,7 +9,7 @@
             <field name="state">code</field>
             <field name="code">
 DynamicFilter = model.env['website.snippet.filter']
-response = DynamicFilter._get_categories('alternative_categories',product_template_id=request.params.get('productTemplateId'))
+response = DynamicFilter._get_categories('related',product_template_id=request.params.get('productTemplateId'))
             </field>
         </record>
 
