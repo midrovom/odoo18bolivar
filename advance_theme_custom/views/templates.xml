@@ -7,7 +7,7 @@
                          class="s_dynamic_snippet_categories s_dynamic pt32 pb32 o_colored_level s_product_category_carousel"
                          data-name="Related Categories"
                          t-att-data-filter-id="product._get_related_category_filter()"
-                         data-template-key="advance_theme_custom.dynamic_filter_template_category_borderless_1"
+                         data-template-key="dynamic_filter_template_category_borderless_1"
                          data-parent-category-id="all"
                          data-number-of-elements="4"
                          data-number-of-elements-small-devices="1"
@@ -25,7 +25,7 @@
                             <t t-foreach="records" t-as="category">
                                 <div class="o_category_card text-center p-2">
                                     <a t-att-href="category['website_url']">
-                                        <img t-att-src="'/web/image/product.public.category/%s/image_1920' % category['id']"
+                                        <img t-att-src="category['image_1920']"
                                              class="img-fluid mb-2 o_category_img"
                                              alt="Category Image"/>
                                         <h6 class="mt-2" t-esc="category['display_name']"/>
