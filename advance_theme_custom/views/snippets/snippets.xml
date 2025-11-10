@@ -15,6 +15,62 @@
         </xpath>
     </template>
     
+    <!-- Opciones para snippet dinámico de categorías -->
+    <template id="categories_snippet_options" inherit_id="website.snippet_options" name="Categories Snippet Options">
+        <xpath expr="." position="inside">
+            <div
+                data-js="CategoriesSnippetOptions"
+                data-page-options="true"
+                groups="website.group_website_designer"
+                data-selector=".o_category_card"
+                data-no-check="true"
+                string="Categories"
+            >
+                <!-- Layout reutilizado de productos -->
+                <we-select string="Layout" data-no-preview="true">
+                    <we-button data-select-class="o_category_grid">Grid</we-button>
+                    <we-button data-select-class="o_category_list">List</we-button>
+                    <we-button data-select-class="o_category_cards">Cards</we-button>
+                </we-select>
+
+                <!-- Número de columnas -->
+                <we-select string="Columns" class="o_we_sublevel_1" data-no-preview="true" data-reload="/">
+                    <we-button data-set-columns="2">2</we-button>
+                    <we-button data-set-columns="3">3</we-button>
+                    <we-button data-set-columns="4">4</we-button>
+                </we-select>
+
+                <!-- Espaciado entre tarjetas -->
+                <we-range string="Gap" class="o_we_sublevel_1"
+                          data-set-gap=""
+                          data-css-property="--o-category-gap"
+                          data-display-range-value="true"
+                          data-unit="px"
+                          data-min="0"
+                          data-max="28"/>
+
+                <!-- Opciones de imagen (ratio) -->
+                <we-select string="Image Ratio" class="o_we_sublevel_1" data-no-preview="true" data-reload="/">
+                    <we-button data-select-class="o_category_img_1x1">Default (1x1)</we-button>
+                    <we-button data-select-class="o_category_img_4x3">Landscape (4/3)</we-button>
+                    <we-button data-select-class="o_category_img_4x5">Portrait (4/5)</we-button>
+                    <we-button data-select-class="o_category_img_16x9">Wide (16/9)</we-button>
+                </we-select>
+
+                <!-- Opciones de ribbon reutilizadas -->
+                <we-select string="Ribbon" class="o_category_ribbon_select">
+                    <we-button data-set-ribbon="" data-name="no_ribbon_opt">None</we-button>
+                    <!-- Aquí JS puede rellenar más opciones -->
+                </we-select>
+                <we-button data-edit-ribbon="" title="Edit" class="fa fa-edit" data-no-preview="true" data-dependencies="!no_ribbon_opt"/>
+                <we-button data-create-ribbon="" data-name="create_ribbon_opt" title="Create" class="fa fa-plus text-success" data-no-preview="true"/>
+            </div>
+        </xpath>
+    </template>
+
+
+
+
 
      <!-- <template id="s_dynamic_snippet_categories_snippet" inherit_id="website.snippets">
         <xpath expr="//t[@id='installed_snippets_hook']" position="after">
