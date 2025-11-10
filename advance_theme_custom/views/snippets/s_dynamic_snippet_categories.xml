@@ -20,13 +20,13 @@
         <path>advance_theme_custom/static/src/snippets/s_dynamic_snippet_categories/000.js</path>
     </asset>
 
+</odoo>
+
     <!-- <record id="s_dynamic_snippet_categories_000_js" model="ir.asset">
         <field name="name">Dynamic snippet categories 000 JS</field>
         <field name="bundle">web.assets_frontend</field>
         <field name="path">advance_theme_custom/static/src/snippets/s_dynamic_snippet_categories/000.js</field>
     </record> -->
-</odoo>
-
 
     <!-- <template id="s_dynamic_snippet_categories" name="Public Categories">
         <t t-call="website.s_dynamic_snippet_template">
