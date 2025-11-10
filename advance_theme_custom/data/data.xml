@@ -9,11 +9,9 @@
             <field name="state">code</field>
             <field name="code">
         DynamicFilter = model.env['website.snippet.filter']
-        response = DynamicFilter._get_categories('related_categories', category_id=request.params.get('categoryId'))
+        response = DynamicFilter._get_categories('alternative_categories', category_id=request.params.get('categoryId'))
             </field>
         </record>
-
-
 
 <!--     
         <record id="dynamic_snippet_product_public_category" model="ir.actions.server">
