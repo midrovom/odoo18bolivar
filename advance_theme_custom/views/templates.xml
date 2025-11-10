@@ -7,7 +7,7 @@
                          class="s_dynamic_snippet_categories s_dynamic pt32 pb32 o_colored_level s_product_category_carousel"
                          data-name="Related Categories"
                          t-att-data-filter-id="product._get_related_category_filter()"
-                         data-template-key="advance_theme_custom.dynamic_filter_template_category_borderless_1"
+                         data-template-key="dynamic_filter_template_category_borderless_1"
                          data-parent-category-id="all"
                          data-number-of-elements="4"
                          data-number-of-elements-small-devices="1"
@@ -20,7 +20,6 @@
                                 Your Dynamic Snippet will be displayed here...
                             </div>
                         </div>
-                        <!-- Carrusel dinámico de categorías -->
                         <div id="o_category_carousel" class="owl-carousel o_category_carousel">
                             <t t-foreach="records" t-as="category">
                                 <div class="o_category_card text-center p-2">

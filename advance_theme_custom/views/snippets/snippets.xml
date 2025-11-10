@@ -67,12 +67,12 @@
             </div>
         </xpath>
     </template>
+</odoo> 
 
 
 
 
-
-     <!-- <template id="s_dynamic_snippet_categories_snippet" inherit_id="website.snippets">
+    <!-- <template id="s_dynamic_snippet_categories_snippet" inherit_id="website.snippets">
         <xpath expr="//t[@id='installed_snippets_hook']" position="after">
         
             <t snippet-group="products" t-snippet="website.s_snippet_group"
@@ -85,6 +85,6 @@
         </xpath>
     </template>  -->
 
-</odoo> 
+
 
 
