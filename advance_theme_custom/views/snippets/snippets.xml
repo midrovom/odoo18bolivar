@@ -31,8 +31,6 @@
 
 </odoo> -->
 
-
-<odoo>
     <template id="snippets_categories" inherit_id="website.snippets" name="Custom Categories Snippets">
         <xpath expr="//t[@id='installed_snippets_hook']" position="after">
             <t snippet-group="categories"
