@@ -3,7 +3,7 @@
 
 <!-- Nuevo hook para categorías -->
     <template id="snippets_categories_hook" inherit_id="web_editor.snippets" name="Categories Hook">
-        <xpath expr="//snippets[@id='snippet_groups']" position="inside">
+        <xpath expr="//snippets[@id='snippet_structure']" position="inside">
             <t id="categories_hook"/>
         </xpath>
     </template>
