@@ -1,5 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Snippet dinámico de categorías -->
+    <template id="s_dynamic_snippet_categories" name="Categories">
+        <t t-call="website.s_dynamic_snippet_template">
+            <t t-set="snippet_name" t-value="'s_dynamic_snippet_categories'"/>
+            <!-- Datos de preview para el editor -->
+            <t t-set="categories" t-value="request.env['product.public.category'].search([], limit=4)"/>
+            <div class="s_dynamic_snippet_categories">
+                <t t-foreach="categories" t-as="categ">
+                    <div class="o_category_card">
+                        <img t-att-src="'/web/image/product.public.category/' + str(categ.id) + '/image_1920'"
+                             t-att-alt="categ.name"/>
+                        <h3><t t-esc="categ.name"/></h3>
+                        <p><t t-esc="categ.description"/></p>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <!-- Opciones del snippet dinámico de categorías -->
+    <template id="s_dynamic_snippet_categories_options" inherit_id="website.snippet_options">
+        <xpath expr="." position="inside">
+            <t t-call="website.dynamic_snippet_carousel_options_template">
+                <t t-set="snippet_name" t-value="'dynamic_snippet_categories'"/>
+                <t t-set="snippet_selector" t-value="'.s_dynamic_snippet_categories'"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Opciones específicas de categorías -->
+    <template id="s_dynamic_snippet_categories_template_options" inherit_id="website.s_dynamic_snippet_options_template">
+        <xpath expr="//we-select[@data-name='filter_opt']" position="after">
+            <t t-if="snippet_name == 'dynamic_snippet_categories'">
+                <!-- Filtro por categoría padre -->
+                <we-select string="Parent Category" data-name="parent_category_opt"
+                           data-attribute-name="parentCategoryId" data-no-preview="true">
+                    <we-button data-select-data-attribute="all">All Categories</we-button>
+                    <we-button data-select-data-attribute="current">Current Parent</we-button>
+                </we-select>
+
+                <!-- Filtro por mostrar solo categorías con imagen -->
+                <we-checkbox string="Only with Image"
+                             data-select-data-attribute="true"
+                             data-attribute-name="onlyWithImage"
+                             data-no-preview="true"/>
+
+                <!-- Filtro por nombres -->
+                <we-input string="Category Names" class="o_we_large"
+                          data-name="category_names_opt"
+                          data-attribute-name="categoryNames"
+                          data-no-preview="true"
+                          data-select-data-attribute=""
+                          placeholder="e.g. Furniture, Chairs, Lamps"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Asset JS para lógica del snippet de categorías -->
+    <asset id="advance_theme_custom.s_dynamic_snippet_categories_js" name="Dynamic snippet categories JS">
+        <bundle>web.assets_frontend</bundle>
+        <path>advance_theme_custom/static/src/snippets/s_dynamic_snippet_categories/000.js</path>
+    </asset>
+
+</odoo>
+
+
+
+
+<!-- <?xml version="1.0" encoding="utf-8"?>
+<odoo>
     <template id="s_dynamic_snippet_categories" name="Public Categories">
         <t t-call="website.s_dynamic_snippet_template">
             <t t-set="snippet_name" t-value="'s_dynamic_snippet_categories'"/>
@@ -21,4 +91,4 @@
         <field name="bundle">web.assets_frontend</field>
         <field name="path">advance_theme_custom/static/src/snippets/s_dynamic_snippet_categories/000.js</field>
     </record>
-</odoo>
+</odoo> -->
