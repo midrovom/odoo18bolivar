@@ -3,28 +3,36 @@
     <template id="alternative_categories" name="Related Categories" inherit_id="website_sale.product" active="True">
         <div itemprop="description" position="after">
             <div class="oe_structure oe_structure_solo oe_unremovable oe_unmovable"
-                id="oe_structure_website_sale_related_categories" t-ignore="true" t-if="product.public_categ_ids">
-                <section data-snippet="s_dynamic_snippet_categories"
-                    class="oe_unmovable oe_unremovable s_dynamic_snippet_categories s_dynamic pt32 pb32 o_colored_level s_product_category_borderless_1"
-                    data-name="Related Categories" style="background-image: none;" t-att-data-filter-id="product._get_related_category_filter()"
+                 id="oe_structure_website_sale_related_categories" t-ignore="true" t-if="product.public_categ_ids">
+                <section data-snippet="s_dynamic_snippet_categories" class="oe_unmovable oe_unremovable s_dynamic_snippet_categories s_dynamic pt32 pb32 o_colored_level s_product_category_borderless_1"
+                    data-name="Related Categories" t-att-data-filter-id="product._get_related_category_filter()"
                     data-template-key="website_sale.dynamic_filter_template_category_borderless_1" data-parent-category-id="all"
                     data-number-of-elements="4" data-number-of-elements-small-devices="1" data-number-of-records="16" data-carousel-interval="5000" title="">
-                    
                     <div class="container o_not_editable">
                         <div class="css_non_editable_mode_hidden">
                             <div class="missing_option_warning alert alert-info rounded-0 fade show d-none d-print-none o_default_snippet_text">
                                 Your Dynamic Snippet will be displayed here...
-                                This message is displayed because you did not provide both a filter and a template to use.
                             </div>
                         </div>
                         <!-- Aquí se inyectan las categorías dinámicas -->
-                        <div class="dynamic_snippet_template"></div>
+                        <div class="dynamic_snippet_template">
+                            <t t-foreach="records" t-as="category">
+                                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                                    <a t-att-href="category.website_url" class="d-block text-center">
+                                        <img t-att-src="'/web/image/product.public.category/%s/image_1920' % category.id"
+                                             class="img-fluid mb-2" alt="Category Image"/>
+                                        <h6 class="mt-2" t-esc="category.display_name"/>
+                                    </a>
+                                </div>
+                            </t>
+                        </div>
                     </div>
                 </section>
             </div>
         </div>
     </template>
 </odoo>
+
 
 
     <!-- <template id="alternative_categories" name="Alternative Categories" active="True">

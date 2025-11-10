@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
         <record id="dynamic_snippet_related_categories" model="ir.actions.server">
             <field name="name">Related Categories</field>
-            <!-- Apuntamos al modelo de categorías públicas del core -->
             <field name="model_id" ref="website_sale.model_product_public_category"/>
             <field name="state">code</field>
             <field name="code">
@@ -13,6 +11,13 @@ response = DynamicFilter._get_categories('related',product_template_id=request.p
             </field>
         </record>
 
+        <!-- Filtro dinámico que conecta con la acción de servidor -->
+        <record id="dynamic_filter_related_categories" model="website.snippet.filter">
+            <field name="action_server_id" ref="advance_theme_custom.dynamic_snippet_related_categories"/>
+            <field name="field_names">display_name,website_url,image_1920</field>
+            <field name="limit" eval="16"/>
+            <field name="name">Related Categories</field>
+        </record>
     </data>
 </odoo>
 
