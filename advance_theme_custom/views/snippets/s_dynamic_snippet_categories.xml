@@ -6,7 +6,7 @@
         <t t-call="website.s_dynamic_snippet_template">
             <t t-set="snippet_name" t-value="'s_dynamic_snippet_categories'"/>
             <!-- Preview data para el editor -->
-            <t t-call="advance_theme_custom.s_dynamic_snippet_categories_preview_data"/>
+            <t t-call="advance_theme_custom.s_dynamic_snippet_categories"/>
         </t>
     </template>
 
