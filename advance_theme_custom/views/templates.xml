@@ -7,7 +7,7 @@
                          class="s_dynamic_snippet_categories s_dynamic pt32 pb32 o_colored_level s_product_category_carousel"
                          data-name="Related Categories"
                          t-att-data-filter-id="product._get_related_category_filter()"
-                         data-template-key="advance_theme_custom.dynamic_filter_template_category_carousel"
+                         data-template-key="advance_theme_custom.dynamic_filter_template_category_borderless_1"
                          data-parent-category-id="all"
                          data-number-of-elements="4"
                          data-number-of-elements-small-devices="1"
