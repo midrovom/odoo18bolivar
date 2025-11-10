@@ -16,14 +16,12 @@
     </template> -->
     
 
-    <template id="s_dynamic_snippet_categories_snippet" inherit_id="website.snippets">
+    <!-- <template id="s_dynamic_snippet_categories_snippet" inherit_id="website.snippets">
         <xpath expr="//t[@id='installed_snippets_hook']" position="after">
-            <!-- Si no existe el grupo "products", lo vuelve a declarar (seguro en tu caso ya existe) -->
+        
             <t snippet-group="products" t-snippet="website.s_snippet_group"
             string="Products"
             t-thumbnail="/website/static/src/img/snippets_thumbs/s_dynamic_products.svg"/>
-            
-            <!-- Aquí insertamos nuestro nuevo snippet -->
             <t t-snippet="advance_theme_custom.s_dynamic_snippet_categories"
             string="Product Categories"
             group="products"
@@ -31,4 +29,25 @@
         </xpath>
     </template>
 
+</odoo> -->
+
+
+<odoo>
+    <template id="snippets_categories" inherit_id="website.snippets" name="Custom Categories Snippets">
+        <xpath expr="//t[@id='installed_snippets_hook']" position="after">
+            <t snippet-group="categories"
+               t-snippet="website.s_snippet_group"
+               string="Categories"
+               t-thumbnail="/website/static/src/img/snippets_thumbs/s_dynamic_categories.svg"/>
+        </xpath>
+
+        <!-- Añadir el snippet dinámico de categorías dentro del grupo -->
+        <xpath expr="//t[@id='installed_snippets_hook']" position="after">
+            <t t-snippet="website_sale.s_dynamic_snippet_categories"
+               string="Categories"
+               group="categories"/>
+        </xpath>
+
+    </template>
 </odoo>
+
