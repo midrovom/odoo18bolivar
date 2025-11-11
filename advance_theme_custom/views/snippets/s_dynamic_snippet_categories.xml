@@ -16,6 +16,7 @@
         </xpath>
     </template>
 
+
     <record id="s_dynamic_snippet_categories_000_js" model="ir.asset">
         <field name="name">Dynamic snippet categories JS</field>
         <field name="bundle">web.assets_frontend</field>
