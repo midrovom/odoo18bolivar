@@ -14,7 +14,7 @@
         'views/snippets/snippets.xml',
         'views/snippets/s_dynamic_snippet_categories.xml',
         'views/snippets/s_dynamic_snippet_categories_preview_data.xml',
-        'advance_theme_custom/views/snippets/prueba.xml',
+        'views/snippets/prueba.xml',
     ],
     'assets': {
         'web.assets_frontend': [
