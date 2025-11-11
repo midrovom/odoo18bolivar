@@ -7,7 +7,6 @@
                 <section data-snippet="s_dynamic_snippet_categories"
                          class="s_dynamic_snippet_categories s_dynamic pt32 pb32 o_colored_level s_product_category_carousel"
                          data-name="Related Categories"
-                         data-filter-id="dynamic_filter_categories"
                          data-template-key="advance_theme_custom.dynamic_filter_template_category_borderless_1"
                          data-parent-category-id="all"
                          data-number-of-elements="4"
