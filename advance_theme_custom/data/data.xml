@@ -6,7 +6,7 @@
             <field name="state">code</field>
             <field name="code">
 DynamicFilter = model.env['website.snippet.filter']
-response = DynamicFilter._get_products('related')
+response = DynamicFilter._get_categories('related')
             </field>
         </record>
 
@@ -16,6 +16,7 @@ response = DynamicFilter._get_products('related')
             <field name="limit" eval="16"/>
             <field name="name">Related Categories</field>
         </record>
+    </data>
 </odoo>
 
 <!-- 
