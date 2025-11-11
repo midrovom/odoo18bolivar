@@ -5,15 +5,15 @@
     'category': 'eCommerce',
     'depends': ['website', 'website_sale'],
     'data': [
-        'data/data.xml',
-        'data/product_public_categ_data.xml',
+        #'data/data.xml',
+        #'data/product_public_categ_data.xml',
 
         'views/templates.xml',
         
         # 'views/snippets/dynamic_snippet_custom.xml',
         'views/snippets/snippets.xml',
         'views/snippets/s_dynamic_snippet_categories.xml',
-        'views/snippets/s_dynamic_snippet_categories_preview_data.xml',
+        #'views/snippets/s_dynamic_snippet_categories_preview_data.xml',
     ],
     'assets': {
         'web.assets_frontend': [
