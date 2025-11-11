@@ -62,17 +62,17 @@ class WebsiteSnippetFilter(models.Model):
                     res_category.update({'is_sample': True})
         return res_categories
 
-@api.model
-def _get_categories(self, mode, **kwargs):
-    dynamic_filter = self.env.context.get('dynamic_filter')
-    website = self.env['website'].get_current_website()
-    search_domain = self.env.context.get('search_domain')
-    limit = self.env.context.get('limit')
-    domain = expression.AND([
-        [('website_published', '=', True)],
-        website.website_domain(),
-        [('company_id', 'in', [False, website.company_id.id])],
-        search_domain or [],
-    ])
-    categories = self.env['product.public.category'].search(domain, limit=limit)
-    return dynamic_filter._filter_records_to_values(categories, is_sample=False)
+    @api.model
+    def _get_categories(self, mode, **kwargs):
+        dynamic_filter = self.env.context.get('dynamic_filter')
+        website = self.env['website'].get_current_website()
+        search_domain = self.env.context.get('search_domain')
+        limit = self.env.context.get('limit')
+        domain = expression.AND([
+            [('website_published', '=', True)],
+            website.website_domain(),
+            [('company_id', 'in', [False, website.company_id.id])],
+            search_domain or [],
+        ])
+        categories = self.env['product.public.category'].search(domain, limit=limit)
+        return dynamic_filter._filter_records_to_values(categories, is_sample=False)
