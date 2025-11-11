@@ -15,11 +15,13 @@
         </xpath>
     </template>
 
-    <asset id="website_sale.s_dynamic_snippet_products_000_js" name="Dynamic snippet products 000 JS">
-        <bundle>web.assets_frontend</bundle>
-        <path>website_sale/static/src/snippets/s_dynamic_snippet_products/000.js</path>
-    </asset>
-    
+    <data>
+        <asset id="advance_theme_custom.s_dynamic_snippet_products_000_js" name="Dynamic snippet products 000 JS">
+            <bundle>web.assets_frontend</bundle>
+            <path>advance_theme_custom/static/src/snippets/s_dynamic_snippet_categories/000.js</path>
+        </asset>
+    </data>
+
 </odoo>
 
     <!-- <record id="s_dynamic_snippet_categories_000_js" model="ir.asset">
