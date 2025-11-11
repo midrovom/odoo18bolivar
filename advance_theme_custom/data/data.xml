@@ -1,29 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
-        <!-- Acción servidor para obtener categorías -->
-        <record id="dynamic_snippet_categories_action" model="ir.actions.server">
-        <field name="name">Public Categories</field>
-        <field name="model_id" ref="website_sale.model_product_public_category"/>
-        <field name="state">code</field>
-        <field name="code">
+        <record id="dynamic_snippet_related_categories" model="ir.actions.server">
+            <field name="name">Recently Sold Products</field>
+            <field name="model_id" ref="website_sale.model_product_public_category"/>
+            <field name="state">code</field>
+            <field name="code">
 DynamicFilter = model.env['website.snippet.filter']
-response = DynamicFilter._get_categories('all')
-        </field>
+response = DynamicFilter._get_categories('related')
+            </field>
         </record>
 
-        <!-- Filtro dinámico que conecta el snippet con la acción -->
-        <record id="dynamic_filter_categories" model="website.snippet.filter">
-        <field name="action_server_id" ref="advance_theme_custom.dynamic_snippet_categories_action"/>
-        <field name="field_names">name,image_512</field>
-        <field name="limit" eval="12"/>
-        <field name="name">Public Categories</field>
+        <record id="dynamic_filter_related_categories" model="website.snippet.filter">
+            <field name="action_server_id" ref="advance_theme_custom.dynamic_snippet_related_categories"/>
+            <field name="field_names">name,parent_id,website_url,image_1920</field>
+            <field name="limit" eval="16"/>
+            <field name="name">Related Categories</field>
         </record>
-
     </data>
 </odoo>
-
 
 <!-- 
 
