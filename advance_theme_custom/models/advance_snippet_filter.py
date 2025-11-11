@@ -1,10 +1,10 @@
 # # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-# from collections import Counter
-# from functools import partial
+from collections import Counter
+from functools import partial
 
-# from odoo import _, api, fields, models
-# from odoo.osv import expression
+from odoo import _, api, fields, models
+from odoo.osv import expression
 
 
 # class WebsiteSnippetFilter(models.Model):
@@ -77,7 +77,7 @@
 #         categories = self.env['product.public.category'].search(domain, limit=limit)
 #         return dynamic_filter._filter_records_to_values(categories, is_sample=False)
 
-from odoo import _, api, fields, models
+
 
 class WebsiteSnippetFilter(models.Model):
     _inherit = 'website.snippet.filter'
