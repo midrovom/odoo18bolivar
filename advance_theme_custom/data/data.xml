@@ -15,7 +15,7 @@ response = DynamicFilter._get_categories('all')
 
         <!-- Filtro dinámico que conecta el snippet con la acción -->
         <record id="dynamic_filter_categories" model="website.snippet.filter">
-        <field name="action_server_id" ref="mi_modulo.dynamic_snippet_categories_action"/>
+        <field name="action_server_id" ref="advance_theme_custom.dynamic_snippet_categories_action"/>
         <field name="field_names">name,image_512</field>
         <field name="limit" eval="12"/>
         <field name="name">Public Categories</field>
