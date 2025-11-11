@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-
-    <asset id="advance_theme_custom.s_dynamic_snippet_categories_000_js" name="Dynamic snippet categories 000 JS">
-        <bundle>web.assets_frontend</bundle>
-        <path>advance_theme_custom/static/src/snippets/s_dynamic_snippet_categories/000.js</path>
-    </asset>
-
-</odoo>
