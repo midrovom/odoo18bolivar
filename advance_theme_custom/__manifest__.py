@@ -3,7 +3,7 @@
     'version': '18.0.1.0.0',
     'summary': 'Extensión de estilos',
     'category': 'eCommerce',
-    'depends': ['website', 'website_sale'],
+    'depends': ['product','website', 'website_sale'],
     'data': [
         #'data/data.xml',
         #'data/product_public_categ_data.xml',
