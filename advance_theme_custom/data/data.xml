@@ -1,91 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <data>
-        <record id="dynamic_snippet_categories_action" model="ir.actions.server">
-        <field name="name">Public Categories</field>
-        <field name="model_id" search="[('model','=','product.public.category')]"/>
-        <field name="state">code</field>
-        <field name="code">
+    <data>
+        <record id="dynamic_snippet_is_show_categories_action" model="ir.actions.server">
+            <field name="name">Categorias Seleccionadas</field>
+            <field name="model_id" ref="website_sale.model_product_public_category"/>
+            <field name="state">code</field>
+            <field name="code">
 DynamicFilter = model.env['website.snippet.filter']
-response = DynamicFilter._get_categories('all')
-        </field>
+response = DynamicFilter._get_public_categories('is_show')
+            </field>
         </record>
 
-        <!-- Filtro dinámico -->
-        <record id="dynamic_filter_categories" model="website.snippet.filter">
-        <field name="action_server_id" ref="advance_theme_custom.dynamic_snippet_categories_action"/>
-        <field name="field_names">name,image_1920,url</field>
-        <field name="limit" eval="16"/>
-        <field name="name">Public Categories</field>
+        <record id="dynamic_snippet_all_categories_filter" model="ir.filters">
+            <field name="name">Todas las categorias</field>
+            <field name="model_id">product.public.category</field>
+            <field name="user_id" eval="False" />
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+            <field name="sort">["id desc"]</field>
+        </record>
+
+        <record id="dynamic_filter_all_categories" model="website.snippet.filter">
+            <field name="filter_id" ref="advance_theme_front.dynamic_snippet_all_categories_filter"/>
+            <field name="field_names">name,image_512</field>
+            <field name="limit" eval="16"/>
+            <field name="name">Todas las categorias</field>
+        </record>
+
+        <record id="dynamic_filter_is_show_categories" model="website.snippet.filter">
+            <field name="action_server_id" ref="advance_theme_front.dynamic_snippet_is_show_categories_action"/>
+            <field name="field_names">name,image_512</field>
+            <field name="limit" eval="16"/>
+            <field name="name">Categorias Seleccionadas</field>
         </record>
     </data>
 </odoo>
-
-
-
-<!-- <odoo>
-    <data>
-        <record id="dynamic_snippet_categories_action" model="ir.actions.server">
-            <field name="name">Public Categories</field>
-            <field name="model_id" search="[('model', '=', 'product.public.category')]"/>
-            <field name="state">code</field>
-            <field name="code">
-DynamicFilter = model.env['website.snippet.filter']
-response = DynamicFilter._get_categories('all')
-            </field>
-        </record>
-
-        <record id="dynamic_filter_categories" model="website.snippet.filter">
-            <field name="action_server_id" ref="advance_theme_custom.dynamic_snippet_categories_action"/>
-            <field name="field_names">name,image_1920,url</field>
-            <field name="limit" eval="16"/>
-            <field name="name">Public Categories</field>
-        </record>
-    </data>
-</odoo> -->
-
-<!-- 
-
-        <record id="dynamic_snippet_related_categories" model="ir.actions.server">
-            <field name="name">Related Categories</field>
-            <field name="model_id" ref="website_sale.model_product_public_category"/>
-            <field name="state">code</field>
-            <field name="code">
-DynamicFilter = model.env['website.snippet.filter']
-response = DynamicFilter._get_categories(
-    'related',
-    product_template_id=request.params.get('productTemplateId')
-)
-            </field>
-        </record>
-
-        <record id="dynamic_filter_related_categories" model="website.snippet.filter">
-            <field name="action_server_id" ref="dynamic_snippet_related_categories"/>
-            <field name="field_names">id,display_name,website_url,image_1920</field>
-            <field name="limit" eval="16"/>
-            <field name="name">Related Categories</field>
-        </record>
-    </data> -->
-
-
-
-
-
-<!--     
-        <record id="dynamic_snippet_product_public_category" model="ir.actions.server">
-            <field name="name">Dynamic Snippet Categories</field>
-            <field name="model_id" ref="website_sale.model_product_public_category"/>
-            <field name="state">code</field>
-            <field name="code">
-categories = env['product.public.category'].search([], limit=12)
-
-action = categories
-            </field>
-        </record>
-
-        <record id="dynamic_filter_product_public_category" model="website.snippet.filter">
-            <field name="name">Public Product Categories</field>
-            <field name="action_server_id" ref="advance_theme_custom.dynamic_snippet_product_public_category"/>
-            <field name="field_names">display_name,image_512</field>
-            <field name="limit" eval="12"/>
-        </record> -->
-    
