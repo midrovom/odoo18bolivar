@@ -7,32 +7,22 @@
                 <section data-snippet="s_dynamic_snippet_categories"
                          class="s_dynamic_snippet_categories s_dynamic pt32 pb32 o_colored_level s_product_category_carousel"
                          data-name="Related Categories"
-                         t-att-data-filter-id="product._get_related_category_filter()"
-                         data-template-key="dynamic_filter_template_category_borderless_1"
+                         data-filter-id="dynamic_filter_categories"
+                         data-template-key="website_sale.dynamic_filter_template_product_product_borderless_1"
                          data-parent-category-id="all"
                          data-number-of-elements="4"
                          data-number-of-elements-small-devices="1"
                          data-number-of-records="16"
                          data-carousel-interval="5000">
-                    
+
                     <div class="container o_not_editable">
                         <div class="css_non_editable_mode_hidden">
                             <div class="missing_option_warning alert alert-info rounded-0 fade show d-none d-print-none o_default_snippet_text">
                                 Your Dynamic Snippet will be displayed here...
                             </div>
                         </div>
-                        <div id="o_category_carousel" class="owl-carousel o_category_carousel">
-                            <t t-foreach="records" t-as="category">
-                                <div class="o_category_card text-center p-2">
-                                    <a t-att-href="category['website_url']">
-                                        <img t-att-src="category['image_1920']"
-                                             class="img-fluid mb-2 o_category_img"
-                                             alt="Category Image"/>
-                                        <h6 class="mt-2" t-esc="category['display_name']"/>
-                                    </a>
-                                </div>
-                            </t>
-                        </div>
+                        <!-- Aquí Odoo inyecta los registros automáticamente -->
+                        <div class="dynamic_snippet_template"></div>
                     </div>
                 </section>
             </div>
