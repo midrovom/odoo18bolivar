@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_attribute_view_form_inherit_dia" model="ir.ui.view">
+        <field name="name">product.attribute.view.form.inherit.dia</field>
+        <field name="model">product.attribute</field>
+        <field name="inherit_id" ref="product.product_attribute_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Insertar debajo de display_type -->
+            <xpath expr="//field[@name='display_type']" position="after">
+                <field name="atributo"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
