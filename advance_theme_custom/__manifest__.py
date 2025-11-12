@@ -11,10 +11,10 @@
        # 'views/templates.xml',
         
         # 'views/snippets/dynamic_snippet_custom.xml',
-        'views/snippets/snippets.xml',
-        'views/snippets/s_dynamic_snippet_categories.xml',
-        'views/snippets/s_dynamic_snippet_categories_preview_data.xml',
-        'views/product_attribute_view.xml',
+        #'views/snippets/snippets.xml',
+        #'views/snippets/s_dynamic_snippet_categories.xml',
+        #'views/snippets/s_dynamic_snippet_categories_preview_data.xml',
+        #'views/product_attribute_view.xml',
     ],
     'assets': {
         'web.assets_frontend': [

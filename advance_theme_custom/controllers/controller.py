@@ -13,7 +13,7 @@ class WebsiteCategorySnippet(http.Controller):
         } for cat in categories]
     
 
-    from odoo import http
+from odoo import http
 from odoo.http import request
 from odoo.addons.website.controllers.main import QueryURL
 
