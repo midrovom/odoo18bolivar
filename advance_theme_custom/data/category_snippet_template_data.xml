@@ -14,7 +14,7 @@
                              t-att-alt="record.name"/>
                     </a>
 
-                    <div class="card-body p-2">
+                    <div class="card-body p-2 bg-dark">
                         <h6 class="card-title mb-1 text-white" t-esc="record.name"/>
                         <p class="card-text text-muted small mb-0">
                             <t t-if="data.get('product_count')">
