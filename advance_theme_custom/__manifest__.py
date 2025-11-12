@@ -27,7 +27,7 @@
             'advance_theme_custom/static/src/scss/dynamic_custom/prueba.scss',
     ],
         'website.assets_wysiwyg': [
-            'advance_theme_front/static/src/snippets/s_dynamic_snippet_categories/options.js',
+            'advance_theme_custom/static/src/snippets/s_dynamic_snippet_categories/option.js',
         ],
     },
     'installable': True,
