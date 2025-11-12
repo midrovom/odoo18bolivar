@@ -20,5 +20,10 @@
 }
 
 .row > * {
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 100%;
+    padding-right: calc(var(--gutter-x) * .5);
     padding-left: calc(var(--gut-x) * .9);
+    margin-top: var(--gutter-y);
 }
