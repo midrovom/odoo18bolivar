@@ -1,0 +1,19 @@
+.o_dynamic_category_card {
+    background-color: #000; // fondo negro
+    width: 200px;
+    min-height: 280px;
+    border-radius: 6px;
+}
+
+.o_dynamic_category_image {
+    height: 150px;
+    object-fit: contain;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.o_dynamic_category_body {
+    background-color: #000;
+    min-height: 80px;
+    padding: 0.5rem;
+}

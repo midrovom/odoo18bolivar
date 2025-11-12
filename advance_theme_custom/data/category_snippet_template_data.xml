@@ -4,18 +4,17 @@
         <template id="dynamic_filter_template_product_public_category_style_1" name="Image + Name Category">
             <t t-foreach="records" t-as="data" data-thumb="/website_sale/static/src/img/snippets_options/product_image_with_name.svg">
                 <t t-set="record" t-value="data['_record']"/>
-                <div class="card bg-dark text-white o_dynamic_category_hovered text-center border-0 o_card_border_radius" data-oe-snippet-option="card_border_radius" style="width: 200px; min-height: 280px;">
+                <div class="card o_dynamic_category_card text-white text-center border-0 o_card_border_radius" data-oe-snippet-option="card_border_radius">
                     <div t-if="is_sample" class="h5 o_ribbon_right bg-primary text-uppercase">Sample</div>
 
                     <a class="o_carousel_category_img_link overflow-hidden" t-att-href="data['url']">
-                        <img class="card-img-top o_img_category_square o_img_category_cover"
+                        <img class="card-img-top o_img_category_square o_img_category_cover o_dynamic_category_image"
                              loading="lazy"
                              t-att-src="data['image_512']"
-                             t-att-alt="record.name"
-                             style="height: 150px; object-fit: contain; border-top-left-radius: 6px; border-top-right-radius: 6px;"/>
+                             t-att-alt="record.name"/>
                     </a>
 
-                    <div class="card-body p-2 bg-dark" style="min-height: 80px;">
+                    <div class="card-body p-2 o_dynamic_category_body">
                         <h6 class="card-title mb-0 text-white" t-esc="record.name"/>
                     </div>
                 </div>
