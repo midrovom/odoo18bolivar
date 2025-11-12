@@ -24,8 +24,8 @@
             'advance_theme_custom/static/src/scss/shop_offert_custom/s_shop_offer_hot.scss',
             'advance_theme_custom/static/src/scss/footer_custom/footer_custom.scss',
             'advance_theme_custom/static/src/scss/dynamic_custom/prueba.scss',
-        ],
-           'website.assets_wysiwyg': [
+    ],
+        'website.assets_wysiwyg': [
             'advance_theme_front/static/src/snippets/s_dynamic_snippet_categories/options.js',
         ],
     },
