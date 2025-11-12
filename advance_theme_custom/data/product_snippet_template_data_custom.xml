@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="dynamic_filter_template_product_product_bordered_white" inherit_id="dynamic_filter_template_product_product_borderless_1" name="Bordered Product White">
+        <xpath expr="//div[contains(@class, 'o_carousel_product_card')]" position="attributes">
+            <attribute name="class">o_carousel_product_card bg-white w-100 card border</attribute>
+        </xpath>
+    </template>
+</odoo>
+
