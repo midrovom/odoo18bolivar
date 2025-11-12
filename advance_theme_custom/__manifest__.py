@@ -24,7 +24,7 @@
             'advance_theme_custom/static/src/scss/shop_offert_custom/s_shop_offer_custom.scss',
             'advance_theme_custom/static/src/scss/shop_offert_custom/s_shop_offer_hot.scss',
             'advance_theme_custom/static/src/scss/footer_custom/footer_custom.scss',
-            'advance_theme_custom/static/src/scss/dynamic_custom/prueba.scss',
+            'advance_theme_custom/static/src/scss/dynamic_custom/dynamic_custom.scss',
             'advance_theme_custom/static/src/scss/dynamic_custom/dynamic_filter_template_product_public_category_style_1.scss',
     ],
         'website.assets_wysiwyg': [

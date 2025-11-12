@@ -18,3 +18,7 @@
     min-height: 80px;
     margin: 0 !important; // asegura que tampoco haya margen en el cuerpo
 }
+
+.row > * {
+    padding-left: calc(var(--gut-x) * .9);
+}
