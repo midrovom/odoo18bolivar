@@ -102,7 +102,12 @@
               </div>
 
             </div>
+
+            <!-- Columnas clásicas solo visibles en escritorio -->
             <div class="row d-none d-lg-flex">
+              <!-- Aquí puedes mantener tus columnas originales como ya las tenías -->
+              <!-- Products, Servicio al cliente, Contacto, Redes -->
+              <!-- (Puedes copiar y pegar el contenido anterior aquí si deseas mantenerlo en escritorio) -->
             </div>
 
             <!-- Copyright -->
