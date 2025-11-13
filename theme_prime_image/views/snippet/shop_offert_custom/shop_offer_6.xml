@@ -13,8 +13,6 @@
       <div class="container-fluid">
         <div class="row justify-content-center">
           <div class="col-12 col-md-11 col-lg-10">
-
-            <!-- Versión Web -->
             <div class="d-none d-md-flex flex-md-row align-items-center justify-content-between gap-5 o_editable">
               <div class="text-block d-flex flex-column align-items-start text-start">
                 <div class="d-flex flex-row align-items-center gap-2">
