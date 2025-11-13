@@ -68,7 +68,6 @@
             <div class="col-auto my-1">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1 d-none d-xl-block">
-                        <!--Register | Login -->
                         <div class="d-flex align-items-center" t-if="user_id._is_public()">
                             <a class="tp-account-info-sidebar-action me-2" href="/web/signup">Register</a> <span class="mx-1">|</span>
                                 <a class="tp-account-info-sidebar-action ms-2" href="/web/login">Login</a>
@@ -80,7 +79,6 @@
                 </a>
             </div>
         </div>
-    <!-- Carrito-->
     <div class="flex-shrink-0 ms-3">
 <t t-nocache="The number of products is dynamic, this rendering cannot be cached.">
     <t t-set="website_sale_cart_quantity"
@@ -99,7 +97,6 @@
                 </div>
             </div>
         </xpath>
-        <!-- Elimina el bloque de wishlist  y Carrito -->
     <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto')][.//i[contains(@class,'dri-wishlist')]]"
             position="replace"/>
     <xpath expr="//div[contains(@class,'tp-account-info')]//div[contains(@class,'col-auto')][.//i[contains(@class,'dri-cart')]]"
