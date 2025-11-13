@@ -3,7 +3,7 @@
   <template id="s_trending_box_with_image_snippet_snippet" inherit_id="theme_prime.snippets" name="Trending Box with Image - Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_shop_offer_5']" position="after">
       <t t-snippet="theme_prime_image.s_shop_offer_6_custom" string="Shop offer 6" group="theme_prime_shop_offer">
-        <keywords>trending, image, link</keywords>
+       <keywords>trending, image, link</keywords>
       </t>
     </xpath>
   </template>
@@ -24,7 +24,7 @@
                 <!-- Texto de condiciones debajo del bloque de texto -->
                 <p class="mt-2 mb-0 text-muted" style="font-size: 0.75rem;">*Aplican términos y condiciones</p>
               </div>
-              <div class="image-box o_editable d-flex flex-column align-items-center mt-2 mb-2">
+              <div class="image-box o_editable d-flex flex-column align-items-center">
                 <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1.jpg" alt="Imagen destacada" class="img-fluid"
                   style="width: 320px; height: 140px; object-fit: cover; border-radius: 0.75rem;"/>
               </div>
