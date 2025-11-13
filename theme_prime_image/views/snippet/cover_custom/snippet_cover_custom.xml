@@ -8,7 +8,7 @@
             <div class="row content">
               <div class="carousel-content col-lg-5">
                 <picture>
-                  <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png">
+                  <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"/>
                   <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" class="img img-fluid w-100" alt="Banner Web"/>
                 </picture>
                 <h4 class="text-white">¡NUEVA COLECCIÓN!</h4>
@@ -26,7 +26,7 @@
             <div class="row content">
               <div class="carousel-content col-lg-5">
                 <picture>
-                  <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png">
+                  <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"/>
                   <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" class="img img-fluid w-100" alt="Banner Web 2"/>
                 </picture>
                 <h4 class="text-white text-center">DESCUENTO EXCLUSIVO</h4>
@@ -43,7 +43,6 @@
     </xpath>
   </template>
 </odoo>
-
 
 
 <!-- <?xml version="1.0" encoding="utf-8"?>
