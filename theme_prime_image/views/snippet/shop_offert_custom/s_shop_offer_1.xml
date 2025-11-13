@@ -9,18 +9,20 @@
               HASTA EL <span class="text-o-color-1">30%</span> OFF EN TU PRIMERA COMPRA
             </h3>
             <!-- Solo visible en web -->
-            <p class="shop-offer-note mb-1 small d-none d-md-block">*Aplican términos y condiciones</p>
+            <p class="shop-offer-note mb-1 text-muted fw-light small d-none d-md-block" style="font-size: 0.7rem;">*Aplican términos y condiciones</p>
           </div>
-          <div class="shop-offer-actions d-flex justify-content-center align-items-center gap-2 flex-wrap">
+          <!-- Botón + texto alineado en móvil -->
+          <div class="shop-offer-actions d-flex justify-content-center align-items-center flex-wrap gap-2">
             <a href="#" class="btn btn-primary rounded-pill">Ver Ofertas</a>
             <!-- Solo visible en móvil -->
-            <p class="shop-offer-note mb-0 small d-block d-md-none">*Aplican términos y condiciones</p>
+            <p class="shop-offer-note mb-0 text-muted fw-light d-block d-md-none" style="font-size: 0.6rem;">*Aplican términos y condiciones</p>
           </div>
         </div>
       </div>
     </xpath>
   </template>
 </odoo>
+
 
 
 <!-- <?xml version="1.0" encoding="utf-8"?>
