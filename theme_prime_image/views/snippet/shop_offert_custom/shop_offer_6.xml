@@ -8,7 +8,7 @@
     </xpath>
   </template>
 
-  <template id="s_trending_box_with_image_snippet" name="Trending Box with Image">
+  <template id="s_shop_offer_6_custom" name="Shop Offer 6 custom">
     <section class="s_trending_box_with_image o_snippet_editable">
       <div class="container-fluid">
         <div class="row justify-content-center">
