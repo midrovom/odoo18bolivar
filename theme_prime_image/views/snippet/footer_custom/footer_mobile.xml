@@ -1,6 +1,6 @@
 <odoo>
   <template id="template_footer_mobile" name="Footer Mobile">
-    <div id="footer" class="oe_structure oe_structure_solo d-block d-lg-none" t-if="not no_footer">
+    <div id="footer_mobile" class="oe_structure oe_structure_solo d-block d-lg-none" t-if="not no_footer">
       <section class="s_text_block pt32 pb32" data-snippet="s_text_block" data-name="Mobile Footer">
         <div class="container">
           <div class="text-center mb-4">
