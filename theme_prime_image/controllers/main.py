@@ -20,11 +20,11 @@ class ThemePrimeMainClassExtended(ThemePrimeMainClass):
                         'image': val.dr_image and f'/web/image/product.attribute.value/{val.id}/dr_image' or False,
                         'attribute_name': line.attribute_id.name,
                     }
-
-                    # Atributos personalizados"
+                    # Atributos personalizados
                     if line.attribute_id.attribute_custom and line.attribute_id.name != 'Marca':
                         res_product['attributes'].append(attr_data)
-                    else:
+                    # Atributos no personalizados
+                    elif not line.attribute_id.attribute_custom and not getattr(val, 'dr_is_brand', False):
                         res_product['other_attributes'].append(attr_data)
 
         return result
