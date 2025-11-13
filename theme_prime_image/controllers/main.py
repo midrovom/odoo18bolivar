@@ -13,6 +13,9 @@ class ThemePrimeMainClassExtended(ThemePrimeMainClass):
             res_product['other_attributes'] = []
 
             for line in product.attribute_line_ids:
+                if line.attribute_id.dr_is_brand:
+                    continue
+
                 for val in line.value_ids:
                     attr_data = {
                         'id': val.id,
@@ -20,15 +23,12 @@ class ThemePrimeMainClassExtended(ThemePrimeMainClass):
                         'image': val.dr_image and f'/web/image/product.attribute.value/{val.id}/dr_image' or False,
                         'attribute_name': line.attribute_id.name,
                     }
-                    # Atributos personalizados
-                    if line.attribute_id.attribute_custom and line.attribute_id.name != 'Marca':
+                    if line.attribute_id.attribute_custom:
                         res_product['attributes'].append(attr_data)
-                    # Atributos no personalizados
-                    elif not line.attribute_id.attribute_custom and not getattr(val, 'dr_is_brand', False):
+                    else:
                         res_product['other_attributes'].append(attr_data)
 
         return result
-
 
 # from odoo.addons.theme_prime.controllers.main import ThemePrimeMainClass
 # from odoo.http import request
