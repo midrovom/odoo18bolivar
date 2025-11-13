@@ -1,4 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="s_shop_offer_1_inherit" inherit_id="theme_prime.s_shop_offer_1" name="Shop Offer 1 Custom">
+    <xpath expr="//span[contains(@class,'s_parallax_bg')]" position="replace"/>
+    <xpath expr="//div[@class='col-12 text-center']" position="replace">
+      <div class="col-12 col-md-11 col-lg-10 mx-auto text-center">
+        <div class="shop-offer-wrapper">
+          <div class="shop-offer-text">
+            <h3 class="shop-offer-title text-uppercase mb-0">
+              HASTA EL <span class="text-o-color-1">30%</span> OFF EN TU PRIMERA COMPRA
+            </h3>
+            <!-- Solo visible en web -->
+            <p class="shop-offer-note mb-1 small d-none d-md-block">*Aplican términos y condiciones</p>
+          </div>
+          <div class="shop-offer-actions d-flex justify-content-center align-items-center gap-2 flex-wrap">
+            <a href="#" class="btn btn-primary rounded-pill">Ver Ofertas</a>
+            <!-- Solo visible en móvil -->
+            <p class="shop-offer-note mb-0 small d-block d-md-none">*Aplican términos y condiciones</p>
+          </div>
+        </div>
+      </div>
+    </xpath>
+  </template>
+</odoo>
+
+
+<!-- <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="s_shop_offer_1_inherit" inherit_id="theme_prime.s_shop_offer_1" name="Shop Offer 1 Custom">
     <xpath expr="//span[contains(@class,'s_parallax_bg')]" position="replace"/>
@@ -17,5 +42,5 @@
       </div>
     </xpath>
   </template>
-</odoo>
+</odoo> -->
 
