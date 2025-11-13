@@ -15,11 +15,10 @@
                 <div class="o_carousel_product_card_body d-flex flex-wrap flex-column justify-content-between h-100 p-3">
                     <div class="h6 card-title" t-field="record.display_name"/>
 
-
                     <t t-set="other_attrs" t-value="record._get_other_attributes()"/>
                     <t t-if="other_attrs">
                         <p class="text-muted small mt-1">
-                            <t t-set="last_index" t-value="other_attrs.length - 1"/>
+                            <t t-set="last_index" t-value="len(other_attrs) - 1"/>
                             <t t-foreach="other_attrs" t-as="name" t-index="i">
                                 <t t-out="name"/>
                                 <t t-if="i != last_index">, </t>
