@@ -1,48 +1,34 @@
 <odoo>
-  <template id="s_cover_2_custom" inherit_id="theme_prime.s_cover_2" name="Cover - 2 Custom Web/Mobile">
-    <xpath expr="//div[contains(@class,'carousel-inner')]" position="replace">
-      <div class="carousel-inner" data-oe-slideshow="true">
-        <!-- Slide 1 -->
-        <div class="carousel-item active oe_img_bg o_bg_img_center pt192 pb192" data-name="Slide">
-          <div class="container">
-            <div class="row content">
-              <div class="carousel-content col-lg-5">
-                <picture>
-                  <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"/>
-                  <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" class="img img-fluid w-100" alt="Banner Web"/>
-                </picture>
-                <h4 class="text-white">¡NUEVA COLECCIÓN!</h4>
-                <h2 class="display-4 fw-bold text-white">Moda de alta calidad</h2>
-                <p class="lead text-white">Descubre prendas únicas para cada temporada.</p>
-                <a href="/shop" class="btn btn-primary mt-2">VER MÁS</a>
-              </div>
-            </div>
+  <template id="s_cover_custom_slider" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Slider Web/Mobile">
+    
+    <!-- Reemplaza el contenedor padre del carrusel para eliminar padding -->
+    <xpath expr="//div[contains(@class,'carousel-inner')]/.." position="replace">
+      <div class="container-fluid px-0" data-bs-ride="carousel" data-bs-interval="5000">
+        <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
+          
+          <!-- Slide 1 -->
+          <div class="carousel-item active" data-name="Slide">
+            <picture>
+              <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"/>
+              <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" class="d-block w-100 m-0 p-0" alt="Banner Web"/>
+            </picture>
           </div>
-        </div>
 
-        <!-- Slide 2 -->
-        <div class="carousel-item oe_img_bg o_bg_img_center pt192 pb192" data-name="Slide">
-          <div class="container">
-            <div class="row content">
-              <div class="carousel-content col-lg-5">
-                <picture>
-                  <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"/>
-                  <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" class="img img-fluid w-100" alt="Banner Web 2"/>
-                </picture>
-                <h4 class="text-white text-center">DESCUENTO EXCLUSIVO</h4>
-                <h2 class="display-4 fw-bold text-white text-center">Estilo flexible con Prime</h2>
-                <p class="lead text-white text-center">Aprovecha nuestras ofertas por tiempo limitado.</p>
-                <div class="text-center">
-                  <a href="/shop" class="btn btn-primary mt-2">VER MÁS</a>
-                </div>
-              </div>
-            </div>
+          <!-- Slide 2 -->
+          <div class="carousel-item" data-name="Slide">
+            <picture>
+              <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"/>
+              <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" class="d-block w-100 m-0 p-0" alt="Banner Web 2"/>
+            </picture>
           </div>
+
         </div>
       </div>
     </xpath>
+
   </template>
 </odoo>
+
 
 
 <!-- <?xml version="1.0" encoding="utf-8"?>
