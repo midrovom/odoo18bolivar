@@ -14,16 +14,15 @@
                 </a>
                 <div class="o_carousel_product_card_body d-flex flex-wrap flex-column justify-content-between h-100 p-3">
                     <div class="h6 card-title" t-field="record.display_name"/>
-                    
-                    <!-- Categorías debajo del nombre -->
-                    <t t-if="record.public_categ_ids">
-                        <div class="small text-muted mt-1">
-                            <t t-foreach="record.public_categ_ids" t-as="categ">
-                                <span class="badge bg-light text-dark me-1">
-                                    <t t-out="categ.name"/>
-                                </span>
+
+                    <t t-if="record.other_attributes">
+                        <p class="text-muted small mt-1">
+                            <t t-set="last_index" t-value="record.other_attributes.length - 1"/>
+                            <t t-foreach="record.other_attributes" t-as="name" t-index="i">
+                                <t t-out="name"/>
+                                <t t-if="i != last_index">, </t>
                             </t>
-                        </div>
+                        </p>
                     </t>
 
                     <div>
@@ -42,7 +41,6 @@
 </odoo>
 
 
-
 <!-- <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="dynamic_filter_template_product_product_borderless_3" name="Bordered Product White">
@@ -59,6 +57,17 @@
                 </a>
                 <div class="o_carousel_product_card_body d-flex flex-wrap flex-column justify-content-between h-100 p-3">
                     <div class="h6 card-title" t-field="record.display_name"/>
+                    
+                    <t t-if="record.public_categ_ids">
+                        <div class="small text-muted mt-1">
+                            <t t-foreach="record.public_categ_ids" t-as="categ">
+                                <span class="badge bg-light text-dark me-1">
+                                    <t t-out="categ.name"/>
+                                </span>
+                            </t>
+                        </div>
+                    </t>
+
                     <div>
                         <t t-if="is_view_active('website_sale.product_comment')" t-call="portal_rating.rating_widget_stars_static">
                             <t t-set="rating_avg" t-value="record.rating_avg"/>
