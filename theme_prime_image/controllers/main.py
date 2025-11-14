@@ -30,6 +30,13 @@ class ThemePrimeMainClassExtended(ThemePrimeMainClass):
 
         return result
 
+
+from odoo.http import request
+from odoo import http
+
+class ThemePrimeMainClassExtended(http.Controller):
+    _inherit = "ThemePrimeMainClass"
+
     def _get_computed_product_price(self, product, product_data, price_public_visibility, visibility_label, currency_id):
         FieldMonetary = request.env['ir.qweb.field.monetary']
         monetary_options = {'display_currency': currency_id}
