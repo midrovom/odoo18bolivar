@@ -1,7 +1,7 @@
-<odoo>
+<!-- <odoo>
   <template id="assets_frontend_extend" inherit_id="web.assets_frontend" name="Extend Dynamic Snippet Products">
     <xpath expr="." position="inside">
       <script type="module" src="/advance_theme_custom/static/src/js/dynamic_snippet_products_extend.js"/>
     </xpath>
   </template>
-</odoo>
+</odoo> -->
