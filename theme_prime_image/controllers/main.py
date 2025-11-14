@@ -30,15 +30,24 @@ class ThemePrimeMainClassExtended(ThemePrimeMainClass):
 
         return result
 
+    def _get_computed_product_price(self, product, product_data, price_public_visibility, visibility_label, currency_id):
+        FieldMonetary = request.env['ir.qweb.field.monetary']
+        monetary_options = {'display_currency': currency_id}
 
-    from odoo.addons.website_sale.controllers.main import WebsiteSale
-    from odoo.http import request
-    class ThemePrimeWebsiteSaleExtended(WebsiteSale):
+        # Llamamos al super para mantener la lógica original
+        res = super()._get_computed_product_price(
+            product, product_data, price_public_visibility, visibility_label, currency_id
+        )
 
-        def _prepare_product_values(self, product, category, search, **kwargs):
-            res = super()._prepare_product_values(product, category, search, **kwargs)
-            res['list_price_base'] = product.list_price
-            return res
+        # Precio base del template (sin lista de precios aplicada)
+        base_price = product.product_tmpl_id.list_price
+        res.update({
+            'list_price_base_raw': base_price if price_public_visibility else ' ',
+            'list_price_base': FieldMonetary.value_to_html(base_price, monetary_options) if price_public_visibility else ' '
+        })
+
+        return res
+
 
 
 # class ThemePrimeMainClassExtended(ThemePrimeMainClass):
