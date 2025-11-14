@@ -23,7 +23,8 @@ const DynamicSnippetCategories = DynamicSnippetCarousel.extend({
 
         if (uiUtils.isSmall()) {
             options.rowPerSlide = 2;
-            options.columnClasses = "col-6 col-sm-6";
+            options.chunkSize = 2;
+            options.columnClasses = "col-6";  // cada card ocupa la mitad del ancho
         }
 
         return options;
@@ -33,7 +34,6 @@ const DynamicSnippetCategories = DynamicSnippetCarousel.extend({
 publicWidget.registry.dynamic_snippet_categories = DynamicSnippetCategories;
 
 export default DynamicSnippetCategories;
-
 
 
 // /** @odoo-module **/
