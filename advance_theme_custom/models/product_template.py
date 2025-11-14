@@ -14,7 +14,6 @@ class ProductTemplate(models.Model):
             only_template=only_template
         )
 
-        # Si hay producto, añadimos el precio base del template
         if combination_info.get('product_id'):
             product_variant = self.env['product.product'].browse(combination_info['product_id'])
             combination_info['list_price_base'] = product_variant.product_tmpl_id.list_price
