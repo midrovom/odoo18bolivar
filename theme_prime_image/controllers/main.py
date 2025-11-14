@@ -30,21 +30,24 @@ class ThemePrimeMainClassExtended(ThemePrimeMainClass):
 
         return result
 
+    from odoo.tools import formatLang
+
     def _get_computed_product_price(self, product, product_data, price_public_visibility, visibility_label, currency_id):
         res = super()._get_computed_product_price(
             product, product_data, price_public_visibility, visibility_label, currency_id
         )
-        FieldMonetary = request.env['ir.qweb.field.monetary']
-        monetary_options = {'display_currency': currency_id}
 
-        # Corregido: soporta tanto product.template como product.product
+        # Usamos formatLang para obtener el valor como string plano
         base_price = product.list_price if product._name == 'product.template' else product.product_tmpl_id.list_price
+        formatted_price = formatLang(request.env, base_price, currency_obj=currency_id, monetary=True)
 
         res.update({
             'list_price_base_raw': base_price if price_public_visibility else ' ',
-            'list_price_base': FieldMonetary.value_to_html(base_price, monetary_options) if price_public_visibility else ' '
+            'list_price_base': formatted_price if price_public_visibility else ' '
         })
+
         return res
+
 
     # def _get_computed_product_price(self, product, product_data, price_public_visibility, visibility_label, currency_id):
     #     res = super()._get_computed_product_price(
