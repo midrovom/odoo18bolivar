@@ -5,7 +5,6 @@
     border-radius: 6px;
 }
 
-
 .o_dynamic_category_image {
     margin-top: 8px;                    
     height: 150px;
@@ -14,9 +13,28 @@
     border-top-right-radius: 6px;
 }
 
-
 .o_dynamic_category_body {
     background-color: #000;
     min-height: 80px;
-    margin: 0 !important; // asegura que tampoco haya margen en el cuerpo
+    margin: 0 !important; 
+}
+
+/*  Ajustes específicos para móviles */
+@media (max-width: 768px) {
+    .o_dynamic_category_card {
+        width: 100%;          
+        min-height: auto;     
+        margin: 0;           
+    }
+
+    .o_dynamic_category_image {
+        aspect-ratio: 1 / 1;  
+        object-fit: cover;    
+        height: auto;         
+    }
+
+    .o_dynamic_category_body {
+        padding: 0.5rem;      
+        min-height: auto;    
+    }
 }
