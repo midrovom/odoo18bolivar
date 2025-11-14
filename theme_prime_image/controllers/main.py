@@ -37,7 +37,7 @@ class ThemePrimeMainClassExtended(ThemePrimeMainClass):
 
         FieldMonetary = request.env['ir.qweb.field.monetary']
         monetary_options = {'display_currency': currency_id}
-        base_price = product.product_tmpl_id.list_price
+        base_price = product.list_price
 
         res.update({
             'list_price_base_raw': base_price if price_public_visibility else ' ',
