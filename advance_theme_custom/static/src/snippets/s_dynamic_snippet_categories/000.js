@@ -5,7 +5,7 @@ import DynamicSnippetCarousel from "@website/snippets/s_dynamic_snippet_carousel
 import { utils as uiUtils } from "@web/core/ui/ui_service";
 
 const DEFAULT_NUMBER_OF_ELEMENTS = 4;
-const DEFAULT_NUMBER_OF_ELEMENTS_SM = 4;  // 👈 aquí cambiamos el valor por defecto en móviles
+const DEFAULT_NUMBER_OF_ELEMENTS_SM = 2;  // 👈 aquí cambiamos el valor por defecto en móviles
 
 const DynamicSnippetCategories = DynamicSnippetCarousel.extend({
     selector: ".s_dynamic_snippet_categories",
