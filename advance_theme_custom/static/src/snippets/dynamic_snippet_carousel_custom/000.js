@@ -1,39 +1,27 @@
 /** @odoo-module **/
 
 import publicWidget from "@web/legacy/js/public/public_widget";
-import DynamicSnippet from "@website/snippets/s_dynamic_snippet/000";
+import DynamicSnippetProducts from "@website/snippets/s_dynamic_snippet_products/000"; 
 import { utils as uiUtils } from "@web/core/ui/ui_service";
 
-const DynamicSnippetCustom = DynamicSnippet.extend({
-    selector: ".s_dynamic_snippet",  
+const DynamicSnippetProductsCustom = DynamicSnippetProducts.extend({
+    selector: ".s_dynamic_snippet_products",  
 
     /**
      * @override
      * @private
      */
     _getQWebRenderOptions: function () {
-        const dataset = this.el.dataset;
-        const numberOfRecords = parseInt(dataset.numberOfRecords);
+        const options = this._super.apply(this, arguments);
 
-        let numberOfElements;
         if (uiUtils.isSmall()) {
-            numberOfElements = parseInt(dataset.numberOfElementsSmallDevices) || 4;
-        } else {
-            numberOfElements = parseInt(dataset.numberOfElements) || 4;
+            options.rowPerSlide = 2;  // en móviles ahora serán 2 elementos por slide
         }
 
-        const chunkSize = numberOfRecords < numberOfElements ? numberOfRecords : numberOfElements;
-
-        return {
-            chunkSize: chunkSize,
-            data: this.data,
-            unique_id: this.unique_id,
-            extraClasses: dataset.extraClasses || '',
-            columnClasses: dataset.columnClasses || '',
-        };
+        return options;
     },
 });
 
-publicWidget.registry.dynamic_snippet = DynamicSnippetCustom;
+publicWidget.registry.dynamic_snippet_products = DynamicSnippetProductsCustom;
 
-export default DynamicSnippetCustom;
+export default DynamicSnippetProductsCustom;

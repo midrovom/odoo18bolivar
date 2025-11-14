@@ -27,6 +27,7 @@
             'advance_theme_custom/static/src/scss/footer_custom/footer_custom.scss',
             'advance_theme_custom/static/src/scss/dynamic_custom/dynamic_custom.scss',
             'advance_theme_custom/static/src/scss/dynamic_custom/dynamic_filter_template_product_public_category_style_1.scss',
+            'advance_theme_custom/static/src/snippets/dynamic_snippet_carousel_custom/000.js',
     ],
         'website.assets_wysiwyg': [
             'advance_theme_custom/static/src/snippets/s_dynamic_snippet_categories/option.js',
