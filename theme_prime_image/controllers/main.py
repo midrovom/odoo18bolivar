@@ -30,6 +30,17 @@ class ThemePrimeMainClassExtended(ThemePrimeMainClass):
 
         return result
 
+
+    from odoo.addons.website_sale.controllers.main import WebsiteSale
+    from odoo.http import request
+    class ThemePrimeWebsiteSaleExtended(WebsiteSale):
+
+        def _prepare_product_values(self, product, category, search, **kwargs):
+            res = super()._prepare_product_values(product, category, search, **kwargs)
+            res['list_price_base'] = product.list_price
+            return res
+
+
 # class ThemePrimeMainClassExtended(ThemePrimeMainClass):
 
 #     def _prepare_product_data(self, products, fields, pricelist, options=None):
