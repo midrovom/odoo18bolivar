@@ -22,33 +22,26 @@
 /* Ajustes específicos para móviles */
 @media (max-width: 768px) {
     .o_dynamic_category_card {
-        width: 100%;            
-        aspect-ratio: 3 / 4;     /* 👈 más alto que un cuadrado */
-        min-height: 220px;       /* 👈 asegura altura mínima mayor */
-        margin: 0;                
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        width: 100%;         
+        min-height: auto;     
+        margin: 0;            
     }
 
     .o_dynamic_category_image {
-        aspect-ratio: 1 / 1;      
-        object-fit: cover;       
-        width: 100%;
-        height: auto;
+        aspect-ratio: 1 / 1;  
+        object-fit: cover;    
+        height: auto;         
     }
 
     .o_dynamic_category_body {
-        padding: 0.3rem;         
-        min-height: 90px;        /* 👈 aumenta altura del cuerpo */
+        padding: 0.5rem;      
+        min-height: auto;     
     }
 
     /* Ajuste del nombre de la categoría */
     .o_dynamic_category_body .card-title {
-        font-size: 0.6rem;        /* aún más pequeño */
-        line-height: 0.85rem;     
-        white-space: normal;      
-        word-break: break-word;   
-        text-align: center;       
+        font-size: 0.5rem;   
+        line-height: 1rem;    
+        white-space: normal;  
     }
 }
