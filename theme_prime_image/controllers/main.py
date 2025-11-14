@@ -1,5 +1,6 @@
 from odoo.addons.theme_prime.controllers.main import ThemePrimeMainClass
 from odoo.http import request
+from odoo.tools import formatLang
 
 class ThemePrimeMainClassExtended(ThemePrimeMainClass):
 
@@ -30,15 +31,15 @@ class ThemePrimeMainClassExtended(ThemePrimeMainClass):
 
         return result
 
-    from odoo.tools import formatLang
-
     def _get_computed_product_price(self, product, product_data, price_public_visibility, visibility_label, currency_id):
         res = super()._get_computed_product_price(
             product, product_data, price_public_visibility, visibility_label, currency_id
         )
 
-        # Usamos formatLang para obtener el valor como string plano
+        # Corregido: soporta tanto product.template como product.product
         base_price = product.list_price if product._name == 'product.template' else product.product_tmpl_id.list_price
+
+        # Usamos formatLang para obtener el valor como string plano con símbolo de moneda
         formatted_price = formatLang(request.env, base_price, currency_obj=currency_id, monetary=True)
 
         res.update({
