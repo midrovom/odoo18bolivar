@@ -19,12 +19,12 @@
     margin: 0 !important; 
 }
 
-/*  Ajustes específicos para móviles */
+/* Ajustes específicos para móviles */
 @media (max-width: 768px) {
     .o_dynamic_category_card {
-        width: 100%;          
+        width: 100%;         
         min-height: auto;     
-        margin: 0;           
+        margin: 0;            
     }
 
     .o_dynamic_category_image {
@@ -35,6 +35,13 @@
 
     .o_dynamic_category_body {
         padding: 0.5rem;      
-        min-height: auto;    
+        min-height: auto;     
+    }
+
+    /* Ajuste del nombre de la categoría */
+    .o_dynamic_category_body .card-title {
+        font-size: 0.75rem;   
+        line-height: 1rem;    
+        white-space: normal;  
     }
 }
