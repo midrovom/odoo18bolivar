@@ -19,14 +19,13 @@ const DynamicSnippetCategories = DynamicSnippetCarousel.extend({
      * @private
      */
     _getQWebRenderOptions: function () {
-        // obtenemos las opciones originales del padre
         const options = this._super.apply(this, arguments);
 
         if (uiUtils.isSmall()) {
-            options.rowPerSlide = 2;  // en móviles ahora serán 2 elementos por slide
+            options.rowPerSlide = 2;
+            options.columnClasses = "col-6 col-sm-6";
         }
 
-        // en pantallas grandes se mantiene la lógica original
         return options;
     },
 });
@@ -34,7 +33,6 @@ const DynamicSnippetCategories = DynamicSnippetCarousel.extend({
 publicWidget.registry.dynamic_snippet_categories = DynamicSnippetCategories;
 
 export default DynamicSnippetCategories;
-
 
 
 
