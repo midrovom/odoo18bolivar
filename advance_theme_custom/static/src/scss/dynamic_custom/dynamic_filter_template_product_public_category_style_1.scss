@@ -22,26 +22,33 @@
 /* Ajustes específicos para móviles */
 @media (max-width: 768px) {
     .o_dynamic_category_card {
-        width: 100%;         
-        min-height: auto;     
-        margin: 0;            
+        width: 100%;            
+        aspect-ratio: 1 / 1;     
+        min-height: auto;        
+        margin: 0;                
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
     .o_dynamic_category_image {
-        aspect-ratio: 1 / 1;  
-        object-fit: cover;    
-        height: auto;         
+        aspect-ratio: 1 / 1;      
+        object-fit: cover;       
+        width: 100%;
+        height: auto;
     }
 
     .o_dynamic_category_body {
-        padding: 0.5rem;      
-        min-height: auto;     
+        padding: 0.3rem;         
+        min-height: auto;
     }
 
     /* Ajuste del nombre de la categoría */
     .o_dynamic_category_body .card-title {
-        font-size: 0.75rem;   
-        line-height: 1rem;    
-        white-space: normal;  
+        font-size: 0.65rem;       
+        line-height: 0.9rem;      
+        white-space: normal;      
+        word-break: break-word;   
+        text-align: center;       
     }
 }
