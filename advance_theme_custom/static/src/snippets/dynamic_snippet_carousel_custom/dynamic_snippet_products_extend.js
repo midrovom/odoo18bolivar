@@ -11,13 +11,12 @@ const DynamicSnippetProductsExtended = DynamicSnippetProducts.extend({
         const options = this._super.apply(this, arguments);
         if (uiUtils.isSmall()) {
             options.chunkSize = 2;      // dos cards por fila en móvil
-            //options.rowPerSlide = 2;    // agrupa de dos en dos
         }
         return options;
     },
 });
 
-// Sobrescribimos el registro original
+// Se sobreescribe el registro original
 publicWidget.registry.dynamic_snippet_products = DynamicSnippetProductsExtended;
 
 export default DynamicSnippetProductsExtended;
