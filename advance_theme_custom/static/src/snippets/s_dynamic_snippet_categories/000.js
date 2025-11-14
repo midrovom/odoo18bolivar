@@ -22,7 +22,7 @@ const DynamicSnippetCategories = DynamicSnippetCarousel.extend({
         const options = this._super.apply(this, arguments);
 
         if (uiUtils.isSmall()) {
-            options.rowPerSlide = 2;
+           // options.rowPerSlide = 2;
             options.chunkSize = 2;
             options.columnClasses = "col-6";  // cada card ocupa la mitad del ancho
         }
