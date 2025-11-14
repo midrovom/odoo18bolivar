@@ -30,23 +30,14 @@ class ThemePrimeMainClassExtended(ThemePrimeMainClass):
 
         return result
 
-
-from odoo.http import request
-from odoo import http
-
-class ThemePrimeMainClassExtended(http.Controller):
-    _inherit = "ThemePrimeMainClass"
-
+    #funcion para precio 
     def _get_computed_product_price(self, product, product_data, price_public_visibility, visibility_label, currency_id):
         FieldMonetary = request.env['ir.qweb.field.monetary']
         monetary_options = {'display_currency': currency_id}
-
-        # Llamamos al super para mantener la lógica original
         res = super()._get_computed_product_price(
             product, product_data, price_public_visibility, visibility_label, currency_id
         )
 
-        # Precio base del template (sin lista de precios aplicada)
         base_price = product.product_tmpl_id.list_price
         res.update({
             'list_price_base_raw': base_price if price_public_visibility else ' ',
@@ -54,6 +45,7 @@ class ThemePrimeMainClassExtended(http.Controller):
         })
 
         return res
+
 
 
 
