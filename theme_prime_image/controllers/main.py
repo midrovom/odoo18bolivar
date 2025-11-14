@@ -32,29 +32,22 @@ class ThemePrimeMainClassExtended(ThemePrimeMainClass):
         return result
 
     #Funcion para mostrar precio tachado
-    
+
     def _get_computed_product_price(self, product, product_data, price_public_visibility, visibility_label, currency_id):
         res = super()._get_computed_product_price(
             product, product_data, price_public_visibility, visibility_label, currency_id
         )
-
-        # Precio base del template (sin lista de precios aplicada)
         base_price = product.list_price if product._name == 'product.template' else product.product_tmpl_id.list_price
-
-        # Precio final calculado (puede tener lista de precios aplicada)
         final_price = product_data.get('price', base_price)
-
-        # Usamos formatLang para obtener el valor como string plano
+        # formatLang para obtener el valor como string plano
         formatted_price = formatLang(request.env, base_price, currency_obj=currency_id, monetary=True)
-
-        # Condición: solo mostrar si el precio final es distinto al base
+        # solo mostrar si el precio final es distinto al base
         if price_public_visibility and final_price != base_price:
             res.update({
                 'list_price_base_raw': base_price,
                 'list_price_base': formatted_price
             })
         else:
-            # No mostrar nada si no hay diferencia
             res.update({
                 'list_price_base_raw': ' ',
                 'list_price_base': ' '
@@ -62,20 +55,6 @@ class ThemePrimeMainClassExtended(ThemePrimeMainClass):
 
         return res
 
-
-    # def _get_computed_product_price(self, product, product_data, price_public_visibility, visibility_label, currency_id):
-    #     res = super()._get_computed_product_price(
-    #         product, product_data, price_public_visibility, visibility_label, currency_id
-    #     )
-    #     base_price = product.list_price if product._name == 'product.template' else product.product_tmpl_id.list_price
-    #     formatted_price = formatLang(request.env, base_price, currency_obj=currency_id, monetary=True)
-
-    #     res.update({
-    #         'list_price_base_raw': base_price if price_public_visibility else ' ',
-    #         'list_price_base': formatted_price if price_public_visibility else ' '
-    #     })
-
-    #     return res
 
 
 # class ThemePrimeMainClassExtended(ThemePrimeMainClass):
