@@ -1,5 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+  <template id="s_shop_offer_hot_snippet_custom" inherit_id="theme_prime.snippets" name="Trending Box with Image - Registry">
+    <xpath expr="//t[@t-snippet='theme_prime.s_shop_offer_5']" position="after">
+      <t t-snippet="theme_prime_image.s_cover_custom_slider" string="Trending Box with Image" group="theme_prime_shop_offer">
+        <keywords>trending, image, link</keywords>
+      </t>
+    </xpath>
+  </template>
+
+  <!-- Snippet nuevo -->
+  <template id="s_cover_custom_slider" name="Cover - Custom Slider Web/Mobile">
+    <section class="s_cover_custom_slider" data-snippet="s_cover_custom_slider" data-name="Cover Custom Slider">
+      <t t-set="uniq" t-value="datetime.datetime.now().microsecond"/>
+      <div t-attf-id="myCarousel{{uniq}}" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+        <div class="carousel-inner">
+          <!-- Slide #1 -->
+          <div class="carousel-item active w-100" data-name="Slide">
+            <!-- Imagen para Web -->
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
+                 class="d-none d-md-block w-100" alt="Banner Web"/>
+            <!-- Imagen para Móvil -->
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
+                 class="d-block d-md-none w-100" alt="Banner Móvil"/>
+          </div>
+
+          <!-- Slide #2 -->
+          <div class="carousel-item w-100" data-name="Slide">
+            <!-- Imagen para Web -->
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2.png"
+                 class="d-none d-md-block w-100" alt="Banner Web 2"/>
+            <!-- Imagen para Móvil -->
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2_mobile.png"
+                 class="d-block d-md-none w-100" alt="Banner Móvil 2"/>
+          </div>
+        </div>
+
+        <!-- Controles -->
+        <button class="carousel-control-prev" type="button" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"/>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"/>
+          <span class="visually-hidden">Next</span>
+        </button>
+
+        <!-- Indicadores -->
+        <div class="carousel-indicators">
+          <button type="button" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide-to="0" class="active"/>
+          <button type="button" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide-to="1"/>
+        </div>
+      </div>
+    </section>
+  </template>
+</odoo>
+
+<!-- <?xml version="1.0" encoding="utf-8"?>
+<odoo>
   <template id="s_cover_custom_slider" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Slider Web/Mobile">
     <xpath expr="//div[contains(@class,'carousel-inner')]/.." position="attributes">
       <attribute name="data-bs-ride">carousel</attribute>
@@ -19,4 +76,4 @@
       </div>
     </xpath>
   </template>
-</odoo>
+</odoo> -->
