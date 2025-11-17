@@ -11,15 +11,17 @@
     <!-- Reemplazar contenido del carrusel -->
     <xpath expr="//div[contains(@class,'carousel-inner')]" position="replace">
       <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
-        <!-- Slide único -->
+        <!-- Slide único con ratio fijo -->
         <div class="carousel-item active w-100 m-0 p-0" data-name="Slide">
-          <picture>
-            <!-- Imagen para móvil -->
-            <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"/>
-            <!-- Imagen para web -->
-            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-                 class="w-100 d-block m-0 p-0" alt="Banner"/>
-          </picture>
+          <div class="ratio ratio-21x9 w-100">
+            <picture>
+              <!-- Imagen para móvil -->
+              <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"/>
+              <!-- Imagen para web -->
+              <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
+                   class="w-100 h-100 d-block m-0 p-0" style="object-fit: cover;" alt="Banner"/>
+            </picture>
+          </div>
         </div>
       </div>
     </xpath>
