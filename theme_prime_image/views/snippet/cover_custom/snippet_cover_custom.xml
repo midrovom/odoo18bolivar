@@ -13,15 +13,15 @@
       <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
         <div class="carousel-item active" data-name="Slide">
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-               class="d-none d-md-block d-block w-100 m-0 p-0" alt="Banner Web"/>
+               class="d-none d-md-block d-block m-0 p-0" alt="Banner Web"/>
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
-               class="d-block d-md-none w-100 m-0 p-0" alt="Banner Móvil"/>
+               class="d-block d-md-none m-0 p-0" alt="Banner Móvil"/>
         </div>
         <div class="carousel-item" data-name="Slide">
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-               class="d-none d-md-block d-block w-100 m-0 p-0" alt="Banner Web 2"/>
+               class="d-none d-md-block d-block m-0 p-0" alt="Banner Web 2"/>
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
-               class="d-block d-md-none w-100 m-0 p-0" alt="Banner Móvil 2"/>
+               class="d-block d-md-none m-0 p-0" alt="Banner Móvil 2"/>
         </div>
       </div>
     </xpath>
