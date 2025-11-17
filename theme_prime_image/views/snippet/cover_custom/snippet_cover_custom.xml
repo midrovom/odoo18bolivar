@@ -3,15 +3,15 @@
   <!-- Registro del snippet -->
   <template id="s_cover_custom_snippet" inherit_id="theme_prime.snippets" name="Cover Custom Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_cover_5']" position="after">
-      <t t-snippet="theme_prime_image.s_cover_6" string="Cover Custom Slider" group="theme_prime_cover">
-        <keywords>covers, carousel</keywords>
+      <t t-snippet="theme_prime_image.s_cover_custom_slider" string="Cover Custom Slider" group="theme_prime_cover">
+        <keywords>covers, carousel, slider</keywords>
       </t>
     </xpath>
   </template>
 
   <!-- Snippet nuevo -->
-  <template id="s_cover_6" name="Cover - Custom Slider Web/Mobile">
-    <section class="s_cover_6" data-snippet="s_cover_custom_slider" data-name="Cover Custom Slider">
+  <template id="s_cover_custom_slider" name="Cover - Custom Slider Web/Mobile">
+    <section class="s_cover_custom_slider" data-snippet="s_cover_custom_slider" data-name="Cover Custom Slider">
       <t t-set="uniq" t-value="dr_uid or datetime.datetime.now().microsecond"/>
       <div t-attf-id="myCarousel{{uniq}}" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
         <div class="carousel-inner">
