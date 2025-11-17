@@ -13,15 +13,19 @@
       <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
         <!-- Slide único -->
         <div class="carousel-item active w-100 m-0 p-0" data-name="Slide">
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-               class="d-none d-md-block w-100 d-block m-0 p-0" alt="Banner Web 1"/>
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
-               class="d-block d-md-none w-100 m-0 p-0" alt="Banner Móvil 1"/>
+          <picture>
+            <!-- Imagen para móvil -->
+            <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"/>
+            <!-- Imagen para web -->
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
+                 class="w-100 d-block m-0 p-0" alt="Banner"/>
+          </picture>
         </div>
       </div>
     </xpath>
   </template>
 </odoo>
+
 
 
 
