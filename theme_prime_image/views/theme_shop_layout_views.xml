@@ -11,32 +11,3 @@
         </xpath>
     </template>
 </odoo>
-
-<!-- <odoo>
-    <template id="product_item_grid_1_image" name="Item Grid Nuevo" inherit_id="theme_prime.product_item_grid_1">
-        <xpath expr="//a[contains(@class, 'tp-product-image-container')]" position="inside">
-            <t t-set="get_images" t-value="product._get_images()"/>
-            <t t-if="len(get_images) > 1">
-
-                <img t-att-src="'/web/image/product.image/%s/image_1920' % get_images[1]['id']"
-                    loading="lazy"
-                    class="img-fluid h-100 w-100 tp-product-image secondary-image"/>
-
-                <style>
-                    .tp-product-image-container {
-                        position: relative;
-                    }
-                    .tp-product-image-container .secondary-image {
-                        position: absolute;
-                        top: 0; left: 0; right: 0; bottom: 0;
-                        opacity: 0;
-                        transition: opacity 0.5s ease-in-out;
-                    }
-                    .tp-product-image-container:hover .secondary-image {
-                        opacity: 1;
-                    }
-                </style>
-            </t>
-        </xpath>
-    </template>
-</odoo> -->
