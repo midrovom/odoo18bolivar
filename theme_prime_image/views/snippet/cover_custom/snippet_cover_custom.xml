@@ -24,22 +24,19 @@
 <!-- <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="s_cover_custom_slider_1" inherit_id="theme_prime.s_cover_1" name="Cover - Custom Slider Web/Mobile">
-    <!-- Carrusel ocupa todo el ancho -->
     <xpath expr="//div[contains(@class,'tp-custom-carousel')]" position="attributes">
       <attribute name="class">tp-custom-carousel s_carousel s_carousel_rounded carousel slide w-100</attribute>
       <attribute name="data-bs-ride">carousel</attribute>
       <attribute name="data-bs-interval">5000</attribute>
     </xpath>
 
-    <!-- Reemplazar contenido del carrusel -->
     <xpath expr="//div[contains(@class,'carousel-inner')]" position="replace">
       <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
-        <!-- Slide único -->
         <div class="carousel-item active w-100 m-0 p-0" data-name="Slide">
           <picture>
-            <!-- Imagen para móvil -->
+
             <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"/>
-            <!-- Imagen para web -->
+
             <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
                  class="w-100 d-block m-0 p-0" alt="Banner"/>
           </picture>
