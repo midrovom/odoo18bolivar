@@ -10,7 +10,9 @@
   </template>
 
   <!-- Snippet nuevo -->
-  <template id="s_cover_custom_slider" name="Cover - Custom Slider Web/Mobile">
+  <template id="s_cover_custom_slider"
+            name="Cover - Custom Slider Web/Mobile"
+            t-name="theme_prime_image.s_cover_custom_slider">
     <section class="s_cover_custom_slider">
       <div id="myCarouselCustom" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
         <div class="carousel-inner">
