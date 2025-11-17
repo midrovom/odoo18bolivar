@@ -8,7 +8,7 @@
 
     <xpath expr="//div[contains(@class,'carousel-inner')]" position="replace">
       <div class="s_cover_custom carousel-inner w-100" data-oe-slideshow="true">
-        <div class="carousel-item active" data-name="Slide">
+        <div class="carousel-item active w-100" data-name="Slide">
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" class="d-none d-md-block w-100" alt="Banner Web"/>
             <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png" class="d-block d-md-none w-100" alt="Banner Móvil"/>
               </div>
