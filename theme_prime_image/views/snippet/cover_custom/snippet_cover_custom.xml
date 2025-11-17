@@ -8,8 +8,8 @@
     </xpath>
   </template>
 
-
   <template id="s_cover_custom_slider" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Slider Web/Mobile">
+    <!-- Ajustamos atributos al contenedor padre del carousel -->
     <xpath expr="//div[contains(@class,'carousel-inner')]/.." position="attributes">
       <attribute name="data-bs-ride">carousel</attribute>
       <attribute name="data-bs-interval">5000</attribute>
@@ -33,24 +33,41 @@
       </div>
     </xpath>
 
-    <!-- Controles -->
+    <!-- Controles + Indicadores -->
     <xpath expr="//div[contains(@class,'carousel')]" position="inside">
-      <button class="carousel-control-prev align-items-center" type="button"
+      <button class="carousel-control-prev" type="button"
               t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="prev" aria-label="Previous" title="Previous">
         <span class="carousel-control-prev-icon" aria-hidden="true"/>
         <span class="visually-hidden">Previous</span>
       </button>
-      <button class="carousel-control-next align-items-center" type="button"
+      <button class="carousel-control-next" type="button"
               t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="next" aria-label="Next" title="Next">
         <span class="carousel-control-next-icon" aria-hidden="true"/>
         <span class="visually-hidden">Next</span>
       </button>
 
-      <!-- Indicadores -->
       <div class="carousel-indicators">
         <button type="button" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide-to="0" class="active"/>
         <button type="button" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide-to="1"/>
       </div>
+    </xpath>
+  </template>
+
+  <!-- CSS para centrar controles y evitar scroll -->
+  <template id="s_cover_custom_slider_styles" inherit_id="web.assets_frontend" name="Cover Custom Slider Styles">
+    <xpath expr="." position="inside">
+      <style>
+        /* Centrar controles verticalmente */
+        .s_cover_custom_slider .carousel-control-prev,
+        .s_cover_custom_slider .carousel-control-next {
+          top: 50%;
+          transform: translateY(-50%);
+        }
+        /* Evitar scroll horizontal durante transición */
+        .s_cover_custom_slider .carousel-inner {
+          overflow: hidden;
+        }
+      </style>
     </xpath>
   </template>
 </odoo>
