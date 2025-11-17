@@ -9,12 +9,12 @@
     <xpath expr="//div[contains(@class,'carousel-inner')]" position="replace">
       <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
         <div class="carousel-item active" data-name="Slide">
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" class="d-none d-md-block w-100" alt="Banner Web"/>
-            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png" class="d-block d-md-none w-100" alt="Banner Móvil"/>
+          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" class="d-none d-md-block" alt="Banner Web"/>
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png" class="d-block d-md-none" alt="Banner Móvil"/>
               </div>
                 <div class="carousel-item" data-name="Slide">
-            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" class="d-none d-md-block w-100" alt="Banner Web 2"/>
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png" class="d-block d-md-none w-100" alt="Banner Móvil 2"/>
+            <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" class="d-none d-md-block" alt="Banner Web 2"/>
+          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png" class="d-block d-md-none" alt="Banner Móvil 2"/>
         </div>
       </div>
     </xpath>
