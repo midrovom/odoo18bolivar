@@ -19,7 +19,7 @@ const DynamicSnippetProductsExtended = DynamicSnippetProducts.extend({
         if (uiUtils.isSmall()) {
             options.chunkSize = 2;
         } else {
-            options.chunkSize = 5;
+            options.chunkSize = 6;
         }
         return options;
     },
