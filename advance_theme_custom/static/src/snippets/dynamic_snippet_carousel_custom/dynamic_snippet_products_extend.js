@@ -33,7 +33,7 @@ const DynamicSnippetProductsExtended = DynamicSnippetProducts.extend({
             loop: false,
             nav: true,
             dots: true,
-            margin: 10,
+            margin: 100,
         });
     },
 });
