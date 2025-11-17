@@ -7,10 +7,19 @@ const DynamicSnippetProductsExtended = DynamicSnippetProducts.extend({
     /**
      * @override
      */
-    _getQWebRenderOptions() {
+    // _getQWebRenderOptions() {
+    //     const options = this._super.apply(this, arguments);
+    //     if (uiUtils.isSmall()) {
+    //         options.chunkSize = 2;      // dos cards por fila en móvil
+    //     }
+    //     return options;
+    // },
+        _getQWebRenderOptions() {
         const options = this._super.apply(this, arguments);
         if (uiUtils.isSmall()) {
-            options.chunkSize = 2;      // dos cards por fila en móvil
+            options.chunkSize = 2;
+        } else {
+            options.chunkSize = 5;
         }
         return options;
     },
