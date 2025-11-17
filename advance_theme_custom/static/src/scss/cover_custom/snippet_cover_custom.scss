@@ -1,43 +1,70 @@
-.s_cover_custom .img-web {
+/* Imagen web por defecto */
+.s_cover_custom_slider .img-web {
   display: block !important;
-  height: 300px;       /* altura fija para web */
+  height: 300px;
   object-fit: cover;
 }
 
-.s_cover_custom .img-mobile {
+/* Imagen móvil oculta por defecto */
+.s_cover_custom_slider .img-mobile {
   display: none !important;
 }
 
-/* Centrar controles verticalmente */
+/* Controles centrados verticalmente */
 .s_cover_custom_slider .carousel-control-prev,
 .s_cover_custom_slider .carousel-control-next {
   top: 50%;
   transform: translateY(-50%);
 }
 
-/* Evitar scroll horizontal durante transición */
+/* Evitar scroll horizontal */
 .s_cover_custom_slider .carousel-inner {
   overflow: hidden;
 }
 
-/* Ajustar indicadores abajo y centrados */
+/* Indicadores abajo y centrados */
 .s_cover_custom_slider .carousel-indicators {
-  position: absolute;   /* asegurar que se posicionen dentro del carrusel */
-  bottom: 10px;         /* distancia desde el borde inferior */
-  left: 50%;            /* centrado horizontal */
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
   transform: translateX(-50%);
   margin: 0;
 }
 
 /* Responsivo: mostrar imagen móvil en pantallas pequeñas */
 @media (max-width: 767px) {
-  .s_cover_custom .img-web {
+  .s_cover_custom_slider .img-web {
     display: none !important;
   }
-  .s_cover_custom .img-mobile {
+  .s_cover_custom_slider .img-mobile {
     display: block !important;
     width: 100%;
-    height: auto;        /* se adapta a su proporción */
-    object-fit: contain; /* mostrar completa sin recortar */
+    height: auto;
+    object-fit: contain;
   }
 }
+
+
+
+// .s_cover_custom .img-web {
+//   display: block !important;
+//   //width: 100%;
+//   height: 300px;       /* altura fija para web */
+//   object-fit: cover;
+// }
+
+// .s_cover_custom .img-mobile {
+//   display: none !important;
+// }
+
+// @media (max-width: 767px) {
+//   .s_cover_custom .img-web {
+//     display: none !important;
+//   }
+//   .s_cover_custom .img-mobile {
+//     display: block !important;
+//     width: 100%;
+//     height: auto;       /* se adapta a su proporción */
+//     object-fit: contain; /* mostrar completa sin recortar */
+//   }
+// }
