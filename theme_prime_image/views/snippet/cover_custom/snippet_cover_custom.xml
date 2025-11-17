@@ -11,7 +11,7 @@
     <!-- Reemplazar contenido del carrusel -->
     <xpath expr="//div[contains(@class,'carousel-inner')]" position="replace">
       <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
-        <!-- Slide 1 -->
+        <!-- Slide único -->
         <div class="carousel-item active w-100 m-0 p-0" data-name="Slide">
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1_web.png"
                class="d-none d-md-block w-100 d-block m-0 p-0" alt="Banner Web 1"/>
@@ -22,6 +22,7 @@
     </xpath>
   </template>
 </odoo>
+
 
 
 
