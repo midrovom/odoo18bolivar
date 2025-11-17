@@ -22,7 +22,9 @@ const DynamicSnippetCategories = DynamicSnippetCarousel.extend({
         const options = this._super.apply(this, arguments);
 
         if (uiUtils.isSmall()) {
-            options.chunkSize = 2;
+            options.chunkSize = 2; //cantidad movil
+        }else {
+            options.chunkSize = 4; // cantidad de productos web/escritorio
         }
 
         return options;
