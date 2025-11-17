@@ -10,7 +10,7 @@
 
   <!-- Snippet nuevo -->
   <template id="s_cover_custom_slider" name="Cover - Custom Slider Web/Mobile">
-    <section class="s_cover_custom_slider" data-snippet="s_cover_custom_slider" data-name="Cover Custom Slider">
+    <section class="s_cover_custom_slider">
       <t t-set="uniq" t-value="datetime.datetime.now().microsecond"/>
       <div t-attf-id="myCarousel{{uniq}}" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
         <div class="carousel-inner">
