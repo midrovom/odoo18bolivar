@@ -29,6 +29,7 @@
 </odoo>
 
 
+
 <!-- <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="s_cover_custom_slider" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Slider Web/Mobile">
