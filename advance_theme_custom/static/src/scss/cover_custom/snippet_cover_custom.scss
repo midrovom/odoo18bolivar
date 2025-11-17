@@ -1,6 +1,5 @@
 .s_cover_custom .img-web {
   display: block !important;
-  //width: 100%;
   height: 300px;       /* altura fija para web */
   object-fit: cover;
 }
@@ -21,12 +20,16 @@
   overflow: hidden;
 }
 
-/* Ajustar indicadores abajo */
+/* Ajustar indicadores abajo y centrados */
 .s_cover_custom_slider .carousel-indicators {
-  bottom: 10px;
+  position: absolute;   /* asegurar que se posicionen dentro del carrusel */
+  bottom: 10px;         /* distancia desde el borde inferior */
+  left: 50%;            /* centrado horizontal */
+  transform: translateX(-50%);
+  margin: 0;
 }
 
-
+/* Responsivo: mostrar imagen móvil en pantallas pequeñas */
 @media (max-width: 767px) {
   .s_cover_custom .img-web {
     display: none !important;
@@ -34,7 +37,7 @@
   .s_cover_custom .img-mobile {
     display: block !important;
     width: 100%;
-    height: auto;       /* se adapta a su proporción */
+    height: auto;        /* se adapta a su proporción */
     object-fit: contain; /* mostrar completa sin recortar */
   }
 }
