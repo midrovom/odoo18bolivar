@@ -14,22 +14,23 @@
         <!-- Slide 1 -->
         <div class="carousel-item active" data-name="Slide">
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1_web.png"
-               class="d-none d-md-block w-100 d-block img-fluid" alt="Banner Web 1"/>
+               class="d-none d-md-block w-100 d-block m-0 p-0" alt="Banner Web 1"/>
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1_mobile.png"
-               class="d-block d-md-none w-100 img-fluid" alt="Banner Móvil 1"/>
+               class="d-block d-md-none w-100 m-0 p-0" alt="Banner Móvil 1"/>
         </div>
 
         <!-- Slide 2 -->
         <div class="carousel-item" data-name="Slide">
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2_web.png"
-               class="d-none d-md-block w-100 d-block img-fluid" alt="Banner Web 2"/>
+               class="d-none d-md-block w-100 d-block m-0 p-0" alt="Banner Web 2"/>
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2_mobile.png"
-               class="d-block d-md-none w-100 img-fluid" alt="Banner Móvil 2"/>
+               class="d-block d-md-none w-100 m-0 p-0" alt="Banner Móvil 2"/>
         </div>
       </div>
     </xpath>
   </template>
 </odoo>
+
 
 
 
