@@ -1,39 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="s_cover_custom_slider_1" inherit_id="theme_prime.s_cover_1" name="Cover - Custom Slider Web/Mobile">
-    <!-- Forzar carrusel a reproducirse automáticamente -->
+    <!-- Carrusel ocupa todo el ancho -->
     <xpath expr="//div[contains(@class,'tp-custom-carousel')]" position="attributes">
       <attribute name="class">tp-custom-carousel s_carousel s_carousel_rounded carousel slide w-100</attribute>
       <attribute name="data-bs-ride">carousel</attribute>
       <attribute name="data-bs-interval">5000</attribute>
     </xpath>
 
-    <!-- Reemplazar el contenido del carrusel para quitar textos y dejar solo imágenes -->
+    <!-- Reemplazar contenido del carrusel -->
     <xpath expr="//div[contains(@class,'carousel-inner')]" position="replace">
       <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
         <!-- Slide 1 -->
         <div class="carousel-item active" data-name="Slide">
-          <!-- Imagen para Web -->
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1_web.png"
-               class="d-none d-md-block w-100 m-0 p-0" alt="Banner Web 1"/>
-          <!-- Imagen para Móvil -->
+               class="d-none d-md-block w-100 d-block img-fluid" alt="Banner Web 1"/>
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner1_mobile.png"
-               class="d-block d-md-none w-100 m-0 p-0" alt="Banner Móvil 1"/>
+               class="d-block d-md-none w-100 img-fluid" alt="Banner Móvil 1"/>
         </div>
 
         <!-- Slide 2 -->
         <div class="carousel-item" data-name="Slide">
-          <!-- Imagen para Web -->
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2_web.png"
-               class="d-none d-md-block w-100 m-0 p-0" alt="Banner Web 2"/>
-          <!-- Imagen para Móvil -->
+               class="d-none d-md-block w-100 d-block img-fluid" alt="Banner Web 2"/>
           <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2_mobile.png"
-               class="d-block d-md-none w-100 m-0 p-0" alt="Banner Móvil 2"/>
+               class="d-block d-md-none w-100 img-fluid" alt="Banner Móvil 2"/>
         </div>
       </div>
     </xpath>
   </template>
 </odoo>
+
 
 
 <!-- <?xml version="1.0" encoding="utf-8"?>
