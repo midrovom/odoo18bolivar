@@ -9,6 +9,24 @@
   display: none !important;
 }
 
+/* Centrar controles verticalmente */
+.s_cover_custom_slider .carousel-control-prev,
+.s_cover_custom_slider .carousel-control-next {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Evitar scroll horizontal durante transición */
+.s_cover_custom_slider .carousel-inner {
+  overflow: hidden;
+}
+
+/* Ajustar indicadores abajo */
+.s_cover_custom_slider .carousel-indicators {
+  bottom: 10px;
+}
+
+
 @media (max-width: 767px) {
   .s_cover_custom .img-web {
     display: none !important;

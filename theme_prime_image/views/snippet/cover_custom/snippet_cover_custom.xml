@@ -14,13 +14,16 @@
       <attribute name="data-bs-interval">5000</attribute>
     </xpath>
 
+    <!-- Reemplazamos el contenido del carousel-inner -->
     <xpath expr="//div[contains(@class,'carousel-inner')]" position="replace">
+      <!-- Slide #1 -->
       <div class="carousel-item active w-100" data-name="Slide">
         <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
              class="d-none d-md-block w-100" alt="Banner Web"/>
         <img src="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"
              class="d-block d-md-none w-100" alt="Banner Móvil"/>
       </div>
+      <!-- Slide #2 -->
       <div class="carousel-item w-100" data-name="Slide">
         <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
              class="d-none d-md-block w-100" alt="Banner Web 2"/>
@@ -29,6 +32,7 @@
       </div>
     </xpath>
 
+    <!-- Controles -->
     <xpath expr="//div[contains(@class,'carousel')]" position="inside">
       <button class="carousel-control-prev" type="button"
               t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="prev" aria-label="Previous" title="Previous">
@@ -41,33 +45,15 @@
         <span class="visually-hidden">Next</span>
       </button>
 
+      <!-- Indicadores -->
       <div class="carousel-indicators">
         <button type="button" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide-to="0" class="active"/>
         <button type="button" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide-to="1"/>
       </div>
     </xpath>
   </template>
-
-  <!-- Estilos directos -->
-  <style>
-    /* Centrar controles verticalmente */
-    .s_cover_custom_slider .carousel-control-prev,
-    .s_cover_custom_slider .carousel-control-next {
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    /* Evitar scroll horizontal durante transición */
-    .s_cover_custom_slider .carousel-inner {
-      overflow: hidden;
-    }
-
-    /* Ajustar indicadores abajo */
-    .s_cover_custom_slider .carousel-indicators {
-      bottom: 10px;
-    }
-  </style>
 </odoo>
+
 
 
 
