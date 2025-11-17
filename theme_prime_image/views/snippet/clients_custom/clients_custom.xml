@@ -2,10 +2,7 @@
 <odoo>
   <template id="s_clients_brand_snippet" inherit_id="theme_prime.snippets" name="Clients Brand Registry">
     <xpath expr="//t[@t-snippet='theme_prime.s_clients_4']" position="after">
-      <t t-snippet="theme_prime_image.s_clients_brands"
-         string="Clients - 5 (Marcas destacadas)"
-         group="theme_prime_clients"
-         t-thumbnail="/theme_prime_image/static/src/img/snippets/brands_thumb.png">
+      <t t-snippet="theme_prime_image.s_clients_brands" string="Clients - 5" group="theme_prime_clients">
         <keywords>clients, brands, logo, reference</keywords>
       </t>
     </xpath>
