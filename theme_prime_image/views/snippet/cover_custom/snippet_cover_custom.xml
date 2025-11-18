@@ -20,19 +20,24 @@
     </xpath>
   </template>
 </odoo> -->
+
 <odoo>
-  <template id="s_cover_custom_slider_1" inherit_id="theme_prime.s_cover_1" name="Cover - Custom Slider Web/Mobile">
-    <xpath expr="//div[@class='order-1 order-lg-2 offset-lg-1 col-lg-6']/img" position="replace">
-      <picture>
-        <!-- Imagen para móvil -->
-        <source media="(max-width: 767px)" 
-                srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"/>
-        <!-- Imagen para escritorio -->
-        <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-             class="img img-fluid w-100 d-block"
-             alt="Cover Image"/>
-      </picture>
+  <template id="s_cover_custom_slider_1" inherit_id="theme_prime.s_cover_1" name="Cover - Custom Slider Solo Web">
+    <xpath expr="//div[@class='carousel-inner']" position="replace">
+      <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
+        <!-- Slide 1 -->
+        <div class="carousel-item active w-100 m-0 p-0" data-name="Slide">
+          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
+               class="w-100 d-block m-0 p-0"
+               alt="Banner Web"/>
+        </div>
+        <!-- Slide 2 -->
+        <div class="carousel-item w-100 m-0 p-0" data-name="Slide">
+          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2.png"
+               class="w-100 d-block m-0 p-0"
+               alt="Banner Web 2"/>
+        </div>
+      </div>
     </xpath>
   </template>
 </odoo>
-
