@@ -22,22 +22,21 @@
 </odoo> -->
 
 <odoo>
-  <template id="s_cover_custom_slider_1" inherit_id="theme_prime.s_cover_1" name="Cover - Custom Slider Solo Web">
+  <template id="s_cover_custom_slider_2" inherit_id="theme_prime.s_cover_2" name="Cover - 2 Solo Imagen">
     <xpath expr="//div[@class='carousel-inner']" position="replace">
-      <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
+      <div class="carousel-inner">
         <!-- Slide 1 -->
-        <div class="carousel-item active w-100 m-0 p-0" data-name="Slide">
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-               class="w-100 d-block m-0 p-0"
-               alt="Banner Web"/>
+        <div class="carousel-item active oe_img_bg o_bg_img_center pt192 pb192"
+             style="background-image: url('theme_prime_image/static/src/img/s_banner_custom/banner.png');"
+             data-name="Slide">
         </div>
         <!-- Slide 2 -->
-        <div class="carousel-item w-100 m-0 p-0" data-name="Slide">
-          <img src="/theme_prime_image/static/src/img/s_banner_custom/banner2.png"
-               class="w-100 d-block m-0 p-0"
-               alt="Banner Web 2"/>
+        <div class="carousel-item oe_img_bg o_bg_img_center pt192 pb192"
+             style="background-image: url('theme_prime_image/static/src/img/s_banner_custom/banner.png');"
+             data-name="Slide">
         </div>
       </div>
     </xpath>
   </template>
 </odoo>
+
