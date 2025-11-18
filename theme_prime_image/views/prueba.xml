@@ -17,20 +17,30 @@
                 <!-- Content -->
                 <div class="carousel-inner">
                     <!-- #01 -->
-                    <div class="carousel-item active oe_img_bg o_bg_img_center"
-                        style="background-image: url('/web/image/theme_prime.s_cover_2_1');
-                                background-size: cover;
-                                background-position: center;
-                                height: 300px;"
-                        data-name="Slide">
+                    <div class="carousel-item active w-100 m-0 p-0" data-name="Slide">
+                        <picture>
+                            <!-- Imagen para móvil -->
+                            <source media="(max-width: 767px)" 
+                                    srcset="/web/image/theme_prime.s_cover_2_1_mobile"/>
+                            <!-- Imagen para escritorio -->
+                            <img src="/web/image/theme_prime.s_cover_2_1"
+                                class="w-100 d-block"
+                                alt="Slide 1"
+                                style="height:300px; object-fit:cover;"/>
+                        </picture>
                     </div>
                     <!-- #02 -->
-                    <div class="carousel-item oe_img_bg o_bg_img_center"
-                        style="background-image: url('/web/image/theme_prime.s_cover_2_2');
-                                background-size: cover;
-                                background-position: center;
-                                height: 300px;"
-                        data-name="Slide">
+                    <div class="carousel-item w-100 m-0 p-0" data-name="Slide">
+                        <picture>
+                            <!-- Imagen para móvil -->
+                            <source media="(max-width: 767px)" 
+                                    srcset="/web/image/theme_prime.s_cover_2_2_mobile"/>
+                            <!-- Imagen para escritorio -->
+                            <img src="/web/image/theme_prime.s_cover_2_2"
+                                class="w-100 d-block"
+                                alt="Slide 2"
+                                style="height:300px; object-fit:cover;"/>
+                        </picture>
                     </div>
                 </div>
                 <!-- Controls -->
@@ -54,5 +64,48 @@
             </div>
         </section>
     </template>
+
+  
+    <!-- <template id="s_cover_6" name="Cover - 6">
+        <section class="s_cover_6">
+            <t t-set="uniq" t-value="dr_uid or datetime.datetime.now().microsecond"/>
+            <div t-attf-id="myCarousel{{uniq}}" 
+                class="tp-custom-carousel s_carousel s_carousel_rounded carousel slide" 
+                data-bs-interval="10000">
+                <div class="carousel-inner">
+                    <div class="carousel-item active oe_img_bg o_bg_img_center"
+                        style="background-image: url('/web/image/theme_prime.s_cover_2_1');
+                                background-size: cover;
+                                background-position: center;
+                                height: 300px;"
+                        data-name="Slide">
+                    </div>
+                    <div class="carousel-item oe_img_bg o_bg_img_center"
+                        style="background-image: url('/web/image/theme_prime.s_cover_2_2');
+                                background-size: cover;
+                                background-position: center;
+                                height: 300px;"
+                        data-name="Slide">
+                    </div>
+                </div>
+                <button class="carousel-control-prev o_not_editable" contenteditable="false"
+                        t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="prev"
+                        aria-label="Previous" title="Previous">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"/>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next o_not_editable" contenteditable="false"
+                        t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="next"
+                        role="img" aria-label="Next" title="Next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"/>
+                    <span class="visually-hidden">Next</span>
+                </button>
+                <div class="carousel-indicators o_not_editable">
+                    <button type="button" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide-to="0" class="active"/>
+                    <button type="button" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide-to="1"/>
+                </div>
+            </div>
+        </section>
+    </template> -->
 
 </odoo>
