@@ -11,17 +11,25 @@
     <template id="s_cover_6" name="Cover - 6">
         <section class="s_cover_6">
             <t t-set="uniq" t-value="dr_uid or datetime.datetime.now().microsecond"/>
-            <div t-attf-id="myCarousel{{uniq}}" class="tp-custom-carousel s_carousel s_carousel_rounded carousel slide" data-bs-interval="10000">
+            <div t-attf-id="myCarousel{{uniq}}" 
+                class="tp-custom-carousel s_carousel s_carousel_rounded carousel slide" 
+                data-bs-interval="10000">
                 <!-- Content -->
                 <div class="carousel-inner">
                     <!-- #01 -->
-                    <div class="carousel-item active oe_img_bg o_bg_img_center pt192 pb192"
-                        style="background-image: url('/web/image/theme_prime.s_cover_2_1');"
+                    <div class="carousel-item active oe_img_bg o_bg_img_center"
+                        style="background-image: url('/web/image/theme_prime.s_cover_2_1');
+                                background-size: cover;
+                                background-position: center;
+                                height: 300px;"
                         data-name="Slide">
                     </div>
                     <!-- #02 -->
-                    <div class="carousel-item oe_img_bg o_bg_img_center pt192 pb192"
-                        style="background-image: url('/web/image/theme_prime.s_cover_2_2');"
+                    <div class="carousel-item oe_img_bg o_bg_img_center"
+                        style="background-image: url('/web/image/theme_prime.s_cover_2_2');
+                                background-size: cover;
+                                background-position: center;
+                                height: 300px;"
                         data-name="Slide">
                     </div>
                 </div>
