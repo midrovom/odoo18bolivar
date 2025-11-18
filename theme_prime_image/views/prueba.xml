@@ -7,40 +7,47 @@
         </t>
         </xpath>
     </template>
-  
+
     <template id="s_cover_6" name="Cover - 6">
         <section class="s_cover_6">
             <t t-set="uniq" t-value="dr_uid or datetime.datetime.now().microsecond"/>
             <div t-attf-id="myCarousel{{uniq}}" 
                 class="tp-custom-carousel s_carousel s_carousel_rounded carousel slide" 
                 data-bs-interval="10000">
-                <!-- Content -->
                 <div class="carousel-inner">
-                    <!-- #01 -->
+                    <!-- Slide #01 -->
                     <div class="carousel-item active w-100 m-0 p-0" data-name="Slide">
-                        <picture>
-                            <!-- Imagen para móvil -->
-                            <source media="(max-width: 767px)" 
-                                    srcset="/web/image/theme_prime.s_cover_2_1_mobile"/>
-                            <!-- Imagen para escritorio -->
-                            <img src="/web/image/theme_prime.s_cover_2_1"
-                                class="w-100 d-block"
-                                alt="Slide 1"
-                                style="height:300px; object-fit:cover;"/>
-                        </picture>
+                        <!-- Imagen escritorio -->
+                        <div class="d-none d-md-block"
+                            style="background-image: url('/web/image/theme_prime.s_cover_2_1');
+                                    background-size: cover;
+                                    background-position: center;
+                                    height: 300px;">
+                        </div>
+                        <!-- Imagen móvil -->
+                        <div class="d-block d-md-none"
+                            style="background-image: url('/web/image/theme_prime.s_cover_2_1_mobile');
+                                    background-size: cover;
+                                    background-position: center;
+                                    height: 320px;">
+                        </div>
                     </div>
-                    <!-- #02 -->
+                    <!-- Slide #02 -->
                     <div class="carousel-item w-100 m-0 p-0" data-name="Slide">
-                        <picture>
-                            <!-- Imagen para móvil -->
-                            <source media="(max-width: 767px)" 
-                                    srcset="/web/image/theme_prime.s_cover_2_2_mobile"/>
-                            <!-- Imagen para escritorio -->
-                            <img src="/web/image/theme_prime.s_cover_2_2"
-                                class="w-100 d-block"
-                                alt="Slide 2"
-                                style="height:300px; object-fit:cover;"/>
-                        </picture>
+                        <!-- Imagen escritorio -->
+                        <div class="d-none d-md-block"
+                            style="background-image: url('/web/image/theme_prime.s_cover_2_2');
+                                    background-size: cover;
+                                    background-position: center;
+                                    height: 300px;">
+                        </div>
+                        <!-- Imagen móvil -->
+                        <div class="d-block d-md-none"
+                            style="background-image: url('/web/image/theme_prime.s_cover_2_2_mobile');
+                                    background-size: cover;
+                                    background-position: center;
+                                    height: 320px;">
+                        </div>
                     </div>
                 </div>
                 <!-- Controls -->
@@ -65,7 +72,6 @@
         </section>
     </template>
 
-  
     <!-- <template id="s_cover_6" name="Cover - 6">
         <section class="s_cover_6">
             <t t-set="uniq" t-value="dr_uid or datetime.datetime.now().microsecond"/>
