@@ -20,7 +20,6 @@
     </xpath>
   </template>
 </odoo> -->
-
 <odoo>
   <template id="s_cover_custom_slider_1" inherit_id="theme_prime.s_cover_1" name="Cover - Custom Slider Web/Mobile">
     <xpath expr="//div[contains(@class,'tp-custom-carousel')]" position="attributes">
@@ -33,11 +32,12 @@
       <div class="s_cover_custom carousel-inner" data-oe-slideshow="true">
         <div class="carousel-item active w-100 m-0 p-0" data-name="Slide">
           <picture>
-
-            <source media="(max-width: 767px)" srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"/>
-
+            <source media="(max-width: 767px)" 
+                    srcset="/theme_prime_image/static/src/img/s_banner_custom/banner_mobile.png"/>
             <img src="/theme_prime_image/static/src/img/s_banner_custom/banner.png"
-                 class="w-100 d-block m-0 p-0" alt="Banner"/>
+                 class="w-100 d-block m-0 p-0"
+                 style="height:auto;" 
+                 alt="Banner"/>
           </picture>
         </div>
       </div>
