@@ -27,12 +27,12 @@
       <div class="carousel-inner">
         <!-- Slide 1 -->
         <div class="carousel-item active oe_img_bg o_bg_img_center pt192 pb192"
-             style="background-image: url('theme_prime_image/static/src/img/s_banner_custom/banner.png');"
+             style="background-image: url('/web/image/theme_prime.s_cover_2_1');"
              data-name="Slide">
         </div>
         <!-- Slide 2 -->
         <div class="carousel-item oe_img_bg o_bg_img_center pt192 pb192"
-             style="background-image: url('theme_prime_image/static/src/img/s_banner_custom/banner.png');"
+             style="background-image: url('/web/image/theme_prime.s_cover_2_2');"
              data-name="Slide">
         </div>
       </div>
