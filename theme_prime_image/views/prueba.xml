@@ -71,38 +71,84 @@
             </div>
         </section>
     </template>
-    
+
+
     <template id="s_cover_6" name="Cover - 6">
+        <section class="s_cover_6">
+            <t t-set="uniq" t-value="dr_uid or datetime.datetime.now().microsecond"/>
+            <div t-attf-id="myCarousel{{uniq}}" class="tp-custom-carousel s_carousel s_carousel_rounded carousel slide" data-bs-interval="10000">
+                <!-- Content -->
+                <div class="carousel-inner">
+                    <!-- #01 -->
+                    <div class="carousel-item active oe_img_bg o_bg_img_center pt192 pb192" style="background-image: url('/web/image/theme_prime.s_cover_2_1');" data-name="Slide">
+                        <div class="container">
+                            <div class="row content">
+                                <div class="carousel-content col-lg-5">
+                                    <h4>JUST NEWLY ARRIVED!</h4>
+                                    <h2 class="display-4 fw-bold">High Quality Fabric Collection</h2>
+                                    <p class="lead"><font style="font-size: 20px;">In hac habitasse platea dictumst. Praesent cursus congue felis, nec pellentesque nulla ornare sed.</font></p>
+                                    <a href="/shop" class="btn btn-primary mt-2">READ MORE</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- #02 -->
+                    <div class="carousel-item oe_img_bg o_bg_img_center pt192 pb192" style="background-image: url('/web/image/theme_prime.s_cover_2_2');" data-name="Slide">
+                        <div class="container">
+                            <div class="row content">
+                                <div class="carousel-content col-lg-5">
+                                    <h4 style="text-align: center;">GET FLAT 20% OFF</h4>
+                                    <h2 style="text-align: center;" class="display-4 fw-bold">Flexible Styled Collection By Prime</h2>
+                                    <p style="text-align: center;" class="lead"><font style="font-size: 20px;">In hac habitasse platea dictumst. Praesent cursus congue felis, nec pellentesque nulla ornare sed.</font></p>
+                                    <div style="text-align: center;">
+                                        <a href="/shop" class="btn btn-primary mt-2">READ MORE</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Controls -->
+                <button class="carousel-control-prev o_not_editable" contenteditable="false" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="prev" aria-label="Previous" title="Previous">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"/>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next o_not_editable" contenteditable="false" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="next" role="img" aria-label="Next" title="Next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"/>
+                    <span class="visually-hidden">Next</span>
+                </button>
+                <!-- Indicators -->
+                <div class="carousel-indicators o_not_editable">
+                    <button type="button" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide-to="0" class="active"/>
+                    <button type="button" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide-to="1"/>
+                </div>
+            </div>
+        </section>
+    </template>
+    <!-- <template id="s_cover_6" name="Cover - 6">
         <section class="s_cover_6">
             <t t-set="uniq" t-value="dr_uid or datetime.datetime.now().microsecond"/>
             <div t-attf-id="myCarousel{{uniq}}" 
                 class="tp-custom-carousel s_carousel s_carousel_rounded carousel slide" 
                 data-bs-interval="10000" data-bs-ride="carousel">
                 <div class="carousel-inner w-100">
-                    <!-- Slide #01 -->
                     <div class="carousel-item active w-100" data-name="Slide">
-                        <!-- Imagen escritorio -->
                         <img src="/web/image/theme_prime.s_cover_2_1"
                             class="d-none d-md-block w-100"
                             alt="Slide Web 1"/>
-                        <!-- Imagen móvil -->
                         <img src="/web/image/theme_prime.s_cover_2_1_mobile"
                             class="d-block d-md-none w-100"
                             alt="Slide Móvil 1"/>
                     </div>
-                    <!-- Slide #02 -->
                     <div class="carousel-item w-100" data-name="Slide">
-                        <!-- Imagen escritorio -->
                         <img src="/web/image/theme_prime.s_cover_2_2"
                             class="d-none d-md-block w-100"
                             alt="Slide Web 2"/>
-                        <!-- Imagen móvil -->
                         <img src="/web/image/theme_prime.s_cover_2_2_mobile"
                             class="d-block d-md-none w-100"
                             alt="Slide Móvil 2"/>
                     </div>
                 </div>
-                <!-- Controles -->
                 <button class="carousel-control-prev o_not_editable" contenteditable="false"
                         t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="prev"
                         aria-label="Previous" title="Previous">
@@ -115,14 +161,13 @@
                     <span class="carousel-control-next-icon" aria-hidden="true"/>
                     <span class="visually-hidden">Next</span>
                 </button>
-                <!-- Indicators -->
                 <div class="carousel-indicators o_not_editable">
                     <button type="button" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide-to="0" class="active"/>
                     <button type="button" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide-to="1"/>
                 </div>
             </div>
         </section>
-    </template>
+    </template> -->
 
     <!-- <template id="s_cover_6" name="Cover - 6">
         <section class="s_cover_6">
