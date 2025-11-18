@@ -2,9 +2,9 @@
 <odoo>
     <template id="s_cover_custom" inherit_id="theme_prime.snippets" name="Cover Custom - Registry">
         <xpath expr="//t[@t-snippet='theme_prime.s_cover_5']" position="after">
-        <t t-snippet="theme_prime_image.s_cover_6" string="Cover Custom" group="theme_prime_cover">
-            <keywords>covers, carousel</keywords>
-        </t>
+            <t t-snippet="theme_prime_image.s_cover_6" string="Cover Custom" group="theme_prime_cover">
+                <keywords>covers, carousel</keywords>
+            </t>
         </xpath>
     </template>
 
