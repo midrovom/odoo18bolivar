@@ -1,4 +1,4 @@
-<!-- <?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="s_cover_custom_slider" inherit_id="theme_prime.s_cover_2" name="Cover - Custom Slider Web/Mobile">
     <xpath expr="//div[contains(@class,'carousel-inner')]/.." position="attributes">
@@ -19,18 +19,16 @@
       </div>
     </xpath>
   </template>
-</odoo> -->
+</odoo>
 
-<odoo>
+<!-- <odoo>
   <template id="s_cover_custom_slider_2" inherit_id="theme_prime.s_cover_2" name="Cover - 2 Solo Imagen">
     <xpath expr="//div[@class='carousel-inner']" position="replace">
       <div class="carousel-inner">
-        <!-- Slide 1 -->
         <div class="carousel-item active oe_img_bg o_bg_img_center pt192 pb192"
              style="background-image: url('/web/image/theme_prime.s_cover_2_1');"
              data-name="Slide">
         </div>
-        <!-- Slide 2 -->
         <div class="carousel-item oe_img_bg o_bg_img_center pt192 pb192"
              style="background-image: url('/web/image/theme_prime.s_cover_2_2');"
              data-name="Slide">
@@ -38,5 +36,5 @@
       </div>
     </xpath>
   </template>
-</odoo>
+</odoo> -->
 
