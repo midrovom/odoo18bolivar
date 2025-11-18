@@ -20,21 +20,3 @@
     </xpath>
   </template>
 </odoo>
-
-<!-- <odoo>
-  <template id="s_cover_custom_slider_2" inherit_id="theme_prime.s_cover_2" name="Cover - 2 Solo Imagen">
-    <xpath expr="//div[@class='carousel-inner']" position="replace">
-      <div class="carousel-inner">
-        <div class="carousel-item active oe_img_bg o_bg_img_center pt192 pb192"
-             style="background-image: url('/web/image/theme_prime.s_cover_2_1');"
-             data-name="Slide">
-        </div>
-        <div class="carousel-item oe_img_bg o_bg_img_center pt192 pb192"
-             style="background-image: url('/web/image/theme_prime.s_cover_2_2');"
-             data-name="Slide">
-        </div>
-      </div>
-    </xpath>
-  </template>
-</odoo> -->
-
