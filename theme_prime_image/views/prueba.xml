@@ -19,7 +19,10 @@
                         <div class="container-fluid px-0">
                             <div class="row content g-0 align-items-center s_col_no_bgcolor s_nb_column_fixed">
                                 <div class="order-1 order-lg-2 offset-lg-1 col-lg-10">
-                                    <img class="img img-fluid" src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" alt="Banner Image 01"/>
+                                    <img class="img img-fluid w-100 object-fit-cover" 
+                                        src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" 
+                                        alt="Banner Image 01"
+                                        style="height:500px;"/>
                                 </div>
                             </div>
                         </div>
@@ -29,7 +32,10 @@
                         <div class="container-fluid px-0">
                             <div class="row content g-0 align-items-center s_col_no_bgcolor s_nb_column_fixed">
                                 <div class="order-1 order-lg-2 offset-lg-1 col-lg-10">
-                                    <img class="img img-fluid" src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" alt="Banner Image 02"/>
+                                    <img class="img img-fluid w-100 object-fit-cover" 
+                                        src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" 
+                                        alt="Banner Image 02"
+                                        style="height:500px;"/>
                                 </div>
                             </div>
                         </div>
@@ -52,6 +58,7 @@
             </div>
         </section>
     </template>
+
 
 
 
