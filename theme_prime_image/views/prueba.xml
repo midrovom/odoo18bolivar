@@ -10,37 +10,35 @@
 
     <template id="s_cover_6" name="Cover - 6">
         <section class="s_cover_6">
-            <t t-set="uniq" t-value="datetime.datetime.now().microsecond"/>
-            <div t-attf-id="myCarousel{{uniq}}" class="tp-custom-carousel s_carousel s_carousel_rounded carousel slide" data-bs-interval="10000">
+            <t t-set="uniq" t-value="dr_uid or datetime.datetime.now().microsecond"/>
+            <div t-attf-id="myCarousel{{uniq}}" 
+                class="tp-custom-carousel s_carousel s_carousel_rounded carousel slide" 
+                data-bs-interval="10000">
                 <!-- Content -->
                 <div class="carousel-inner">
                     <!-- #01 -->
-                    <div class="carousel-item p-0 active" data-name="Slide">
-                        <div class="container-fluid px-0">
-                            <div class="row content g-0 align-items-center s_col_no_bgcolor s_nb_column_fixed">
-                                <div class="order-1 order-lg-2 offset-lg-1 col-lg-10">
-                                    <img class="img img-fluid" src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" alt="Banner Image 01"/>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="carousel-item active pt192 pb192" data-name="Slide">
+                        <img class="img img-fluid h-100 w-100 object-fit-cover" 
+                            src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" 
+                            alt="Banner Image 01"/>
                     </div>
                     <!-- #02 -->
-                    <div class="carousel-item p-0" data-name="Slide">
-                        <div class="container-fluid px-0">
-                            <div class="row content g-0 align-items-center s_col_no_bgcolor s_nb_column_fixed">
-                                <div class="order-1 order-lg-2 offset-lg-1 col-lg-10">
-                                    <img class="img img-fluid" src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" alt="Banner Image 02"/>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="carousel-item pt192 pb192" data-name="Slide">
+                        <img class="img img-fluid h-100 w-100 object-fit-cover" 
+                            src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" 
+                            alt="Banner Image 02"/>
                     </div>
                 </div>
                 <!-- Controls -->
-                <button class="carousel-control-prev o_not_editable" contenteditable="false" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="prev" aria-label="Previous" title="Previous">
+                <button class="carousel-control-prev o_not_editable" contenteditable="false" 
+                        t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="prev" 
+                        aria-label="Previous" title="Previous">
                     <span class="carousel-control-prev-icon" aria-hidden="true"/>
                     <span class="visually-hidden">Previous</span>
                 </button>
-                <button class="carousel-control-next o_not_editable" contenteditable="false" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="next" role="img" aria-label="Next" title="Next">
+                <button class="carousel-control-next o_not_editable" contenteditable="false" 
+                        t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="next" 
+                        role="img" aria-label="Next" title="Next">
                     <span class="carousel-control-next-icon" aria-hidden="true"/>
                     <span class="visually-hidden">Next</span>
                 </button>
