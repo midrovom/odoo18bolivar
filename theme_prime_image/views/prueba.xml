@@ -11,7 +11,9 @@
     <template id="s_cover_6" name="Cover - 6">
         <section class="s_cover_2">
             <t t-set="uniq" t-value="datetime.datetime.now().microsecond"/>
-            <div t-attf-id="myCarousel{{uniq}}" class="tp-custom-carousel s_carousel s_carousel_rounded carousel slide" data-bs-interval="10000">
+            <div t-attf-id="myCarousel{{uniq}}" 
+                class="tp-custom-carousel s_carousel s_carousel_rounded carousel slide" 
+                data-bs-interval="10000">
                 <!-- Content -->
                 <div class="carousel-inner">
                     <!-- #01 -->
@@ -19,7 +21,8 @@
                         <div class="container-fluid px-0">
                             <div class="row content g-0 align-items-center s_col_no_bgcolor s_nb_column_fixed">
                                 <div class="order-1 order-lg-2 offset-lg-1 col-lg-10">
-                                    <img class="img img-fluid w-100 object-fit-cover" 
+                                    <!-- Imagen -->
+                                    <img class="w-100 object-fit-cover" 
                                         src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" 
                                         alt="Banner Image 01"
                                         style="height:500px;"/>
@@ -32,21 +35,28 @@
                         <div class="container-fluid px-0">
                             <div class="row content g-0 align-items-center s_col_no_bgcolor s_nb_column_fixed">
                                 <div class="order-1 order-lg-2 offset-lg-1 col-lg-10">
-                                    <img class="img img-fluid w-100 object-fit-cover" 
-                                        src="/theme_prime_image/static/src/img/s_banner_custom/banner.png" 
-                                        alt="Banner Image 02"
-                                        style="height:500px;"/>
+                                    <!-- Video -->
+                                    <video class="w-100 object-fit-cover" 
+                                        style="height:500px;" 
+                                        autoplay muted loop>
+                                        <source src="/theme_prime_image/static/src/img/s_banner_custom/video.mp4" type="video/mp4"/>
+                                        Tu navegador no soporta video.
+                                    </video>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!-- Controls -->
-                <button class="carousel-control-prev o_not_editable" contenteditable="false" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="prev" aria-label="Previous" title="Previous">
+                <button class="carousel-control-prev o_not_editable" contenteditable="false" 
+                        t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="prev" 
+                        aria-label="Previous" title="Previous">
                     <span class="carousel-control-prev-icon" aria-hidden="true"/>
                     <span class="visually-hidden">Previous</span>
                 </button>
-                <button class="carousel-control-next o_not_editable" contenteditable="false" t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="next" role="img" aria-label="Next" title="Next">
+                <button class="carousel-control-next o_not_editable" contenteditable="false" 
+                        t-attf-data-bs-target="#myCarousel{{uniq}}" data-bs-slide="next" 
+                        role="img" aria-label="Next" title="Next">
                     <span class="carousel-control-next-icon" aria-hidden="true"/>
                     <span class="visually-hidden">Next</span>
                 </button>
@@ -58,6 +68,7 @@
             </div>
         </section>
     </template>
+
 
 
 
