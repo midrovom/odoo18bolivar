@@ -12,7 +12,7 @@
         'views/snippet/cover_custom/snippet_cover_custom.xml',
         #'views/snippet/Header_custom/header_custom.xml',
         'views/snippet/texto_custom/texto_custom.xml',
-        'views/snippet/footer_custom/footer_style_1_custom.xml',
+        #'views/snippet/footer_custom/footer_style_1_custom.xml',
         'views/snippet/shop_offert_custom/shop_offer_6.xml',
         'views/snippet/shop_offert_custom/s_shop_offer_hot.xml',
         #'views/snippet/Header_custom/template_header_mobile_custom.xml',
