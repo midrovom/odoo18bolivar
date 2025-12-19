@@ -5,7 +5,6 @@
     'category': 'Theme/eCommerce',
     'depends': ['theme_prime'],
     'data': [
-        'views/snippets.xml',
         'views/theme_shop_layout_views.xml',
         'views/snippet/banner_custom/snippet_banner_9_custom.xml',
         'views/snippet/subscribe_custom/snippet_subscribe.xml',
