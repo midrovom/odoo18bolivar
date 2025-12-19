@@ -1,8 +1,10 @@
-@media (min-width: 1200px) {
-    .col-xl-5 {
-        -webkit-box-flex: 0;
-        -webkit-flex: 0 0 auto;
-        flex: 0 0 auto;
-        width: 25% !important;
+.tp-footer-style-12 {
+
+    @media (min-width: 1200px) {
+        .col-xl-5 {
+            flex: 0 0 auto;
+            width: 25% !important;
+        }
     }
+
 }
