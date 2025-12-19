@@ -85,7 +85,7 @@
                     </t>
                 </div>
             </t>
-            <t t-call="theme_prime.template_header_mobile"/>
+            <t t-call="theme_prime_image.template_header_mobile_style_9"/>
         </xpath>
     </template>
 </odoo>
