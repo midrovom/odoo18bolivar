@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="template_header_mobile_style_9" inherit_id="theme_prime.template_header_mobile" name="Header Mobile Style 9">
+    <!-- <template id="template_header_mobile_style_9" inherit_id="theme_prime.template_header_mobile" name="Header Mobile Style 9">
         <xpath expr="//div[@id='o_main_nav']" position="inside">
             <div class="w-100 my-2">
                 <t t-call="website.website_search_box_input">
@@ -13,7 +13,7 @@
                 </t>
             </div>
         </xpath>
-    </template>
+    </template> -->
 </odoo>
 
     <!-- <template id="template_header_mobile_inherit" inherit_id="theme_prime.template_header_mobile" name="Template Header Mobile Inherit">
