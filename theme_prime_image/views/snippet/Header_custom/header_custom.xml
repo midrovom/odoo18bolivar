@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="snippet_options_add_header_9" inherit_id="website.snippet_options" name="Add Prime Header Style 9">
-        <xpath expr="//we-select[@data-variable='header-template']/we-button[last()]" position="after">
-            <we-button title="Prime Header Style - 9" data-name="tp_header_style_9_opt" data-customize-website-views="theme_prime.template_header_style_9" data-customize-website-variable="'prime_style_9'" data-img="/theme_prime/static/src/img/options/header_4.svg"/>
-        </xpath>
-    </template>
-
     <template id="template_header_style_9" inherit_id="website.layout" name="Header Style - 9">
         <xpath expr="//header" position="attributes">
             <attribute name="t-attf-class" add="tp-custom-header" separator=" "/>
