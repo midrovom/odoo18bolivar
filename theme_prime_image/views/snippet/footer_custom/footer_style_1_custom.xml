@@ -101,8 +101,9 @@
             </div>
         </xpath>
     </template> -->
-    
-  <template id="template_footer_style_1_custom" inherit_id="theme_prime.template_footer_style_1" name="Footer Logo Left">
+
+
+  <template id="template_footer_logo_left" inherit_id="theme_prime.template_footer_style_1" name="Footer Logo Left">
     <xpath expr="//div[@id='footer']" position="replace">
       <div id="footer" class="oe_structure oe_structure_solo" t-ignore="true" t-if="not no_footer">
         <section class="s_text_block pt64 pb32" data-snippet="s_text_block" data-name="Text">
