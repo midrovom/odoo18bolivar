@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Una tabla continua y de ancho adaptable con los meses elegidos. -->
+    <record id="paperformat_expense_budget_comparison" model="report.paperformat">
+        <field name="name">Proyectado vs. real - compacto legible</field>
+        <field name="default" eval="False"/>
+        <field name="format">custom</field>
+        <field name="page_height">620</field>
+        <field name="page_width">280</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">38</field>
+        <field name="margin_bottom">14</field>
+        <field name="margin_left">8</field>
+        <field name="margin_right">8</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">18</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- Fila reutilizable: saldo inicial, meses, consumo corte, total proyectado y saldos. -->
+    <template id="report_comparison_monthly_row">
+        <tr t-att-class="row_class">
+            <td class="row-name" t-esc="row_name"/>
+            <!-- El rubro identifica el grupo: sus importes se muestran solo en TOTAL GENERAL. -->
+            <t t-if="row_class == 'category-row'">
+                <!-- Celdas vacías individuales: conservar toda la cuadrícula del PDF. -->
+                <t t-if="page_data['opening']">
+                    <td class="amount opening"/>
+                </t>
+                <t t-foreach="page_data['months']" t-as="month_item">
+                    <td class="amount"/>
+                    <td class="amount"/>
+                    <td class="amount"/>
+                </t>
+                <td class="amount"/>
+                <td class="amount"/>
+                <td class="amount"/>
+                <td class="amount balance"/>
+            </t>
+            <t t-else="">
+                <t t-if="page_data['opening']">
+                    <td class="amount opening" t-esc="'{:,.2f}'.format(row_data['monthly_report']['openings'][page_data['first_month']])"/>
+                </t>
+                <t t-foreach="page_data['months']" t-as="month_item">
+                    <t t-set="cell" t-value="row_data['monthly_report']['cells'][month_item['number']]"/>
+                    <td class="amount" t-esc="'{:,.2f}'.format(cell['planned'])"/>
+                    <td class="amount" t-esc="'{:,.2f}'.format(cell['actual'])"/>
+                    <td class="amount" t-esc="'{:,.2f}'.format(cell['available'])"/>
+                </t>
+                <!-- Consumo corte conserva el cálculo anterior (saldo_actual).
+                     Consumo actual suma el consumo inicial y el consumo del corte.
+                     Saldo disponible conserva exactamente su fórmula actual. -->
+                <t t-set="closing_balance" t-value="row_data['monthly_report']['period_closings'][page_data['first_month']]"/>
+                <td class="amount" t-esc="'{:,.2f}'.format(closing_balance['saldo_actual'])"/>
+                <td class="amount" t-esc="'{:,.2f}'.format(closing_balance['consumo_actual'] + closing_balance['saldo_disponible'])"/>
+                <td class="amount" t-esc="'{:,.2f}'.format(closing_balance['consumo_actual'])"/>
+                <td class="amount balance" t-esc="'{:,.2f}'.format(closing_balance['saldo_disponible'])"/>
+            </t>
+        </tr>
+    </template>
+
+    <template id="report_comparison_document">
+        <t t-call="web.html_container">
+            <t t-foreach="reports" t-as="data">
+                <t t-set="o" t-value="data['wizard']"/>
+                <t t-call="web.external_layout">
+                    <t t-foreach="data['pages']" t-as="page_data">
+                        <div class="page expense-comparison-monthly">
+                            <style type="text/css">
+                                .expense-comparison-monthly { color: #233747; font-family: Arial, sans-serif; }
+                                .expense-comparison-monthly h2 { font-size: 17px; margin: 4px 0 7px; }
+                                .expense-comparison-monthly .meta { font-size: 10px; margin: 0 0 10px; }
+                                .expense-comparison-monthly table { border-collapse: collapse; table-layout: fixed; width: 100%; font-size: 10.5px; }
+                                .expense-comparison-monthly th, .expense-comparison-monthly td { border: 1px solid #d5e0e8; padding: 4px 4px; vertical-align: middle; }
+                                .expense-comparison-monthly th { color: white; background: #24445c; font-size: 9.5px; line-height: 1.2; text-align: center; white-space: normal; }
+                                .expense-comparison-monthly th.month-head { font-size: 11.5px; background: #17364b; }
+                                .expense-comparison-monthly .row-name { text-align: left; white-space: normal; overflow-wrap: break-word; word-wrap: break-word; }
+                                .expense-comparison-monthly .amount { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+                                .expense-comparison-monthly .opening { background: #f4f0df; }
+                                .expense-comparison-monthly .balance { background: #edf5f0; }
+                                .expense-comparison-monthly .category-row td { background: #dbe9f2; font-weight: bold; }
+                                .expense-comparison-monthly .account-row td { background: #edf4f8; font-weight: bold; }
+                                .expense-comparison-monthly .budget-row td { background: #f4f8fb; }
+                                .expense-comparison-monthly .budget-row .row-name { padding-left: 21px; }
+                                .expense-comparison-monthly .grand-row td { background: #d1e0eb; font-weight: bold; }
+                                .expense-comparison-monthly tr { page-break-inside: avoid; }
+                                .expense-comparison-monthly thead { display: table-header-group; }
+                                .expense-comparison-monthly .table-scroll { max-width: 100%; }
+                                @media screen {
+                                    .expense-comparison-monthly .table-scroll { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+                                }
+                                @media screen and (max-width: 768px) {
+                                    .expense-comparison-monthly h2 { font-size: 16px; }
+                                    .expense-comparison-monthly .meta { font-size: 11px; }
+                                }
+                            </style>
+                            <h2>Proyectado vs. real — comparativo mensual</h2>
+                            <div class="meta">
+                                <strong>Empresa:</strong> <span t-esc="o.company_id.name"/>
+                                <span> | </span><strong>Año:</strong> <span t-esc="o.year"/>
+                                <t t-if="o.category_id">
+                                    <span> | </span><strong>Rubro:</strong> <span t-esc="o.category_id.name"/>
+                                </t>
+                                <t t-if="o.cost_center_id">
+                                    <span> | </span><strong>Centro de costo:</strong>
+                                    <span t-esc="o.cost_center_id.name"/>
+                                </t>
+                                <t t-if="data['selected_accounts']">
+                                    <span> | </span><strong>Cuentas:</strong>
+                                    <span t-esc="', '.join(data['selected_accounts'].mapped('name'))"/>
+                                </t>
+                            </div>
+                            <!-- Distribución adaptable: con pocos meses no se estira innecesariamente,
+                                 y con 12 se reserva más espacio para cada importe mensual. -->
+                            <t t-set="month_count" t-value="len(page_data['months'])"/>
+                            <!-- Anchos por columna: las nuevas columnas no comprimen los meses. -->
+                            <t t-set="min_table_width" t-value="240 + (110 if page_data['opening'] else 0) + 3 * month_count * 82 + 4 * 110"/>
+                            <t t-set="name_width" t-value="24000.0 / min_table_width"/>
+                            <t t-set="opening_width" t-value="11000.0 / min_table_width if page_data['opening'] else 0.0"/>
+                            <t t-set="balance_width" t-value="11000.0 / min_table_width"/>
+                            <t t-set="month_cell_width" t-value="8200.0 / min_table_width"/>
+                            <t t-set="table_width" t-value="100.0"/>
+                            <div class="table-scroll">
+                                <table t-att-style="'width: {:.1f}%; min-width: {}px; font-size: {}px;'.format(table_width, min_table_width, 10 if month_count >= 9 else 10.5)">
+                                    <colgroup>
+                                        <col t-att-style="'width: {:.4f}%;'.format(name_width)"/>
+                                        <t t-if="page_data['opening']">
+                                            <col t-att-style="'width: {:.4f}%;'.format(opening_width)"/>
+                                        </t>
+                                        <t t-foreach="page_data['months']" t-as="month_item">
+                                            <t t-foreach="range(3)" t-as="cell_idx">
+                                                <col t-att-style="'width: {:.4f}%;'.format(month_cell_width)"/>
+                                            </t>
+                                        </t>
+                                        <col t-att-style="'width: {:.4f}%;'.format(balance_width)"/>
+                                        <col t-att-style="'width: {:.4f}%;'.format(balance_width)"/>
+                                        <col t-att-style="'width: {:.4f}%;'.format(balance_width)"/>
+                                        <col t-att-style="'width: {:.4f}%;'.format(balance_width)"/>
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th rowspan="2">Rubro</th>
+                                            <t t-if="page_data['opening']">
+                                                <th rowspan="2">Saldo inicial<br/>(disponible de <span t-esc="page_data['previous_month_name']"/>)</th>
+                                            </t>
+                                            <t t-foreach="page_data['months']" t-as="month_item">
+                                                <th class="month-head" colspan="3" t-esc="month_item['name']"/>
+                                            </t>
+                                            <th rowspan="2">Consumo corte</th>
+                                            <th rowspan="2">Total proyectado</th>
+                                            <th rowspan="2">Consumo actual</th>
+                                            <th rowspan="2">Saldo disponible</th>
+                                        </tr>
+                                        <tr>
+                                            <t t-foreach="page_data['months']" t-as="month_item">
+                                                <th>Proyectado</th>
+                                                <th>Consumido</th>
+                                                <th>Disponible</th>
+                                            </t>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-if="not data['categories']">
+                                            <tr><td t-att-colspan="1 + (1 if page_data['opening'] else 0) + 3 * len(page_data['months']) + 4">No existen proyecciones para los filtros seleccionados.</td></tr>
+                                        </t>
+                                        <t t-foreach="data['categories']" t-as="group">
+                                            <t t-call="expense_budget_control.report_comparison_monthly_row">
+                                                <t t-set="row_data" t-value="group"/>
+                                                <t t-set="row_class" t-value="'category-row'"/>
+                                                <t t-set="row_name" t-value="group['category'].name or 'Sin rubro'"/>
+                                            </t>
+                                            <t>
+                                                <t t-foreach="group['accounts']" t-as="account">
+                                                    <t t-call="expense_budget_control.report_comparison_monthly_row">
+                                                        <t t-set="row_data" t-value="account"/>
+                                                        <t t-set="row_class" t-value="'account-row'"/>
+                                                        <t t-set="row_name" t-value="'  ' + account['account'].name"/>
+                                                    </t>
+                                                    <t t-foreach="account['budgets']" t-as="budget_row">
+                                                        <t t-call="expense_budget_control.report_comparison_monthly_row">
+                                                            <t t-set="row_data" t-value="budget_row"/>
+                                                            <t t-set="row_class" t-value="'budget-row'"/>
+                                                            <t t-set="row_name" t-value="account['account'].name"/>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </t>
+                                        <t t-if="data['categories']">
+                                            <t t-call="expense_budget_control.report_comparison_monthly_row">
+                                                <t t-set="row_data" t-value="data['grand_row']"/>
+                                                <t t-set="row_class" t-value="'grand-row'"/>
+                                                <t t-set="row_name" t-value="'TOTAL GENERAL'"/>
+                                            </t>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_expense_budget_comparison" model="ir.actions.report">
+        <field name="name">Proyectado vs. real por rubro y cuenta</field>
+        <field name="model">expense.budget.comparison.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">expense_budget_control.report_comparison_document</field>
+        <field name="report_file">expense_budget_control.report_comparison_document</field>
+        <field name="paperformat_id" ref="paperformat_expense_budget_comparison"/>
+        <field name="groups_id" eval="[(6, 0, [ref('expense_budget_control.group_expense_budget_user'), ref('expense_budget_control.group_expense_budget_approver'), ref('expense_budget_control.group_expense_budget_manager')])]"/>
+        <field name="print_report_name">'Comparativo_Mensual_%s_%s' % (object.year, object.company_id.name.replace(' ', '_'))</field>
+    </record>
+</odoo>
