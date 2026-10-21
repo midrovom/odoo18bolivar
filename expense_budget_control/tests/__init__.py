@@ -25,3 +25,5 @@ from . import test_regression_1474
 
 from . import test_api_transport
 from . import test_inventory_api
+
+from . import test_regression_1477
