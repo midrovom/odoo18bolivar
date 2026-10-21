@@ -19,6 +19,10 @@ class TestExpenseBudget(TransactionCase):
         self.budget = self.env['expense.budget'].create({
             'name': 'Test presupuestario', 'year': 2026, 'company_id': self.company.id,
         })
+        self.cost_center = self.env['expense.budget.cost.center'].create({
+            'code': 'CC-TEST-WIZARD', 'name': 'Centro de costo pruebas',
+            'company_id': self.company.id,
+        })
 
 
     def test_create_category_from_budget_selector_with_unassigned_accounts(self):
@@ -718,15 +722,17 @@ class TestExpenseBudget(TransactionCase):
         })
         self.env['expense.budget.line'].create({
             'budget_id': self.budget.id, 'account_id': self.account.id,
-            'month': '1', 'planned_amount': 100,
+            'month': '1', 'planned_amount': 100, 'cost_center_id': self.cost_center.id,
         }).write({'actual_amount': 50})
         self.env['expense.budget.line'].create({
             'budget_id': self.budget.id, 'account_id': water.id,
-            'month': '2', 'planned_amount': 300,
+            'month': '2', 'planned_amount': 300, 'cost_center_id': self.cost_center.id,
         }).write({'actual_amount': 75})
 
         wizard = self.env['expense.budget.comparison.report.wizard'].create({
             'company_id': self.company.id, 'year': 2026,
+            'category_id': self.category.id,
+            'cost_center_id': self.cost_center.id,
             'month_ids': [(6, 0, self.env['expense.budget.comparison.month'].search([]).ids)],
         })
         report = self.env['report.expense_budget_control.report_comparison_document']
@@ -758,6 +764,7 @@ class TestExpenseBudget(TransactionCase):
         filtered = self.env['expense.budget.comparison.report.wizard'].create({
             'company_id': self.company.id, 'year': 2026,
             'category_id': self.category.id, 'account_id': water.id,
+            'cost_center_id': self.cost_center.id,
             'month_ids': [(6, 0, self.env['expense.budget.comparison.month'].search([]).ids)],
         })
         data = report._get_report_values([filtered.id])['reports'][0]
@@ -971,11 +978,40 @@ class TestExpenseBudget(TransactionCase):
         self.assertEqual(report._prepare_comparison(wizard)['line_count'], 1)
 
 
+    def test_comparison_pdf_requires_year_category_and_cost_center(self):
+        """Botón de impresión: exige los tres filtros e indica los faltantes."""
+        Wizard = self.env['expense.budget.comparison.report.wizard']
+        wizard = Wizard.create({'company_id': self.company.id})
+        self.assertFalse(wizard.year)
+        with self.assertRaisesRegex(UserError, 'Año.*Rubro.*Centro de costo'):
+            wizard.action_print_pdf()
+        wizard.write({'year': '2026'})
+        with self.assertRaisesRegex(UserError, 'Rubro.*Centro de costo'):
+            wizard.action_print_pdf()
+        wizard.write({'category_id': self.category.id})
+        with self.assertRaisesRegex(UserError, 'Centro de costo'):
+            wizard.action_print_pdf()
+        wizard.write({'cost_center_id': self.cost_center.id})
+        self.assertEqual(wizard.action_print_pdf()['type'], 'ir.actions.report')
+        # Proteger también el renderizado de un PDF desde una URL directa.
+        wizard.cost_center_id = False
+        with self.assertRaisesRegex(UserError, 'Centro de costo'):
+            self.env['report.expense_budget_control.report_comparison_document']._get_report_values([wizard.id])
+
+    def test_comparison_pdf_requires_fields_in_wizard_view(self):
+        """Los tres campos obligatorios se marcan también en el formulario."""
+        from lxml import etree
+        view = self.env.ref('expense_budget_control.view_expense_budget_comparison_report_wizard_form')
+        arch = etree.fromstring(view.arch_db.encode())
+        for name in ('year', 'category_id', 'cost_center_id'):
+            self.assertEqual(arch.xpath("//field[@name='%s']" % name)[0].get('required'), '1')
+
     def test_report_months_start_unselected(self):
         """El usuario elige los meses; no se precargan los doce."""
         wizard = self.env['expense.budget.comparison.report.wizard'].create({
             'company_id': self.company.id,
-            'year': 2026,
+            'year': 2026, 'category_id': self.category.id,
+            'cost_center_id': self.cost_center.id,
         })
         self.assertFalse(wizard.month_ids)
         action = wizard.action_print_pdf()
@@ -1234,9 +1270,14 @@ class TestExpenseBudgetReportPeriod(TransactionCase):
             'name': 'Presupuesto de prueba por períodos',
             'company_id': self.company.id, 'year': 2049,
         })
+        self.cost_center = self.env['expense.budget.cost.center'].create({
+            'code': 'CC-TEST-PERIODO', 'name': 'Centro de pruebas periodos',
+            'company_id': self.company.id,
+        })
         self.env['expense.budget.line'].create({
             'budget_id': self.budget.id, 'account_id': self.account.id,
             'month': '2', 'planned_amount': 200, 'actual_amount': 50,
+            'cost_center_id': self.cost_center.id,
         })
 
     def test_annual_report_restored_to_budget(self):
@@ -1254,6 +1295,8 @@ class TestExpenseBudgetReportPeriod(TransactionCase):
     def test_monthly_report_empty_months_prints_all_twelve(self):
         wizard = self.env['expense.budget.comparison.report.wizard'].create({
             'company_id': self.company.id, 'year': '2049',
+            'category_id': self.category.id,
+            'cost_center_id': self.cost_center.id,
         })
         self.assertFalse(wizard.month_ids)
         action = wizard.action_print_pdf()
@@ -1272,6 +1315,8 @@ class TestExpenseBudgetReportPeriod(TransactionCase):
     def test_monthly_report_selected_month_only(self):
         wizard = self.env['expense.budget.comparison.report.wizard'].create({
             'company_id': self.company.id, 'year': '2049',
+            'category_id': self.category.id,
+            'cost_center_id': self.cost_center.id,
         })
         month = self.env['expense.budget.comparison.month'].search([('number', '=', 2)], limit=1)
         self.assertTrue(month)

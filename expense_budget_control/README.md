@@ -1,6 +1,6 @@
 # Control de Presupuesto de Gastos — Odoo 18
 
-Módulo técnico: **`expense_budget_control`**. Versión: `18.0.1.4.76`.
+Módulo técnico: **`expense_budget_control`**. Versión: `18.0.1.4.78`.
 
 ## Funciones
 
@@ -155,7 +155,7 @@ La visibilidad de menús no cambia el cálculo presupuestario ni la API. Al actu
 ## Imprimir PDF desde Proyectado vs. real (v1.4.11)
 
 1. Abra **Control de Gastos → Proyectado vs. real** (vista de lista).
-2. Pulse **Imprimir PDF**. No necesita seleccionar filas: el asistente permite indicar **Empresa**, **Año** y opcionalmente **Rubro** y **Cuenta controlada**.
+2. Pulse **Imprimir PDF**. No necesita seleccionar filas: el asistente requiere **Empresa**, **Año**, **Rubro** y **Centro de costo**; la selección de **Meses** y **Cuentas controladas** es opcional.
 3. Pulse **Imprimir PDF** en el asistente. El reporte A4 horizontal muestra los rubros, sus cuentas y las columnas **Proyectado**, **Gasto real**, **Disponible** y **Ejecución (%)**, con subtotales y total general.
 
 El porcentaje se calcula como consumido total / proyectado total x 100, no como promedio de porcentajes mensuales. No se duplican gastos de API o Excel: se utilizan exclusivamente los totales de las líneas mensuales. Los usuarios Aprobador solo podrán imprimir las líneas de presupuestos pendientes de aprobación o aprobados que ya pueden consultar; los demás roles conservan sus permisos. El PDF anual existente (12 meses) no se altera.
@@ -219,3 +219,16 @@ Consumo actual. **Consumo corte** y los saldos no modifican sus fórmulas.
   el error como tres endpoints fallidos: se deja que el manejador de transacciones
   de Odoo reintente toda la operación. Después de los reintentos fallidos,
   el administrador debe consultar el registro del servidor.
+
+
+## Requisito de filtros para imprimir comparativo (v18.0.1.4.78)
+
+Para imprimir el PDF **Proyectado vs. real** deben seleccionarse **Año, Rubro y Centro de costo**.
+El asistente ya no establece automáticamente el año actual, para que el operador seleccione el período explícitamente.
+El formulario marca los tres campos como obligatorios y el servidor valida los valores tanto desde el botón
+**Imprimir PDF** como al renderizar el reporte directamente; el mensaje detalla los campos pendientes.
+
+**Meses** y **Cuentas controladas** siguen siendo filtros opcionales. Si no se seleccionan meses,
+se imprimen los 12 meses; si no se seleccionan cuentas, se consideran todas las cuentas del rubro
+con líneas presupuestarias para ese centro de costo.
+Las operaciones de cron, conexión ERP y cálculos del reporte no se modifican con este cambio.
