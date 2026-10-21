@@ -137,9 +137,7 @@ class ExpenseBudgetInventorySync(models.AbstractModel):
             ENDPOINTS[kind], company.id, record.id,
         )
         started = monotonic()
-        response = self.env['api.administrator'].sudo().call_api(
-            record.name, method='get', company_id=company.id,
-        )
+        response = self.env['expense.budget.api.transport'].get_json(record, company)
         received = monotonic()
         rows = self._rows(response)
         _logger.info('[PRESUPUESTOS ERP] Respuesta endpoint=%s filas=%s empresa_id=%s '
