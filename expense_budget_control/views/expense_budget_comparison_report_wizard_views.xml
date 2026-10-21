@@ -15,7 +15,7 @@
                            domain="[('company_id', '=', company_id)] + ([('category_id', '=', category_id)] if category_id else [])"
                            options="{'no_create': True, 'no_create_edit': True}"/>
                 </group>
-                <div class="text-muted">Para imprimir, seleccione el año, el rubro y el centro de costo.</div>
+                <div class="text-muted"></div>
                 <footer>
                     <button name="action_print_pdf" type="object" string="Imprimir PDF"
                             class="btn-primary" icon="fa-print"/>
