@@ -35,53 +35,6 @@
         </xpath>
     </template>
 
-    <template id="portal_credit_signup" name="Registro para solicitud de crédito CONEDERA">
-        <t t-call="website.layout">
-            <div class="container py-5 credit-auth-container">
-                <div class="row justify-content-center">
-                    <div class="col-12 col-md-8 col-lg-6">
-                        <div class="card border-0 shadow-sm rounded-4">
-                            <div class="card-body p-4 p-lg-5">
-                                <div class="credit-brand-line mb-3"/>
-                                <h1 class="h3 mb-2">Crear cuenta para solicitar crédito</h1>
-                                <p class="text-muted mb-4">Primero verificaremos su correo electrónico. Luego podrá ingresar la solicitud y consultar su historial.</p>
-                                <t t-if="errors">
-                                    <div class="alert alert-danger rounded-3"><ul class="mb-0"><t t-foreach="errors" t-as="error"><li t-esc="error"/></t></ul></div>
-                                </t>
-                                <form action="/credito/registro" method="post">
-                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                    <div class="mb-3">
-                                        <label class="form-label" for="signup_name">Nombres y apellidos</label>
-                                        <input id="signup_name" class="form-control" type="text" name="name" required="required" autocomplete="name" t-att-value="name or ''"/>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label" for="signup_email">Correo electrónico</label>
-                                        <input id="signup_email" class="form-control" type="email" name="email" required="required" autocomplete="email" t-att-value="email or ''"/>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label" for="signup_password">Contraseña</label>
-                                        <input id="signup_password" class="form-control" type="password" name="password" minlength="8" required="required" autocomplete="new-password"/>
-                                        <div class="form-text">Use al menos 8 caracteres.</div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label" for="signup_confirm_password">Confirmar contraseña</label>
-                                        <input id="signup_confirm_password" class="form-control" type="password" name="confirm_password" minlength="8" required="required" autocomplete="new-password"/>
-                                    </div>
-                                    <div class="form-check mb-4">
-                                        <input class="form-check-input" id="accept_terms" name="accept_terms" type="checkbox" required="required"/>
-                                        <label class="form-check-label" for="accept_terms">Acepto que CONEDERA trate los datos ingresados para gestionar y evaluar mi solicitud de crédito.</label>
-                                    </div>
-                                    <button class="btn btn-credit-primary w-100" type="submit">Enviar código al correo</button>
-                                </form>
-                                <p class="text-center mt-4 mb-0">¿Ya tiene una cuenta? <a href="/web/login?redirect=%2Fmy%2Fcredito%2Fnueva">Iniciar sesión</a></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </t>
-    </template>
-
     <template id="portal_credit_verify" name="Verificar correo CONEDERA">
         <t t-call="website.layout">
             <div class="container py-5 credit-auth-container">
@@ -106,7 +59,7 @@
                                 <input type="hidden" name="action" value="resend"/>
                                 <button class="btn btn-outline-primary w-100" type="submit">Enviar código</button>
                             </form>
-                            <p class="text-center mt-4 mb-0"><a href="/credito/registro">Volver al registro</a></p>
+                            <p class="text-center mt-4 mb-0"><a href="/web/signup?redirect=%2Fmy%2Fcredito%2Fnueva">Volver al registro</a></p>
                         </div></div>
                     </div>
                 </div>
@@ -253,5 +206,28 @@
                 <div class="d-flex justify-content-between flex-wrap gap-2 mb-5"><a t-att-href="'/my/credito/%s' % application.id" class="btn btn-outline-secondary rounded-pill px-4">Cancelar</a><button class="btn btn-credit-primary px-5" type="submit">Guardar documentos</button></div>
             </form>
         </div></t>
+    </template>
+    <template id="credit_native_signup_terms" inherit_id="auth_signup.signup" name="Consentimiento para registro de crédito CONEDERA">
+        <xpath expr="//form[contains(@class, 'oe_signup_form')]//input[@name='redirect']" position="before">
+            <div class="form-check my-3">
+                <input class="form-check-input" id="credit_accept_terms" name="accept_terms" type="checkbox" required="required"/>
+                <label class="form-check-label" for="credit_accept_terms">Acepto que CONEDERA trate los datos ingresados para gestionar y evaluar mi solicitud de crédito.</label>
+                <p class="form-text mb-0">La cuenta se activará únicamente después de verificar el código enviado a su correo.</p>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="credit_native_login_registration_link" inherit_id="web.login" name="Registro verificado para solicitud de crédito">
+        <xpath expr="//form[contains(@class, 'oe_login_form')]//button[@type='submit']" position="after">
+            <p class="alert alert-success mt-3" role="status" t-if="request.params.get('account_created')">
+                Su cuenta fue creada correctamente. Inicie sesión para continuar con la solicitud de crédito.
+            </p>
+            <p class="alert alert-info mt-3" role="status" t-if="request.params.get('account_exists')">
+                Ya existe una cuenta con ese correo. Inicie sesión o use la recuperación de contraseña.
+            </p>
+            <div class="text-center mt-3">
+                <a href="/web/signup?redirect=%2Fmy%2Fcredito%2Fnueva">¿No tiene cuenta? Regístrese para solicitar crédito</a>
+            </div>
+        </xpath>
     </template>
 </odoo>

@@ -10,7 +10,7 @@ from urllib.parse import quote
 from markupsafe import escape
 
 from odoo import http, fields, _
-from odoo.addons.web.controllers.home import Home
+from odoo.addons.auth_signup.controllers.main import AuthSignupHome
 from odoo.exceptions import ValidationError
 from odoo.http import request
 from werkzeug.exceptions import Forbidden, NotFound
@@ -100,11 +100,122 @@ def _parse_number(value, label, errors, integer=False):
             raise ValueError('non-finite number')
         return number
     except (TypeError, ValueError):
-        errors.append(_('El campo "%s" debe contener un número válido.') % label)
+        errors.append(_('El campo \"%s\" debe contener un número válido.') % label)
         return 0 if integer else 0.0
 
 
-class CreditPortalLogin(Home):
+def _send_otp_email(email, code):
+    params = request.env['ir.config_parameter'].sudo()
+    email_from = request.env.company.email or params.get_param('mail.default.from')
+    if not email_from:
+        raise RuntimeError(_('Configure un correo remitente en la compañía o en mail.default.from antes de activar el registro por código.'))
+    values = {
+        'subject': _('Código de verificación para el portal de crédito CONEDERA'),
+        'body_html': (
+            '<div style=\"font-family:Arial,sans-serif;max-width:560px;margin:auto\">'
+            '<h2 style=\"color:#8f2f2f\">Verificación de correo CONEDERA</h2>'
+            '<p>Use el siguiente código para verificar su correo y activar su cuenta:</p>'
+            '<p style=\"font-size:30px;font-weight:bold;letter-spacing:6px\">%s</p>'
+            '<p>El código vence en 3 minutos. Si no lo ingresa a tiempo, podrá solicitar uno nuevo desde el portal. Si usted no inició este registro, puede ignorar el mensaje.</p>'
+            '</div>' % code
+        ),
+        'email_to': email,
+        'email_from': email_from,
+    }
+    mail = request.env['mail.mail'].sudo().create(values)
+    mail.send()
+    mail.invalidate_recordset(['state'])
+    if mail.state == 'exception':
+        raise RuntimeError(_('No se pudo enviar el correo de verificación. Revise el servidor saliente de correo de Odoo.'))
+
+
+class CreditPortalLogin(AuthSignupHome):
+    def _render_native_signup(self, values=None):
+        context = self.get_auth_signup_qcontext()
+        context.update({
+            'name': '',
+            'login': '',
+            'error': False,
+            'message': False,
+            'token': False,
+            'redirect': '/my/credito/nueva',
+            'signup_enabled': True,
+        })
+        context.update(values or {})
+        # El registro se valida por correo antes de invocar el mecanismo nativo.
+        context['signup_enabled'] = True
+        context['token'] = False
+        context['redirect'] = '/my/credito/nueva'
+        return request.render('auth_signup.signup', context)
+
+    @http.route()
+    def web_auth_signup(self, *args, **kw):
+        # Los enlaces nativos de invitación de Odoo (con token) conservan su flujo original.
+        # El registro público sin token pasa por la verificación OTP de CONEDERA.
+        if request.params.get('token'):
+            return super().web_auth_signup(*args, **kw)
+
+        current_user = request.env.user
+        if (not current_user._is_public()
+                and current_user.has_group('base.group_portal')
+                and not current_user.has_group('base.group_user')):
+            return request.redirect('/my/credito/nueva')
+
+        if request.httprequest.method == 'GET':
+            return self._render_native_signup()
+
+        qcontext = self.get_auth_signup_qcontext()
+        name = _clean(qcontext.get('name'))
+        email = _clean(qcontext.get('login') or qcontext.get('email')).lower()
+        password = qcontext.get('password') or ''
+        confirm_password = qcontext.get('confirm_password') or ''
+        errors = []
+        if not name:
+            errors.append(_('Ingrese sus nombres y apellidos.'))
+        if not email or not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
+            errors.append(_('Ingrese un correo electrónico válido.'))
+        if len(password) < 8:
+            errors.append(_('La contraseña debe tener al menos 8 caracteres.'))
+        if password != confirm_password:
+            errors.append(_('Las contraseñas no coinciden.'))
+        if qcontext.get('accept_terms') not in ('on', '1', 'true', 'yes'):
+            errors.append(_('Debe aceptar el uso de sus datos para gestionar la solicitud de crédito.'))
+
+        User = request.env['res.users'].sudo()
+        existing = User.search(['|', ('login', '=ilike', email), ('email', '=ilike', email)], limit=1) if email else User.browse()
+        if existing:
+            return request.redirect('/web/login?account_exists=1&redirect=%s' % quote('/my/credito/nueva', safe=''))
+        if errors:
+            return self._render_native_signup({
+                'name': name,
+                'login': email,
+                'error': '; '.join(errors),
+            })
+
+        previous_signup = request.session.get('conedera_credit_signup') or {}
+        if previous_signup.get('email') == email and time.time() <= previous_signup.get('expires', 0):
+            return request.redirect('/credito/registro/verificar')
+
+        code = str(secrets.randbelow(900000) + 100000)
+        request.session['conedera_credit_signup'] = {
+            'name': name,
+            'email': email,
+            'password': password,
+            'code': code,
+            'expires': time.time() + OTP_TTL_SECONDS,
+            'attempts': 0,
+        }
+        try:
+            _send_otp_email(email, code)
+        except Exception:
+            _logger.exception('No se pudo enviar el código OTP de registro CONEDERA')
+            request.session.pop('conedera_credit_signup', None)
+            return self._render_native_signup({
+                'name': name,
+                'login': email,
+                'error': _('No se pudo enviar el código al correo indicado. Verifique la configuración SMTP de Odoo e inténtelo de nuevo.'),
+            })
+        return request.redirect('/credito/registro/verificar')
     @http.route()
     def web_login(self, redirect=None, **kw):
         # Solo redirigir por defecto a clientes del portal; los usuarios internos
@@ -120,11 +231,6 @@ class CreditPortalLogin(Home):
 
 class ConederaCreditPortal(http.Controller):
 
-    def _render_signup(self, values=None):
-        context = {'errors': [], 'name': '', 'email': ''}
-        context.update(values or {})
-        return request.render('custom_web_credito_conedera.portal_credit_signup', context)
-
     def _render_verify(self, error=None, remaining_seconds=None):
         signup = request.session.get('conedera_credit_signup') or {}
         if remaining_seconds is None:
@@ -135,89 +241,20 @@ class ConederaCreditPortal(http.Controller):
             'signup_email': signup.get('email', ''),
         })
 
-    def _send_otp(self, email, code):
-        params = request.env['ir.config_parameter'].sudo()
-        email_from = request.env.company.email or params.get_param('mail.default.from')
-        if not email_from:
-            raise RuntimeError(_('Configure un correo remitente en la compañía o en mail.default.from antes de activar el registro por código.'))
-        values = {
-            'subject': _('Código de verificación para el portal de crédito CONEDERA'),
-            'body_html': (
-                '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto">'
-                '<h2 style="color:#8f2f2f">Verificación de correo CONEDERA</h2>'
-                '<p>Use el siguiente código para verificar su correo y activar su cuenta:</p>'
-                '<p style="font-size:30px;font-weight:bold;letter-spacing:6px">%s</p>'
-                '<p>El código vence en 3 minutos. Si no lo ingresa a tiempo, podrá solicitar uno nuevo desde el portal. Si usted no inició este registro, puede ignorar el mensaje.</p>'
-                '</div>' % code
-            ),
-            'email_to': email,
-        }
-        if email_from:
-            values['email_from'] = email_from
-        mail = request.env['mail.mail'].sudo().create(values)
-        mail.send()
-        mail.invalidate_recordset(['state'])
-        if mail.state == 'exception':
-            raise RuntimeError(_('No se pudo enviar el correo de verificación. Revise el servidor saliente de correo de Odoo.'))
-
     @http.route('/credito/registro', type='http', auth='public', website=True, methods=['GET', 'POST'], sitemap=False)
     def credit_signup(self, **post):
-        if request.httprequest.method == 'GET':
-            return self._render_signup()
-
-        name = _clean(post.get('name'))
-        email = _clean(post.get('email')).lower()
-        password = post.get('password') or ''
-        confirm_password = post.get('confirm_password') or ''
-        errors = []
-        if not name:
-            errors.append(_('Ingrese sus nombres y apellidos.'))
-        if not email or not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
-            errors.append(_('Ingrese un correo electrónico válido.'))
-        if len(password) < 8:
-            errors.append(_('La contraseña debe tener al menos 8 caracteres.'))
-        if password != confirm_password:
-            errors.append(_('Las contraseñas no coinciden.'))
-        if post.get('accept_terms') not in ('on', '1', 'true', 'yes'):
-            errors.append(_('Debe aceptar el uso de sus datos para gestionar la solicitud de crédito.'))
-        existing = request.env['res.users'].sudo().search([
-            '|', ('login', '=ilike', email), ('email', '=ilike', email),
-        ], limit=1) if email else request.env['res.users']
-        if existing:
-            errors.append(_('Ya existe una cuenta asociada a ese correo. Ingrese al portal o use recuperación de contraseña.'))
-        if errors:
-            return self._render_signup({'errors': errors, 'name': name, 'email': email})
-
-        previous_signup = request.session.get('conedera_credit_signup') or {}
-        if (previous_signup.get('email') == email and time.time() <= previous_signup.get('expires', 0)):
-            return request.redirect('/credito/registro/verificar')
-
-        code = str(secrets.randbelow(900000) + 100000)
-        request.session['conedera_credit_signup'] = {
-            'name': name,
-            'email': email,
-            'password': password,
-            'code': code,
-            'expires': time.time() + OTP_TTL_SECONDS,
-            'attempts': 0,
-        }
-        try:
-            self._send_otp(email, code)
-        except Exception as exc:
-            _logger.exception('No se pudo enviar el código OTP de registro CONEDERA')
-            request.session.pop('conedera_credit_signup', None)
-            return self._render_signup({
-                'errors': [_('No se pudo enviar el código al correo indicado. Verifique la configuración SMTP de Odoo e inténtelo de nuevo.')],
-                'name': name,
-                'email': email,
-            })
-        return request.redirect('/credito/registro/verificar')
+        # Compatibilidad con enlaces antiguos: usar siempre el registro nativo de Odoo.
+        if (not request.env.user._is_public()
+                and request.env.user.has_group('base.group_portal')
+                and not request.env.user.has_group('base.group_user')):
+            return request.redirect('/my/credito/nueva')
+        return request.redirect('/web/signup?redirect=%2Fmy%2Fcredito%2Fnueva')
 
     @http.route('/credito/registro/verificar', type='http', auth='public', website=True, methods=['GET', 'POST'], sitemap=False)
     def credit_signup_verify(self, **post):
         signup = request.session.get('conedera_credit_signup')
         if not signup:
-            return request.redirect('/credito/registro')
+            return request.redirect('/web/signup?redirect=%2Fmy%2Fcredito%2Fnueva')
 
         now = time.time()
         expires_at = signup.get('expires', 0)
@@ -239,7 +276,7 @@ class ConederaCreditPortal(http.Controller):
             })
             request.session['conedera_credit_signup'] = signup
             try:
-                self._send_otp(signup['email'], code)
+                _send_otp_email(signup['email'], code)
             except Exception:
                 _logger.exception('No se pudo reenviar el código OTP de registro CONEDERA')
                 # Mantener el registro en sesión y dejar disponible el reenvío si el SMTP falla.
@@ -275,22 +312,32 @@ class ConederaCreditPortal(http.Controller):
             ], limit=1)
             if existing:
                 request.session.pop('conedera_credit_signup', None)
-                return request.redirect('/web/login?account_exists=1')
+                return request.redirect('/web/login?account_exists=1&redirect=%s' % quote('/my/credito/nueva', safe=''))
             try:
-                portal_group = request.env.ref('base.group_portal')
-                user = request.env['res.users'].sudo().with_context(no_reset_password=True, mail_create_nosubscribe=True).create({
-                    'name': signup['name'],
-                    'login': signup['email'],
-                    'email': signup['email'],
-                    'password': signup['password'],
-                    'groups_id': [(6, 0, [portal_group.id])],
-                })
-                user.partner_id.sudo().write({'email': signup['email'], 'name': signup['name']})
+                # Crear la cuenta con el flujo nativo de auth_signup de Odoo.
+                # El partner se crea solo después de validar el OTP y se vincula
+                # a un único res.users mediante el token nativo de registro.
+                with request.env.cr.savepoint():
+                    partner = request.env['res.partner'].sudo().create({
+                        'name': signup['name'],
+                        'email': signup['email'],
+                    })
+                    partner.signup_prepare()
+                    signup_values = {
+                        'name': signup['name'],
+                        'login': signup['email'],
+                        'email': signup['email'],
+                        'password': signup['password'],
+                    }
+                    request.env['res.users'].sudo().signup(
+                        signup_values,
+                        token=partner.signup_token,
+                    )
                 request.session.pop('conedera_credit_signup', None)
                 return request.redirect('/web/login?account_created=1&redirect=%s' % quote('/my/credito/nueva', safe=''))
             except Exception:
-                _logger.exception('No se pudo crear la cuenta portal de crédito CONEDERA')
-                return self._render_verify(_('No se pudo crear la cuenta. Revise la configuración de usuarios y vuelva a intentarlo.'))
+                _logger.exception('No se pudo crear la cuenta nativa del portal de crédito CONEDERA')
+                return self._render_verify(_('No se pudo crear la cuenta mediante el registro nativo de Odoo. Revise la configuración de usuarios del portal y vuelva a intentarlo.'))
 
         return self._render_verify()
 

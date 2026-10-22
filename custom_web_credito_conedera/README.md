@@ -4,9 +4,11 @@ Módulo nuevo e independiente de los módulos de Recursos Humanos utilizados com
 
 ## Funcionalidades incluidas
 
-- Registro de portal en `/credito/registro` con nombre, correo, contraseña y consentimiento.
+- La entrada **Solicitar crédito** abre el login nativo de Odoo con retorno al formulario de crédito. Los usuarios de portal ya autenticados van directamente al formulario.
+- El registro utiliza la pantalla nativa `/web/signup` de Odoo. Tras enviar el formulario, el usuario verifica el código OTP y solo entonces se activa la cuenta mediante `res.users.signup()` de `auth_signup` y un token nativo asociado al contacto; no se usa `res.users.create()` ni un modelo paralelo de cuentas.
+- El login utiliza `/web/login` nativo de Odoo. La pantalla nativa incluye un enlace a `/web/signup`; se intercepta el alta para que la verificación OTP sea obligatoria antes de crear la cuenta.
 - Código de verificación OTP de seis dígitos enviado por correo; vence en 3 minutos y limita los intentos de validación.
-- La cuenta portal se crea únicamente después de validar el código. Luego se solicita iniciar sesión y el acceso por defecto redirige a `/my/credito/nueva`.
+- La cuenta nativa de Odoo se crea únicamente después de validar el código. Luego se solicita iniciar sesión en `/web/login` y el acceso por defecto redirige a `/my/credito/nueva`.
 - Formulario web que reproduce los campos legibles de la página 1 del PDF de solicitud: propietario/representante, tipo persona natural/jurídica, negocio, datos económicos, relación de dependencia y hasta tres referencias comerciales, personales y bancarias.
 - Historial personal de solicitudes y detalle con etapas visibles para el cliente.
 - Kanban interno por etapas para arrastrar solicitudes y avanzar el proceso. Los cambios se registran en la línea de tiempo y generan intento de notificación por correo al solicitante.
@@ -75,3 +77,9 @@ Las etapas se pueden administrar desde **Crédito CONEDERA → Etapas del flujo*
 - Antes de enviar la solicitud, el cliente debe aceptar por separado las cláusulas sugeridas sobre relación comercial previa, citación telemática, consulta de score crediticio por cualquier plataforma o buró de crédito autorizado, firma/sello de CONEDERA y documentos financieros adicionales.
 - Tras la aprobación, el expediente documental también solicita un PDF consolidado con las últimas seis declaraciones del IVA, la declaración del Impuesto a la Renta del año anterior y un certificado bancario correspondiente a los últimos seis meses.
 - La autorización para consulta de score/historial se muestra como bloque independiente y no identifica a un proveedor específico.
+
+
+### Integración con el usuario nativo de Odoo
+- La cuenta se crea con el mecanismo `res.users.signup()` de `auth_signup`, usando un token nativo generado para el contacto que se vinculará a la cuenta. La creación del contacto y del usuario ocurre en un `savepoint`; si falla el registro nativo, se revierte la operación para no dejar contactos huérfanos.
+- No se crea un modelo personalizado de usuarios ni un segundo usuario de portal. La solicitud de crédito se vincula al `res.users` autenticado. Como en Odoo estándar, cada usuario tiene su contacto `res.partner` asociado.
+- El menú público **Solicitar crédito** abre `/web/login?redirect=/my/credito/nueva`. Desde esa pantalla, el enlace de alta abre `/web/signup` nativo, que solicita el código antes de activar la cuenta.
