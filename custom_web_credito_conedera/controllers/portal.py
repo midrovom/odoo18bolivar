@@ -182,20 +182,29 @@ class CreditPortalLogin(AuthSignupHomeOTP):
             errors.append(_('La contraseña debe tener al menos 8 caracteres.'))
         if password != confirm_password:
             errors.append(_('Las contraseñas no coinciden.'))
-        accept_terms = request.params.get('accept_terms') or qcontext.get('accept_terms')
-        if str(accept_terms or '').lower() not in ('on', '1', 'true', 'yes'):
+        # Leer la casilla exclusivamente del cuerpo del formulario. No aceptar un
+        # accept_terms=on agregado a la URL ni confiar solo en la validación JavaScript.
+        accept_terms = request.httprequest.form.get('accept_terms')
+        if str(accept_terms or '').strip().lower() not in ('on', '1', 'true', 'yes'):
             errors.append(_('Debe aceptar los términos y condiciones para registrarse.'))
 
-        User = request.env['res.users'].sudo()
-        existing = User.search(['|', ('login', '=ilike', email), ('email', '=ilike', email)], limit=1) if email else User.browse()
-        if existing:
-            return request.redirect('/web/login?account_exists=1&redirect=%s' % quote('/my/credito/nueva', safe=''))
+        # Las validaciones del formulario (en especial términos y condiciones) van
+        # antes de informar que un correo ya existe. Si falta la aceptación, el usuario
+        # permanece en el registro y no se crea una sesión OTP ni una cuenta.
         if errors:
+            # No reutilizar un OTP pendiente tras reenviar el formulario con datos
+            # inválidos o sin aceptar términos; deberá corregirlo antes de continuar.
+            request.session.pop('conedera_credit_signup', None)
             return self._render_native_signup({
                 'name': name,
                 'login': email,
                 'error': '; '.join(errors),
             })
+
+        User = request.env['res.users'].sudo()
+        existing = User.search(['|', ('login', '=ilike', email), ('email', '=ilike', email)], limit=1) if email else User.browse()
+        if existing:
+            return request.redirect('/web/login?account_exists=1&redirect=%s' % quote('/my/credito/nueva', safe=''))
 
         previous_signup = request.session.get('conedera_credit_signup') or {}
         if previous_signup.get('email') == email:
@@ -214,6 +223,7 @@ class CreditPortalLogin(AuthSignupHomeOTP):
             'code': code,
             'expires': time.time() + OTP_TTL_SECONDS,
             'attempts': 0,
+            'accept_terms': True,
         }
         try:
             _send_otp_email(email, code)
@@ -250,7 +260,7 @@ class ConederaCreditPortal(http.Controller):
     def _render_verify(self, error=None, remaining_seconds=None):
         signup = request.session.get('conedera_credit_signup') or {}
         if not signup:
-            return request.redirect('/web/signup?redirect=%2Fmy%2Fcredito%2Fnueva')
+            return request.redirect('/web/login?redirect=%2Fmy%2Fcredito%2Fnueva')
         signup['otp_error'] = str(error) if error else False
         request.session['conedera_credit_signup'] = signup
         return request.render('auth_signup.signup', self._signup_qcontext_for_modal(signup))
@@ -270,18 +280,21 @@ class ConederaCreditPortal(http.Controller):
 
     @http.route('/credito/registro', type='http', auth='public', website=True, methods=['GET', 'POST'], sitemap=False)
     def credit_signup(self, **post):
-        # Compatibilidad con enlaces antiguos: usar siempre el registro nativo de Odoo.
+        # Compatibilidad con enlaces antiguos: la entrada de Solicitar crédito debe ir primero al login.
         if (not request.env.user._is_public()
                 and request.env.user.has_group('base.group_portal')
                 and not request.env.user.has_group('base.group_user')):
             return request.redirect('/my/credito/nueva')
-        return request.redirect('/web/signup?redirect=%2Fmy%2Fcredito%2Fnueva')
+        return request.redirect('/web/login?redirect=%2Fmy%2Fcredito%2Fnueva')
 
     @http.route('/credito/registro/verificar', type='http', auth='public', website=True, methods=['GET', 'POST'], sitemap=False)
     def credit_signup_verify(self, **post):
         signup = request.session.get('conedera_credit_signup')
         if not signup:
-            return request.redirect('/web/signup?redirect=%2Fmy%2Fcredito%2Fnueva')
+            return request.redirect('/web/login?redirect=%2Fmy%2Fcredito%2Fnueva')
+        if signup.get('accept_terms', True) is not True:
+            request.session.pop('conedera_credit_signup', None)
+            return request.redirect('/web/signup?redirect=%2Fmy%2Fcredito%2Fnueva&terms_required=1')
 
         now = time.time()
         expires_at = signup.get('expires', 0)

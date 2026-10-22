@@ -6,7 +6,7 @@ Módulo nuevo e independiente de los módulos de Recursos Humanos utilizados com
 
 - La entrada **Solicitar crédito** abre el login nativo de Odoo con retorno al formulario de crédito. Los usuarios de portal ya autenticados van directamente al formulario.
 - El registro utiliza la pantalla nativa `/web/signup` de Odoo. Tras enviar el formulario, el usuario verifica el código OTP y solo entonces se activa la cuenta mediante `res.users.signup()` de `auth_signup` y un token nativo asociado al contacto; no se usa `res.users.create()` ni un modelo paralelo de cuentas.
-- El login utiliza `/web/login` nativo de Odoo. La pantalla nativa incluye un enlace a `/web/signup`; se intercepta el alta para que la verificación OTP sea obligatoria antes de crear la cuenta.
+- El acceso público de **Solicitar crédito** conduce primero a `/web/login` nativo de Odoo. Desde el propio login, el visitante puede abrir el registro nativo `/web/signup`.
 - Código de verificación OTP de seis dígitos enviado por correo; vence en 3 minutos y limita los intentos de validación.
 - La cuenta nativa de Odoo se crea únicamente después de validar el código. Luego se solicita iniciar sesión en `/web/login` y el acceso por defecto redirige a `/my/credito/nueva`.
 - Formulario web que reproduce los campos legibles de la página 1 del PDF de solicitud: propietario/representante, tipo persona natural/jurídica, negocio, datos económicos, relación de dependencia y hasta tres referencias comerciales, personales y bancarias.
@@ -84,9 +84,10 @@ Las etapas se pueden administrar desde **Crédito CONEDERA → Etapas del flujo*
 ### Integración con el usuario nativo de Odoo
 - La cuenta se crea con el mecanismo `res.users.signup()` de `auth_signup`, usando un token nativo generado para el contacto que se vinculará a la cuenta. La creación del contacto y del usuario ocurre en un `savepoint`; si falla el registro nativo, se revierte la operación para no dejar contactos huérfanos.
 - No se crea un modelo personalizado de usuarios ni un segundo usuario de portal. La solicitud de crédito se vincula al `res.users` autenticado. Como en Odoo estándar, cada usuario tiene su contacto `res.partner` asociado.
-- El menú público **Solicitar crédito** abre `/web/login?redirect=/my/credito/nueva`. Desde esa pantalla, el enlace de alta abre `/web/signup` nativo, que solicita el código antes de activar la cuenta.
+- El menú público **Solicitar crédito** abre `/web/login?redirect=/my/credito/nueva`. Las rutas antiguas de registro y las pantallas de verificación sin una sesión pendiente también devuelven al login, no al registro.
 
 
 ## Corrección 18.0.1.0.3
 
-Se ajustó el XPath de la herencia de la vista nativa de inicio de sesión para insertar el enlace de registro sin depender de la clase `oe_login_form`, que puede variar por personalizaciones de la vista. No se modifican el flujo de registro, la verificación del correo ni la lógica de las solicitudes.
+La versión 18.0.1.0.6 envía al usuario al login de forma predeterminada, valida la casilla de términos antes de comprobar si el correo ya existe y verifica en el servidor que la aceptación esté registrada en la sesión antes de completar el alta.
+
