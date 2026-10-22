@@ -46,9 +46,17 @@
                 <form action="/my/credito/solicitud/enviar" method="post" class="credit-form">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <section class="card credit-section-card mb-4"><div class="card-header">Datos del propietario o representante</div><div class="card-body"><div class="row g-3">
-                        <div class="col-12 col-md-4"><label class="form-label">Tipo de solicitante *</label><select name="person_type" class="form-select" required="required"><option value="">Seleccione...</option><option value="natural" t-att-selected="form_values.get('person_type') == 'natural'">Persona natural</option><option value="juridical" t-att-selected="form_values.get('person_type') == 'juridical'">Persona jurídica</option></select><div class="form-text">Este tipo determina los documentos solicitados si el crédito es aprobado.</div></div>
+                        <div class="col-12 col-md-4"><label class="form-label">Tipo de solicitante *</label>
+                            <select name="applicant_type_id" class="form-select" required="required">
+                                <option value="">Seleccione...</option>
+                                <t t-foreach="applicant_types" t-as="applicant_type">
+                                    <option t-att-value="applicant_type.id" t-att-selected="form_values.get('applicant_type_id') == str(applicant_type.id)" t-esc="applicant_type.name"/>
+                                </t>
+                            </select><div class="form-text">Los tipos y requisitos documentales se configuran en Odoo.</div>
+                        </div>
                         <div class="col-12 col-md-4"><label class="form-label">Cédula o RUC del solicitante *</label><input class="form-control" name="identification" required="required" t-att-value="form_values.get('identification') or ''"/></div>
-                        <div class="col-12 col-md-4"><label class="form-label">Lugar y fecha</label><input class="form-control" type="date" name="application_date" t-att-value="form_values.get('application_date') or ''"/></div>
+                        <div class="col-12 col-md-4"><label class="form-label">Fecha de solicitud</label><input class="form-control" type="date" name="application_date" t-att-value="form_values.get('application_date') or ''"/></div>
+                        <div class="col-12 col-md-4"><label class="form-label">Lugar de solicitud</label><input class="form-control" name="application_place" t-att-value="form_values.get('application_place') or ''" placeholder="Ciudad o localidad"/></div>
                         <div class="col-12 col-md-6"><label class="form-label">Nombres y apellidos *</label><input class="form-control" name="applicant_name" required="required" t-att-value="form_values.get('applicant_name') or ''"/></div>
                         <div class="col-12 col-md-6"><label class="form-label">Correo electrónico *</label><input class="form-control" type="email" name="applicant_email" required="required" t-att-value="form_values.get('applicant_email') or ''"/></div>
                         <div class="col-12 col-md-4"><label class="form-label">Teléfono fijo</label><input class="form-control" name="phone_fixed" t-att-value="form_values.get('phone_fixed') or ''"/></div>
@@ -130,7 +138,7 @@
         <t t-call="portal.portal_layout"><div class="container py-4">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4"><div><span class="credit-kicker">CONEDERA S.A.</span><h1 class="h2 mb-1">Historial de solicitudes</h1><p class="text-muted mb-0">Consulte el estado actual y las novedades de cada solicitud enviada.</p></div><a href="/my/credito/nueva" class="btn btn-credit-primary rounded-pill">Nueva solicitud</a></div>
             <t t-if="not applications"><div class="alert alert-info rounded-3">Todavía no registra solicitudes de crédito. Puede iniciar una con el botón “Nueva solicitud”.</div></t>
-            <t t-else=""><div class="table-responsive"><table class="table table-hover align-middle credit-history-table"><thead><tr><th>Número</th><th>Solicitante / negocio</th><th>Fecha</th><th>Tipo</th><th>Estado actual</th><th>Documentos</th><th></th></tr></thead><tbody><t t-foreach="applications" t-as="application"><tr><td class="fw-semibold" t-esc="application.name"/><td><div t-esc="application.applicant_name"/><small class="text-muted" t-esc="application.business_name"/></td><td t-esc="application.application_date.strftime('%d/%m/%Y') if application.application_date else '-'"/><td t-esc="'Persona natural' if application.person_type == 'natural' else 'Persona jurídica'"/><td><span class="badge rounded-pill credit-stage-badge" t-esc="application.stage_id.name or 'Sin etapa'"/></td><td><t t-if="application.documents_unlocked and not application.stage_id.is_rejected"><span t-if="application.document_complete" class="text-success small">Completa</span><span t-else="" class="text-warning-emphasis small">Habilitada</span></t><span t-else="" class="text-muted small">No habilitados</span></td><td class="text-end"><a t-att-href="'/my/credito/%s' % application.id" class="btn btn-sm btn-outline-primary rounded-pill">Ver detalle</a></td></tr></t></tbody></table></div></t>
+            <t t-else=""><div class="table-responsive"><table class="table table-hover align-middle credit-history-table"><thead><tr><th>Número</th><th>Solicitante / negocio</th><th>Fecha</th><th>Tipo</th><th>Estado actual</th><th>Documentos</th><th></th></tr></thead><tbody><t t-foreach="applications" t-as="application"><tr><td class="fw-semibold" t-esc="application.name"/><td><div t-esc="application.applicant_name"/><small class="text-muted" t-esc="application.business_name"/></td><td t-esc="application.application_date.strftime('%d/%m/%Y') if application.application_date else '-'"/><td t-esc="application.applicant_type_id.name or 'No definido'"/><td><span class="badge rounded-pill credit-stage-badge" t-esc="application.stage_id.name or 'Sin etapa'"/></td><td><t t-if="application.documents_unlocked and not application.stage_id.is_rejected"><span t-if="application.document_complete" class="text-success small">Completa</span><span t-else="" class="text-warning-emphasis small">Habilitada</span></t><span t-else="" class="text-muted small">No habilitados</span></td><td class="text-end"><a t-att-href="'/my/credito/%s' % application.id" class="btn btn-sm btn-outline-primary rounded-pill">Ver detalle</a></td></tr></t></tbody></table></div></t>
         </div></t>
     </template>
 
@@ -139,7 +147,7 @@
             <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4"><div><span class="credit-kicker">CONEDERA S.A.</span><h1 class="h2 mb-1">Solicitud <t t-esc="application.name"/></h1><p class="text-muted mb-0">Envío: <t t-esc="application.application_date.strftime('%d/%m/%Y') if application.application_date else '-'"/></p></div><a href="/my/credito/historial" class="btn btn-outline-secondary rounded-pill">Volver al historial</a></div>
             <t t-if="request.params.get('sent')"><div class="alert alert-success rounded-3">Su solicitud fue enviada correctamente. Puede consultar aquí los cambios de etapa.</div></t>
             <div class="card credit-section-card mb-4"><div class="card-header">Estado de la solicitud</div><div class="card-body"><div class="d-flex flex-wrap justify-content-between gap-3 align-items-center"><div><div class="text-muted small">Etapa actual</div><div class="h4 mb-0" t-esc="application.stage_id.name or 'Sin etapa'"/></div><span t-attf-class="badge rounded-pill px-3 py-2 #{'text-bg-success' if application.stage_id.is_approved else ('text-bg-danger' if application.stage_id.is_rejected else 'text-bg-secondary')}" t-esc="'Aprobada' if application.stage_id.is_approved else ('No aprobada' if application.stage_id.is_rejected else 'En proceso')"/></div><p class="text-muted mt-3 mb-0">Cuando la solicitud alcance la etapa de aprobación, se habilitará el apartado para cargar los documentos solicitados.</p><t t-if="application.documents_unlocked and not application.stage_id.is_rejected"><a t-att-href="'/my/credito/%s/documentos' % application.id" class="btn btn-credit-primary rounded-pill mt-3">Ingresar documentos solicitados para el crédito</a></t></div></div>
-            <div class="row g-4"><div class="col-12 col-lg-7"><div class="card credit-section-card h-100"><div class="card-header">Resumen de la solicitud</div><div class="card-body"><dl class="row mb-0"><dt class="col-sm-5">Tipo de solicitante</dt><dd class="col-sm-7" t-esc="'Persona natural' if application.person_type == 'natural' else 'Persona jurídica'"/><dt class="col-sm-5">Cédula / RUC solicitante</dt><dd class="col-sm-7" t-esc="application.identification or '-'"/><dt class="col-sm-5">Nombre del solicitante</dt><dd class="col-sm-7" t-esc="application.applicant_name or '-'"/><dt class="col-sm-5">Correo</dt><dd class="col-sm-7" t-esc="application.applicant_email or '-'"/><dt class="col-sm-5">Negocio / razón social</dt><dd class="col-sm-7" t-esc="application.business_name or '-'"/><dt class="col-sm-5">RUC del negocio</dt><dd class="col-sm-7" t-esc="application.business_ruc or '-'"/><dt class="col-sm-5">Dirección del negocio</dt><dd class="col-sm-7" t-esc="application.business_address or '-'"/><dt class="col-sm-5">Celular</dt><dd class="col-sm-7" t-esc="application.mobile or '-'"/><dt class="col-sm-5">Ubicación Google Maps</dt><dd class="col-sm-7"><a t-if="application.maps_url" t-att-href="application.maps_url" target="_blank" rel="noopener">Abrir ubicación</a><span t-else="">-</span></dd></dl></div></div></div>
+            <div class="row g-4"><div class="col-12 col-lg-7"><div class="card credit-section-card h-100"><div class="card-header">Resumen de la solicitud</div><div class="card-body"><dl class="row mb-0"><dt class="col-sm-5">Tipo de solicitante</dt><dd class="col-sm-7" t-esc="application.applicant_type_id.name or 'No definido'"/><dt class="col-sm-5">Cédula / RUC solicitante</dt><dd class="col-sm-7" t-esc="application.identification or '-'"/><dt class="col-sm-5">Nombre del solicitante</dt><dd class="col-sm-7" t-esc="application.applicant_name or '-'"/><dt class="col-sm-5">Correo</dt><dd class="col-sm-7" t-esc="application.applicant_email or '-'"/><dt class="col-sm-5">Negocio / razón social</dt><dd class="col-sm-7" t-esc="application.business_name or '-'"/><dt class="col-sm-5">RUC del negocio</dt><dd class="col-sm-7" t-esc="application.business_ruc or '-'"/><dt class="col-sm-5">Dirección del negocio</dt><dd class="col-sm-7" t-esc="application.business_address or '-'"/><dt class="col-sm-5">Celular</dt><dd class="col-sm-7" t-esc="application.mobile or '-'"/><dt class="col-sm-5">Ubicación Google Maps</dt><dd class="col-sm-7"><a t-if="application.maps_url" t-att-href="application.maps_url" target="_blank" rel="noopener">Abrir ubicación</a><span t-else="">-</span></dd></dl></div></div></div>
                 <div class="col-12 col-lg-5"><div class="card credit-section-card h-100"><div class="card-header">Seguimiento por etapas</div><div class="card-body"><t t-if="not history"><p class="text-muted mb-0">No existen novedades registradas.</p></t><ol class="credit-timeline"><t t-foreach="history" t-as="item"><li><div class="credit-timeline-title" t-esc="item.stage_id.name"/><div class="small text-muted" t-esc="item.date.strftime('%d/%m/%Y %H:%M') if item.date else ''"/><div class="small" t-if="item.notes" t-esc="item.notes"/></li></t></ol></div></div></div>
             </div>
             <t t-if="documents"><div class="card credit-section-card mt-4"><div class="card-header">Documentación posterior a la aprobación</div><div class="card-body"><div class="d-flex flex-wrap align-items-center justify-content-between gap-3"><div><strong t-esc="'%s de %s documentos requeridos cargados' % (documents.required_document_uploaded, documents.required_document_total)"/><div class="small text-muted" t-esc="'Expediente completo' if documents.is_complete else 'Expediente con documentos pendientes'"/></div><a t-if="application.documents_unlocked and not application.stage_id.is_rejected" t-att-href="'/my/credito/%s/documentos' % application.id" class="btn btn-outline-primary rounded-pill">Ver / actualizar documentos</a></div></div></div></t>
@@ -150,30 +158,71 @@
         <t t-call="portal.portal_layout"><div class="container py-4">
             <div class="mb-4"><span class="credit-kicker">CONEDERA S.A.</span><h1 class="h2 mb-1">Ingreso de documentos solicitados para el crédito</h1><p class="text-muted mb-0">Esta sección se habilita cuando la solicitud es aprobada. Los documentos requeridos dependen del tipo de solicitante.</p></div>
             <t t-if="not applications"><div class="alert alert-info rounded-3">No tiene solicitudes aprobadas con carga documental habilitada.</div></t>
-            <div class="row g-3"><t t-foreach="applications" t-as="application"><div class="col-12 col-lg-6"><div class="card credit-section-card h-100"><div class="card-body"><div class="d-flex justify-content-between align-items-start gap-3"><div><h2 class="h5 mb-1" t-esc="application.name"/><div t-esc="application.business_name"/><div class="small text-muted" t-esc="'Persona natural' if application.person_type == 'natural' else 'Persona jurídica'"/></div><span t-if="application.document_complete" class="badge text-bg-success">Completa</span><span t-else="" class="badge text-bg-warning">Pendiente</span></div><p class="mt-3 mb-3"><strong>Etapa:</strong> <span t-esc="application.stage_id.name"/></p><t t-set="doc" t-value="application.document_ids[:1]"/><t t-if="doc"><div class="small text-muted mb-3" t-esc="'%s de %s requisitos cargados' % (doc.required_document_uploaded, doc.required_document_total)"/></t><a t-att-href="'/my/credito/%s/documentos' % application.id" class="btn btn-credit-primary rounded-pill">Ingresar / actualizar documentos</a></div></div></div></t></div>
+            <div class="row g-3"><t t-foreach="applications" t-as="application"><div class="col-12 col-lg-6"><div class="card credit-section-card h-100"><div class="card-body"><div class="d-flex justify-content-between align-items-start gap-3"><div><h2 class="h5 mb-1" t-esc="application.name"/><div t-esc="application.business_name"/><div class="small text-muted" t-esc="application.applicant_type_id.name or 'No definido'"/></div><span t-if="application.document_complete" class="badge text-bg-success">Completa</span><span t-else="" class="badge text-bg-warning">Pendiente</span></div><p class="mt-3 mb-3"><strong>Etapa:</strong> <span t-esc="application.stage_id.name"/></p><t t-set="doc" t-value="application.document_ids[:1]"/><t t-if="doc"><div class="small text-muted mb-3" t-esc="'%s de %s requisitos cargados' % (doc.required_document_uploaded, doc.required_document_total)"/></t><a t-att-href="'/my/credito/%s/documentos' % application.id" class="btn btn-credit-primary rounded-pill">Ingresar / actualizar documentos</a></div></div></div></t></div>
         </div></t>
     </template>
 
-    <template id="portal_credit_documents_form" name="Carga de documentos de crédito">
-        <t t-call="portal.portal_layout"><div class="container py-4 credit-application-container">
-            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4"><div><span class="credit-kicker">CONEDERA S.A.</span><h1 class="h2 mb-1">Documentos solicitados para el crédito</h1><p class="text-muted mb-0">Solicitud <strong t-esc="application.name"/> · <t t-esc="application.business_name"/></p></div><a t-att-href="'/my/credito/%s' % application.id" class="btn btn-outline-secondary rounded-pill">Volver al detalle</a></div>
-            <div class="alert alert-info rounded-3">Suba archivos legibles. Documentos administrativos: PDF, JPG o PNG. Fotografías del local y del solicitante: JPG o PNG. Tamaño máximo por archivo: 12 MB. Si una solicitud incluye cónyuge, también se solicitará su cédula.</div>
-            <t t-if="errors"><div class="alert alert-warning rounded-3"><ul class="mb-0"><t t-foreach="errors" t-as="error"><li t-esc="error"/></t></ul></div></t>
-            <form method="post" enctype="multipart/form-data" t-attf-action="/my/credito/#{application.id}/documentos" class="credit-form">
-                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                <div class="card credit-section-card mb-4"><div class="card-header">Documentos requeridos · <t t-esc="'Persona natural' if application.person_type == 'natural' else 'Persona jurídica'"/></div><div class="card-body"><div class="row g-4">
-                    <t t-foreach="document_fields" t-as="item"><t t-set="field_name" t-value="item[0]"/><t t-set="label" t-value="item[1]"/>
-                        <t t-set="is_common" t-value="field_name in ('application_signed','ruc_updated','utility_business','utility_residence','local_photo_inside','local_photo_outside','applicant_signing_photo','vat_declarations','income_tax_return','bank_certificate')"/>
-                        <t t-set="is_natural" t-value="field_name in ('id_client','id_spouse','voting_certificate')"/>
-                        <t t-set="is_juridical" t-value="field_name in ('id_legal_representative','voting_legal_representative','legal_appointment')"/>
-                        <t t-if="is_common or (application.person_type == 'natural' and is_natural and (field_name != 'id_spouse' or application.spouse_name)) or (application.person_type == 'juridical' and is_juridical)">
-                            <div class="col-12 col-md-6"><div class="credit-upload-field"><label class="form-label fw-semibold" t-att-for="field_name" t-esc="label"/><input class="form-control" type="file" t-att-id="field_name" t-att-name="field_name" t-att-accept="'image/jpeg,image/png' if field_name in photo_fields else '.pdf,.jpg,.jpeg,.png'"/><t t-if="document and document[field_name + '_filename']"><div class="small text-success mt-2">Archivo cargado: <span t-esc="document[field_name + '_filename']"/></div></t><div class="form-text">Deje el campo vacío para conservar el archivo anterior.</div></div></div>
-                        </t>
-                    </t>
-                </div></div></div>
-                <div class="d-flex justify-content-between flex-wrap gap-2 mb-5"><a t-att-href="'/my/credito/%s' % application.id" class="btn btn-outline-secondary rounded-pill px-4">Cancelar</a><button class="btn btn-credit-primary px-5" type="submit">Guardar documentos</button></div>
-            </form>
-        </div></t>
+    <template id="portal_credit_documents_form" name="Carga de documentos por tipo de solicitante">
+        <t t-call="portal.portal_layout">
+            <div class="container py-4 credit-application-container">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+                    <div><span class="credit-kicker">CONEDERA S.A.</span>
+                        <h1 class="h2 mb-1">Documentos solicitados para el crédito</h1>
+                        <p class="text-muted mb-0">Solicitud <strong t-esc="application.name"/> · <t t-esc="application.business_name"/></p>
+                    </div>
+                    <a t-att-href="'/my/credito/%s' % application.id" class="btn btn-outline-secondary rounded-pill">Volver al detalle</a>
+                </div>
+                <div class="alert alert-info rounded-3">
+                    <strong>Tipo de solicitante:</strong> <span t-esc="application.applicant_type_id.name"/>.
+                    Los documentos se muestran según su tipo de solicitante. PDF, JPG o PNG; las fotografías solo JPG/PNG. Máximo 12 MB por archivo.
+                </div>
+                <t t-if="application.applicant_type_id.note">
+                    <div class="alert alert-light border rounded-3" t-esc="application.applicant_type_id.note"/>
+                </t>
+                <t t-if="errors"><div class="alert alert-warning rounded-3"><ul class="mb-0">
+                    <t t-foreach="errors" t-as="error"><li t-esc="error"/></t>
+                </ul></div></t>
+                <form method="post" enctype="multipart/form-data" t-attf-action="/my/credito/#{application.id}/documentos" class="credit-form">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <div class="card credit-section-card mb-4">
+                        <div class="card-header">Requisitos · <t t-esc="application.applicant_type_id.name"/></div>
+                        <div class="card-body"><div class="row g-4">
+                            <t t-foreach="requirements" t-as="requirement">
+                                <t t-set="uploaded_line" t-value="files_by_requirement.get(requirement.id)"/>
+                                <div class="col-12 col-md-6">
+                                    <div class="credit-upload-field">
+                                        <label class="form-label fw-semibold" t-att-for="'doc_req_%s' % requirement.id">
+                                            <t t-esc="requirement.name"/>
+                                            <span t-if="requirement.required" class="text-danger"> *</span>
+                                            <span t-else="" class="text-muted small">(opcional)</span>
+                                        </label>
+                                        <input class="form-control" type="file" t-att-id="'doc_req_%s' % requirement.id"
+                                            t-att-name="'doc_req_%s' % requirement.id"
+                                            t-att-accept="'image/jpeg,image/png' if requirement.image_only else '.pdf,.jpg,.jpeg,.png'"/>
+                                        <div t-if="requirement.description" class="form-text" t-esc="requirement.description"/>
+                                        <div t-if="uploaded_line" class="small text-success mt-2">
+                                            <span class="fw-semibold">Archivo cargado:</span> <span t-esc="uploaded_line.filename"/>
+                                        </div>
+                                        <div t-else="" class="small text-muted mt-2">Pendiente de carga</div>
+                                        <div class="form-text">Para conservar un archivo anterior, deje este campo vacío.</div>
+                                    </div>
+                                </div>
+                            </t>
+                            <div t-if="not requirements" class="col-12">
+                                <div class="alert alert-secondary mb-0">Aún no se han configurado documentos para este tipo de solicitante. Contacte con CONEDERA.</div>
+                            </div>
+                        </div></div>
+                    </div>
+                    <div t-if="document" class="small text-muted mb-3">
+                        Documentos obligatorios cargados: <strong t-esc="document.required_document_uploaded"/> de <strong t-esc="document.required_document_total"/>.
+                    </div>
+                    <div class="d-flex justify-content-between flex-wrap gap-2 mb-5">
+                        <a t-att-href="'/my/credito/%s' % application.id" class="btn btn-outline-secondary rounded-pill px-4">Cancelar</a>
+                        <button class="btn btn-credit-primary px-5" type="submit">Guardar documentos</button>
+                    </div>
+                </form>
+            </div>
+        </t>
     </template>
     <template id="credit_native_signup_terms" inherit_id="auth_signup.signup" name="Verificación de correo en modal para crédito CONEDERA">
         <!-- El checkbox acept_terms lo proporciona custom_web_hr_datos_candidatos; este módulo no duplica su consentimiento. -->

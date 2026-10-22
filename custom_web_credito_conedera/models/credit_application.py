@@ -16,10 +16,16 @@ class ConederaCreditApplication(models.Model):
     name = fields.Char(string='Número de solicitud', required=True, copy=False, readonly=True, default='Nuevo', tracking=True, index=True)
     active = fields.Boolean(default=True)
     portal_user_id = fields.Many2one('res.users', string='Usuario del portal', required=True, readonly=True, index=True, ondelete='restrict')
+    # Campo antiguo conservado exclusivamente para migrar solicitudes históricas.
+    # No participa en las nuevas solicitudes ni condiciona los documentos.
     person_type = fields.Selection([
-        ('natural', 'Persona natural'),
-        ('juridical', 'Persona jurídica'),
-    ], string='Tipo de solicitante', required=True, tracking=True)
+        ('natural', 'Persona natural'), ('juridical', 'Persona jurídica'),
+    ], string='Tipo anterior (histórico)', readonly=True, copy=False)
+    applicant_type_id = fields.Many2one(
+        'conedera.credit.applicant.type', string='Tipo de solicitante',
+        tracking=True, index=True, ondelete='restrict',
+        help='Catálogo editable en Crédito CONEDERA > Tipos de solicitante.')
+    application_place = fields.Char(string='Lugar de solicitud')
     identification = fields.Char(string='Cédula o RUC del solicitante', required=True, tracking=True, index=True)
     application_date = fields.Date(string='Lugar y fecha de solicitud', required=True, default=fields.Date.context_today)
     applicant_name = fields.Char(string='Nombres y apellidos del propietario o representante', required=True, tracking=True)
@@ -108,7 +114,10 @@ class ConederaCreditApplication(models.Model):
 
     # Verificación interna de ubicación y negocio: estos campos solo se completan en Odoo.
     verification_province = fields.Char(string='Provincia de verificación')
-    verification_city_canton_parish = fields.Char(string='Ciudad / cantón / parroquia')
+    verification_city_canton_parish = fields.Char(string='Ciudad / cantón / parroquia (histórico)')
+    verification_city = fields.Char(string='Ciudad verificada')
+    verification_canton = fields.Char(string='Cantón verificado')
+    verification_parish = fields.Char(string='Parroquia verificada')
     verification_neighborhood = fields.Char(string='Barrio')
     verification_address = fields.Char(string='Dirección verificada')
     verification_house_number = fields.Char(string='Número de casa')
@@ -135,7 +144,7 @@ class ConederaCreditApplication(models.Model):
     def _read_group_stage_ids(self, stages, domain, order=None):
         return self.env['conedera.credit.stage'].search([('active', '=', True)], order=order or 'sequence, id')
 
-    @api.depends('document_ids.is_complete')
+    @api.depends('document_ids.is_complete', 'document_ids.document_line_ids.file')
     def _compute_document_complete(self):
         for record in self:
             docs = record.document_ids[:1]
@@ -145,6 +154,8 @@ class ConederaCreditApplication(models.Model):
     def create(self, vals_list):
         Stage = self.env['conedera.credit.stage']
         for vals in vals_list:
+            if not vals.get('applicant_type_id'):
+                raise ValidationError(_('Seleccione un tipo de solicitante configurado.'))
             if vals.get('name', 'Nuevo') == 'Nuevo':
                 vals['name'] = self.env['ir.sequence'].next_by_code('conedera.credit.application') or _('Nuevo')
             if not vals.get('stage_id'):
@@ -172,6 +183,12 @@ class ConederaCreditApplication(models.Model):
         return records
 
     def write(self, vals):
+        if 'applicant_type_id' in vals and not vals['applicant_type_id']:
+            raise ValidationError(_('El tipo de solicitante es obligatorio.'))
+        if 'applicant_type_id' in vals:
+            for record in self:
+                if record.document_ids and record.applicant_type_id and record.applicant_type_id.id != vals['applicant_type_id']:
+                    raise ValidationError(_('No cambie el tipo de solicitante de una solicitud que ya contiene documentación.'))
         previous_stages = {record.id: record.stage_id for record in self} if 'stage_id' in vals else {}
         values = dict(vals)
         if 'stage_id' in values:
@@ -252,3 +269,53 @@ class ConederaCreditApplication(models.Model):
             for field_name in ('monthly_sales', 'social_capital', 'assets_amount', 'monthly_income', 'liabilities_amount', 'monthly_expenses', 'vehicle1_value', 'vehicle2_value', 'employment_salary'):
                 if record[field_name] < 0:
                     raise ValidationError(_('Los montos de la solicitud no pueden ser negativos.'))
+
+    @api.model
+    def _migrate_credit_configuration(self):
+        """Migración repetible al actualizar: enlaza solicitudes y conserva archivos antiguos."""
+        Type = self.env['conedera.credit.applicant.type'].sudo()
+        mapping = {
+            'natural': Type.search([('code', '=', 'natural')], limit=1),
+            'juridical': Type.search([('code', '=', 'juridical')], limit=1),
+        }
+        for old_code, applicant_type in mapping.items():
+            if not applicant_type:
+                continue
+            applications = self.sudo().search([
+                ('applicant_type_id', '=', False), ('person_type', '=', old_code),
+            ])
+            if applications:
+                applications.write({'applicant_type_id': applicant_type.id})
+
+        # El almacenamiento binario original permanece intacto; las líneas nuevas
+        # reciben una copia cuando el requisito inicial coincide con el campo viejo.
+        Docs = self.env['conedera.credit.documents'].sudo()
+        Line = self.env['conedera.credit.document.line'].sudo()
+        Requirement = self.env['conedera.credit.document.requirement'].sudo()
+        legacy_reqs = Requirement.search([('legacy_field', '!=', False)])
+        for requirement in legacy_reqs:
+            old_field = requirement.legacy_field
+            if old_field not in Docs._fields:
+                continue
+            for doc in Docs.search([('application_id.applicant_type_id', '=', requirement.applicant_type_id.id)]):
+                if Line.search_count([('document_id', '=', doc.id), ('requirement_id', '=', requirement.id)]):
+                    continue
+                # En Odoo, los binarios con attachment=True no siempre son
+                # buscables por dominio: inspeccionamos el valor directamente.
+                content = doc[old_field]
+                if not content:
+                    continue
+                filename = doc[old_field + '_filename']
+                if not filename:
+                    # Se omite el archivo sin extensión verificable, pero se conserva
+                    # siempre en su campo histórico para no perder información.
+                    continue
+                try:
+                    with self.env.cr.savepoint():
+                        Line.create({
+                            'document_id': doc.id, 'requirement_id': requirement.id,
+                            'file': content, 'filename': filename,
+                        })
+                except Exception:
+                    _logger.exception('No se pudo trasladar archivo histórico %s del expediente %s; original conservado.', old_field, doc.id)
+        return True

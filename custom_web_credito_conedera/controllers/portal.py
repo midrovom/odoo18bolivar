@@ -22,7 +22,7 @@ OTP_MAX_ATTEMPTS = 5
 MAX_FILE_SIZE = 12 * 1024 * 1024
 
 APPLICATION_FIELDS = [
-    'person_type', 'identification', 'application_date', 'applicant_name', 'applicant_email',
+    'identification', 'application_place', 'application_date', 'applicant_name', 'applicant_email',
     'phone_fixed', 'mobile', 'profession', 'marital_status', 'foreign_residence_time',
     'foreign_work_visa', 'spouse_name', 'spouse_identification', 'spouse_profession',
     'dependents_count', 'home_address', 'housing_type', 'vehicle1_brand', 'vehicle1_model',
@@ -42,44 +42,6 @@ FLOAT_FIELDS = {
     'vehicle1_value', 'vehicle2_value', 'monthly_sales', 'social_capital', 'assets_amount',
     'monthly_income', 'liabilities_amount', 'monthly_expenses', 'employment_salary',
 }
-DOCUMENT_LABELS = {
-    'application_signed': 'Solicitud de crédito preparada y firmada',
-    'ruc_updated': 'Copia del RUC actualizado',
-    'id_client': 'Cédula a color del cliente',
-    'id_spouse': 'Cédula a color del cónyuge',
-    'voting_certificate': 'Certificado de votación vigente del cliente',
-    'id_legal_representative': 'Cédula a color del representante legal',
-    'voting_legal_representative': 'Certificado de votación vigente del representante legal',
-    'legal_appointment': 'Nombramiento del representante legal',
-    'utility_business': 'Planilla de servicio básico del local',
-    'utility_residence': 'Planilla de servicio básico del lugar de residencia',
-    'local_photo_inside': 'Fotografía de la parte interna del local',
-    'local_photo_outside': 'Fotografía de la parte externa del local',
-    'applicant_signing_photo': 'Fotografía del solicitante firmando con el rostro claro',
-    'vat_declarations': 'Últimas 6 declaraciones del IVA (archivo consolidado)',
-    'income_tax_return': 'Declaración del Impuesto a la Renta del año anterior',
-    'bank_certificate': 'Certificado bancario correspondiente a los últimos 6 meses',
-}
-PHOTO_FIELDS = {'local_photo_inside', 'local_photo_outside', 'applicant_signing_photo'}
-DOCUMENT_FIELDS = [
-    ('application_signed', 'Solicitud de crédito preparada y firmada'),
-    ('ruc_updated', 'Copia del RUC actualizado'),
-    ('id_client', 'Cédula a color del cliente'),
-    ('id_spouse', 'Cédula a color del cónyuge (si corresponde)'),
-    ('voting_certificate', 'Certificado de votación vigente del cliente'),
-    ('id_legal_representative', 'Cédula a color del representante legal'),
-    ('voting_legal_representative', 'Certificado de votación vigente del representante legal'),
-    ('legal_appointment', 'Nombramiento del representante legal'),
-    ('utility_business', 'Planilla de servicio básico del local'),
-    ('utility_residence', 'Planilla de servicio básico del lugar de residencia'),
-    ('local_photo_inside', 'Fotografía de la parte interna del local'),
-    ('local_photo_outside', 'Fotografía de la parte externa del local'),
-    ('applicant_signing_photo', 'Fotografía del solicitante firmando, con el rostro claramente visible'),
-    ('vat_declarations', 'Últimas 6 declaraciones del IVA (archivo consolidado en PDF)'),
-    ('income_tax_return', 'Declaración del Impuesto a la Renta del año anterior'),
-    ('bank_certificate', 'Certificado bancario correspondiente a los últimos 6 meses'),
-]
-
 
 def _clean(value):
     return str(value or '').strip()
@@ -419,6 +381,7 @@ class ConederaCreditPortal(http.Controller):
             ],
             'housing_types': [('own', 'Propia'), ('rented', 'Alquilada'), ('family', 'Familiares'), ('mortgaged', 'Hipotecada')],
             'local_types': [('own', 'Propio'), ('rented', 'Alquilado'), ('family', 'Familiar'), ('mortgaged', 'Hipotecado')],
+            'applicant_types': request.env['conedera.credit.applicant.type'].sudo().search([('active', '=', True)], order='sequence, name, id'),
         })
 
     @http.route('/my/credito/nueva', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
@@ -475,6 +438,11 @@ class ConederaCreditPortal(http.Controller):
                 values[field_name] = _clean(value) or False
         values['application_date'] = values.get('application_date') or fields.Date.context_today(request.env.user).strftime('%Y-%m-%d')
         values['portal_user_id'] = request.env.user.id
+        selected_type = _clean(post.get('applicant_type_id'))
+        applicant_type = request.env['conedera.credit.applicant.type'].sudo()
+        if selected_type.isdecimal():
+            applicant_type = applicant_type.search([('id', '=', int(selected_type)), ('active', '=', True)], limit=1)
+        values['applicant_type_id'] = applicant_type.id or False
         values['declaration_accepted'] = post.get('declaration_accepted') in ('on', '1', 'true', 'yes')
         consent_fields = [
             ('prior_commercial_relationship_accepted', _('Debe aceptar la cláusula sobre la relación comercial previa y su valor probatorio.')),
@@ -488,7 +456,7 @@ class ConederaCreditPortal(http.Controller):
         values['reference_ids'] = self._reference_commands(post, errors)
 
         for field_name, label in [
-            ('person_type', _('tipo de solicitante')),
+            ('applicant_type_id', _('tipo de solicitante')),
             ('identification', _('cédula o RUC del solicitante')),
             ('applicant_name', _('nombres y apellidos')),
             ('applicant_email', _('correo electrónico')),
@@ -499,8 +467,6 @@ class ConederaCreditPortal(http.Controller):
         ]:
             if not values.get(field_name):
                 errors.append(_('El campo %(field)s es obligatorio.') % {'field': label})
-        if values.get('person_type') not in ('natural', 'juridical'):
-            errors.append(_('Seleccione persona natural o persona jurídica.'))
         if values.get('applicant_email') and not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', values['applicant_email']):
             errors.append(_('Ingrese un correo válido para el propietario o representante.'))
         if values.get('maps_url') and not values['maps_url'].lower().startswith(('https://', 'http://')):
@@ -569,18 +535,26 @@ class ConederaCreditPortal(http.Controller):
     def _credit_document_errors(self, doc):
         missing = []
         if doc:
-            for field_name in doc._required_fields():
-                if not doc[field_name]:
-                    missing.append(DOCUMENT_LABELS.get(field_name, field_name))
+            uploaded = set(doc.document_line_ids.filtered(lambda line: bool(line.file)).mapped('requirement_id').ids)
+            for requirement in doc._required_fields():
+                if requirement.id not in uploaded:
+                    missing.append(requirement.name)
         return missing
 
     def _render_credit_documents_form(self, application, document=None, errors=None):
+        requirements = application.applicant_type_id.requirement_ids.filtered('active')
+        if not application.spouse_name:
+            requirements = requirements.filtered(lambda r: not r.only_if_spouse)
+        requirements = requirements.sorted(key=lambda r: (r.sequence, r.id))
+        files_by_requirement = {}
+        if document:
+            files_by_requirement = {line.requirement_id.id: line for line in document.document_line_ids if line.file}
         return request.render('custom_web_credito_conedera.portal_credit_documents_form', {
             'application': application,
             'document': document,
             'errors': errors or [],
-            'document_fields': DOCUMENT_FIELDS,
-            'photo_fields': PHOTO_FIELDS,
+            'requirements': requirements,
+            'files_by_requirement': files_by_requirement,
         })
 
     @http.route('/my/credito/<int:application_id>/documentos', type='http', auth='user', website=True, methods=['GET', 'POST'], sitemap=False)
@@ -593,60 +567,57 @@ class ConederaCreditPortal(http.Controller):
         if request.httprequest.method == 'GET':
             return self._render_credit_documents_form(application, document)
 
-        values = {}
         errors = []
-        uploaded_any = False
-        common_doc_fields = {'application_signed', 'ruc_updated', 'utility_business', 'utility_residence', 'local_photo_inside', 'local_photo_outside', 'applicant_signing_photo', 'vat_declarations', 'income_tax_return', 'bank_certificate'}
-        natural_doc_fields = {'id_client', 'id_spouse', 'voting_certificate'}
-        juridical_doc_fields = {'id_legal_representative', 'voting_legal_representative', 'legal_appointment'}
-        allowed_fields = common_doc_fields | (natural_doc_fields if application.person_type == 'natural' else juridical_doc_fields)
-        if application.person_type == 'natural' and not application.spouse_name:
-            allowed_fields.discard('id_spouse')
-        for field_name, label in DOCUMENT_FIELDS:
-            if field_name not in allowed_fields:
-                continue
-            file_obj = request.httprequest.files.get(field_name)
+        uploads = []
+        requirements = application.applicant_type_id.requirement_ids.filtered('active')
+        if not application.spouse_name:
+            requirements = requirements.filtered(lambda r: not r.only_if_spouse)
+        Line = request.env['conedera.credit.document.line'].sudo()
+        for requirement in requirements:
+            file_obj = request.httprequest.files.get('doc_req_%s' % requirement.id)
             if not file_obj or not file_obj.filename:
                 continue
             filename = secure_filename(file_obj.filename) or 'documento'
-            content = file_obj.read()
+            content = file_obj.read(MAX_FILE_SIZE + 1)
             if not content:
                 continue
             if len(content) > MAX_FILE_SIZE:
-                errors.append(_('El archivo "%s" supera el límite de 12 MB.') % label)
+                errors.append(_('El archivo "%s" supera el límite de 12 MB.') % requirement.name)
                 continue
-            lowered = filename.lower()
-            allowed = ('.jpg', '.jpeg', '.png') if field_name in PHOTO_FIELDS else ('.pdf', '.jpg', '.jpeg', '.png')
-            if not lowered.endswith(allowed):
-                errors.append(_('El archivo "%s" debe estar en formato %s.') % (label, 'JPG o PNG' if field_name in PHOTO_FIELDS else 'PDF, JPG o PNG'))
+            encoded = base64.b64encode(content).decode('ascii')
+            try:
+                Line._validate_file(requirement, filename, encoded)
+            except ValidationError as exc:
+                errors.append(str(exc))
                 continue
-            values[field_name] = base64.b64encode(content).decode('ascii')
-            values['%s_filename' % field_name] = filename
-            uploaded_any = True
+            uploads.append((requirement, filename, encoded))
 
+        if not requirements:
+            errors.append(_('No hay documentos configurados para este tipo de solicitante. Contacte a CONEDERA.'))
         if errors:
             return self._render_credit_documents_form(application, document, errors)
-        if not document:
-            values['application_id'] = application.id
-            values['last_portal_upload'] = fields.Datetime.now() if uploaded_any else False
-            try:
-                document = Documents.create(values)
-            except (ValidationError, ValueError) as exc:
-                return self._render_credit_documents_form(application, document, [str(exc)])
-        else:
-            if uploaded_any:
-                values['last_portal_upload'] = fields.Datetime.now()
-                values['state'] = 'pending'
-            try:
-                document.write(values)
-            except (ValidationError, ValueError) as exc:
-                return self._render_credit_documents_form(application, document, [str(exc)])
+        try:
+            with request.env.cr.savepoint():
+                if not document:
+                    document = Documents.create({'application_id': application.id})
+                for requirement, filename, content in uploads:
+                    vals = {'filename': filename, 'file': content}
+                    existing = Line.search([('document_id', '=', document.id), ('requirement_id', '=', requirement.id)], limit=1)
+                    if existing:
+                        existing.write(vals)
+                    else:
+                        Line.create(dict(vals, document_id=document.id, requirement_id=requirement.id))
+                if uploads:
+                    document.write({'last_portal_upload': fields.Datetime.now(), 'state': 'pending'})
+        except (ValidationError, ValueError) as exc:
+            return self._render_credit_documents_form(application, document, [str(exc)])
+        except Exception:
+            _logger.exception('Error al cargar documentos en solicitud %s', application.name)
+            return self._render_credit_documents_form(application, document, [_('No se pudo guardar la documentación. Inténtelo nuevamente.')])
 
         missing = self._credit_document_errors(document)
         if not missing:
             document.action_mark_submitted()
             return request.redirect('/my/credito/documentos?uploaded=1')
-        return self._render_credit_documents_form(
-            application, document,
-            [_('Documentación guardada, pero aún faltan: %s.') % ', '.join(missing)],
-        )
+        return self._render_credit_documents_form(application, document,
+            [_('Documentación guardada, pero aún faltan: %s.') % ', '.join(missing)])

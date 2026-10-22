@@ -17,7 +17,10 @@ class ConederaCreditDocuments(models.Model):
         'conedera.credit.application', string='Solicitud de crédito', required=True,
         ondelete='cascade', index=True, tracking=True,
     )
-    person_type = fields.Selection(related='application_id.person_type', string='Tipo de solicitante', store=True, readonly=True)
+    # Compatibilidad con el campo histórico de versión 1.0.9.
+    person_type = fields.Selection(related='application_id.person_type', string='Tipo anterior', store=True, readonly=True)
+    applicant_type_id = fields.Many2one(related='application_id.applicant_type_id', string='Tipo de solicitante', readonly=True)
+    document_line_ids = fields.One2many('conedera.credit.document.line', 'document_id', string='Archivos por requisito')
     applicant_name = fields.Char(related='application_id.applicant_name', string='Solicitante', store=True, readonly=True)
     state = fields.Selection([
         ('pending', 'Pendiente de carga'),
@@ -63,46 +66,43 @@ class ConederaCreditDocuments(models.Model):
     bank_certificate = fields.Binary(string='Certificado bancario correspondiente a los últimos 6 meses', attachment=True)
     bank_certificate_filename = fields.Char(string='Archivo - certificado bancario')
 
-    is_complete = fields.Boolean(string='Documentación completa', compute='_compute_summary', store=True)
-    required_document_total = fields.Integer(string='Documentos requeridos', compute='_compute_summary', store=True)
-    required_document_uploaded = fields.Integer(string='Documentos cargados', compute='_compute_summary', store=True)
-    required_document_missing = fields.Integer(string='Documentos faltantes', compute='_compute_summary', store=True)
+    is_complete = fields.Boolean(string='Documentación completa', compute='_compute_summary')
+    required_document_total = fields.Integer(string='Documentos requeridos', compute='_compute_summary')
+    required_document_uploaded = fields.Integer(string='Documentos cargados', compute='_compute_summary')
+    required_document_missing = fields.Integer(string='Documentos faltantes', compute='_compute_summary')
     last_portal_upload = fields.Datetime(string='Última carga del portal', readonly=True)
 
     _sql_constraints = [
         ('conedera_credit_documents_application_unique', 'unique(application_id)', 'Solo puede existir un expediente documental por solicitud.'),
     ]
 
-    def _required_fields(self):
+    def _visible_requirements(self):
         self.ensure_one()
-        common = [
-            'application_signed', 'ruc_updated', 'utility_business', 'utility_residence',
-            'local_photo_inside', 'local_photo_outside', 'applicant_signing_photo',
-            'vat_declarations', 'income_tax_return', 'bank_certificate',
-        ]
-        if self.application_id.person_type == 'juridical':
-            return common + ['id_legal_representative', 'voting_legal_representative', 'legal_appointment']
-        natural = common + ['id_client', 'voting_certificate']
-        if self.application_id.spouse_name:
-            natural.append('id_spouse')
-        return natural
+        requirements = self.application_id.applicant_type_id.requirement_ids.filtered('active')
+        if not self.application_id.spouse_name:
+            requirements = requirements.filtered(lambda r: not r.only_if_spouse)
+        return requirements.sorted(key=lambda r: (r.sequence, r.id))
 
-    @api.depends(
-        'application_id.person_type', 'application_id.spouse_name',
-        'application_signed', 'ruc_updated', 'id_client', 'id_spouse',
-        'voting_certificate', 'id_legal_representative', 'voting_legal_representative',
-        'legal_appointment', 'utility_business', 'utility_residence',
-        'local_photo_inside', 'local_photo_outside', 'applicant_signing_photo',
-        'vat_declarations', 'income_tax_return', 'bank_certificate',
-    )
+    def _required_fields(self):
+        # API compatible con el controlador anterior, ahora retorna requisitos configurados.
+        self.ensure_one()
+        return self._visible_requirements().filtered('required')
+
+    @api.depends('document_line_ids.file', 'document_line_ids.requirement_id',
+                 'application_id.applicant_type_id', 'application_id.spouse_name',
+                 'application_id.applicant_type_id.requirement_ids.active',
+                 'application_id.applicant_type_id.requirement_ids.required',
+                 'application_id.applicant_type_id.requirement_ids.only_if_spouse')
     def _compute_summary(self):
         for record in self:
             required = record._required_fields()
-            uploaded = sum(bool(record[field_name]) for field_name in required)
-            record.required_document_total = len(required)
-            record.required_document_uploaded = uploaded
-            record.required_document_missing = len(required) - uploaded
-            record.is_complete = bool(required) and uploaded == len(required)
+            uploaded = set(record.document_line_ids.filtered(lambda line: bool(line.file)).mapped('requirement_id').ids)
+            total = len(required)
+            completed = sum(1 for requirement in required if requirement.id in uploaded)
+            record.required_document_total = total
+            record.required_document_uploaded = completed
+            record.required_document_missing = total - completed
+            record.is_complete = bool(total) and completed == total
 
     def _check_files(self, values):
         allowed_image = ('.jpg', '.jpeg', '.png')

@@ -9,10 +9,10 @@ Módulo nuevo e independiente de los módulos de Recursos Humanos utilizados com
 - El acceso público de **Solicitar crédito** conduce primero a `/web/login` nativo de Odoo. Desde el propio login, el visitante puede abrir el registro nativo `/web/signup`.
 - Código de verificación OTP de seis dígitos enviado por correo; vence en 3 minutos y limita los intentos de validación.
 - La cuenta nativa de Odoo se crea únicamente después de validar el código. Luego se solicita iniciar sesión en `/web/login` y el acceso por defecto redirige a `/my/credito/nueva`.
-- Formulario web que reproduce los campos legibles de la página 1 del PDF de solicitud: propietario/representante, tipo persona natural/jurídica, negocio, datos económicos, relación de dependencia y hasta tres referencias comerciales, personales y bancarias.
+- Formulario web con los campos de la página 1 del PDF: propietario/representante, tipo de solicitante configurable, negocio, datos económicos, relación de dependencia y hasta tres referencias comerciales, personales y bancarias.
 - Historial personal de solicitudes y detalle con etapas visibles para el cliente.
 - Kanban interno por etapas para arrastrar solicitudes y avanzar el proceso. Los cambios se registran en la línea de tiempo y generan intento de notificación por correo al solicitante.
-- La etapa **Aprobada** habilita la carga documental. El tipo de persona gobierna los campos mostrados y los requisitos obligatorios.
+- La etapa **Aprobada** habilita la carga documental. El tipo de solicitante configurado en Odoo determina los documentos y sus requisitos obligatorios.
 - Gestión de la documentación recibida y controles para aceptar el expediente o pedir correcciones.
 - Campos de la página 2 del PDF destinados a la verificación interna de la ubicación del negocio.
 - Se incluye el envío del enlace de Google Maps a `cobranzas@viteltek.com`, ya que esa dirección aparece explícitamente en el PDF proporcionado.
@@ -77,7 +77,7 @@ Las etapas se pueden administrar desde **Crédito CONEDERA → Etapas del flujo*
 - Al pulsar **Registrarse**, se envía automáticamente el primer código y se abre un modal para ingresarlo. El contador tiene una vigencia de 3 minutos; al llegar a cero aparece **Reenviar código** y solo ese clic envía un código nuevo e invalida el anterior.
 - La cuenta de `res.users` se crea después de validar un código vigente. El servidor también valida que se haya aceptado la casilla de términos y condiciones.
 - Antes de enviar la solicitud, el cliente debe aceptar por separado las cláusulas sugeridas sobre relación comercial previa, citación telemática, consulta de score crediticio por cualquier plataforma o buró de crédito autorizado, firma/sello de CONEDERA y documentos financieros adicionales.
-- Tras la aprobación, el expediente documental también solicita un PDF consolidado con las últimas seis declaraciones del IVA, la declaración del Impuesto a la Renta del año anterior y un certificado bancario correspondiente a los últimos seis meses.
+- La aceptación de documentos financieros adicionales sigue siendo una casilla de la solicitud; los comprobantes de IVA, renta y certificado bancario ahora solo se solicitan si el administrador los agrega como requisitos en el catálogo de documentos del tipo de solicitante. Los archivos de versiones antiguas no se eliminan.
 - La autorización para consulta de score/historial se muestra como bloque independiente y no identifica a un proveedor específico.
 
 
@@ -111,3 +111,21 @@ En Ajustes > Técnico > Correo > Servidores de correo saliente, marque el servid
 - Se conserva la transacción con `savepoint`, la validación del código, el inicio de sesión manual, el uso de la plantilla de usuario portal nativa y la prevención de correos ya registrados.
 - Si ocurre otro error durante la creación, el registro de Odoo conserva la excepción real bajo `No se pudo crear la cuenta nativa del portal de crédito CONEDERA` para facilitar la revisión por el administrador.
 - Actualizar este módulo en Odoo (Upgrade) y reiniciar el servicio; no es necesario modificar el módulo de recursos humanos.
+
+## Versión 18.0.1.1.0 — tipos de solicitante y documentación configurable
+
+- **Configuración**: Crédito CONEDERA > Tipos de solicitante. Cree cualquier cantidad de tipos y establezca sus documentos desde la pestaña **Documentos exigidos**. Por requisito puede configurar orden, nombre, carácter obligatorio, visibilidad condicionada a que la solicitud informe un cónyuge, formato fotográfico y descripción.
+- **Portal de solicitudes**: el campo Tipo de solicitante lee los registros activos del catálogo. Se conservan los campos de ambas páginas de la solicitud PDF; se separaron los campos Lugar y Fecha, y Ciudad/Cantón/Parroquia de la verificación interna de ubicación.
+- **Portal documental**: después de que la solicitud sea aprobada, la lista de archivos a cargar corresponde al catálogo del tipo seleccionado, no a una lista codificada en el controlador. Permite guardado parcial. Las planillas de servicios y las fotografías interiores/exteriores se solicitan como archivos separados. La cédula del cónyuge solo se muestra cuando en la solicitud consta el nombre del cónyuge.
+- **Tipos iniciales**: Persona natural y Persona jurídica; requisitos iniciales según las siete u ocho categorías indicadas, divididas en archivos independientes donde aplica.
+- **Validaciones**: se aceptan PDF/JPG/PNG para documentos, JPG/PNG para fotos, máximo 12 MB, verificación del encabezado del archivo y verificación del documento seleccionado (su tipo debe corresponder al de la solicitud). La aceptación de la documentación se bloquea si faltan requisitos obligatorios.
+- **Actualización**: se mantiene temporalmente el campo antiguo `person_type` para conservar datos históricos, pero **no** es el selector activo. Al actualizar se asigna el nuevo `applicant_type_id` a solicitudes anteriores y se copian los archivos legados para los requisitos iniciales sin duplicarlos. Los binarios antiguos siguen almacenados y se consultan en **Documentación recibida > Archivos de versiones anteriores**. La copia omite archivos antiguos sin un nombre/extensión recuperables o que no superen la validación; esos archivos permanecen disponibles en su campo histórico.
+
+### Actualizar desde 18.0.1.0.9
+
+1. Realice respaldo de base de datos **y filestore**.
+2. Instale los archivos nuevos en la carpeta del módulo `custom_web_credito_conedera`.
+3. Reinicie Odoo y actualice la lista de aplicaciones; actualice el módulo.
+4. Confirme los tipos y requisitos en el menú de configuración.
+5. Pruebe en el portal una solicitud de cada tipo, apruebe la solicitud, adjunte documentos de prueba y valide los contadores en la sección interna.
+6. Revise la migración de expedientes previos antes de eliminar datos o archivos históricos. **No elimine** los campos legados durante esta actualización.
