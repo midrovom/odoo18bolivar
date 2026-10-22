@@ -224,9 +224,6 @@
             <p class="alert alert-info mt-3" role="status" t-if="request.params.get('account_exists')">
                 Ya existe una cuenta con ese correo. Inicie sesión o use la recuperación de contraseña.
             </p>
-            <div class="text-center mt-3">
-                <a href="/web/signup?redirect=%2Fmy%2Fcredito%2Fnueva">¿No tiene cuenta? Regístrese para solicitar crédito</a>
-            </div>
         </xpath>
     </template>
 </odoo>
