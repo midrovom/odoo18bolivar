@@ -48,3 +48,25 @@
 .credit-otp-backdrop { opacity: .58; }
 .credit-otp-modal .modal-content { border-radius: 1rem; }
 body.modal-open { overflow: hidden; }
+
+/* Wizard: all sections remain accessible without JS, client-side JS only
+   hides inactive panels after successful initialization. */
+.credit-wizard-progress { scroll-margin-top: 90px; }
+.credit-wizard-steps { display: flex; gap: .5rem; justify-content: space-between; flex-wrap: wrap; }
+.credit-wizard-steps li { display: flex; align-items: center; gap: .5rem; flex: 1 1 140px; border: 1px solid var(--credit-border); border-radius: .8rem; padding: .65rem .75rem; background: #fff; color: #6b6464; font-size: .84rem; }
+.credit-wizard-steps li.is-active { background: #fff7f7; color: var(--credit-red-dark); border-color: var(--credit-red); font-weight: 700; }
+.credit-wizard-steps li.is-complete { border-color: #a4bea7; color: #486b4d; }
+.credit-wizard-number { display: inline-flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; border-radius: 50%; border: 1px solid currentColor; font-weight: 700; flex-shrink: 0; }
+.credit-wizard-steps li.is-active .credit-wizard-number { background: var(--credit-red); color: #fff; }
+.credit-wizard-panel-title h2 { color: var(--credit-red-dark); font-weight: 700; }
+.credit-wizard-ready .credit-step-panel { display: none; }
+.credit-wizard-ready .credit-step-panel.is-active { display: block; }
+.credit-form [hidden] { display: none !important; }
+.credit-terms-group + .credit-terms-group { padding-top: 1.3rem; border-top: 1px solid var(--credit-border); }
+.credit-terms-group .form-check-label { line-height: 1.5; }
+@media (max-width: 576px) {
+ .credit-wizard-steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+ .credit-wizard-steps li { min-width: 0; font-size: .78rem; padding: .5rem; }
+ .credit-wizard-nav { align-items: stretch !important; }
+ .credit-wizard-nav .btn { white-space: normal; }
+}

@@ -10,7 +10,10 @@ class ConederaCreditApplicantType(models.Model):
     name = fields.Char(string='Tipo de solicitante', required=True, translate=True)
     sequence = fields.Integer(default=10)
     active = fields.Boolean(default=True)
-    code = fields.Char(string='Código interno', copy=False, help='Identificador opcional para migrar registros históricos. No determina la documentación.')
+    code = fields.Char(
+        string='ID único del tipo', copy=False, readonly=True, index=True,
+        help='Identificador permanente (por ejemplo, natural, juridical, TC-000001). '
+             'Puede utilizarse en integraciones y para localizar sus requisitos documentales.')
     note = fields.Text(string='Indicaciones para el solicitante')
     requirement_ids = fields.One2many('conedera.credit.document.requirement', 'applicant_type_id', string='Documentos exigidos')
     application_count = fields.Integer(compute='_compute_application_count', string='Solicitudes')
@@ -18,6 +21,20 @@ class ConederaCreditApplicantType(models.Model):
     _sql_constraints = [
         ('conedera_type_code_unique', 'unique(code)', 'Este código de tipo de solicitante ya está utilizado.'),
     ]
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('code'):
+                vals['code'] = self.env['ir.sequence'].next_by_code('conedera.credit.applicant.type')
+                if not vals['code']:
+                    raise ValidationError(_('No se pudo generar el identificador del tipo de solicitante.'))
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if 'code' in vals and not self.env.context.get('credit_identifier_migration'):
+            raise ValidationError(_('El ID único del tipo de solicitante es permanente y no puede modificarse.'))
+        return super().write(vals)
 
     def _compute_application_count(self):
         for rec in self:

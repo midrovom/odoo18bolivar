@@ -33,10 +33,14 @@ class ConederaCreditApplication(models.Model):
     phone_fixed = fields.Char(string='Teléfono fijo')
     mobile = fields.Char(string='Celular', required=True)
     profession = fields.Char(string='Profesión')
+    # Conservado como dato histórico; los nuevos registros utilizan el catálogo editable.
     marital_status = fields.Selection([
         ('single', 'Soltero/a'), ('married', 'Casado/a'), ('divorced', 'Divorciado/a'),
         ('widowed', 'Viudo/a'), ('free_union', 'Unión de hecho'), ('other', 'Otro'),
-    ], string='Estado civil')
+    ], string='Estado civil (anterior)', copy=False, readonly=True)
+    marital_status_id = fields.Many2one(
+        'conedera.credit.marital.status', string='Estado civil', ondelete='restrict', index=True,
+        help='Estados civiles configurables en Crédito CONEDERA > Estados civiles.')
     foreign_residence_time = fields.Char(string='Tiempo de residencia (extranjero)')
     foreign_work_visa = fields.Selection([('yes', 'Sí'), ('no', 'No')], string='Visa de trabajo (extranjero)')
     spouse_name = fields.Char(string='Nombres y apellidos del cónyuge')
@@ -153,7 +157,14 @@ class ConederaCreditApplication(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         Stage = self.env['conedera.credit.stage']
+        required_consents = (
+            'declaration_accepted', 'prior_commercial_relationship_accepted',
+            'electronic_service_accepted', 'credit_bureau_authorized',
+            'company_signature_stamp_acknowledged', 'additional_financial_documents_accepted',
+        )
         for vals in vals_list:
+            if not all(vals.get(field) for field in required_consents):
+                raise ValidationError(_('Para guardar una nueva solicitud debe aceptar la declaración general y todas las condiciones adicionales.'))
             if not vals.get('applicant_type_id'):
                 raise ValidationError(_('Seleccione un tipo de solicitante configurado.'))
             if vals.get('name', 'Nuevo') == 'Nuevo':
@@ -183,6 +194,13 @@ class ConederaCreditApplication(models.Model):
         return records
 
     def write(self, vals):
+        protected_consents = (
+            'declaration_accepted', 'prior_commercial_relationship_accepted',
+            'electronic_service_accepted', 'credit_bureau_authorized',
+            'company_signature_stamp_acknowledged', 'additional_financial_documents_accepted',
+        )
+        if any(field in vals and not vals[field] for field in protected_consents):
+            raise ValidationError(_('No es posible quitar una aceptación registrada en una solicitud de crédito.'))
         if 'applicant_type_id' in vals and not vals['applicant_type_id']:
             raise ValidationError(_('El tipo de solicitante es obligatorio.'))
         if 'applicant_type_id' in vals:
@@ -248,10 +266,13 @@ class ConederaCreditApplication(models.Model):
             _logger.exception('No se pudo notificar por correo la etapa de solicitud %s', self.name)
 
     def action_mark_documentation_received(self):
+        stage = self.env['conedera.credit.stage'].search([
+            ('is_documents_received', '=', True), ('active', '=', True),
+        ], order='sequence, id', limit=1)
+        if not stage:
+            raise ValidationError(_('Configure una etapa marcada como «Documentación recibida» antes de continuar.'))
         for record in self:
-            stage = self.env['conedera.credit.stage'].search([('name', '=', 'Documentación recibida')], limit=1)
-            if stage:
-                record.stage_id = stage
+            record.stage_id = stage
 
     def action_open_portal(self):
         self.ensure_one()
@@ -286,6 +307,29 @@ class ConederaCreditApplication(models.Model):
             ])
             if applications:
                 applications.write({'applicant_type_id': applicant_type.id})
+
+        # Los antiguos valores Selection permanecen disponibles; una sola
+        # migración idempotente los relaciona con el nuevo catálogo de estados civiles.
+        MaritalStatus = self.env['conedera.credit.marital.status'].sudo()
+        for code in ('single', 'married', 'divorced', 'widowed', 'free_union', 'other'):
+            status = MaritalStatus.search([('code', '=', code)], limit=1)
+            if status:
+                legacy_records = self.sudo().search([
+                    ('marital_status_id', '=', False), ('marital_status', '=', code),
+                ])
+                if legacy_records:
+                    legacy_records.write({'marital_status_id': status.id})
+        # Los tipos creados anteriormente sin código adquieren un ID estable.
+        for record in Type.search([('code', '=', False)]):
+            new_code = self.env['ir.sequence'].next_by_code('conedera.credit.applicant.type')
+            if not new_code:
+                raise ValidationError(_('No se pudo generar el ID de un tipo de solicitante antiguo.'))
+            record.with_context(credit_identifier_migration=True).write({'code': new_code})
+        # La etapa para registrar documentación se identifica por un indicador,
+        # nunca por su nombre: los administradores pueden renombrarla.
+        docs_stage = self.env.ref('custom_web_credito_conedera.stage_credit_documents_received', raise_if_not_found=False)
+        if docs_stage and not docs_stage.is_documents_received:
+            docs_stage.is_documents_received = True
 
         # El almacenamiento binario original permanece intacto; las líneas nuevas
         # reciben una copia cuando el requisito inicial coincide con el campo viejo.

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="seq_conedera_credit_applicant_type" model="ir.sequence">
+    <field name="name">Identificadores de tipo de solicitante</field>
+    <field name="code">conedera.credit.applicant.type</field>
+    <field name="prefix">TC-</field>
+    <field name="padding">6</field>
+    <field name="number_next">1</field>
+    <field name="implementation">standard</field>
+  </record>
+  <record id="seq_conedera_credit_marital_status" model="ir.sequence">
+    <field name="name">Identificadores de estado civil</field>
+    <field name="code">conedera.credit.marital.status</field>
+    <field name="prefix">EC-</field>
+    <field name="padding">6</field>
+    <field name="number_next">1</field>
+    <field name="implementation">standard</field>
+  </record>
+</odoo>

@@ -23,7 +23,7 @@ MAX_FILE_SIZE = 12 * 1024 * 1024
 
 APPLICATION_FIELDS = [
     'identification', 'application_place', 'application_date', 'applicant_name', 'applicant_email',
-    'phone_fixed', 'mobile', 'profession', 'marital_status', 'foreign_residence_time',
+    'phone_fixed', 'mobile', 'profession', 'foreign_residence_time',
     'foreign_work_visa', 'spouse_name', 'spouse_identification', 'spouse_profession',
     'dependents_count', 'home_address', 'housing_type', 'vehicle1_brand', 'vehicle1_model',
     'vehicle1_year', 'vehicle1_value', 'vehicle2_brand', 'vehicle2_model', 'vehicle2_year',
@@ -367,18 +367,16 @@ class ConederaCreditPortal(http.Controller):
         domain.append(('portal_user_id', '=', request.env.user.id))
         return request.env['conedera.credit.application'].sudo().search(domain, order='create_date desc, id desc')
 
-    def _render_application_form(self, form_values=None, errors=None):
+    def _render_application_form(self, form_values=None, errors=None, start_step=1):
         defaults = {'application_date': fields.Date.context_today(request.env.user).strftime('%Y-%m-%d'),
-                    'applicant_name': request.env.user.name,
+                    'applicant_name': '',
                     'applicant_email': request.env.user.email or request.env.user.login}
         defaults.update(form_values or {})
         return request.render('custom_web_credito_conedera.portal_credit_application_form', {
             'form_values': defaults,
             'errors': errors or [],
-            'marital_statuses': [
-                ('single', 'Soltero/a'), ('married', 'Casado/a'), ('divorced', 'Divorciado/a'),
-                ('widowed', 'Viudo/a'), ('free_union', 'Unión de hecho'), ('other', 'Otro'),
-            ],
+            'marital_statuses': request.env['conedera.credit.marital.status'].sudo().search([('active', '=', True)], order='sequence,name,id'),
+            'start_step': max(1, min(5, int(start_step or 1))),
             'housing_types': [('own', 'Propia'), ('rented', 'Alquilada'), ('family', 'Familiares'), ('mortgaged', 'Hipotecada')],
             'local_types': [('own', 'Propio'), ('rented', 'Alquilado'), ('family', 'Familiar'), ('mortgaged', 'Hipotecado')],
             'applicant_types': request.env['conedera.credit.applicant.type'].sudo().search([('active', '=', True)], order='sequence, name, id'),
@@ -386,7 +384,7 @@ class ConederaCreditPortal(http.Controller):
 
     @http.route('/my/credito/nueva', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
     def new_credit_application(self, **kwargs):
-        return self._render_application_form({'applicant_name': request.env.user.name, 'applicant_email': request.env.user.email or request.env.user.login})
+        return self._render_application_form({'applicant_name': '', 'applicant_email': request.env.user.email or request.env.user.login})
 
     def _reference_commands(self, post, errors):
         commands = []
@@ -443,6 +441,13 @@ class ConederaCreditPortal(http.Controller):
         if selected_type.isdecimal():
             applicant_type = applicant_type.search([('id', '=', int(selected_type)), ('active', '=', True)], limit=1)
         values['applicant_type_id'] = applicant_type.id or False
+        marital_code = _clean(post.get('marital_status_id'))
+        marital_record = request.env['conedera.credit.marital.status'].sudo()
+        if marital_code.isdecimal():
+            marital_record = marital_record.search([('id', '=', int(marital_code)), ('active', '=', True)], limit=1)
+        if marital_code and not marital_record:
+            errors.append(_('Seleccione un estado civil válido.'))
+        values['marital_status_id'] = marital_record.id or False
         values['declaration_accepted'] = post.get('declaration_accepted') in ('on', '1', 'true', 'yes')
         consent_fields = [
             ('prior_commercial_relationship_accepted', _('Debe aceptar la cláusula sobre la relación comercial previa y su valor probatorio.')),
@@ -477,7 +482,13 @@ class ConederaCreditPortal(http.Controller):
             if not values[field_name]:
                 errors.append(message)
         if errors:
-            return self._render_application_form(post, errors)
+            required_person = ('applicant_type_id', 'identification', 'applicant_name', 'applicant_email', 'mobile')
+            required_business = ('business_name', 'business_ruc', 'business_address')
+            invalid_terms = not values['declaration_accepted'] or any(not values[key] for key, _message in consent_fields)
+            step = (1 if any(not values.get(key) for key in required_person) else
+                    2 if any(not values.get(key) for key in required_business) else
+                    5 if invalid_terms else 1)
+            return self._render_application_form(post, errors, start_step=step)
 
         try:
             application = request.env['conedera.credit.application'].sudo().create(values)

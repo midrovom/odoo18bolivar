@@ -129,3 +129,23 @@ En Ajustes > Técnico > Correo > Servidores de correo saliente, marque el servid
 4. Confirme los tipos y requisitos en el menú de configuración.
 5. Pruebe en el portal una solicitud de cada tipo, apruebe la solicitud, adjunte documentos de prueba y valide los contadores en la sección interna.
 6. Revise la migración de expedientes previos antes de eliminar datos o archivos históricos. **No elimine** los campos legados durante esta actualización.
+
+## Versión 18.0.1.2.0 — identificadores, estados y formulario paso a paso
+
+- Los **nombres y apellidos** del propietario/representante inician vacíos en la solicitud, aunque el usuario haya iniciado sesión. El correo del usuario puede continuar precargado.
+- Los **tipos de solicitante** poseen un **ID único permanente** (`code`): se conservan `natural` y `juridical` de los tipos precargados; los nuevos tipos reciben códigos de secuencia `TC-000001`, `TC-000002`, etc. El código aparece en su formulario/listado administrativo, no se puede modificar y las solicitudes/documentos siguen relacionados mediante Many2one, no nombres. Los tipos antiguos que carecían de código reciben uno al actualizar, sin cambiar los que ya existían.
+- **Estados civiles**: catálogo nuevo `conedera.credit.marital.status`. Se precargan Soltero/a, Casado/a, Divorciado/a, Viudo/a, Unión de hecho y Otro. Puede añadir/renombrar, desactivar o eliminar estados no utilizados desde **Crédito CONEDERA > Estados civiles**. El antiguo `marital_status` se conserva para compatibilidad y se migra a `marital_status_id` sin alterar las solicitudes ya existentes. Los nuevos estados civiles también tienen código estable.
+- **Etapas de solicitud**: continúan administrándose en **Crédito CONEDERA > Etapas del flujo** y ya no se limitan por una lista fija de nombres en la barra de estado. Se añade el atributo **Documentación recibida (acción automática)**, usado para localizar el destino de la acción sin depender de que el estado se llame literalmente “Documentación recibida”. La migración asigna el indicador a la etapa original. Si una etapa está vinculada con solicitudes, debe archivarse en vez de borrarla (integridad histórica).
+- **Portal de cinco pasos**: (1) propietario/representante; (2) negocio/empresa; (3) actividad económica en relación de dependencia y referencias comerciales; (4) referencias personales y bancarias; (5) términos y condiciones. Navegación con **Siguiente/Anterior**, validación por paso y conservación de lo escrito mientras no se recargue la página. Las dos secciones legales se leen juntas bajo **Términos y condiciones**, pero cada una conserva sus casillas individuales de aceptación.
+- **Envío bloqueado sin aceptaciones**: validación en navegador, controlador HTTP y `create()` del modelo. No se crea ningún registro hasta enviar la última pantalla con todas las aceptaciones afirmativas. Si hay validaciones de servidor, se devuelven los valores para que el usuario corrija la solicitud.
+- El módulo no ofrece guardado de borrador entre sesiones o recargas de página: avanzar/retroceder se realiza dentro de un formulario sin crear todavía la solicitud. Se conservan los requisitos documentales configurables de la versión 18.0.1.1.0 y el registro por OTP de versiones anteriores.
+
+### Instalación sobre versiones anteriores
+
+1. Respalde base de datos y filestore.
+2. Reemplace la carpeta del addon y reinicie Odoo.
+3. Actualice el módulo **Portal de Solicitudes de Crédito CONEDERA** desde Aplicaciones.
+4. Valide el catálogo de **Tipos de solicitante**, los **Estados civiles** y las **Etapas del flujo**.
+5. Pruebe las cinco pantallas, el botón Anterior, una aceptación faltante, una solicitud correcta, su etapa y los archivos documentales.
+
+Las verificaciones incluidas en el paquete son estáticas (compilación Python, parseo XML y sintaxis JavaScript, más inspección estructural del formulario). No se ha ejecutado una instancia de Odoo 18 ni probado la migración contra una base real.

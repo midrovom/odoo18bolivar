@@ -12,6 +12,7 @@ class ConederaCreditStage(models.Model):
     fold = fields.Boolean(string='Plegada en el kanban')
     is_initial = fields.Boolean(string='Etapa inicial')
     is_approved = fields.Boolean(string='Etapa de aprobación')
+    is_documents_received = fields.Boolean(string='Documentación recibida (acción automática)')
     is_rejected = fields.Boolean(string='Etapa denegada')
     description = fields.Text(string='Descripción interna')
 
