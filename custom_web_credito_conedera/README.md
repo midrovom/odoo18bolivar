@@ -73,7 +73,9 @@ Las etapas se pueden administrar desde **Crédito CONEDERA → Etapas del flujo*
 
 
 ### Ajustes de registro y aceptación documental
-- El código de verificación vence a los 3 minutos. Al terminar el contador se habilita **Enviar código**; cada reenvío genera un código nuevo e invalida el anterior.
+- El registro reutiliza el formulario nativo de Odoo y la casilla única **Acepto términos y condiciones** que aporta `custom_web_hr_datos_candidatos`; no agrega una segunda aceptación de tratamiento de datos.
+- Al pulsar **Registrarse**, se envía automáticamente el primer código y se abre un modal para ingresarlo. El contador tiene una vigencia de 3 minutos; al llegar a cero aparece **Reenviar código** y solo ese clic envía un código nuevo e invalida el anterior.
+- La cuenta de `res.users` se crea después de validar un código vigente. El servidor también valida que se haya aceptado la casilla de términos y condiciones.
 - Antes de enviar la solicitud, el cliente debe aceptar por separado las cláusulas sugeridas sobre relación comercial previa, citación telemática, consulta de score crediticio por cualquier plataforma o buró de crédito autorizado, firma/sello de CONEDERA y documentos financieros adicionales.
 - Tras la aprobación, el expediente documental también solicita un PDF consolidado con las últimas seis declaraciones del IVA, la declaración del Impuesto a la Renta del año anterior y un certificado bancario correspondiente a los últimos seis meses.
 - La autorización para consulta de score/historial se muestra como bloque independiente y no identifica a un proveedor específico.

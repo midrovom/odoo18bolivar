@@ -10,7 +10,7 @@ from urllib.parse import quote
 from markupsafe import escape
 
 from odoo import http, fields, _
-from odoo.addons.auth_signup.controllers.main import AuthSignupHome
+from odoo.addons.custom_web_hr_datos_candidatos.controllers.portal_signup import AuthSignupHomeOTP
 from odoo.exceptions import ValidationError
 from odoo.http import request
 from werkzeug.exceptions import Forbidden, NotFound
@@ -129,20 +129,22 @@ def _send_otp_email(email, code):
         raise RuntimeError(_('No se pudo enviar el correo de verificación. Revise el servidor saliente de correo de Odoo.'))
 
 
-class CreditPortalLogin(AuthSignupHome):
+class CreditPortalLogin(AuthSignupHomeOTP):
     def _render_native_signup(self, values=None):
         context = self.get_auth_signup_qcontext()
+        pending = request.session.get('conedera_credit_signup') or {}
         context.update({
-            'name': '',
-            'login': '',
+            'name': pending.get('name') or context.get('name') or '',
+            'login': pending.get('email') or context.get('login') or '',
             'error': False,
             'message': False,
             'token': False,
             'redirect': '/my/credito/nueva',
             'signup_enabled': True,
+            'signup_email': pending.get('email') or '',
         })
         context.update(values or {})
-        # El registro se valida por correo antes de invocar el mecanismo nativo.
+        # El registro usa la pantalla nativa, pero no crea el usuario hasta validar el OTP.
         context['signup_enabled'] = True
         context['token'] = False
         context['redirect'] = '/my/credito/nueva'
@@ -153,7 +155,9 @@ class CreditPortalLogin(AuthSignupHome):
         # Los enlaces nativos de invitación de Odoo (con token) conservan su flujo original.
         # El registro público sin token pasa por la verificación OTP de CONEDERA.
         if request.params.get('token'):
-            return super().web_auth_signup(*args, **kw)
+            # Saltar la verificación OTP propia del módulo de RR. HH. para preservar
+            # el flujo nativo de invitaciones/token de Odoo.
+            return super(AuthSignupHomeOTP, self).web_auth_signup(*args, **kw)
 
         current_user = request.env.user
         if (not current_user._is_public()
@@ -178,8 +182,9 @@ class CreditPortalLogin(AuthSignupHome):
             errors.append(_('La contraseña debe tener al menos 8 caracteres.'))
         if password != confirm_password:
             errors.append(_('Las contraseñas no coinciden.'))
-        if qcontext.get('accept_terms') not in ('on', '1', 'true', 'yes'):
-            errors.append(_('Debe aceptar el uso de sus datos para gestionar la solicitud de crédito.'))
+        accept_terms = request.params.get('accept_terms') or qcontext.get('accept_terms')
+        if str(accept_terms or '').lower() not in ('on', '1', 'true', 'yes'):
+            errors.append(_('Debe aceptar los términos y condiciones para registrarse.'))
 
         User = request.env['res.users'].sudo()
         existing = User.search(['|', ('login', '=ilike', email), ('email', '=ilike', email)], limit=1) if email else User.browse()
@@ -193,8 +198,13 @@ class CreditPortalLogin(AuthSignupHome):
             })
 
         previous_signup = request.session.get('conedera_credit_signup') or {}
-        if previous_signup.get('email') == email and time.time() <= previous_signup.get('expires', 0):
-            return request.redirect('/credito/registro/verificar')
+        if previous_signup.get('email') == email:
+            remaining = max(0, int(math.ceil(previous_signup.get('expires', 0) - time.time())))
+            return self._render_native_signup({
+                'name': previous_signup.get('name', name),
+                'login': email,
+                'signup_email': email,
+            })
 
         code = str(secrets.randbelow(900000) + 100000)
         request.session['conedera_credit_signup'] = {
@@ -215,7 +225,13 @@ class CreditPortalLogin(AuthSignupHome):
                 'login': email,
                 'error': _('No se pudo enviar el código al correo indicado. Verifique la configuración SMTP de Odoo e inténtelo de nuevo.'),
             })
-        return request.redirect('/credito/registro/verificar')
+        return self._render_native_signup({
+            'name': name,
+            'login': email,
+            'signup_email': email,
+            'error': False,
+        })
+
     @http.route()
     def web_login(self, redirect=None, **kw):
         # Solo redirigir por defecto a clientes del portal; los usuarios internos
@@ -233,13 +249,24 @@ class ConederaCreditPortal(http.Controller):
 
     def _render_verify(self, error=None, remaining_seconds=None):
         signup = request.session.get('conedera_credit_signup') or {}
-        if remaining_seconds is None:
-            remaining_seconds = max(0, int(math.ceil(signup.get('expires', 0) - time.time()))) if signup else 0
-        return request.render('custom_web_credito_conedera.portal_credit_verify', {
-            'error': error,
-            'remaining_seconds': remaining_seconds,
-            'signup_email': signup.get('email', ''),
-        })
+        if not signup:
+            return request.redirect('/web/signup?redirect=%2Fmy%2Fcredito%2Fnueva')
+        signup['otp_error'] = str(error) if error else False
+        request.session['conedera_credit_signup'] = signup
+        return request.render('auth_signup.signup', self._signup_qcontext_for_modal(signup))
+
+    def _signup_qcontext_for_modal(self, signup):
+        # Keep the native signup template and the checkbox supplied by the HR module.
+        return {
+            'name': signup.get('name', ''),
+            'login': signup.get('email', ''),
+            'email': signup.get('email', ''),
+            'redirect': '/my/credito/nueva',
+            'signup_enabled': True,
+            'token': False,
+            'error': False,
+            'message': False,
+        }
 
     @http.route('/credito/registro', type='http', auth='public', website=True, methods=['GET', 'POST'], sitemap=False)
     def credit_signup(self, **post):
@@ -273,6 +300,7 @@ class ConederaCreditPortal(http.Controller):
                 'code': code,
                 'expires': now + OTP_TTL_SECONDS,
                 'attempts': 0,
+                'otp_error': False,
             })
             request.session['conedera_credit_signup'] = signup
             try:
@@ -286,17 +314,17 @@ class ConederaCreditPortal(http.Controller):
                     _('No se pudo enviar el código. Revise la configuración de correo e inténtelo nuevamente.'),
                     remaining_seconds=0,
                 )
-            return request.redirect('/credito/registro/verificar')
+            return self._render_verify(remaining_seconds=OTP_TTL_SECONDS)
 
         if request.httprequest.method == 'POST':
             if time.time() > signup.get('expires', 0):
                 return self._render_verify(
-                    _('El código venció. Solicite uno nuevo con el botón «Enviar código».'),
+                    _('El código venció. Use el botón «Reenviar código» para recibir otro.'),
                     remaining_seconds=0,
                 )
             if signup.get('attempts', 0) >= OTP_MAX_ATTEMPTS:
                 return self._render_verify(
-                    _('Se alcanzó el máximo de intentos para este código. Espere a que termine el contador y solicite un código nuevo.'),
+                    _('Se alcanzó el máximo de intentos para este código. Espere a que termine el contador y reenvíe el código.'),
                     remaining_seconds=max(0, int(math.ceil(signup.get('expires', 0) - time.time()))),
                 )
 

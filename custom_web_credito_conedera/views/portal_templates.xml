@@ -35,38 +35,6 @@
         </xpath>
     </template>
 
-    <template id="portal_credit_verify" name="Verificar correo CONEDERA">
-        <t t-call="website.layout">
-            <div class="container py-5 credit-auth-container">
-                <div class="row justify-content-center">
-                    <div class="col-12 col-md-7 col-lg-5">
-                        <div class="card border-0 shadow-sm rounded-4"><div class="card-body p-4 p-lg-5">
-                            <div class="credit-brand-line mb-3"/>
-                            <h1 class="h3 mb-2">Verificar correo electrónico</h1>
-                            <p class="text-muted">Ingrese el código de seis dígitos enviado a <strong t-esc="signup_email or 'su correo'"/>. Cada código tiene una vigencia de 3 minutos.</p>
-                            <t t-if="error"><div class="alert alert-danger rounded-3" t-esc="error"/></t>
-                            <div id="credit-otp-countdown" class="alert alert-light border text-center mb-3" t-att-data-remaining-seconds="remaining_seconds">
-                                <span id="credit-otp-waiting">Puede solicitar un código nuevo en <strong id="credit-otp-time">03:00</strong>.</span>
-                                <span id="credit-otp-expired" class="d-none">El código venció. Puede solicitar uno nuevo.</span>
-                            </div>
-                            <form action="/credito/registro/verificar" method="post" id="credit-otp-verify-form">
-                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                <div class="mb-4"><label class="form-label" for="verify_code">Código de verificación</label><input id="verify_code" class="form-control form-control-lg text-center credit-otp-input" name="code" type="text" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" required="required" autocomplete="one-time-code"/></div>
-                                <button class="btn btn-credit-primary w-100" type="submit">Verificar y crear cuenta</button>
-                            </form>
-                            <form action="/credito/registro/verificar" method="post" id="credit-otp-resend-form" t-att-class="'mt-3' if remaining_seconds &lt;= 0 else 'mt-3 d-none'">
-                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                <input type="hidden" name="action" value="resend"/>
-                                <button class="btn btn-outline-primary w-100" type="submit">Enviar código</button>
-                            </form>
-                            <p class="text-center mt-4 mb-0"><a href="/web/signup?redirect=%2Fmy%2Fcredito%2Fnueva">Volver al registro</a></p>
-                        </div></div>
-                    </div>
-                </div>
-            </div>
-        </t>
-    </template>
-
     <template id="portal_credit_application_form" name="Formulario de solicitud de crédito CONEDERA">
         <t t-call="portal.portal_layout">
             <div class="container py-4 credit-application-container">
@@ -207,13 +175,44 @@
             </form>
         </div></t>
     </template>
-    <template id="credit_native_signup_terms" inherit_id="auth_signup.signup" name="Consentimiento para registro de crédito CONEDERA">
-        <xpath expr="//form[contains(@class, 'oe_signup_form')]//input[@name='redirect']" position="before">
-            <div class="form-check my-3">
-                <input class="form-check-input" id="credit_accept_terms" name="accept_terms" type="checkbox" required="required"/>
-                <label class="form-check-label" for="credit_accept_terms">Acepto que CONEDERA trate los datos ingresados para gestionar y evaluar mi solicitud de crédito.</label>
-                <p class="form-text mb-0">La cuenta se activará únicamente después de verificar el código enviado a su correo.</p>
-            </div>
+    <template id="credit_native_signup_terms" inherit_id="auth_signup.signup" name="Verificación de correo en modal para crédito CONEDERA">
+        <!-- El checkbox acept_terms lo proporciona custom_web_hr_datos_candidatos; este módulo no duplica su consentimiento. -->
+        <xpath expr="//form[contains(@class, 'oe_signup_form')]" position="after">
+            <t t-set="credit_pending_signup" t-value="request.session.get('conedera_credit_signup') or {}"/>
+            <t t-if="credit_pending_signup and not request.params.get('token')">
+                <div class="modal-backdrop fade show credit-otp-backdrop" style="z-index: 1090;"/>
+                <div class="modal fade show d-block credit-otp-modal" id="creditSignupOtpModal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="creditSignupOtpModalLabel" style="z-index: 1095;">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow rounded-4">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="creditSignupOtpModalLabel">Verificar correo electrónico</h5>
+                            </div>
+                            <div class="modal-body p-4">
+                                <p class="text-muted">Enviamos automáticamente un código de seis dígitos a <strong t-esc="credit_pending_signup.get('email') or ''"/>. Ingréselo para terminar el registro.</p>
+                                <t t-if="credit_pending_signup.get('otp_error')"><div class="alert alert-danger rounded-3" role="alert" t-esc="credit_pending_signup.get('otp_error')"/></t>
+                                <div id="credit-otp-countdown" class="alert alert-light border text-center mb-3" t-att-data-expires-at="credit_pending_signup.get('expires', 0)">
+                                    <span id="credit-otp-waiting">Puede reenviar el código en <strong id="credit-otp-time">03:00</strong>.</span>
+                                    <span id="credit-otp-expired" class="d-none">El tiempo terminó. Ya puede reenviar el código.</span>
+                                </div>
+                                <form action="/credito/registro/verificar" method="post" id="credit-otp-verify-form">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="verify_code">Código de verificación</label>
+                                        <input id="verify_code" class="form-control form-control-lg text-center credit-otp-input" name="code" type="text" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" required="required" autocomplete="one-time-code" autofocus="autofocus"/>
+                                    </div>
+                                    <button class="btn btn-credit-primary w-100" type="submit">Verificar y completar registro</button>
+                                </form>
+                                <form action="/credito/registro/verificar" method="post" id="credit-otp-resend-form" class="mt-3 d-none">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <input type="hidden" name="action" value="resend"/>
+                                    <button class="btn btn-outline-primary w-100" type="submit">Reenviar código</button>
+                                </form>
+                                <p class="small text-muted mt-3 mb-0">Si no ve el mensaje, revise la carpeta de correo no deseado. La cuenta se creará después de validar el código vigente.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
         </xpath>
     </template>
 

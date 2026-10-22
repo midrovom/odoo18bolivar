@@ -2,10 +2,30 @@
 (function () {
     'use strict';
     document.addEventListener('DOMContentLoaded', function () {
+        // Reuse the single terms checkbox supplied by custom_web_hr_datos_candidatos.
+        // The controller also validates it server-side, so this is UX reinforcement only.
+        var termsCheckbox = document.querySelector('form.oe_signup_form input#accept_terms[name="accept_terms"]');
+        if (termsCheckbox) {
+            termsCheckbox.required = true;
+        }
+
+        // Keep the native signup page in the background while the OTP modal is open.
+        var signupOtpModal = document.getElementById('creditSignupOtpModal');
+        if (signupOtpModal) {
+            document.body.classList.add('modal-open');
+            var otpInput = document.getElementById('verify_code');
+            if (otpInput) {
+                window.setTimeout(function () { otpInput.focus(); }, 50);
+            }
+        }
+
         // Countdown driven by the server-provided remaining lifetime of the current OTP.
         var countdown = document.getElementById('credit-otp-countdown');
         if (countdown) {
-            var remaining = Math.max(0, parseInt(countdown.getAttribute('data-remaining-seconds') || '0', 10));
+            var expiresAt = parseInt(countdown.getAttribute('data-expires-at') || '0', 10);
+            var remaining = expiresAt > 0
+                ? Math.max(0, Math.ceil(expiresAt - Date.now() / 1000))
+                : Math.max(0, parseInt(countdown.getAttribute('data-remaining-seconds') || '0', 10));
             var timeLabel = document.getElementById('credit-otp-time');
             var waiting = document.getElementById('credit-otp-waiting');
             var expired = document.getElementById('credit-otp-expired');

@@ -1,10 +1,10 @@
 {
     'name': 'Portal de Solicitudes de Crédito CONEDERA',
-    'version': '18.0.1.0.3',
+    'version': '18.0.1.0.4',
     'summary': 'Registro verificado, solicitudes de crédito, etapas e ingreso documental para CONEDERA S.A.',
     'description': '''
 Portal de solicitudes de crédito CONEDERA S.A. para Odoo 18.
-- Registro de clientes con verificación de correo mediante código OTP.
+- Registro nativo de Odoo con aceptación de términos y condiciones del módulo custom_web_hr_datos_candidatos y verificación de correo mediante OTP en modal.
 - Formulario web basado en la Solicitud de Crédito CONEDERA proporcionada.
 - Historial del solicitante y línea de tiempo de etapas.
 - Flujo kanban interno de gestión.
@@ -14,7 +14,7 @@ Portal de solicitudes de crédito CONEDERA S.A. para Odoo 18.
     'author': 'OpenAI',
     'license': 'LGPL-3',
     'category': 'Website',
-    'depends': ['base', 'mail', 'portal', 'website', 'web', 'auth_signup'],
+    'depends': ['base', 'mail', 'portal', 'website', 'web', 'auth_signup', 'custom_web_hr_datos_candidatos'],
     'data': [
         'security/credit_security.xml',
         'security/ir.model.access.csv',
