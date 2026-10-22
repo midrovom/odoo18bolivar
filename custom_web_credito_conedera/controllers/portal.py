@@ -371,7 +371,11 @@ class ConederaCreditPortal(http.Controller):
                         'name': signup['name'],
                         'email': signup['email'],
                     })
-                    partner.signup_prepare()
+                    # Odoo 18 ya no almacena signup_token en res.partner.
+                    # signup_prepare() activa el tipo de registro y
+                    # _generate_signup_token() produce el token firmado válido.
+                    partner.signup_prepare(signup_type='signup')
+                    signup_token = partner._generate_signup_token()
                     signup_values = {
                         'name': signup['name'],
                         'login': signup['email'],
@@ -380,13 +384,13 @@ class ConederaCreditPortal(http.Controller):
                     }
                     request.env['res.users'].sudo().signup(
                         signup_values,
-                        token=partner.signup_token,
+                        token=signup_token,
                     )
                 request.session.pop('conedera_credit_signup', None)
                 return request.redirect('/web/login?account_created=1&redirect=%s' % quote('/my/credito/nueva', safe=''))
             except Exception:
                 _logger.exception('No se pudo crear la cuenta nativa del portal de crédito CONEDERA')
-                return self._render_verify(_('No se pudo crear la cuenta mediante el registro nativo de Odoo. Revise la configuración de usuarios del portal y vuelva a intentarlo.'))
+                return self._render_verify(_('El código se validó, pero no fue posible crear su cuenta. Inténtelo nuevamente o comuníquese con soporte.'))
 
         return self._render_verify()
 

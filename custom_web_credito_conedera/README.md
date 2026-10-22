@@ -5,7 +5,7 @@ Módulo nuevo e independiente de los módulos de Recursos Humanos utilizados com
 ## Funcionalidades incluidas
 
 - La entrada **Solicitar crédito** abre el login nativo de Odoo con retorno al formulario de crédito. Los usuarios de portal ya autenticados van directamente al formulario.
-- El registro utiliza la pantalla nativa `/web/signup` de Odoo. Tras enviar el formulario, el usuario verifica el código OTP y solo entonces se activa la cuenta mediante `res.users.signup()` de `auth_signup` y un token nativo asociado al contacto; no se usa `res.users.create()` ni un modelo paralelo de cuentas.
+- El registro utiliza la pantalla nativa `/web/signup` de Odoo. Tras enviar el formulario, el usuario verifica el código OTP y solo entonces se activa la cuenta mediante `res.users.signup()` de `auth_signup` y un token firmado nativo generado por el contacto; no se usa `res.users.create()` ni un modelo paralelo de cuentas.
 - El acceso público de **Solicitar crédito** conduce primero a `/web/login` nativo de Odoo. Desde el propio login, el visitante puede abrir el registro nativo `/web/signup`.
 - Código de verificación OTP de seis dígitos enviado por correo; vence en 3 minutos y limita los intentos de validación.
 - La cuenta nativa de Odoo se crea únicamente después de validar el código. Luego se solicita iniciar sesión en `/web/login` y el acceso por defecto redirige a `/my/credito/nueva`.
@@ -82,7 +82,7 @@ Las etapas se pueden administrar desde **Crédito CONEDERA → Etapas del flujo*
 
 
 ### Integración con el usuario nativo de Odoo
-- La cuenta se crea con el mecanismo `res.users.signup()` de `auth_signup`, usando un token nativo generado para el contacto que se vinculará a la cuenta. La creación del contacto y del usuario ocurre en un `savepoint`; si falla el registro nativo, se revierte la operación para no dejar contactos huérfanos.
+- La cuenta se crea con el mecanismo `res.users.signup()` de `auth_signup`, usando un token firmado nativo generado para el contacto que se vinculará a la cuenta. La creación del contacto y del usuario ocurre en un `savepoint`; si falla el registro nativo, se revierte la operación para no dejar contactos huérfanos.
 - No se crea un modelo personalizado de usuarios ni un segundo usuario de portal. La solicitud de crédito se vincula al `res.users` autenticado. Como en Odoo estándar, cada usuario tiene su contacto `res.partner` asociado.
 - El menú público **Solicitar crédito** abre `/web/login?redirect=/my/credito/nueva`. Las rutas antiguas de registro y las pantallas de verificación sin una sesión pendiente también devuelven al login, no al registro.
 
@@ -103,3 +103,11 @@ En Ajustes > Técnico > Correo > Servidores de correo saliente, marque el servid
 - El modal incluye una X que cancela el registro pendiente y vuelve al registro nativo de Odoo.
 - El temporizador se calcula cada 250 ms desde la hora de vencimiento del servidor para actualizar el contador cada segundo y habilitar el reenvío al vencer.
 - La inicialización JavaScript funciona incluso cuando los assets se cargan después de `DOMContentLoaded`.
+
+
+### Corrección 18.0.1.0.9: creación de cuentas luego del OTP (Odoo 18)
+
+- Se corrigió la incompatibilidad que impedía crear la cuenta tras verificar el código: en Odoo 18, `res.partner.signup_prepare()` no rellena `signup_token` como en versiones antiguas. Ahora se invoca `partner._generate_signup_token()` y se pasa ese valor a `res.users.signup()` para enlazar el usuario con el contacto recién creado.
+- Se conserva la transacción con `savepoint`, la validación del código, el inicio de sesión manual, el uso de la plantilla de usuario portal nativa y la prevención de correos ya registrados.
+- Si ocurre otro error durante la creación, el registro de Odoo conserva la excepción real bajo `No se pudo crear la cuenta nativa del portal de crédito CONEDERA` para facilitar la revisión por el administrador.
+- Actualizar este módulo en Odoo (Upgrade) y reiniciar el servicio; no es necesario modificar el módulo de recursos humanos.
