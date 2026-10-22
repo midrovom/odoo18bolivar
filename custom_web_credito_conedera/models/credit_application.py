@@ -216,11 +216,15 @@ class ConederaCreditApplication(models.Model):
                 'old': escape(old_stage.name or '-'),
                 'new': escape(new_stage.name or '-'),
             }
+            # Usar el SMTP independiente del módulo de crédito y su smtp_user
+            # como remitente. No reutilizar ni alterar la configuración de RR. HH.
+            credit_mail_server = self.env['ir.mail_server'].sudo().get_conedera_credit_mail_server()
             mail = self.env['mail.mail'].sudo().create({
                 'subject': _('Actualización de solicitud de crédito %s') % self.name,
                 'body_html': body,
                 'email_to': email,
-                'email_from': self.env.company.email or self.env['ir.config_parameter'].sudo().get_param('mail.default.from') or False,
+                'email_from': (credit_mail_server.smtp_user or '').strip(),
+                'mail_server_id': credit_mail_server.id,
             })
             mail.send()
         except Exception:

@@ -105,10 +105,10 @@ def _parse_number(value, label, errors, integer=False):
 
 
 def _send_otp_email(email, code):
-    params = request.env['ir.config_parameter'].sudo()
-    email_from = request.env.company.email or params.get_param('mail.default.from')
-    if not email_from:
-        raise RuntimeError(_('Configure un correo remitente en la compañía o en mail.default.from antes de activar el registro por código.'))
+    # El portal de crédito utiliza únicamente el servidor marcado como
+    # "Correo de crédito". No usa ni modifica el servidor marcado para RR. HH.
+    mail_server = request.env['ir.mail_server'].sudo().get_conedera_credit_mail_server()
+    email_from = (mail_server.smtp_user or '').strip()
     values = {
         'subject': _('Código de verificación para el portal de crédito CONEDERA'),
         'body_html': (
@@ -121,6 +121,7 @@ def _send_otp_email(email, code):
         ),
         'email_to': email,
         'email_from': email_from,
+        'mail_server_id': mail_server.id,
     }
     mail = request.env['mail.mail'].sudo().create(values)
     mail.send()
@@ -233,7 +234,7 @@ class CreditPortalLogin(AuthSignupHomeOTP):
             return self._render_native_signup({
                 'name': name,
                 'login': email,
-                'error': _('No se pudo enviar el código al correo indicado. Verifique la configuración SMTP de Odoo e inténtelo de nuevo.'),
+                'error': _('No se pudo enviar el código. Verifique que exista un servidor saliente marcado como "Correo de crédito" y que tenga configurado smtp_user.'),
             })
         return self._render_native_signup({
             'name': name,
@@ -324,7 +325,7 @@ class ConederaCreditPortal(http.Controller):
                 signup['expires'] = time.time()
                 request.session['conedera_credit_signup'] = signup
                 return self._render_verify(
-                    _('No se pudo enviar el código. Revise la configuración de correo e inténtelo nuevamente.'),
+                    _('No se pudo enviar el código. Revise el servidor SMTP marcado como "Correo de crédito" e inténtelo nuevamente.'),
                     remaining_seconds=0,
                 )
             return self._render_verify(remaining_seconds=OTP_TTL_SECONDS)
@@ -512,7 +513,8 @@ class ConederaCreditPortal(http.Controller):
         # El PDF de referencia indica remitir a cobranzas@viteltek.com el enlace de Google Maps del negocio.
         if application.maps_url:
             try:
-                email_from = request.env.company.email or request.env['ir.config_parameter'].sudo().get_param('mail.default.from') or False
+                credit_mail_server = request.env['ir.mail_server'].sudo().get_conedera_credit_mail_server()
+                email_from = (credit_mail_server.smtp_user or '').strip()
                 mail_vals = {
                     'subject': _('Ubicación de negocio - Solicitud de crédito %s') % application.name,
                     'body_html': (
@@ -522,9 +524,9 @@ class ConederaCreditPortal(http.Controller):
                         '<p><b>Ubicación Google Maps:</b> <a href="%s">%s</a></p>'
                     ) % tuple(escape(value or '') for value in (application.name, application.applicant_name, application.business_name, application.identification, application.maps_url, application.maps_url)),
                     'email_to': 'cobranzas@viteltek.com',
+                    'email_from': email_from,
+                    'mail_server_id': credit_mail_server.id,
                 }
-                if email_from:
-                    mail_vals['email_from'] = email_from
                 request.env['mail.mail'].sudo().create(mail_vals).send()
             except Exception:
                 _logger.exception('No se pudo enviar el enlace de Maps al buzón indicado en el formulario CONEDERA')

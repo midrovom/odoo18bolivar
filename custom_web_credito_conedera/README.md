@@ -91,3 +91,8 @@ Las etapas se pueden administrar desde **Crédito CONEDERA → Etapas del flujo*
 
 La versión 18.0.1.0.6 envía al usuario al login de forma predeterminada, valida la casilla de términos antes de comprobar si el correo ya existe y verifica en el servidor que la aceptación esté registrada en la sesión antes de completar el alta.
 
+
+
+## Configuración del correo SMTP de crédito
+
+En Ajustes > Técnico > Correo > Servidores de correo saliente, marque el servidor SMTP correspondiente con la casilla **Correo de crédito**. Configure su usuario SMTP (`smtp_user`) y deje marcada esa opción en un único servidor. Los códigos OTP de registro, las notificaciones de etapas y el aviso de ubicación de negocio enviados por este módulo usan ese servidor explícitamente y establecen `email_from` con su `smtp_user`. El servidor marcado **Correo de Reclutamiento** por el módulo `custom_web_hr_datos_candidatos` permanece separado y sin cambios.
