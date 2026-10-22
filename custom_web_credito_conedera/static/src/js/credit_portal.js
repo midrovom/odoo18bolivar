@@ -1,15 +1,16 @@
-/** Small progressive enhancements for the CONEDERA credit portal. */
+/** Progressive enhancements for the CONEDERA credit portal. */
 (function () {
     'use strict';
-    document.addEventListener('DOMContentLoaded', function () {
-        // Reuse the single terms checkbox supplied by custom_web_hr_datos_candidatos.
-        // The controller also validates it server-side, so this is UX reinforcement only.
+
+    function initCreditPortal() {
+        // The checkbox is supplied by custom_web_hr_datos_candidatos.
+        // The credit controller validates it server-side as well.
         var termsCheckbox = document.querySelector('form.oe_signup_form input#accept_terms[name="accept_terms"]');
         if (termsCheckbox) {
             termsCheckbox.required = true;
         }
 
-        // Keep the native signup page in the background while the OTP modal is open.
+        // Keep the native signup page behind the OTP modal while it is rendered.
         var signupOtpModal = document.getElementById('creditSignupOtpModal');
         if (signupOtpModal) {
             document.body.classList.add('modal-open');
@@ -19,41 +20,53 @@
             }
         }
 
-        // Countdown driven by the server-provided remaining lifetime of the current OTP.
+        // Recalculate from the server expiration timestamp on every tick. This avoids
+        // a frozen or drifting countdown if the page loads late or an interval is delayed.
         var countdown = document.getElementById('credit-otp-countdown');
         if (countdown) {
-            var expiresAt = parseInt(countdown.getAttribute('data-expires-at') || '0', 10);
-            var remaining = expiresAt > 0
-                ? Math.max(0, Math.ceil(expiresAt - Date.now() / 1000))
-                : Math.max(0, parseInt(countdown.getAttribute('data-remaining-seconds') || '0', 10));
+            var expiresAtSeconds = Number(countdown.getAttribute('data-expires-at') || 0);
+            var fallbackSeconds = Number(countdown.getAttribute('data-remaining-seconds') || 0);
+            var expiresAtMs = expiresAtSeconds > 0
+                ? expiresAtSeconds * 1000
+                : Date.now() + Math.max(0, fallbackSeconds) * 1000;
             var timeLabel = document.getElementById('credit-otp-time');
             var waiting = document.getElementById('credit-otp-waiting');
             var expired = document.getElementById('credit-otp-expired');
             var resendForm = document.getElementById('credit-otp-resend-form');
+            var timer = null;
+
             function paintCountdown() {
+                var remaining = Math.max(0, Math.ceil((expiresAtMs - Date.now()) / 1000));
                 if (remaining <= 0) {
                     if (timeLabel) { timeLabel.textContent = '00:00'; }
                     if (waiting) { waiting.classList.add('d-none'); }
                     if (expired) { expired.classList.remove('d-none'); }
                     if (resendForm) { resendForm.classList.remove('d-none'); }
+                    if (timer !== null) {
+                        window.clearInterval(timer);
+                        timer = null;
+                    }
                     return false;
                 }
+
                 var minutes = Math.floor(remaining / 60);
                 var seconds = remaining % 60;
                 if (timeLabel) {
                     timeLabel.textContent = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
                 }
+                if (waiting) { waiting.classList.remove('d-none'); }
+                if (expired) { expired.classList.add('d-none'); }
+                if (resendForm) { resendForm.classList.add('d-none'); }
                 return true;
             }
+
+            // Paint immediately, then re-check often against the absolute deadline.
+            // The visible label changes once a second, and expiration is not delayed.
             if (paintCountdown()) {
-                var timer = window.setInterval(function () {
-                    remaining -= 1;
-                    if (!paintCountdown()) {
-                        window.clearInterval(timer);
-                    }
-                }, 1000);
+                timer = window.setInterval(paintCountdown, 250);
             }
         }
+
         document.querySelectorAll('.credit-form input[type="file"]').forEach(function (input) {
             input.addEventListener('change', function () {
                 if (input.files && input.files.length && input.files[0].size > 12 * 1024 * 1024) {
@@ -62,5 +75,13 @@
                 }
             });
         });
-    });
+    }
+
+    // Odoo can load frontend assets after DOMContentLoaded in some navigation flows.
+    // Initialize in either case so the countdown never relies on a missed event.
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCreditPortal, { once: true });
+    } else {
+        initCreditPortal();
+    }
 }());

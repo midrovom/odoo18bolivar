@@ -186,6 +186,10 @@
                         <div class="modal-content border-0 shadow rounded-4">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="creditSignupOtpModalLabel">Verificar correo electrónico</h5>
+                                <form action="/credito/registro/cancelar" method="post" class="m-0 ms-auto" aria-label="Cerrar verificación">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <button type="submit" class="btn-close" aria-label="Cerrar y cancelar registro" title="Cerrar"/>
+                                </form>
                             </div>
                             <div class="modal-body p-4">
                                 <p class="text-muted">Enviamos automáticamente un código de seis dígitos a <strong t-esc="credit_pending_signup.get('email') or ''"/>. Ingréselo para terminar el registro.</p>

@@ -96,3 +96,10 @@ La versión 18.0.1.0.6 envía al usuario al login de forma predeterminada, valid
 ## Configuración del correo SMTP de crédito
 
 En Ajustes > Técnico > Correo > Servidores de correo saliente, marque el servidor SMTP correspondiente con la casilla **Correo de crédito**. Configure su usuario SMTP (`smtp_user`) y deje marcada esa opción en un único servidor. Los códigos OTP de registro, las notificaciones de etapas y el aviso de ubicación de negocio enviados por este módulo usan ese servidor explícitamente y establecen `email_from` con su `smtp_user`. El servidor marcado **Correo de Reclutamiento** por el módulo `custom_web_hr_datos_candidatos` permanece separado y sin cambios.
+
+
+### Corrección del modal de verificación (18.0.1.0.8)
+
+- El modal incluye una X que cancela el registro pendiente y vuelve al registro nativo de Odoo.
+- El temporizador se calcula cada 250 ms desde la hora de vencimiento del servidor para actualizar el contador cada segundo y habilitar el reenvío al vencer.
+- La inicialización JavaScript funciona incluso cuando los assets se cargan después de `DOMContentLoaded`.

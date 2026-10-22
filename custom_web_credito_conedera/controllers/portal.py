@@ -288,6 +288,13 @@ class ConederaCreditPortal(http.Controller):
             return request.redirect('/my/credito/nueva')
         return request.redirect('/web/login?redirect=%2Fmy%2Fcredito%2Fnueva')
 
+    @http.route('/credito/registro/cancelar', type='http', auth='public', website=True, methods=['POST'], sitemap=False)
+    def credit_signup_cancel(self, **post):
+        # Cerrar el modal cancela el registro pendiente y descarta el OTP de esta sesión.
+        # Así no vuelve a aparecer al regresar al formulario nativo de registro.
+        request.session.pop('conedera_credit_signup', None)
+        return request.redirect('/web/signup?redirect=%2Fmy%2Fcredito%2Fnueva&verification_cancelled=1')
+
     @http.route('/credito/registro/verificar', type='http', auth='public', website=True, methods=['GET', 'POST'], sitemap=False)
     def credit_signup_verify(self, **post):
         signup = request.session.get('conedera_credit_signup')
