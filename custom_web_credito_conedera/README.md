@@ -83,3 +83,8 @@ Las etapas se pueden administrar desde **Crédito CONEDERA → Etapas del flujo*
 - La cuenta se crea con el mecanismo `res.users.signup()` de `auth_signup`, usando un token nativo generado para el contacto que se vinculará a la cuenta. La creación del contacto y del usuario ocurre en un `savepoint`; si falla el registro nativo, se revierte la operación para no dejar contactos huérfanos.
 - No se crea un modelo personalizado de usuarios ni un segundo usuario de portal. La solicitud de crédito se vincula al `res.users` autenticado. Como en Odoo estándar, cada usuario tiene su contacto `res.partner` asociado.
 - El menú público **Solicitar crédito** abre `/web/login?redirect=/my/credito/nueva`. Desde esa pantalla, el enlace de alta abre `/web/signup` nativo, que solicita el código antes de activar la cuenta.
+
+
+## Corrección 18.0.1.0.3
+
+Se ajustó el XPath de la herencia de la vista nativa de inicio de sesión para insertar el enlace de registro sin depender de la clase `oe_login_form`, que puede variar por personalizaciones de la vista. No se modifican el flujo de registro, la verificación del correo ni la lógica de las solicitudes.

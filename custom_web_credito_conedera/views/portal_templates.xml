@@ -218,7 +218,7 @@
     </template>
 
     <template id="credit_native_login_registration_link" inherit_id="web.login" name="Registro verificado para solicitud de crédito">
-        <xpath expr="//form[contains(@class, 'oe_login_form')]//button[@type='submit']" position="after">
+        <xpath expr="(//form//button[@type='submit'])[1]" position="after">
             <p class="alert alert-success mt-3" role="status" t-if="request.params.get('account_created')">
                 Su cuenta fue creada correctamente. Inicie sesión para continuar con la solicitud de crédito.
             </p>
