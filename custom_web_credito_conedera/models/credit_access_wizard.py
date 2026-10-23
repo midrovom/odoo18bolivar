@@ -37,7 +37,7 @@ class ConederaCreditAccessWizard(models.TransientModel):
         application = self.application_id.exists()
         if not application or not application.portal_user_id:
             raise UserError(_('La solicitud no tiene un usuario de portal asociado.'))
-        application.write({
+        application.sudo().write({
             'portal_update_scope': self.portal_update_scope,
             'portal_update_allowed_at': fields.Datetime.now(),
             'portal_update_allowed_by': self.env.user.id,

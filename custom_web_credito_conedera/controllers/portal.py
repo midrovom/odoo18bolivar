@@ -668,13 +668,29 @@ class ConederaCreditPortal(http.Controller):
         try:
             with request.env.cr.savepoint():
                 if application:
+                    # Un permiso de formulario es de un solo uso; impedir dos guardados
+                    # simultáneos desde pestañas abiertas antes de su consumo.
+                    request.env.cr.execute(
+                        'SELECT id FROM conedera_credit_application WHERE id = %s FOR UPDATE',
+                        (application.id,))
+                    application.invalidate_recordset(['portal_update_scope'])
+                    if not self._can_correct(application):
+                        raise Forbidden(_('El permiso de actualización ya fue utilizado o revocado.'))
                     # Reemplazar SOLO los vehículos/referencias, de manera atómica.
                     # No tocar historial, documentos, aprobación o verificación interna.
                     values['vehicle_ids'] = [(5, 0, 0)] + values['vehicle_ids']
                     values['legacy_vehicle_migrated'] = True
                     values['reference_ids'] = [(5, 0, 0)] + values['reference_ids']
                     application.sudo().write(values)
-                    application.message_post(body=_('El solicitante actualizó sus datos mediante el permiso especial del portal.'))
+                    # La autorización de corrección es para un único guardado.
+                    # Si también se autorizó documentos, conservar SOLO ese acceso.
+                    # Tras guardar, Historial vuelve a mostrar «Ver detalle».
+                    remaining_scope = 'documentation' if application.portal_update_scope == 'both' else 'none'
+                    application.sudo().write({
+                        'portal_update_scope': remaining_scope,
+                        'portal_history_consumed_at': fields.Datetime.now(),
+                    })
+                    application.message_post(body=_('El solicitante actualizó sus datos mediante el permiso especial del portal. La autorización de edición del formulario fue consumida.'))
                 else:
                     application = request.env['conedera.credit.application'].sudo().create(values)
         except (ValidationError, ValueError) as exc:

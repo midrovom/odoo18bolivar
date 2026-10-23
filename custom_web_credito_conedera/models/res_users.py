@@ -3,13 +3,6 @@ from odoo import api, fields, models
 
 class ResUsers(models.Model):
     _inherit = 'res.users'
-
-    # Compatibilidad: el grupo legado no autoriza por sí solo actualizaciones del portal.
-    credit_portal_correction_enabled = fields.Boolean(
-        string='Permiso global anterior (sin efecto)',
-        compute='_compute_credit_portal_correction_enabled',
-        inverse='_inverse_credit_portal_correction_enabled',
-    )
     credit_portal_permission_manager_enabled = fields.Boolean(
         string='Puede habilitar permisos del portal de crédito',
         compute='_compute_credit_portal_permission_manager_enabled',
@@ -17,17 +10,6 @@ class ResUsers(models.Model):
         help='Solo para usuarios internos que autorizan actualizaciones POR SOLICITUD.'
     )
 
-    @api.depends('groups_id')
-    def _compute_credit_portal_correction_enabled(self):
-        group = self.env.ref('custom_web_credito_conedera.group_credit_portal_correction', raise_if_not_found=False)
-        for user in self:
-            user.credit_portal_correction_enabled = bool(group and group in user.groups_id)
-
-    def _inverse_credit_portal_correction_enabled(self):
-        group = self.env.ref('custom_web_credito_conedera.group_credit_portal_correction', raise_if_not_found=False)
-        if group:
-            for user in self:
-                user.write({'groups_id': [(4 if user.credit_portal_correction_enabled else 3, group.id)]})
 
     @api.depends('groups_id')
     def _compute_credit_portal_permission_manager_enabled(self):

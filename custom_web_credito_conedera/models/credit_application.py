@@ -160,6 +160,38 @@ class ConederaCreditApplication(models.Model):
         ('conedera_credit_application_name_uniq', 'unique(name)', 'El número de solicitud debe ser único.'),
     ]
 
+    credit_is_admin = fields.Boolean(compute='_compute_credit_is_admin', string='Edición completa habilitada')
+
+    @api.depends_context('uid')
+    def _compute_credit_is_admin(self):
+        permitted = self.env.su or self.env.user.has_group('custom_web_credito_conedera.group_credit_administrator')
+        for application in self:
+            application.credit_is_admin = bool(permitted)
+
+    # El usuario de crédito SOLO puede cambiar la etapa y los campos de verificación
+    # del negocio. Protegido en ORM además de en las vistas (RPC/importaciones).
+    _credit_reviewer_writable = frozenset({
+        'stage_id', 'verification_status', 'verification_completed_at',
+        'verification_province', 'verification_city_canton_parish',
+        'verification_city', 'verification_canton', 'verification_parish',
+        'verification_neighborhood', 'verification_address',
+        'verification_house_number', 'verification_reference',
+        'verification_sketch', 'verification_sketch_filename',
+        'verification_zone', 'verification_local_state',
+        'interviewed_person', 'interviewed_relationship',
+        'inspection_done', 'address_found', 'client_lives_there',
+        'sketch_needed', 'verifier_name', 'verifier_signature',
+        'verifier_signature_filename',
+    })
+
+    def _check_reviewer_values(self, values):
+        if self.env.su or self.env.user.has_group('custom_web_credito_conedera.group_credit_administrator'):
+            return
+        if self.env.user.has_group('custom_web_credito_conedera.group_credit_manager'):
+            forbidden = set(values).difference(self._credit_reviewer_writable)
+            if forbidden:
+                raise AccessError(_('El usuario de crédito solo puede cambiar la etapa y completar la verificación del negocio. Campos no autorizados: %s') % ', '.join(sorted(forbidden)))
+
     @api.model
     def _read_group_stage_ids(self, stages, domain, order=None):
         return self.env['conedera.credit.stage'].search([('active', '=', True)], order=order or 'sequence, id')
@@ -172,6 +204,7 @@ class ConederaCreditApplication(models.Model):
 
     # Permiso POR SOLICITUD como custom_web_hr_historial_postulaciones.
     # El grupo del usuario no autoriza a modificar expedientes ajenos o sin habilitar.
+    portal_history_consumed_at = fields.Datetime(string='Última corrección autorizada del portal', readonly=True, copy=False)
     portal_update_scope = fields.Selection([
         ('none', 'Ninguna sección'),
         ('history', 'Historial de solicitudes (actualizar formulario)'),
@@ -293,6 +326,7 @@ class ConederaCreditApplication(models.Model):
         return records
 
     def write(self, vals):
+        self._check_reviewer_values(vals)
         protected_consents = (
             'declaration_accepted', 'prior_commercial_relationship_accepted',
             'electronic_service_accepted', 'credit_bureau_authorized',
@@ -383,6 +417,8 @@ class ConederaCreditApplication(models.Model):
             _logger.exception('No se pudo notificar por correo la etapa de solicitud %s', self.name)
 
     def action_mark_documentation_received(self):
+        if not self.env.su and not self.env.user.has_group('custom_web_credito_conedera.group_credit_administrator'):
+            raise AccessError(_('Solo el administrador de crédito puede marcar la documentación como recibida.'))
         for record in self:
             if not record.document_access_allowed or not record.document_complete:
                 raise UserError(_('La solicitud debe estar aprobada y tener completa la documentación antes de registrarla como recibida.'))

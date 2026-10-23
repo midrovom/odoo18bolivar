@@ -12,3 +12,4 @@ from . import credit_stage_history
 from . import mail_server
 from . import res_users
 from . import credit_access_wizard
+from . import credit_theme_wizard

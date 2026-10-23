@@ -1,5 +1,13 @@
 <?xml version='1.0' encoding='utf-8'?>
 <odoo>
+    <template id="portal_credit_theme_colors" inherit_id="website.layout" name="Colores configurables del portal de crédito">
+        <xpath expr="//head" position="inside">
+            <t t-if="('/my' in request.httprequest.path or '/credito' in request.httprequest.path)">
+                <style type="text/css"><t t-esc="request.env['conedera.credit.theme.wizard'].sudo().credit_css_variables()"/></style>
+            </t>
+        </xpath>
+    </template>
+
     <template id="portal_home_credit_cards" inherit_id="portal.portal_my_home" name="Portal de crédito CONEDERA">
         <xpath expr="//div[@id='portal_common_category']" position="inside">
             <div class="o_portal_index_card col-md-6 order-2">

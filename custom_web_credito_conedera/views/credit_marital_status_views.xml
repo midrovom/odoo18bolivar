@@ -38,5 +38,5 @@
     <menuitem id="menu_conedera_credit_marital_statuses" name="Estados civiles"
         parent="menu_conedera_credit_root" sequence="36"
         action="action_conedera_credit_marital_statuses"
-        groups="custom_web_credito_conedera.group_credit_manager"/>
+        groups="custom_web_credito_conedera.group_credit_administrator"/>
 </odoo>

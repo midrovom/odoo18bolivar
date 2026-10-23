@@ -26,5 +26,5 @@
   <menuitem id="menu_conedera_credit_housing_types" name="Tipos de vivienda"
       parent="menu_conedera_credit_root" sequence="37"
       action="action_conedera_credit_housing_types"
-      groups="custom_web_credito_conedera.group_credit_manager"/>
+      groups="custom_web_credito_conedera.group_credit_administrator"/>
 </odoo>

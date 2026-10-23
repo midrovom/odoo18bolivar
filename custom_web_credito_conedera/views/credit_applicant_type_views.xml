@@ -54,5 +54,5 @@
         <field name="view_mode">list,form</field>
     </record>
     <menuitem id="menu_conedera_credit_applicant_types" name="Tipos de solicitante" parent="menu_conedera_credit_root"
-              action="action_conedera_credit_applicant_types" sequence="35" groups="custom_web_credito_conedera.group_credit_manager"/>
+              action="action_conedera_credit_applicant_types" sequence="35" groups="custom_web_credito_conedera.group_credit_administrator"/>
 </odoo>

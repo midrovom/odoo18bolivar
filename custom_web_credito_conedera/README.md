@@ -163,7 +163,7 @@ Las verificaciones incluidas en el paquete son estáticas (compilación Python, 
 - **Documento del propietario:** `identification_type` es cédula ecuatoriana (10 dígitos con verificador), RUC (exactamente 13 numéricos) o cédula extranjera (exactamente 10 numéricos). El RUC del negocio exige 13 numéricos. Esta regla estructural no consulta ni garantiza existencia en el SRI.
 - **Cónyuge:** los campos de nombre, identificación y profesión son obligatorios para los estados civiles marcados como **Requiere datos del cónyuge** (por defecto Casado/a y Unión de hecho); los demás tipos los ocultan y no los guardan. El documento admite cédula ecuatoriana válida o identificación extranjera numérica de 10 dígitos.
 - **Ubicación:** `business_latitude` y `business_longitude` permiten escribir coordenadas o usar geolocalización del navegador mediante autorización. Si el usuario llena coordenadas sin enlace, se genera enlace de Google Maps.
-- **Permiso especial:** el grupo `Portal: corrección de solicitudes y acceso rápido`, asignable en configuración de usuarios de Odoo, muestra la tarjeta «Gestión de solicitudes» con historial, documentos y corrección de solicitudes aún sin decisión. La edición siempre comprueba el usuario propietario y su grupo en el servidor. No cambia decisiones administrativas, documentos, historial ni los campos de verificación.
+- **Permiso especial (actual):** el responsable autorizado habilita desde cada solicitud la actualización de datos, documentos o ambas opciones. El servidor valida la propiedad de la solicitud y los permisos individuales.
 - **Verificación paralela:** `verification_status` es independiente de `stage_id`: Pendiente, En verificación, Verificado y No conforme. Para aprobar, se requiere Verificado, inspección realizada, dirección encontrada, dirección verificada y verificador identificado. Para rechazar, la verificación debe estar finalizada. La antigua etapa «Verificación» se archiva sin borrar su historial.
 - **Una solicitud en trámite por usuario:** no se permite crear otra hasta que la anterior se apruebe o rechace; una solicitud ya aprobada que avanza al expediente documental sigue considerándose decidida. La comprobación se aplica también desde el ORM con bloqueo transaccional por usuario.
 
@@ -173,7 +173,7 @@ Instalación: respaldar base de datos y filestore, sustituir directorio, reinici
 ## Versión 18.0.1.5.0 — corrección del historial, permisos y documentación
 
 - El historial muestra **Actualizar** al propietario con el permiso especial y solicitud pendiente de decisión; abre los cinco pasos precargados con vehículos, referencias, datos de negocio y aceptaciones. Los demás usuarios solo pueden consultar **Ver detalle**.
-- En Settings/Usuarios el administrador puede activar **Puede actualizar solicitudes de crédito** para un usuario de portal. Este indicador administra el grupo de seguridad `group_credit_portal_correction`; el servidor comprueba el grupo y la propiedad de la solicitud para leer y guardar correcciones.
+- La versión 18.0.1.5.0 utilizó autorización global; el mecanismo vigente habilita cada solicitud individualmente. No se necesita ningún permiso global en el usuario de portal.
 - En el backend, el botón inteligente **Acceso especial** requiere tanto el grupo de gestor de crédito como el permiso especial. Permite abrir datos (para corregir antes de la decisión), historial interno o expediente documental (solo tras aprobación).
 - La carga documental depende ahora del estado real (Aprobada o Documentación recibida después de aprobar), no solo de un indicador booleano que pudo quedar activo. Se oculta en revisión, se bloquea la URL de carga incluso por acceso directo y se limpia el indicador obsoleto al actualizar el módulo. Se conservan los archivos históricos.
 - Ningún usuario puede modificar una solicitud ajena desde el portal; una solicitud aprobada, denegada o con documentos ya recibidos no permite cambiar los datos iniciales desde el portal.
@@ -187,4 +187,20 @@ Instalación: respaldar base de datos y filestore, sustituir directorio, reinici
 - **Historial:** aparecerá el botón **Actualizar** para la solicitud autorizada, mientras esté en trámite y no aprobada/rechazada. Se cargan los datos existentes del formulario de cinco pasos.
 - **Documentación:** el primer ingreso de archivos se permite tras la aprobación; modificaciones posteriores de un expediente ya creado requieren el permiso `documentation` o `both` de esa solicitud (igual que el módulo de referencia). Sin aprobación no se permite cargar archivos ni mediante URL.
 - Puede revocarse el permiso seleccionando **Ninguna sección**. Se guardan la fecha y el usuario responsable de la autorización.
-- El grupo legado `group_credit_portal_correction` se conserva para compatibilidad, **pero ya no concede la edición**. El campo `credit_portal_correction_enabled` solo refleja ese dato antiguo y deja de mostrarse en la ficha de usuario.
+- El permiso obsoleto de corrección global y su campo auxiliar quedan retirados a partir de 18.0.1.7.0.
+
+
+## 18.0.1.7.0 — Retiro definitivo del grupo global obsoleto
+
+- Se elimina del código el grupo de corrección global del portal y el campo auxiliar antiguo de `res.users`.
+- Al **actualizar** una base que tenga versiones anteriores, `migrations/18.0.1.7.0/post-remove-old-portal-group.py` quita el grupo legado de `res.groups` y sus asignaciones a usuarios.
+- Se mantiene sin cambios el grupo **Gestionar permisos de actualización del portal de crédito**, el botón inteligente **Permiso portal** y los permisos individuales de las solicitudes.
+- La migración se ejecuta al actualizar el módulo por cambio de versión; no es suficiente reemplazar archivos sin actualizar el módulo en Odoo.
+
+
+## Versión 18.0.1.8.0: permisos, colores y corrección de un solo uso
+- El permiso de Historial permite actualizar una vez; al guardar se consume y la vista vuelve a `Ver detalle`. Si se concedieron ambas opciones, queda solo el permiso de documentación.
+- Grupo **Usuario de crédito (revisión y verificación)**: lectura de datos del solicitante, movimiento de etapa y edición exclusiva de verificación de ubicación/negocio. El resto de modelos (catálogos, referencias, vehículos y documentos) queda en solo lectura. Las restricciones se comprueban en el ORM, además de las vistas.
+- Grupo **Administrador de crédito (edición completa)**: gestión completa de solicitudes y catálogos, con pantalla **Crédito CONEDERA → Colores del portal** (colores HEX).
+- Grupo **Gestionar permisos de actualización del portal de crédito**: para personal autorizado que concede permisos por solicitud; implica el rol administrador de crédito.
+- Atención al actualizar: los usuarios que solo tenían el grupo anterior «Gestión de solicitudes» pasan a tener el rol de usuario limitado; para conservar la edición completa se debe asignar explícitamente **Administrador de crédito**.
