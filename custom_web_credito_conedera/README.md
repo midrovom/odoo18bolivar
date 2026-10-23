@@ -168,3 +168,12 @@ Las verificaciones incluidas en el paquete son estáticas (compilación Python, 
 - **Una solicitud en trámite por usuario:** no se permite crear otra hasta que la anterior se apruebe o rechace; una solicitud ya aprobada que avanza al expediente documental sigue considerándose decidida. La comprobación se aplica también desde el ORM con bloqueo transaccional por usuario.
 
 Instalación: respaldar base de datos y filestore, sustituir directorio, reiniciar Odoo y actualizar el módulo. Probar con una base de ensayo, especialmente si hay expedientes históricos, antes de llevarlo a producción.
+
+
+## Versión 18.0.1.5.0 — corrección del historial, permisos y documentación
+
+- El historial muestra **Actualizar** al propietario con el permiso especial y solicitud pendiente de decisión; abre los cinco pasos precargados con vehículos, referencias, datos de negocio y aceptaciones. Los demás usuarios solo pueden consultar **Ver detalle**.
+- En Settings/Usuarios el administrador puede activar **Puede actualizar solicitudes de crédito** para un usuario de portal. Este indicador administra el grupo de seguridad `group_credit_portal_correction`; el servidor comprueba el grupo y la propiedad de la solicitud para leer y guardar correcciones.
+- En el backend, el botón inteligente **Acceso especial** requiere tanto el grupo de gestor de crédito como el permiso especial. Permite abrir datos (para corregir antes de la decisión), historial interno o expediente documental (solo tras aprobación).
+- La carga documental depende ahora del estado real (Aprobada o Documentación recibida después de aprobar), no solo de un indicador booleano que pudo quedar activo. Se oculta en revisión, se bloquea la URL de carga incluso por acceso directo y se limpia el indicador obsoleto al actualizar el módulo. Se conservan los archivos históricos.
+- Ningún usuario puede modificar una solicitud ajena desde el portal; una solicitud aprobada, denegada o con documentos ya recibidos no permite cambiar los datos iniciales desde el portal.

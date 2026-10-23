@@ -2,7 +2,7 @@ import logging
 from markupsafe import escape
 
 from odoo import api, fields, models, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, AccessError, UserError
 
 from .credit_identity import valid_ecuador_cedula, valid_ecuador_mobile, valid_credit_identity, valid_foreign_document, valid_ruc_length
 
@@ -120,6 +120,9 @@ class ConederaCreditApplication(models.Model):
     verification_status = fields.Selection([('pending', 'Pendiente'), ('in_progress', 'En verificación'), ('verified', 'Verificado'), ('failed', 'No conforme')], string='Estado de verificación del negocio', default='pending', required=True, tracking=True, copy=False, index=True, help='Se gestiona en paralelo con la etapa de revisión del crédito.')
     verification_completed_at = fields.Datetime(string='Fecha de verificación', readonly=True, copy=False)
     documents_unlocked = fields.Boolean(string='Ingreso documental habilitado', default=False, copy=False, readonly=True, tracking=True)
+    document_access_allowed = fields.Boolean(
+        string='Puede ingresar documentos', compute='_compute_document_access_allowed',
+        help='Solo está disponible tras aprobar la solicitud, mientras siga aprobada o esté en la fase de recepción documental.')
     currency_id = fields.Many2one('res.currency', string='Moneda', default=lambda self: self.env.company.currency_id, required=True)
     declaration_accepted = fields.Boolean(string='Declaración y autorización general aceptada', required=True, default=False, tracking=True)
     prior_commercial_relationship_accepted = fields.Boolean(string='Acepta cláusula de relación comercial previa', default=False, tracking=True)
@@ -166,6 +169,28 @@ class ConederaCreditApplication(models.Model):
         for record in self:
             docs = record.document_ids[:1]
             record.document_complete = bool(docs and docs.is_complete)
+
+    credit_access_button_visible = fields.Boolean(
+        string='Permiso especial de acceso', compute='_compute_credit_access_button_visible'
+    )
+
+    @api.depends_context('uid')
+    def _compute_credit_access_button_visible(self):
+        user = self.env.user
+        allowed = (user.has_group('custom_web_credito_conedera.group_credit_manager') and
+                   user.has_group('custom_web_credito_conedera.group_credit_portal_correction'))
+        for record in self:
+            record.credit_access_button_visible = allowed
+
+    @api.depends('documents_unlocked', 'stage_id.is_approved', 'stage_id.is_documents_received', 'history_ids.stage_id.is_approved')
+    def _compute_document_access_allowed(self):
+        for record in self:
+            approval_recorded = bool(record.history_ids.filtered(lambda h: h.stage_id.is_approved))
+            record.document_access_allowed = bool(
+                record.documents_unlocked and record.stage_id and
+                (record.stage_id.is_approved or
+                 (record.stage_id.is_documents_received and approval_recorded))
+            )
 
     @api.model
     def _blocking_application(self, user_id, exclude_id=False):
@@ -218,8 +243,10 @@ class ConederaCreditApplication(models.Model):
                 if initial:
                     vals['stage_id'] = initial.id
             stage = Stage.browse(vals.get('stage_id')) if vals.get('stage_id') else Stage
-            if stage and stage.is_approved:
-                vals['documents_unlocked'] = True
+            if stage and stage.is_documents_received:
+                raise ValidationError(_('La recepción de documentos solo puede ocurrir después de aprobar una solicitud existente.'))
+            # El campo no puede habilitarse manualmente desde create/ORM.
+            vals['documents_unlocked'] = bool(stage and stage.is_approved)
             if vals.get('declaration_accepted'):
                 vals['declaration_date'] = fields.Datetime.now()
         records = super().create(vals_list)
@@ -255,10 +282,26 @@ class ConederaCreditApplication(models.Model):
         values = dict(vals)
         if 'stage_id' in values:
             new_stage = self.env['conedera.credit.stage'].browse(values.get('stage_id'))
-            if new_stage.is_approved:
+            if new_stage.is_documents_received:
+                for record in self:
+                    approved_before = bool(record.stage_id.is_approved or (
+                        record.documents_unlocked and record.stage_id.is_documents_received and
+                        any(h.stage_id.is_approved for h in record.history_ids)
+                    ))
+                    if not approved_before:
+                        raise ValidationError(_('No puede ingresar documentación sin la aprobación previa de la solicitud.'))
                 values['documents_unlocked'] = True
-            elif new_stage.is_rejected:
-                values['documents_unlocked'] = False
+            else:
+                # Impedir que un estado 'En revisión' conserve el indicador de
+                # documentos habilitados cuando se revierte una aprobación.
+                values['documents_unlocked'] = bool(new_stage.is_approved)
+        elif 'documents_unlocked' in values:
+            # Nadie debe habilitar documentos manualmente antes de la aprobación.
+            for record in self:
+                if values['documents_unlocked'] and not (
+                    record.stage_id.is_approved or record.stage_id.is_documents_received
+                ):
+                    raise ValidationError(_('Solo la etapa Aprobada puede habilitar el ingreso de documentos.'))
         if values.get('declaration_accepted'):
             values.setdefault('declaration_date', fields.Datetime.now())
         result = super().write(values)
@@ -310,6 +353,9 @@ class ConederaCreditApplication(models.Model):
             _logger.exception('No se pudo notificar por correo la etapa de solicitud %s', self.name)
 
     def action_mark_documentation_received(self):
+        for record in self:
+            if not record.document_access_allowed or not record.document_complete:
+                raise UserError(_('La solicitud debe estar aprobada y tener completa la documentación antes de registrarla como recibida.'))
         stage = self.env['conedera.credit.stage'].search([
             ('is_documents_received', '=', True), ('active', '=', True),
         ], order='sequence, id', limit=1)
@@ -317,6 +363,21 @@ class ConederaCreditApplication(models.Model):
             raise ValidationError(_('Configure una etapa marcada como «Documentación recibida» antes de continuar.'))
         for record in self:
             record.stage_id = stage
+
+    def action_open_access_wizard(self):
+        """Botón inteligente: solo gestores con el permiso especial pueden usarlo."""
+        self.ensure_one()
+        if not (self.env.user.has_group('custom_web_credito_conedera.group_credit_manager')
+                and self.env.user.has_group('custom_web_credito_conedera.group_credit_portal_correction')):
+            raise AccessError(_('Se requiere el permiso especial de acceso a solicitudes de crédito.'))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Acceso a solicitud'),
+            'res_model': 'conedera.credit.access.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_application_id': self.id},
+        }
 
     def action_open_portal(self):
         self.ensure_one()
@@ -469,6 +530,15 @@ class ConederaCreditApplication(models.Model):
         docs_stage = self.env.ref('custom_web_credito_conedera.stage_credit_documents_received', raise_if_not_found=False)
         if docs_stage and not docs_stage.is_documents_received:
             docs_stage.is_documents_received = True
+        # Una versión anterior conservaba documents_unlocked al volver a En revisión.
+        # Corregirlo de manera idempotente sin borrar documentos ni el historial.
+        self.env.cr.execute("""UPDATE conedera_credit_application AS app
+            SET documents_unlocked = FALSE
+            FROM conedera_credit_stage AS stage
+            WHERE app.stage_id = stage.id AND app.documents_unlocked = TRUE
+                AND NOT (stage.is_approved OR stage.is_documents_received)
+        """)
+        self.invalidate_model(['documents_unlocked'])
 
         # El almacenamiento binario original permanece intacto; las líneas nuevas
         # reciben una copia cuando el requisito inicial coincide con el campo viejo.

@@ -375,7 +375,7 @@ class ConederaCreditPortal(http.Controller):
         if not has_permission:
             return False
         return not application or (application.portal_user_id.id == request.env.user.id and
-            not application.stage_id.is_approved and not application.stage_id.is_rejected)
+            not application.stage_id.is_approved and not application.stage_id.is_rejected and not application.stage_id.is_documents_received)
 
     def _pending_application(self):
         return request.env['conedera.credit.application'].sudo()._blocking_application(request.env.user.id)
@@ -523,6 +523,7 @@ class ConederaCreditPortal(http.Controller):
         return request.render('custom_web_credito_conedera.portal_credit_quick_actions', {
             'applications': applications,
             'editable_ids': applications.filtered(lambda a: self._can_correct(a)).ids,
+            'has_documents_enabled': bool(applications.filtered('document_access_allowed')),
         })
 
     @http.route('/my/credito/<int:application_id>/editar', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
@@ -695,6 +696,7 @@ class ConederaCreditPortal(http.Controller):
     def credit_history(self, **kwargs):
         return request.render('custom_web_credito_conedera.portal_credit_history', {
             'applications': self._portal_applications(),
+            'can_correct_ids': self._portal_applications().filtered(lambda a: self._can_correct(a)).ids,
         })
 
     @http.route('/my/credito/<int:application_id>', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
@@ -707,12 +709,13 @@ class ConederaCreditPortal(http.Controller):
             'history': history,
             'documents': documents,
             'verification_label': dict(application._fields['verification_status']._description_selection(request.env)).get(application.verification_status, '-'),
+            'can_correct': self._can_correct(application),
         })
 
     @http.route('/my/credito/documentos', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
     def credit_documents_index(self, **kwargs):
         applications = self._portal_applications([('documents_unlocked', '=', True)])
-        applications = applications.filtered(lambda app: not app.stage_id.is_rejected)
+        applications = applications.filtered(lambda app: app.document_access_allowed)
         return request.render('custom_web_credito_conedera.portal_credit_documents_index', {'applications': applications})
 
     def _credit_document_errors(self, doc):
@@ -743,7 +746,7 @@ class ConederaCreditPortal(http.Controller):
     @http.route('/my/credito/<int:application_id>/documentos', type='http', auth='user', website=True, methods=['GET', 'POST'], sitemap=False)
     def credit_documents_form(self, application_id, **post):
         application = self._get_owned_application(application_id)
-        if not application.documents_unlocked or application.stage_id.is_rejected:
+        if not application.document_access_allowed:
             raise Forbidden(_('El ingreso de documentos se habilita cuando la solicitud está aprobada.'))
         Documents = request.env['conedera.credit.documents'].sudo()
         document = Documents.search([('application_id', '=', application.id)], limit=1)

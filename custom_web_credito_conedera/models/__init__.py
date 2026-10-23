@@ -10,3 +10,5 @@ from . import credit_documents
 from . import credit_document_line
 from . import credit_stage_history
 from . import mail_server
+from . import res_users
+from . import credit_access_wizard
