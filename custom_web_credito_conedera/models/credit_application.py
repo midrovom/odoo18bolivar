@@ -97,7 +97,6 @@ class ConederaCreditApplication(models.Model):
     authorized_pickup_identification = fields.Char(string='Cédula de persona autorizada a retirar mercadería')
     business_latitude = fields.Float(string='Latitud del negocio', digits=(10, 7))
     business_longitude = fields.Float(string='Longitud del negocio', digits=(10, 7))
-    maps_url = fields.Char(string='Enlace de ubicación de Google Maps', help='El PDF de CONEDERA indica enviar esta ubicación a cobranzas@viteltek.com.')
 
     employment_company = fields.Char(string='Empresa donde trabaja (relación de dependencia)')
     employment_activity = fields.Char(string='Actividad de la empresa')

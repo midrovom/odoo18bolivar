@@ -15,7 +15,7 @@ Módulo nuevo e independiente de los módulos de Recursos Humanos utilizados com
 - La etapa **Aprobada** habilita la carga documental. El tipo de solicitante configurado en Odoo determina los documentos y sus requisitos obligatorios.
 - Gestión de la documentación recibida y controles para aceptar el expediente o pedir correcciones.
 - Campos de la página 2 del PDF destinados a la verificación interna de la ubicación del negocio.
-- Se incluye el envío del enlace de Google Maps a `cobranzas@viteltek.com`, ya que esa dirección aparece explícitamente en el PDF proporcionado.
+- Se notifica a `cobranzas@viteltek.com` la latitud y longitud ingresadas del negocio, sin generar ni almacenar enlaces de Google Maps.
 
 ## Documentos posteriores a la aprobación
 
@@ -67,7 +67,7 @@ Las etapas se pueden administrar desde **Crédito CONEDERA → Etapas del flujo*
 
 - El usuario del portal solo puede consultar los registros enlazados a su propio usuario; las rutas verifican propiedad antes de leer una solicitud o cargar archivos.
 - Los accesos de backend y las etapas están restringidos al grupo interno del módulo.
-- Los datos de verificación de ubicación son campos internos. El formulario web del cliente solo solicita la dirección del negocio y el enlace de Google Maps.
+- Los datos de verificación de ubicación son campos internos. El portal solicita dirección del negocio, latitud y longitud, con opción de geolocalización autorizada por el navegador.
 - La declaración/autorización del formulario web sigue el texto de la solicitud PDF entregada. Por tratarse de una autorización legal de crédito, el área legal de CONEDERA debe validar la versión web antes de producción.
 - Este paquete se validó estáticamente (estructura, XML y sintaxis Python). No se ejecutó contra una instancia real de Odoo ni se verificó el SMTP, por lo que se recomienda instalar primero en una base de pruebas.
 
@@ -162,7 +162,7 @@ Las verificaciones incluidas en el paquete son estáticas (compilación Python, 
 - **Referencias:** se muestran tres líneas iniciales independientes para comerciales, personales y bancarias. Cada sección permite añadir filas (hasta 30) y eliminarlas; se guardan en `reference_ids`.
 - **Documento del propietario:** `identification_type` es cédula ecuatoriana (10 dígitos con verificador), RUC (exactamente 13 numéricos) o cédula extranjera (exactamente 10 numéricos). El RUC del negocio exige 13 numéricos. Esta regla estructural no consulta ni garantiza existencia en el SRI.
 - **Cónyuge:** los campos de nombre, identificación y profesión son obligatorios para los estados civiles marcados como **Requiere datos del cónyuge** (por defecto Casado/a y Unión de hecho); los demás tipos los ocultan y no los guardan. El documento admite cédula ecuatoriana válida o identificación extranjera numérica de 10 dígitos.
-- **Ubicación:** `business_latitude` y `business_longitude` permiten escribir coordenadas o usar geolocalización del navegador mediante autorización. Si el usuario llena coordenadas sin enlace, se genera enlace de Google Maps.
+- **Ubicación:** `business_latitude` y `business_longitude` permiten escribir coordenadas o usar geolocalización del navegador mediante autorización. No se solicita ni genera enlace de Google Maps.
 - **Permiso especial (actual):** el responsable autorizado habilita desde cada solicitud la actualización de datos, documentos o ambas opciones. El servidor valida la propiedad de la solicitud y los permisos individuales.
 - **Verificación paralela:** `verification_status` es independiente de `stage_id`: Pendiente, En verificación, Verificado y No conforme. Para aprobar, se requiere Verificado, inspección realizada, dirección encontrada, dirección verificada y verificador identificado. Para rechazar, la verificación debe estar finalizada. La antigua etapa «Verificación» se archiva sin borrar su historial.
 - **Una solicitud en trámite por usuario:** no se permite crear otra hasta que la anterior se apruebe o rechace; una solicitud ya aprobada que avanza al expediente documental sigue considerándose decidida. La comprobación se aplica también desde el ORM con bloqueo transaccional por usuario.
@@ -211,3 +211,11 @@ Instalación: respaldar base de datos y filestore, sustituir directorio, reinici
 - Corrige la definición de la vista de historial de etapas: los campos del modelo `conedera.credit.stage.history` no consultan el campo `credit_is_admin` de la solicitud principal.
 - El historial permanece de solo lectura para todos los roles; el administrador gestiona la solicitud en su formulario y los empleados autorizados actualizan la etapa desde el encabezado.
 - Mantiene la separación Administrador/Usuario de crédito, los colores configurables y la actualización del portal de un solo uso.
+
+
+## Versión 18.0.1.8.2 — Solo coordenadas
+
+- Eliminado `maps_url` del modelo, formulario del portal y vista administrativa. La base de datos mantiene sus registros históricos, sin mostrar ese campo.
+- El detalle de la solicitud presenta latitud y longitud; se mantiene el botón «Usar mi ubicación actual».
+- El envío a cobranzas, cuando se registran coordenadas nuevas, incluye únicamente latitud y longitud.
+- Conservadas las validaciones y restricciones de acceso del módulo anterior.

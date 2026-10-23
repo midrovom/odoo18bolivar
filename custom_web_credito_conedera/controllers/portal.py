@@ -35,7 +35,7 @@ APPLICATION_FIELDS = [
     'activity_start_date', 'business_local_type', 'monthly_sales', 'social_capital', 'invoice_email',
     'assets_amount', 'monthly_income', 'liabilities_amount', 'monthly_expenses',
     'authorized_buyer_name', 'authorized_buyer_identification', 'authorized_buyer_email',
-    'authorized_pickup_name', 'authorized_pickup_identification', 'maps_url', 'employment_company',
+    'authorized_pickup_name', 'authorized_pickup_identification', 'employment_company',
     'employment_activity', 'employment_address', 'employment_phone', 'employment_start_date',
     'employment_position', 'employment_salary',
 ]
@@ -581,8 +581,6 @@ class ConederaCreditPortal(http.Controller):
             errors.append(_('La latitud debe estar entre -90 y 90.'))
         if longitude_raw and not -180 <= values['business_longitude'] <= 180:
             errors.append(_('La longitud debe estar entre -180 y 180.'))
-        if latitude_raw and longitude_raw and not values.get('maps_url'):
-            values['maps_url'] = 'https://www.google.com/maps?q=%s,%s' % (latitude_raw, longitude_raw)
         values['application_date'] = values.get('application_date') or fields.Date.context_today(request.env.user).strftime('%Y-%m-%d')
         values['portal_user_id'] = request.env.user.id
         selected_type = _clean(post.get('applicant_type_id'))
@@ -649,8 +647,6 @@ class ConederaCreditPortal(http.Controller):
             errors.append(_('El celular debe contener exactamente 10 dígitos numéricos.'))
         if values.get('applicant_email') and not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', values['applicant_email']):
             errors.append(_('Ingrese un correo válido para el propietario o representante.'))
-        if values.get('maps_url') and not values['maps_url'].lower().startswith(('https://', 'http://')):
-            errors.append(_('El enlace de Google Maps debe comenzar con http:// o https://.'))
         if not values['declaration_accepted']:
             errors.append(_('Debe aceptar la declaración y autorización general para enviar la solicitud.'))
         for field_name, message in consent_fields:
@@ -699,8 +695,9 @@ class ConederaCreditPortal(http.Controller):
             _logger.exception('Error registrando o actualizando la solicitud de crédito desde el portal')
             return self._render_application_form(post, [_('No se pudo guardar la solicitud. Revise los datos e inténtelo nuevamente.')], application=application)
 
-        # El PDF de referencia indica remitir a cobranzas@viteltek.com el enlace de Google Maps del negocio.
-        if application.maps_url and not post.get('credit_edit_mode'):
+        # Conservar el aviso a cobranzas, pero incluir únicamente las coordenadas
+        # declaradas por el solicitante, sin generar ni almacenar enlaces externos.
+        if latitude_raw and longitude_raw and not post.get('credit_edit_mode'):
             try:
                 credit_mail_server = request.env['ir.mail_server'].sudo().get_conedera_credit_mail_server()
                 email_from = (credit_mail_server.smtp_user or '').strip()
@@ -710,16 +707,19 @@ class ConederaCreditPortal(http.Controller):
                         '<p>Se registró una solicitud de crédito CONEDERA.</p>'
                         '<p><b>Solicitud:</b> %s<br/><b>Solicitante:</b> %s<br/>'
                         '<b>Negocio:</b> %s<br/><b>Identificación:</b> %s</p>'
-                        '<p><b>Ubicación Google Maps:</b> <a href="%s">%s</a></p>'
-                        '<p><b>Latitud:</b> %s &nbsp; <b>Longitud:</b> %s</p>'
-                    ) % tuple(escape(value or '') for value in (application.name, application.applicant_name, application.business_name, application.identification, application.maps_url, application.maps_url, str(application.business_latitude), str(application.business_longitude))),
+                        '<p><b>Latitud del negocio:</b> %s<br/><b>Longitud del negocio:</b> %s</p>'
+                    ) % tuple(escape(str(value or '')) for value in (
+                        application.name, application.applicant_name,
+                        application.business_name, application.identification,
+                        latitude_raw, longitude_raw,
+                    )),
                     'email_to': 'cobranzas@viteltek.com',
                     'email_from': email_from,
                     'mail_server_id': credit_mail_server.id,
                 }
                 request.env['mail.mail'].sudo().create(mail_vals).send()
             except Exception:
-                _logger.exception('No se pudo enviar el enlace de Maps al buzón indicado en el formulario CONEDERA')
+                _logger.exception('No se pudo enviar la ubicación del negocio al buzón de cobranzas CONEDERA')
         return request.redirect('/my/credito/%s?%s=1' % (application.id, 'updated' if post.get('credit_edit_mode') else 'sent'))
 
     @http.route('/my/credito/historial', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
