@@ -10,6 +10,15 @@
         <field name="category_id" ref="module_category_conedera_credit"/>
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
+    <!-- Igual que el módulo de postulaciones: el responsable concede permiso por solicitud,
+         no por usuario de portal. Este grupo es para el empleado que otorga permisos. -->
+    <record id="group_credit_portal_update_manager" model="res.groups">
+        <field name="name">Gestionar permisos de actualización del portal de crédito</field>
+        <field name="category_id" ref="module_category_conedera_credit"/>
+        <field name="implied_ids" eval="[(4, ref('custom_web_credito_conedera.group_credit_manager'))]"/>
+        <field name="comment">Permite habilitar por solicitud la actualización de datos y/o documentación desde el portal.</field>
+    </record>
+    <!-- Grupo legado mantenido solo para compatibilidad de grupos asignados: no concede acceso por sí solo. -->
     <record id="group_credit_portal_correction" model="res.groups">
         <field name="name">Portal: corrección de solicitudes y acceso rápido</field>
         <field name="category_id" ref="module_category_conedera_credit"/>

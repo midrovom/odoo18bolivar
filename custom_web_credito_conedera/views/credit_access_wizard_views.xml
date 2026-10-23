@@ -4,17 +4,23 @@
         <field name="name">conedera.credit.access.wizard.form</field>
         <field name="model">conedera.credit.access.wizard</field>
         <field name="arch" type="xml">
-            <form string="Acceso especial a la solicitud">
-                <group>
-                    <field name="application_id" readonly="1"/>
-                    <field name="document_access_allowed" invisible="1"/>
-                    <field name="destination" widget="radio"/>
-                </group>
-                <div class="alert alert-info" role="alert" invisible="document_access_allowed">
-                    Los documentos solo se habilitan al aprobar la solicitud.
-                </div>
+            <form string="Habilitar permiso del portal">
+                <sheet>
+                    <div class="alert alert-info mb-3">
+                        <strong>Seleccione qué podrá actualizar el solicitante.</strong>
+                        <div class="mt-1">Este permiso se aplica solo a la solicitud seleccionada, como en el módulo de postulaciones.</div>
+                    </div>
+                    <group>
+                        <field name="application_id" readonly="1"/>
+                        <field name="portal_update_scope" widget="radio"/>
+                        <field name="document_access_allowed" invisible="1"/>
+                    </group>
+                    <div class="alert alert-warning" invisible="document_access_allowed">
+                        La documentación no se podrá cargar hasta la aprobación del crédito, aunque se habilite su actualización.
+                    </div>
+                </sheet>
                 <footer>
-                    <button name="action_open" type="object" string="Abrir sección" class="btn-primary"/>
+                    <button name="action_apply" type="object" string="Habilitar" class="btn-primary"/>
                     <button string="Cancelar" special="cancel" class="btn-secondary"/>
                 </footer>
             </form>

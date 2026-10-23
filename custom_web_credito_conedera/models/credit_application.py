@@ -170,17 +170,47 @@ class ConederaCreditApplication(models.Model):
             docs = record.document_ids[:1]
             record.document_complete = bool(docs and docs.is_complete)
 
+    # Permiso POR SOLICITUD como custom_web_hr_historial_postulaciones.
+    # El grupo del usuario no autoriza a modificar expedientes ajenos o sin habilitar.
+    portal_update_scope = fields.Selection([
+        ('none', 'Ninguna sección'),
+        ('history', 'Historial de solicitudes (actualizar formulario)'),
+        ('documentation', 'Ingreso de documentos (actualizar archivos)'),
+        ('both', 'Historial + documentación'),
+    ], string='Sección habilitada para actualizar desde el portal',
+       required=True, default='none', copy=False, tracking=True, index=True)
+    portal_update_allowed = fields.Boolean(
+        string='Actualización desde portal habilitada', compute='_compute_portal_update_allowed',
+        store=True, copy=False)
+    portal_update_allowed_at = fields.Datetime(
+        string='Permiso actualizado el', copy=False, readonly=True)
+    portal_update_allowed_by = fields.Many2one(
+        'res.users', string='Permiso actualizado por', readonly=True, copy=False)
+
+    @api.depends('portal_update_scope')
+    def _compute_portal_update_allowed(self):
+        for record in self:
+            record.portal_update_allowed = record.portal_update_scope not in (False, 'none')
+
+    def portal_can_update_history(self):
+        self.ensure_one()
+        return self.portal_update_scope in ('history', 'both')
+
+    def portal_can_update_documentation(self):
+        self.ensure_one()
+        return self.portal_update_scope in ('documentation', 'both')
+
     credit_access_button_visible = fields.Boolean(
-        string='Permiso especial de acceso', compute='_compute_credit_access_button_visible'
+        string='Puede conceder permisos del portal', compute='_compute_credit_access_button_visible'
     )
 
+    @api.depends('portal_user_id')
     @api.depends_context('uid')
     def _compute_credit_access_button_visible(self):
-        user = self.env.user
-        allowed = (user.has_group('custom_web_credito_conedera.group_credit_manager') and
-                   user.has_group('custom_web_credito_conedera.group_credit_portal_correction'))
+        authorized = self.env.user.has_group(
+            'custom_web_credito_conedera.group_credit_portal_update_manager')
         for record in self:
-            record.credit_access_button_visible = allowed
+            record.credit_access_button_visible = bool(authorized and record.portal_user_id)
 
     @api.depends('documents_unlocked', 'stage_id.is_approved', 'stage_id.is_documents_received', 'history_ids.stage_id.is_approved')
     def _compute_document_access_allowed(self):
@@ -364,20 +394,29 @@ class ConederaCreditApplication(models.Model):
         for record in self:
             record.stage_id = stage
 
-    def action_open_access_wizard(self):
-        """Botón inteligente: solo gestores con el permiso especial pueden usarlo."""
+    def action_open_portal_update_wizard(self):
+        """Botón inteligente y de cabecera, igual al permiso de postulaciones."""
         self.ensure_one()
-        if not (self.env.user.has_group('custom_web_credito_conedera.group_credit_manager')
-                and self.env.user.has_group('custom_web_credito_conedera.group_credit_portal_correction')):
-            raise AccessError(_('Se requiere el permiso especial de acceso a solicitudes de crédito.'))
+        if not self.env.user.has_group(
+                'custom_web_credito_conedera.group_credit_portal_update_manager'):
+            raise AccessError(_('No puede gestionar permisos de actualización del portal de crédito.'))
+        if not self.portal_user_id:
+            raise UserError(_('Esta solicitud no tiene un usuario de portal asociado.'))
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Acceso a solicitud'),
+            'name': _('Habilitar permiso del portal'),
             'res_model': 'conedera.credit.access.wizard',
             'view_mode': 'form',
             'target': 'new',
-            'context': {'default_application_id': self.id},
+            'context': {
+                'default_application_id': self.id,
+                'default_portal_update_scope': self.portal_update_scope or 'none',
+            },
         }
+
+    # Mantiene compatible la acción del botón de versiones anteriores.
+    def action_open_access_wizard(self):
+        return self.action_open_portal_update_wizard()
 
     def action_open_portal(self):
         self.ensure_one()

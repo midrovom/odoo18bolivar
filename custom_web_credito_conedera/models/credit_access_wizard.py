@@ -1,49 +1,45 @@
-from odoo import fields, models, _
+from odoo import api, fields, models, _
 from odoo.exceptions import AccessError, UserError
 
 
 class ConederaCreditAccessWizard(models.TransientModel):
     _name = 'conedera.credit.access.wizard'
-    _description = 'Acceso especial a la solicitud de crédito'
+    _description = 'Habilitar permisos de actualización del portal de crédito'
 
-    application_id = fields.Many2one('conedera.credit.application', required=True, readonly=True)
-    destination = fields.Selection([
-        ('application', 'Actualizar datos de la solicitud'),
-        ('history', 'Historial de la solicitud'),
-        ('documents', 'Ingreso de documentos del crédito'),
-    ], string='Abrir', required=True, default='application')
-    document_access_allowed = fields.Boolean(related='application_id.document_access_allowed', readonly=True)
+    application_id = fields.Many2one(
+        'conedera.credit.application', string='Solicitud de crédito',
+        required=True, readonly=True)
+    portal_update_scope = fields.Selection([
+        ('none', 'Ninguna sección'),
+        ('history', 'Historial de solicitudes (actualizar formulario)'),
+        ('documentation', 'Ingreso de documentos (actualizar archivos)'),
+        ('both', 'Historial + documentación'),
+    ], string='¿Qué puede actualizar el solicitante?', required=True, default='none')
+    document_access_allowed = fields.Boolean(
+        related='application_id.document_access_allowed', readonly=True)
 
-    def action_open(self):
+    @api.model
+    def default_get(self, fields_list):
+        values = super().default_get(fields_list)
+        application_id = self.env.context.get('default_application_id') or self.env.context.get('active_id')
+        if application_id:
+            application = self.env['conedera.credit.application'].browse(application_id).exists()
+            if application:
+                values['application_id'] = application.id
+                values['portal_update_scope'] = application.portal_update_scope or 'none'
+        return values
+
+    def action_apply(self):
         self.ensure_one()
-        if not (self.env.user.has_group('custom_web_credito_conedera.group_credit_manager')
-                and self.env.user.has_group('custom_web_credito_conedera.group_credit_portal_correction')):
-            raise AccessError(_('Se requiere el permiso especial de acceso a solicitudes de crédito.'))
+        if not self.env.user.has_group(
+                'custom_web_credito_conedera.group_credit_portal_update_manager'):
+            raise AccessError(_('No tiene permisos para habilitar la actualización del portal.'))
         application = self.application_id.exists()
-        if not application:
-            raise UserError(_('No existe la solicitud seleccionada.'))
-        if self.destination == 'documents':
-            if not application.document_access_allowed:
-                raise UserError(_('El ingreso de documentos solo se habilita después de aprobar la solicitud.'))
-            return {
-                'type': 'ir.actions.act_window', 'name': _('Documentos de %s') % application.name,
-                'res_model': 'conedera.credit.documents', 'view_mode': 'list,form',
-                'domain': [('application_id', '=', application.id)],
-                'context': {'default_application_id': application.id}, 'target': 'current',
-            }
-        if self.destination == 'history':
-            return {
-                'type': 'ir.actions.act_window', 'name': _('Historial de %s') % application.name,
-                'res_model': 'conedera.credit.stage.history', 'view_mode': 'list,form',
-                'domain': [('application_id', '=', application.id)],
-                'context': {'default_application_id': application.id, 'create': False, 'edit': False},
-                'target': 'current',
-            }
-        if application.stage_id.is_approved or application.stage_id.is_rejected or application.stage_id.is_documents_received:
-            raise UserError(_('La solicitud ya tiene una decisión y no permite corregir los datos iniciales.'))
-        return {
-            'type': 'ir.actions.act_window', 'name': _('Actualizar solicitud %s') % application.name,
-            'res_model': 'conedera.credit.application', 'res_id': application.id,
-            'view_mode': 'form', 'target': 'current',
-            'context': {'form_view_initial_mode': 'edit'},
-        }
+        if not application or not application.portal_user_id:
+            raise UserError(_('La solicitud no tiene un usuario de portal asociado.'))
+        application.write({
+            'portal_update_scope': self.portal_update_scope,
+            'portal_update_allowed_at': fields.Datetime.now(),
+            'portal_update_allowed_by': self.env.user.id,
+        })
+        return {'type': 'ir.actions.act_window_close'}

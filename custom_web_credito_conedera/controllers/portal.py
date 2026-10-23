@@ -370,12 +370,25 @@ class ConederaCreditPortal(http.Controller):
         domain.append(('portal_user_id', '=', request.env.user.id))
         return request.env['conedera.credit.application'].sudo().search(domain, order='create_date desc, id desc')
 
+    def _has_portal_update_scope(self):
+        return bool(self._portal_applications([('portal_update_scope', 'in', ['history', 'documentation', 'both'])]))
+
     def _can_correct(self, application=None):
-        has_permission = request.env.user.has_group('custom_web_credito_conedera.group_credit_portal_correction')
-        if not has_permission:
+        # Igual que historial_postulaciones: autorización por solicitud.
+        if not application:
+            return self._has_portal_update_scope()
+        return bool(application.portal_user_id.id == request.env.user.id and
+            application.portal_can_update_history() and
+            not application.stage_id.is_approved and
+            not application.stage_id.is_rejected and
+            not application.stage_id.is_documents_received)
+
+    def _can_update_credit_documents(self, application, document=None):
+        if not application.document_access_allowed or application.portal_user_id.id != request.env.user.id:
             return False
-        return not application or (application.portal_user_id.id == request.env.user.id and
-            not application.stage_id.is_approved and not application.stage_id.is_rejected and not application.stage_id.is_documents_received)
+        # Como en postulaciones: primer ingreso tras la aprobación libre;
+        # la corrección de documentos ya ingresados sí exige permiso de esa solicitud.
+        return not document or application.portal_can_update_documentation()
 
     def _pending_application(self):
         return request.env['conedera.credit.application'].sudo()._blocking_application(request.env.user.id)
@@ -524,6 +537,7 @@ class ConederaCreditPortal(http.Controller):
             'applications': applications,
             'editable_ids': applications.filtered(lambda a: self._can_correct(a)).ids,
             'has_documents_enabled': bool(applications.filtered('document_access_allowed')),
+            'documentation_editable_ids': applications.filtered(lambda a: a.document_access_allowed and a.portal_can_update_documentation()).ids,
         })
 
     @http.route('/my/credito/<int:application_id>/editar', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
@@ -741,6 +755,7 @@ class ConederaCreditPortal(http.Controller):
             'errors': errors or [],
             'requirements': requirements,
             'files_by_requirement': files_by_requirement,
+            'can_update_documents': self._can_update_credit_documents(application, document),
         })
 
     @http.route('/my/credito/<int:application_id>/documentos', type='http', auth='user', website=True, methods=['GET', 'POST'], sitemap=False)
@@ -752,6 +767,8 @@ class ConederaCreditPortal(http.Controller):
         document = Documents.search([('application_id', '=', application.id)], limit=1)
         if request.httprequest.method == 'GET':
             return self._render_credit_documents_form(application, document)
+        if not self._can_update_credit_documents(application, document):
+            raise Forbidden(_('Necesita que CONEDERA habilite la actualización de la documentación de esta solicitud.'))
 
         errors = []
         uploads = []

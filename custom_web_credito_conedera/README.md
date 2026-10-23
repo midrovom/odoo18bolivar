@@ -177,3 +177,14 @@ Instalación: respaldar base de datos y filestore, sustituir directorio, reinici
 - En el backend, el botón inteligente **Acceso especial** requiere tanto el grupo de gestor de crédito como el permiso especial. Permite abrir datos (para corregir antes de la decisión), historial interno o expediente documental (solo tras aprobación).
 - La carga documental depende ahora del estado real (Aprobada o Documentación recibida después de aprobar), no solo de un indicador booleano que pudo quedar activo. Se oculta en revisión, se bloquea la URL de carga incluso por acceso directo y se limpia el indicador obsoleto al actualizar el módulo. Se conservan los archivos históricos.
 - Ningún usuario puede modificar una solicitud ajena desde el portal; una solicitud aprobada, denegada o con documentos ya recibidos no permite cambiar los datos iniciales desde el portal.
+
+
+## 18.0.1.6.0 — Permisos por solicitud como Historial de Postulaciones
+
+- A diferencia del permiso global anterior, cada solicitud almacena `portal_update_scope`: `none`, `history`, `documentation`, `both`. Por seguridad, los expedientes antiguos se mantienen sin permiso hasta que el responsable los habilite.
+- En **Crédito CONEDERA → Solicitudes**, el usuario interno que pertenezca al grupo **Gestionar permisos de actualización del portal de crédito** ve el botón de cabecera **Habilitar permiso del portal** y el botón inteligente **Permiso portal**. Ambos abren el mismo asistente de autorización con botones **Habilitar/Cancelar**, como en `custom_web_hr_historial_postulaciones`.
+- El responsable se puede autorizar desde **Ajustes → Usuarios → Puede habilitar permisos del portal de crédito**, o asignándole el grupo de administración correspondiente. Este grupo implica gestionar crédito y **no se otorga a usuarios portal**.
+- **Historial:** aparecerá el botón **Actualizar** para la solicitud autorizada, mientras esté en trámite y no aprobada/rechazada. Se cargan los datos existentes del formulario de cinco pasos.
+- **Documentación:** el primer ingreso de archivos se permite tras la aprobación; modificaciones posteriores de un expediente ya creado requieren el permiso `documentation` o `both` de esa solicitud (igual que el módulo de referencia). Sin aprobación no se permite cargar archivos ni mediante URL.
+- Puede revocarse el permiso seleccionando **Ninguna sección**. Se guardan la fecha y el usuario responsable de la autorización.
+- El grupo legado `group_credit_portal_correction` se conserva para compatibilidad, **pero ya no concede la edición**. El campo `credit_portal_correction_enabled` solo refleja ese dato antiguo y deja de mostrarse en la ficha de usuario.

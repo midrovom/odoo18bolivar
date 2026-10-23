@@ -32,7 +32,7 @@
                     </a>
                 </div>
             </t>
-            <t t-if="request.env.user.has_group('custom_web_credito_conedera.group_credit_portal_correction')">
+            <t t-if="request.env['conedera.credit.application'].sudo().search([('portal_user_id', '=', request.env.user.id), ('portal_update_scope', 'in', ['history', 'documentation', 'both'])], limit=1)">
                 <div class="o_portal_index_card col-md-6 order-5">
                     <a href="/my/credito/acciones" class="d-flex gap-2 gap-md-3 py-3 pe-2 px-md-3 h-100 rounded text-decoration-none bg-100">
                         <div class="o_portal_icon"><i class="fa fa-magic fa-2x" aria-hidden="true"/></div>
@@ -180,7 +180,7 @@
             <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4"><div><span class="credit-kicker">CONEDERA S.A.</span><h1 class="h2 mb-1">Solicitud <t t-esc="application.name"/></h1><p class="text-muted mb-0">Envío: <t t-esc="application.application_date.strftime('%d/%m/%Y') if application.application_date else '-'"/></p></div><a href="/my/credito/historial" class="btn btn-outline-secondary rounded-pill">Volver al historial</a></div>
             <t t-if="request.params.get('sent')"><div class="alert alert-success rounded-3">Su solicitud fue enviada correctamente. Puede consultar aquí los cambios de etapa.</div></t><t t-if="request.params.get('pending')"><div class="alert alert-info rounded-3">Ya tiene una solicitud en trámite. No puede crear otra hasta que esta sea aprobada o rechazada.</div></t>
             <t t-if="request.params.get('updated')"><div class="alert alert-success rounded-3">Los datos fueron actualizados correctamente.</div></t>
-            <div t-if="request.env.user.has_group('custom_web_credito_conedera.group_credit_portal_correction')" class="mb-3 d-flex gap-2 flex-wrap">
+            <div t-if="application.portal_update_allowed" class="mb-3 d-flex gap-2 flex-wrap">
                 <a class="btn btn-outline-primary" href="/my/credito/acciones">Acciones rápidas</a>
                 <a t-if="can_correct" class="btn btn-credit-primary" t-att-href="'/my/credito/%s/editar' % application.id">Actualizar solicitud</a>
             </div>
@@ -209,7 +209,7 @@
                 <h2 class="h5" t-esc="application.name"/><p><span t-esc="application.business_name"/> · <span t-esc="application.stage_id.name"/></p>
                 <a class="btn btn-sm btn-outline-secondary me-2" t-att-href="'/my/credito/%s' % application.id">Ver detalle</a>
                 <a t-if="application.id in editable_ids" class="btn btn-sm btn-outline-primary me-2" t-att-href="'/my/credito/%s/editar' % application.id">Actualizar</a>
-                <a t-if="application.document_access_allowed" class="btn btn-sm btn-outline-primary" t-att-href="'/my/credito/%s/documentos' % application.id">Actualizar documentos</a>
+                <a t-if="application.id in documentation_editable_ids" class="btn btn-sm btn-outline-primary" t-att-href="'/my/credito/%s/documentos' % application.id">Actualizar documentos</a>
             </div></div></div></t></div>
         </div></t>
     </template>
@@ -234,7 +234,10 @@
                 <t t-if="errors"><div class="alert alert-warning rounded-3"><ul class="mb-0">
                     <t t-foreach="errors" t-as="error"><li t-esc="error"/></t>
                 </ul></div></t>
-                <form method="post" enctype="multipart/form-data" t-attf-action="/my/credito/#{application.id}/documentos" class="credit-form">
+                <div t-if="not can_update_documents" class="alert alert-warning rounded-3" role="alert">
+                    Ya se ingresaron documentos para esta solicitud. Para corregirlos, CONEDERA debe habilitar el permiso de <strong>Ingreso de documentos</strong> desde la solicitud en Odoo.
+                </div>
+                <form t-if="can_update_documents" method="post" enctype="multipart/form-data" t-attf-action="/my/credito/#{application.id}/documentos" class="credit-form">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <div class="card credit-section-card mb-4">
                         <div class="card-header">Requisitos · <t t-esc="application.applicant_type_id.name"/></div>
