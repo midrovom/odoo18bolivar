@@ -60,9 +60,57 @@
                             </form>
                         </field>
                     </page>
-                    <page string="Verificación de ubicación (uso interno)" groups="custom_web_credito_conedera.group_credit_manager">
-                        <group string="Verificación del negocio (personal CONEDERA)"><group><group><field name="identification" readonly="1"/><field name="applicant_name" readonly="1"/><field name="verification_province"/><field name="verification_city_canton_parish" readonly="1"/><field name="verification_city"/><field name="verification_canton"/><field name="verification_parish"/><field name="verification_neighborhood"/><field name="verification_address"/><field name="verification_house_number"/><field name="verification_reference"/><field name="verification_sketch" filename="verification_sketch_filename" help="En el croquis deben aparecer dos calles principales"/><field name="verification_sketch_filename"/></group><group><field name="verification_zone"/><field name="verification_local_state"/><field name="interviewed_person"/><field name="interviewed_relationship"/></group></group></group><group string="Resultados de la verificación (personal CONEDERA)"><group><group><field name="inspection_done"/><field name="address_found"/><field name="client_lives_there"/><field name="sketch_needed"/></group><group><field name="verification_status"/><field name="verifier_name"/><field name="verifier_signature" filename="verifier_signature_filename"/><field name="verifier_signature_filename"/><field name="verification_completed_at" readonly="1"/></group></group></group><div class="alert alert-info" role="alert">La etapa de revisión y la verificación del negocio funcionan en paralelo. Para aprobar una solicitud se requiere Verificado, inspección realizada, dirección encontrada, dirección verificada y nombre del verificador.</div></page>
-                    <page string="Historial de etapas"><field name="history_ids" readonly="1"><list create="0" edit="0" delete="0"><field name="date" readonly="1"/><field name="stage_id" readonly="1"/><field name="user_id" readonly="1"/><field name="notes" readonly="1"/><field name="visible_to_portal" readonly="1"/></list></field></page>
+                    <page string="Verificación de ubicación (uso interno)" groups="custom_web_credito_conedera.group_credit_manager" class="o_credit_verification_page">
+    <div class="alert alert-info mb-3" role="alert">
+        La revisión del crédito y la verificación del negocio se realizan en paralelo.
+        Para aprobar una solicitud se requiere: estado Verificado, inspección realizada,
+        dirección encontrada, dirección verificada y nombre del verificador.
+    </div>
+
+    <group string="Identificación del solicitante" col="2" class="o_credit_verification_section">
+        <field name="identification" readonly="1"/>
+        <field name="applicant_name" readonly="1"/>
+    </group>
+
+    <group string="Ubicación del negocio" col="2" class="o_credit_verification_section">
+        <field name="verification_province"/>
+        <field name="verification_city"/>
+        <field name="verification_canton"/>
+        <field name="verification_parish"/>
+        <field name="verification_neighborhood"/>
+        <field name="verification_address"/>
+        <field name="verification_house_number"/>
+        <field name="verification_reference"/>
+        <field name="verification_city_canton_parish" readonly="1" invisible="not verification_city_canton_parish"/>
+    </group>
+
+    <group string="Croquis del cliente" col="2" class="o_credit_verification_section">
+        <field name="verification_sketch" filename="verification_sketch_filename" help="El croquis debe incluir dos calles principales"/>
+        <field name="verification_sketch_filename" invisible="1"/>
+    </group>
+
+    <group string="Verificación del negocio (personal CONEDERA)" col="2" class="o_credit_verification_section">
+        <field name="verification_zone"/>
+        <field name="verification_local_state"/>
+        <field name="interviewed_person"/>
+        <field name="interviewed_relationship"/>
+    </group>
+
+    <group string="Resultados de la verificación (personal CONEDERA)" col="2" class="o_credit_verification_section">
+        <field name="inspection_done"/>
+        <field name="address_found"/>
+        <field name="client_lives_there"/>
+        <field name="sketch_needed"/>
+    </group>
+
+    <group string="Responsable y cierre de la verificación" col="2" class="o_credit_verification_section">
+        <field name="verification_status"/>
+        <field name="verifier_name"/>
+        <field name="verifier_signature" filename="verifier_signature_filename"/>
+        <field name="verifier_signature_filename" invisible="1"/>
+        <field name="verification_completed_at" readonly="1"/>
+    </group>
+</page><page string="Historial de etapas"><field name="history_ids" readonly="1"><list create="0" edit="0" delete="0"><field name="date" readonly="1"/><field name="stage_id" readonly="1"/><field name="user_id" readonly="1"/><field name="notes" readonly="1"/><field name="visible_to_portal" readonly="1"/></list></field></page>
                 </notebook>
             </sheet><chatter/>
         </form></field>
