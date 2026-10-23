@@ -204,3 +204,10 @@ Instalación: respaldar base de datos y filestore, sustituir directorio, reinici
 - Grupo **Administrador de crédito (edición completa)**: gestión completa de solicitudes y catálogos, con pantalla **Crédito CONEDERA → Colores del portal** (colores HEX).
 - Grupo **Gestionar permisos de actualización del portal de crédito**: para personal autorizado que concede permisos por solicitud; implica el rol administrador de crédito.
 - Atención al actualizar: los usuarios que solo tenían el grupo anterior «Gestión de solicitudes» pasan a tener el rol de usuario limitado; para conservar la edición completa se debe asignar explícitamente **Administrador de crédito**.
+
+
+## Corrección 18.0.1.8.1 (vistas Odoo 18)
+
+- Corrige la definición de la vista de historial de etapas: los campos del modelo `conedera.credit.stage.history` no consultan el campo `credit_is_admin` de la solicitud principal.
+- El historial permanece de solo lectura para todos los roles; el administrador gestiona la solicitud en su formulario y los empleados autorizados actualizan la etapa desde el encabezado.
+- Mantiene la separación Administrador/Usuario de crédito, los colores configurables y la actualización del portal de un solo uso.
