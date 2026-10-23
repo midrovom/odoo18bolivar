@@ -110,11 +110,13 @@
                 message = 'Documento inválido. Cédula ecuatoriana: 10 dígitos y verificador; RUC: 13 dígitos; extranjera: 10 dígitos numéricos.';
                 input.maxLength = type === 'ruc' ? 13 : 10;
                 input.pattern = type === 'ruc' ? '[0-9]{13}' : '[0-9]{10}';
-            } else if (kind === 'spouse') {
-                // Validar la cédula ecuatoriana primero; en caso de fallo, permitir
-                // documento extranjero numérico de exactamente diez dígitos.
+            } else if (kind === 'spouse' || kind === 'authorized_buyer' || kind === 'authorized_pickup') {
+                // La cédula ecuatoriana se comprueba primero y, si no es válida,
+                // se acepta un documento extranjero de 10 dígitos numéricos.
                 valid = valid || validCedula(value) || /^[0-9]{10}$/.test(value);
-                message = 'El documento del cónyuge debe tener 10 dígitos numéricos.';
+                message = kind === 'spouse'
+                    ? 'El documento del cónyuge debe tener 10 dígitos numéricos.'
+                    : 'El documento de la persona autorizada debe tener exactamente 10 dígitos numéricos (cédula ecuatoriana o documento extranjero).';
             } else if (kind === 'business_ruc') {
                 valid = valid || /^[0-9]{13}$/.test(value);
                 message = 'El RUC del negocio debe contener exactamente 13 dígitos.';
@@ -205,20 +207,49 @@
             renumber();
         });
 
-        // El usuario debe conceder explícitamente permiso de geolocalización.
+        // Geolocalización del navegador: exige HTTPS (salvo localhost) y permiso del usuario.
+        // Se informa la causa real del error sin sustituir la seguridad del navegador.
         var locateButton = document.getElementById('credit-get-location');
         if (locateButton) {
             locateButton.addEventListener('click', function () {
-                if (!navigator.geolocation) {
-                    window.alert('Su navegador no permite obtener la ubicación. Puede escribir las coordenadas manualmente.');
+                if (window.isSecureContext === false) {
+                    window.alert('La ubicación automática requiere abrir el portal con HTTPS y un certificado válido. Está usando una conexión no segura (HTTP). Abra el portal con https:// y vuelva a intentarlo; mientras tanto puede escribir latitud y longitud manualmente.');
                     return;
                 }
+                if (!navigator.geolocation) {
+                    window.alert('La geolocalización no está disponible en este navegador o está bloqueada. Revise que el portal utilice HTTPS y que el navegador permita la ubicación. También puede introducir las coordenadas manualmente.');
+                    return;
+                }
+                var latitudeInput = document.getElementById('credit-business-latitude');
+                var longitudeInput = document.getElementById('credit-business-longitude');
+                if (!latitudeInput || !longitudeInput) { return; }
+                var initialText = locateButton.textContent;
+                locateButton.disabled = true;
+                locateButton.textContent = 'Obteniendo ubicación...';
+                function finish() {
+                    locateButton.disabled = false;
+                    locateButton.textContent = initialText;
+                }
                 navigator.geolocation.getCurrentPosition(function (position) {
-                    document.getElementById('credit-business-latitude').value = position.coords.latitude.toFixed(7);
-                    document.getElementById('credit-business-longitude').value = position.coords.longitude.toFixed(7);
-                }, function () {
-                    window.alert('No se pudo acceder a su ubicación. Autorice el permiso o escriba latitud y longitud manualmente.');
-                }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
+                    latitudeInput.value = position.coords.latitude.toFixed(7);
+                    longitudeInput.value = position.coords.longitude.toFixed(7);
+                    latitudeInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    longitudeInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    finish();
+                }, function (error) {
+                    finish();
+                    var message;
+                    if (error.code === 1) {
+                        message = 'El navegador denegó el permiso para acceder a su ubicación. Abra los permisos del sitio en la barra de direcciones, permita Ubicación y vuelva a intentarlo. Si utiliza HTTPS, compruebe también los permisos de ubicación del dispositivo.';
+                    } else if (error.code === 2) {
+                        message = 'El dispositivo no pudo determinar su ubicación. Active la ubicación/GPS del dispositivo, compruebe la conexión y vuelva a intentarlo.';
+                    } else if (error.code === 3) {
+                        message = 'Se agotó el tiempo para obtener la ubicación. Pruebe en un lugar con mejor señal GPS o escriba las coordenadas manualmente.';
+                    } else {
+                        message = 'No fue posible obtener su ubicación. Compruebe los permisos del navegador o escriba las coordenadas manualmente.';
+                    }
+                    window.alert(message);
+                }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 30000 });
             });
         }
         if (creditForm) {

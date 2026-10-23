@@ -10,6 +10,7 @@ Módulo nuevo e independiente de los módulos de Recursos Humanos utilizados com
 - Código de verificación OTP de seis dígitos enviado por correo; vence en 3 minutos y limita los intentos de validación.
 - La cuenta nativa de Odoo se crea únicamente después de validar el código. Luego se solicita iniciar sesión en `/web/login` y el acceso por defecto redirige a `/my/credito/nueva`.
 - Formulario web con los campos de la página 1 del PDF: propietario/representante, tipo de solicitante configurable, negocio, datos económicos, relación de dependencia y referencias comerciales, personales y bancarias ampliables desde tres líneas iniciales.
+- En Datos del negocio o empresa, las dos cédulas de Personas autorizadas (comprar y retirar mercadería) se validan primero con el algoritmo ecuatoriano; si falla, se acepta un documento extranjero de exactamente 10 dígitos numéricos. Se comprueba en el portal, el controlador y el modelo Odoo.
 - Historial personal de solicitudes y detalle con etapas visibles para el cliente.
 - Kanban interno por etapas para arrastrar solicitudes y avanzar el proceso. Los cambios se registran en la línea de tiempo y generan intento de notificación por correo al solicitante.
 - La etapa **Aprobada** habilita la carga documental. El tipo de solicitante configurado en Odoo determina los documentos y sus requisitos obligatorios.
@@ -219,3 +220,7 @@ Instalación: respaldar base de datos y filestore, sustituir directorio, reinici
 - El detalle de la solicitud presenta latitud y longitud; se mantiene el botón «Usar mi ubicación actual».
 - El envío a cobranzas, cuando se registran coordenadas nuevas, incluye únicamente latitud y longitud.
 - Conservadas las validaciones y restricciones de acceso del módulo anterior.
+
+## Corrección 18.0.1.8.3: ubicación automática
+
+El botón «Usar mi ubicación actual» distingue entre sitio sin HTTPS, permiso denegado, ubicación no disponible y tiempo agotado. La captura automática requiere HTTPS válido (o localhost para pruebas), permiso de ubicación del navegador y servicios de ubicación activos en el dispositivo. No depende de Google Maps y continúa permitiendo ingresar latitud y longitud manualmente.

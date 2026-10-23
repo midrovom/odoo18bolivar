@@ -48,6 +48,17 @@ def valid_foreign_document(value):
     return bool(re.fullmatch(r'[0-9]{10}', value or ''))
 
 
+def valid_ecuador_or_foreign_document(value):
+    """Primero comprobar cédula ecuatoriana; en caso contrario, documento extranjero.
+
+    El documento extranjero se valida solo por formato: 10 dígitos numéricos.
+    No hay verificación de existencia ni de nacionalidad por servicios externos.
+    """
+    if valid_ecuador_cedula(value):
+        return True
+    return valid_foreign_document(value)
+
+
 def valid_ruc_length(value):
     """Regla solicitada: longitud/formato; no verifica estado en el SRI."""
     return bool(re.fullmatch(r'[0-9]{13}', value or ''))

@@ -4,7 +4,7 @@ from markupsafe import escape
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError, AccessError, UserError
 
-from .credit_identity import valid_ecuador_cedula, valid_ecuador_mobile, valid_credit_identity, valid_foreign_document, valid_ruc_length
+from .credit_identity import valid_ecuador_mobile, valid_credit_identity, valid_ecuador_or_foreign_document, valid_ruc_length
 
 _logger = logging.getLogger(__name__)
 
@@ -461,7 +461,7 @@ class ConederaCreditApplication(models.Model):
             'target': 'new',
         }
 
-    @api.constrains('identification', 'identification_type', 'spouse_identification', 'mobile', 'business_ruc', 'marital_status_id', 'spouse_name', 'spouse_profession', 'business_latitude', 'business_longitude')
+    @api.constrains('identification', 'identification_type', 'spouse_identification', 'authorized_buyer_identification', 'authorized_pickup_identification', 'mobile', 'business_ruc', 'marital_status_id', 'spouse_name', 'spouse_profession', 'business_latitude', 'business_longitude')
     def _check_ecuador_contact_fields(self):
         # No bloquear actualizaciones de catálogos para expedientes históricos
         # incompletos que ya existían antes de introducir estos requisitos.
@@ -474,8 +474,18 @@ class ConederaCreditApplication(models.Model):
                 raise ValidationError(_('El RUC del negocio debe tener exactamente 13 dígitos numéricos.'))
             if record.mobile and not valid_ecuador_mobile(record.mobile.strip()):
                 raise ValidationError(_('El celular debe tener exactamente 10 dígitos numéricos.'))
-            if record.spouse_identification and not (valid_ecuador_cedula(record.spouse_identification.strip()) or valid_foreign_document(record.spouse_identification.strip())):
+            if record.spouse_identification and not valid_ecuador_or_foreign_document(record.spouse_identification.strip()):
                 raise ValidationError(_('El documento del cónyuge debe contener exactamente 10 dígitos; se admite cédula ecuatoriana o documento extranjero numérico.'))
+            for field_name, label in (
+                ('authorized_buyer_identification', _('persona autorizada a comprar')),
+                ('authorized_pickup_identification', _('persona autorizada a retirar mercadería')),
+            ):
+                document = (record[field_name] or '').strip()
+                if document and not valid_ecuador_or_foreign_document(document):
+                    raise ValidationError(_(
+                        'El documento de %(person)s debe tener 10 dígitos numéricos; '
+                        'se valida primero como cédula ecuatoriana y, si no corresponde, como documento extranjero.'
+                    ) % {'person': label})
             needs_spouse = record.marital_status_id.requires_spouse
             if needs_spouse and not all((record.spouse_name, record.spouse_identification, record.spouse_profession)):
                 raise ValidationError(_('Para casado/a o unión de hecho complete nombres, documento y profesión del cónyuge.'))

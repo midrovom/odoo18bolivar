@@ -13,7 +13,7 @@ from odoo import http, fields, _
 from odoo.addons.custom_web_hr_datos_candidatos.controllers.portal_signup import AuthSignupHomeOTP
 from odoo.exceptions import ValidationError
 from ..models.credit_identity import (
-    valid_ecuador_cedula, valid_ecuador_mobile, valid_credit_identity, valid_foreign_document, valid_ruc_length,
+    valid_ecuador_mobile, valid_credit_identity, valid_ecuador_or_foreign_document, valid_ruc_length,
 )
 from odoo.http import request
 from werkzeug.exceptions import Forbidden, NotFound
@@ -639,8 +639,18 @@ class ConederaCreditPortal(http.Controller):
                 errors.append(_('El campo %(field)s es obligatorio.') % {'field': label})
         if values.get('identification') and not valid_credit_identity(values['identification'], values.get('identification_type')):
             errors.append(_('El documento del solicitante no corresponde al tipo elegido: cédula ecuatoriana válida (10), RUC numérico (13) o cédula extranjera numérica (10).'))
-        if values.get('spouse_identification') and not (valid_ecuador_cedula(values['spouse_identification']) or valid_foreign_document(values['spouse_identification'])):
+        if values.get('spouse_identification') and not valid_ecuador_or_foreign_document(values['spouse_identification']):
             errors.append(_('La identificación del cónyuge debe tener 10 dígitos numéricos.'))
+        for field_name, label in (
+            ('authorized_buyer_identification', _('persona autorizada a comprar')),
+            ('authorized_pickup_identification', _('persona autorizada a retirar mercadería')),
+        ):
+            document = values.get(field_name)
+            if document and not valid_ecuador_or_foreign_document(document):
+                errors.append(_(
+                    'El documento de %(person)s debe tener exactamente 10 dígitos numéricos '
+                    '(cédula ecuatoriana o documento extranjero).'
+                ) % {'person': label})
         if values.get('business_ruc') and not valid_ruc_length(values['business_ruc']):
             errors.append(_('El RUC del negocio debe tener exactamente 13 dígitos numéricos.'))
         if values.get('mobile') and not valid_ecuador_mobile(values['mobile']):
