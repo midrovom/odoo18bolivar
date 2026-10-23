@@ -97,6 +97,10 @@ class ConederaCreditApplication(models.Model):
     authorized_pickup_identification = fields.Char(string='Cédula de persona autorizada a retirar mercadería')
     business_latitude = fields.Float(string='Latitud del negocio', digits=(10, 7))
     business_longitude = fields.Float(string='Longitud del negocio', digits=(10, 7))
+    # Compatibilidad temporal con vistas almacenadas de versiones anteriores.
+    # No se muestra en el portal, no se solicita y no se utiliza para ubicación.
+    maps_url = fields.Char(string='Enlace histórico de ubicación (en desuso)', readonly=True, copy=False)
+
 
     employment_company = fields.Char(string='Empresa donde trabaja (relación de dependencia)')
     employment_activity = fields.Char(string='Actividad de la empresa')
@@ -158,6 +162,11 @@ class ConederaCreditApplication(models.Model):
     _sql_constraints = [
         ('conedera_credit_application_name_uniq', 'unique(name)', 'El número de solicitud debe ser único.'),
     ]
+
+    def action_print_credit_application(self):
+        """Descarga de solicitud y verificación siguiendo el formato CONEDERA."""
+        self.ensure_one()
+        return self.env.ref('custom_web_credito_conedera.action_report_credit_application').report_action(self)
 
     credit_is_admin = fields.Boolean(compute='_compute_credit_is_admin', string='Edición completa habilitada')
 

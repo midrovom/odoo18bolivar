@@ -216,7 +216,7 @@ Instalación: respaldar base de datos y filestore, sustituir directorio, reinici
 
 ## Versión 18.0.1.8.2 — Solo coordenadas
 
-- Eliminado `maps_url` del modelo, formulario del portal y vista administrativa. La base de datos mantiene sus registros históricos, sin mostrar ese campo.
+- `maps_url` se conserva únicamente como campo técnico de compatibilidad con vistas antiguas ya guardadas en Odoo. No aparece ni se utiliza en formularios, rutas o correos; únicamente se usan latitud y longitud.
 - El detalle de la solicitud presenta latitud y longitud; se mantiene el botón «Usar mi ubicación actual».
 - El envío a cobranzas, cuando se registran coordenadas nuevas, incluye únicamente latitud y longitud.
 - Conservadas las validaciones y restricciones de acceso del módulo anterior.
@@ -224,3 +224,13 @@ Instalación: respaldar base de datos y filestore, sustituir directorio, reinici
 ## Corrección 18.0.1.8.3: ubicación automática
 
 El botón «Usar mi ubicación actual» distingue entre sitio sin HTTPS, permiso denegado, ubicación no disponible y tiempo agotado. La captura automática requiere HTTPS válido (o localhost para pruebas), permiso de ubicación del navegador y servicios de ubicación activos en el dispositivo. No depende de Google Maps y continúa permitiendo ingresar latitud y longitud manualmente.
+
+
+## 18.0.1.8.5 - PDF y portal
+
+- Compatible con vistas antiguas almacenadas en Odoo que todavía solicitan `maps_url` al leer solicitudes; no se muestra ni utiliza este campo.
+- Se retiró del inicio del portal la tarjeta «Gestión de solicitudes» y su acceso «Acciones rápidas». Los accesos Historial de solicitudes e Ingreso de documentos continúan funcionando; las URL antiguas redirigen al historial.
+- En Crédito CONEDERA > Solicitudes se añadió **Descargar solicitud PDF**, también disponible en el menú Imprimir.
+- El reporte QWeb en A4 sigue los dos apartados del formato «SOLICITUD DE CREDITO CONEDERA ACTUALIZADA»: solicitud / datos económicos / referencias / autorizaciones y verificación de ubicación.
+- Incluye vehículos y referencias de longitud variable; muestra los campos del cónyuge solo cuando corresponden al estado civil o tengan información histórica, y utiliza únicamente coordenadas para la ubicación del negocio.
+- Para solicitudes con muchas líneas el documento puede ocupar páginas adicionales, sin recortar las referencias.

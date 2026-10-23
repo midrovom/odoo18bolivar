@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Se imprime desde la solicitud y también desde el menú Imprimir. -->
+    <record id="paperformat_conedera_credit_application" model="report.paperformat">
+        <field name="name">Solicitud de crédito CONEDERA - A4 vertical</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">9</field>
+        <field name="margin_bottom">9</field>
+        <field name="margin_left">8</field>
+        <field name="margin_right">8</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_report_credit_application" model="ir.actions.report">
+        <field name="name">Solicitud de crédito CONEDERA</field>
+        <field name="model">conedera.credit.application</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_web_credito_conedera.report_credit_application_document</field>
+        <field name="report_file">custom_web_credito_conedera.report_credit_application_document</field>
+        <field name="binding_model_id" ref="model_conedera_credit_application"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_conedera_credit_application"/>
+        <field name="print_report_name">'Solicitud_Credito_%s' % (object.name or 'CONEDERA')</field>
+    </record>
+
+    <template id="report_credit_application_document">
+        <t t-call="web.html_container">
+            <style type="text/css">
+                .conedera-print { font-family: Arial, Helvetica, sans-serif; color: #181818; font-size: 8px; }
+                .conedera-print table { border-collapse: collapse; width: 100%; }
+                .conedera-print td, .conedera-print th { border: 1px solid #555; padding: 3px 4px; vertical-align: top; line-height: 1.2; }
+                .conedera-print th { font-size: 7px; font-weight: 700; background: #f2f2f2; }
+                .conedera-print .banner { border: 1px solid #333; display: table; width: 100%; }
+                .conedera-print .banner-logo { display: table-cell; width: 25%; padding: 5px; vertical-align: middle; }
+                .conedera-print .banner-heading { display: table-cell; text-align: center; vertical-align: middle; padding: 7px; }
+                .conedera-print .banner-logo img { max-width: 140px; max-height: 38px; }
+                .conedera-print .banner-title { font-size: 17px; font-weight: 700; }
+                .conedera-print .banner-sub { font-size: 7px; margin-top: 3px; }
+                .conedera-print .section-heading { background: #973b3c; color: #fff; font-size: 9px; text-align: center; padding: 4px; font-weight: bold; border: 1px solid #333; margin: 6px 0 0; }
+                .conedera-print .label { font-size: 6.9px; font-weight: 700; display: block; margin-bottom: 2px; }
+                .conedera-print .value { font-size: 8px; overflow-wrap: anywhere; word-wrap: break-word; }
+                .conedera-print .small { font-size: 7px; }
+                .conedera-print .tiny { font-size: 6.5px; }
+                .conedera-print .mt4 { margin-top: 4px; }
+                .conedera-print .muted { color: #646464; }
+                .conedera-print .no-rows { text-align: center; color: #777; }
+                .conedera-print .legal { font-size: 6.6px; line-height: 1.24; text-align: justify; margin-top: 5px; }
+                .conedera-print .signature-line { display: inline-block; width: 250px; height: 30px; border-bottom: 1px solid #333; }
+                .conedera-print .space-sketch { height: 160px; border: 1px solid #333; text-align: center; padding: 5px; }
+                .conedera-print .space-sketch img { max-height: 140px; max-width: 95%; }
+                .conedera-print .report-footer { text-align: right; font-size: 6px; color: #777; margin-top: 3px; }
+                .conedera-print .split-page { page-break-before: always; }
+                .conedera-print .nowrap { white-space: nowrap; }
+                .conedera-print .reference-list tr { page-break-inside: avoid; }
+            </style>
+            <t t-foreach="docs" t-as="o">
+                <!-- One web.html_container and one .article per record, as required by Odoo PDF splitting. -->
+                <div class="article" t-att-data-oe-model="o._name" t-att-data-oe-id="o.id" t-att-data-oe-lang="o.env.context.get('lang')">
+                    <div class="page conedera-print">
+                        <div class="banner">
+                            <div class="banner-logo">
+                                <img t-if="o.env.company.logo" t-att-src="image_data_uri(o.env.company.logo)" alt="CONEDERA"/>
+                                <strong t-else="">CONEDERA S.A.</strong>
+                            </div>
+                            <div class="banner-heading">
+                                <div class="banner-title">SOLICITUD DE CRÉDITO</div>
+                                <div class="banner-sub">SOLICITUD SUJETA A APROBACIÓN, EN CASO DE SER NEGADA SE RESERVAN LOS MOTIVOS</div>
+                                <div class="small mt4">N.º <span t-esc="o.name"/> | Etapa: <span t-esc="o.stage_id.name or 'Sin etapa'"/></div>
+                            </div>
+                        </div>
+                        <table><tr>
+                            <td style="width: 50%"><span class="label">LUGAR DE SOLICITUD</span><span t-esc="o.application_place or '-'"/></td>
+                            <td><span class="label">FECHA</span><span t-field="o.application_date"/></td>
+                        </tr></table>
+
+                        <div class="section-heading">DATOS DEL PROPIETARIO O REPRESENTANTE</div>
+                        <table>
+                            <tr><td colspan="2"><span class="label">NOMBRES Y APELLIDOS</span><span t-esc="o.applicant_name or '-'"/></td><td colspan="2"><span class="label">EMAIL</span><span t-esc="o.applicant_email or '-'"/></td></tr>
+                            <tr><td style="width:25%"><span class="label">TIPO DE SOLICITANTE</span><span t-esc="o.applicant_type_id.name or '-'"/></td><td style="width:25%"><span class="label">TIPO DE DOCUMENTO</span><span t-esc="{'cedula': 'Cédula ecuatoriana', 'ruc': 'RUC', 'foreign': 'Cédula extranjera'}.get(o.identification_type, '-')"/></td><td style="width:25%"><span class="label">N.º CÉDULA / RUC</span><span t-esc="o.identification or '-'"/></td><td style="width:25%"><span class="label">CELULAR</span><span t-esc="o.mobile or '-'"/></td></tr>
+                            <tr><td><span class="label">PROFESIÓN</span><span t-esc="o.profession or '-'"/></td><td><span class="label">ESTADO CIVIL</span><span t-esc="o.marital_status_id.name or '-'"/></td><td><span class="label">TELÉFONO FIJO</span><span t-esc="o.phone_fixed or '-'"/></td><td><span class="label">N.º CARGAS</span><span t-esc="o.dependents_count or 0"/></td></tr>
+                            <tr t-if="o.foreign_residence_time or o.foreign_work_visa"><td colspan="2"><span class="label">EXTRANJERO - TIEMPO DE RESIDENCIA</span><span t-esc="o.foreign_residence_time or '-'"/></td><td colspan="2"><span class="label">EXTRANJERO - VISA DE TRABAJO</span><span t-esc="'Sí' if o.foreign_work_visa == 'yes' else ('No' if o.foreign_work_visa == 'no' else '-')"/></td></tr>
+                            <!-- No imprimir la sección del cónyuge si no aplica al estado civil. -->
+                            <tr t-if="o.marital_status_id.requires_spouse or o.spouse_name or o.spouse_identification or o.spouse_profession"><td colspan="2"><span class="label">NOMBRES Y APELLIDOS CÓNYUGE</span><span t-esc="o.spouse_name or '-'"/></td><td><span class="label">CÉDULA CÓNYUGE</span><span t-esc="o.spouse_identification or '-'"/></td><td><span class="label">PROFESIÓN CÓNYUGE</span><span t-esc="o.spouse_profession or '-'"/></td></tr>
+                            <tr><td colspan="3"><span class="label">DIRECCIÓN DOMICILIARIA</span><span t-esc="o.home_address or '-'"/></td><td><span class="label">VIVIENDA</span><span t-esc="o.housing_type_id.name or '-'"/></td></tr>
+                        </table>
+                        <t t-if="o.vehicle_ids or o.vehicle1_brand or o.vehicle2_brand">
+                            <table class="reference-list"><thead><tr><th style="width: 9%">VEHÍCULO</th><th>MARCA</th><th>MODELO</th><th>AÑO</th><th>AVALÚO COMERCIAL</th></tr></thead><tbody>
+                                <t t-if="o.vehicle_ids"><tr t-foreach="o.vehicle_ids" t-as="vehicle"><td><span t-esc="vehicle_index + 1"/></td><td><span t-esc="vehicle.brand or '-'"/></td><td><span t-esc="vehicle.model or '-'"/></td><td><span t-esc="vehicle.year or '-'"/></td><td><span t-esc="'%.2f' % vehicle.value"/></td></tr></t>
+                                <t t-else=""><tr t-if="o.vehicle1_brand"><td>1</td><td t-esc="o.vehicle1_brand"/><td t-esc="o.vehicle1_model or '-'"/><td t-esc="o.vehicle1_year or '-'"/><td t-esc="'%.2f' % o.vehicle1_value"/></tr><tr t-if="o.vehicle2_brand"><td>2</td><td t-esc="o.vehicle2_brand"/><td t-esc="o.vehicle2_model or '-'"/><td t-esc="o.vehicle2_year or '-'"/><td t-esc="'%.2f' % o.vehicle2_value"/></tr></t>
+                            </tbody></table>
+                        </t>
+
+                        <div class="section-heading">DATOS DEL NEGOCIO O EMPRESA</div>
+                        <table>
+                            <tr><td colspan="2"><span class="label">NOMBRE O RAZÓN SOCIAL</span><span t-esc="o.business_name or '-'"/></td><td colspan="2"><span class="label">NOMBRE DEL REPRESENTANTE LEGAL</span><span t-esc="o.legal_representative or '-'"/></td></tr>
+                            <tr><td><span class="label">R.U.C. N.º</span><span t-esc="o.business_ruc or '-'"/></td><td><span class="label">PROVINCIA</span><span t-esc="o.province or '-'"/></td><td><span class="label">CANTÓN</span><span t-esc="o.canton or '-'"/></td><td><span class="label">CIUDAD</span><span t-esc="o.city or '-'"/></td></tr>
+                            <tr><td colspan="2"><span class="label">DIRECCIÓN EMPRESA</span><span t-esc="o.business_address or '-'"/></td><td><span class="label">TELÉFONO N.º</span><span t-esc="o.business_phone or '-'"/></td><td><span class="label">EMAIL REPRESENTANTE LEGAL</span><span t-esc="o.representative_email or '-'"/></td></tr>
+                            <tr><td><span class="label">FECHA INICIO ACTIVIDADES</span><span t-field="o.activity_start_date"/></td><td><span class="label">LOCAL</span><span t-esc="{'own':'Propio','rented':'Alquilado','family':'Familiar','mortgaged':'Hipotecado'}.get(o.business_local_type, '-')"/></td><td><span class="label">PROMEDIO VENTAS MENSUALES US$</span><span t-esc="'%.2f' % o.monthly_sales"/></td><td><span class="label">CAPITAL SOCIAL US$</span><span t-esc="'%.2f' % o.social_capital"/></td></tr>
+                            <tr><td><span class="label">ACTIVOS APROX. US$</span><span t-esc="'%.2f' % o.assets_amount"/></td><td><span class="label">PASIVOS APROX. US$</span><span t-esc="'%.2f' % o.liabilities_amount"/></td><td><span class="label">INGRESOS MENSUALES US$</span><span t-esc="'%.2f' % o.monthly_income"/></td><td><span class="label">GASTOS MENSUALES US$</span><span t-esc="'%.2f' % o.monthly_expenses"/></td></tr>
+                            <tr><td colspan="2"><span class="label">EMAIL PARA FACTURAS</span><span t-esc="o.invoice_email or '-'"/></td><td><span class="label">LATITUD DEL NEGOCIO</span><span t-esc="'%.7f' % o.business_latitude if o.business_latitude else '-'"/></td><td><span class="label">LONGITUD DEL NEGOCIO</span><span t-esc="'%.7f' % o.business_longitude if o.business_longitude else '-'"/></td></tr>
+                            <tr><td colspan="2"><span class="label">PERSONA AUTORIZADA A COMPRAR</span><span t-esc="o.authorized_buyer_name or '-'"/></td><td><span class="label">CÉDULA</span><span t-esc="o.authorized_buyer_identification or '-'"/></td><td><span class="label">EMAIL</span><span t-esc="o.authorized_buyer_email or '-'"/></td></tr>
+                            <tr><td colspan="3"><span class="label">PERSONA AUTORIZADA A RETIRAR MERCADERÍA</span><span t-esc="o.authorized_pickup_name or '-'"/></td><td><span class="label">CÉDULA</span><span t-esc="o.authorized_pickup_identification or '-'"/></td></tr>
+                        </table>
+
+                        <div class="section-heading">ACTIVIDAD ECONÓMICA ACTUAL EN RELACIÓN DE DEPENDENCIA</div>
+                        <table>
+                            <tr><td colspan="2"><span class="label">NOMBRE DE LA EMPRESA</span><span t-esc="o.employment_company or '-'"/></td><td colspan="2"><span class="label">ACTIVIDAD DE LA EMPRESA</span><span t-esc="o.employment_activity or '-'"/></td></tr>
+                            <tr><td colspan="2"><span class="label">DIRECCIÓN DE LA EMPRESA</span><span t-esc="o.employment_address or '-'"/></td><td colspan="2"><span class="label">TELÉFONO DE EMPRESA</span><span t-esc="o.employment_phone or '-'"/></td></tr>
+                            <tr><td><span class="label">FECHA DE INGRESO</span><span t-field="o.employment_start_date"/></td><td colspan="2"><span class="label">CARGO</span><span t-esc="o.employment_position or '-'"/></td><td><span class="label">SUELDO US$</span><span t-esc="'%.2f' % o.employment_salary"/></td></tr>
+                        </table>
+
+                        <div class="section-heading">REFERENCIAS COMERCIALES</div>
+                        <t t-set="commercial_refs" t-value="o.reference_ids.filtered(lambda r: r.reference_type == 'commercial')"/>
+                        <table class="reference-list"><thead><tr><th>PROVEEDOR</th><th>CLIENTE DESDE</th><th>CUPO</th><th>PLAZO</th><th>TELÉFONOS</th><th>CONTACTO</th></tr></thead><tbody><tr t-foreach="commercial_refs" t-as="ref"><td t-esc="ref.provider or '-'"/><td t-esc="ref.customer_since or '-'"/><td t-esc="'%.2f' % ref.credit_limit"/><td t-esc="ref.term or '-'"/><td t-esc="ref.phone or '-'"/><td t-esc="ref.contact or '-'"/></tr><tr t-if="not commercial_refs"><td colspan="6" class="no-rows">Sin referencias comerciales</td></tr></tbody></table>
+
+                        <div class="section-heading">REFERENCIAS PERSONALES (FAMILIARES QUE NO VIVAN CON USTED)</div>
+                        <t t-set="personal_refs" t-value="o.reference_ids.filtered(lambda r: r.reference_type == 'personal')"/>
+                        <table class="reference-list"><thead><tr><th>NOMBRES</th><th>DIRECCIÓN</th><th>TELÉFONO DOMICILIO</th><th>PARENTESCO</th></tr></thead><tbody><tr t-foreach="personal_refs" t-as="ref"><td t-esc="ref.person_name or '-'"/><td t-esc="ref.address or '-'"/><td t-esc="ref.home_phone or '-'"/><td t-esc="ref.relationship or '-'"/></tr><tr t-if="not personal_refs"><td colspan="4" class="no-rows">Sin referencias personales</td></tr></tbody></table>
+
+                        <div class="section-heading">REFERENCIAS BANCARIAS DEL NEGOCIO Y/O PERSONALES</div>
+                        <t t-set="bank_refs" t-value="o.reference_ids.filtered(lambda r: r.reference_type == 'bank')"/>
+                        <table class="reference-list"><thead><tr><th>BANCO / TARJETA DE CRÉDITO</th><th>N.º CUENTA</th><th>FECHA APERTURA</th><th>CUENTA CORRIENTE O AHORROS</th></tr></thead><tbody><tr t-foreach="bank_refs" t-as="ref"><td t-esc="ref.bank_name or '-'"/><td t-esc="ref.account_number or '-'"/><td><span t-field="ref.opening_date"/></td><td t-esc="{'current':'Corriente','savings':'Ahorros'}.get(ref.account_type, '-')"/></tr><tr t-if="not bank_refs"><td colspan="4" class="no-rows">Sin referencias bancarias</td></tr></tbody></table>
+
+                        <div class="legal">
+                            AUTORIZO EXPRESA E IRREVOCABLEMENTE A CONEDERA S.A. PARA QUE OBTENGA CUANTAS VECES LO REQUIERA, Y DE CUALQUIER FUENTE DE INFORMACIÓN INCLUIDO BURÓS DE CRÉDITO, INFORMACIÓN HISTÓRICA CREDITICIA RELACIONADA CON EL COMPORTAMIENTO DE MIS CUENTAS, OPERACIONES, ETC. Y EN GENERAL SOBRE EL CUMPLIMIENTO DE LAS OBLIGACIONES E INFORMACIÓN REFERENTE A LOS ACTIVOS, PASIVOS Y CONTINGENTES. ASIMISMO DECLARO QUE CONEDERA S.A. QUEDE EXPRESAMENTE AUTORIZADA PARA QUE EN CUALQUIER MOMENTO PUEDA UTILIZAR, TRANSFERIR O ENTREGAR AQUELLA INFORMACIÓN A AUTORIDADES COMPETENTES, ORGANISMOS DE CONTROL, BURÓS DE INFORMACIÓN CREDITICIA U OTRAS ENTIDADES AUTORIZADAS. DECLARO BAJO JURAMENTO QUE TODA LA INFORMACIÓN PROPORCIONADA EN LA SOLICITUD ES VERDADERA Y EXACTA. CONEDERA S.A. PODRÁ REALIZAR LAS VERIFICACIONES QUE ESTIME OPORTUNAS SOBRE LA INFORMACIÓN AQUÍ DETALLADA.
+                            <div class="mt4">ASIMISMO ACEPTO CONOCER QUE EL DOMICILIO FISCAL PRINCIPAL DE CONEDERA S.A. ES LA CIUDAD DE GUAYAQUIL POR LO CUAL ME COMPROMETO AL PAGO EN DICHA CIUDAD PARA CUALQUIER EFECTO LEGAL QUE SE LLEGARA A REALIZAR EN CASO DEL NO CUMPLIMIENTO DE LA DEUDA.</div>
+                            <div class="mt4">DECLARACIÓN Y AUTORIZACIÓN: EL SOLICITANTE DECLARA QUE TODA LA INFORMACIÓN SUMINISTRADA ES VERDADERA Y, EN CASO DE INCUMPLIMIENTO DE LA OBLIGACIÓN SOLICITADA, AUTORIZA A CONEDERA S.A. A TOMAR BIENES DE PROPIEDAD DEL FIRMANTE COMO ELEMENTO DE RECUPERACIÓN HASTA OBTENER LA CANCELACIÓN TOTAL DE LA OPERACIÓN QUE PODRÁ SER DECLARADA DE PLAZO VENCIDO EL INCUMPLIMIENTO DE UNA SOLA CUOTA DE ACUERDO A LAS NORMAS LEGALES VIGENTES.</div>
+                            <div class="mt4"><strong>Declaración y autorización general:</strong> <span t-esc="'ACEPTADA' if o.declaration_accepted else 'NO ACEPTADA'"/>. <strong>Condiciones adicionales:</strong> <span t-esc="'ACEPTADAS' if (o.prior_commercial_relationship_accepted and o.electronic_service_accepted and o.credit_bureau_authorized and o.company_signature_stamp_acknowledged and o.additional_financial_documents_accepted) else 'INCOMPLETAS'"/>.</div>
+                            <div class="mt4 tiny">Relación comercial previa: <span t-esc="'Sí' if o.prior_commercial_relationship_accepted else 'No'"/> | Citación telemática: <span t-esc="'Sí' if o.electronic_service_accepted else 'No'"/> | Consulta de buró: <span t-esc="'Sí' if o.credit_bureau_authorized else 'No'"/> | Firma y sello CONEDERA: <span t-esc="'Sí' if o.company_signature_stamp_acknowledged else 'No'"/> | Documentos financieros: <span t-esc="'Sí' if o.additional_financial_documents_accepted else 'No'"/></div>
+                            <div t-if="o.declaration_date" class="mt4">Aceptación registrada: <span t-field="o.declaration_date"/></div>
+                        </div>
+                        <div style="margin-top: 8px; text-align: center;"><span class="signature-line"/><div class="small">Firma del solicitante | C.C. <span t-esc="o.identification or '-'"/></div></div>
+                        <div class="report-footer">Solicitud <span t-esc="o.name"/> — Documento de uso interno CONEDERA S.A.</div>
+                    </div>
+
+                    <!-- Segunda parte conforme a la página de inspección del formato suministrado. -->
+                    <div class="page conedera-print split-page">
+                        <div class="banner">
+                            <div class="banner-logo"><img t-if="o.env.company.logo" t-att-src="image_data_uri(o.env.company.logo)" alt="CONEDERA"/><strong t-else="">CONEDERA S.A.</strong></div>
+                            <div class="banner-heading"><div class="banner-title">VERIFICACIÓN UBICACIÓN DEL NEGOCIO</div><div class="small mt4">Solicitud <span t-esc="o.name"/> | Resultado: <span t-esc="{'pending':'Pendiente','in_progress':'En verificación','verified':'Verificado','failed':'No conforme'}.get(o.verification_status, '-')"/></div></div>
+                        </div>
+                        <table>
+                            <tr><td style="width: 50%"><span class="label">CÉDULA O RUC DEL CLIENTE</span><span t-esc="o.identification or '-'"/></td><td><span class="label">NOMBRE</span><span t-esc="o.applicant_name or '-'"/></td></tr>
+                            <tr><td><span class="label">PROVINCIA / CIUDAD / CANTÓN / PARROQUIA</span><span t-esc="', '.join([v for v in [o.verification_province, o.verification_city, o.verification_canton, o.verification_parish] if v]) or o.verification_city_canton_parish or '-'"/></td><td><span class="label">BARRIO</span><span t-esc="o.verification_neighborhood or '-'"/></td></tr>
+                            <tr><td><span class="label">DIRECCIÓN</span><span t-esc="o.verification_address or '-'"/></td><td><span class="label">NÚMERO DE CASA</span><span t-esc="o.verification_house_number or '-'"/></td></tr>
+                            <tr><td colspan="2"><span class="label">REFERENCIA DE UBICACIÓN</span><span t-esc="o.verification_reference or '-'"/></td></tr>
+                            <tr><td><span class="label">LATITUD DEL NEGOCIO</span><span t-esc="'%.7f' % o.business_latitude if o.business_latitude else '-'"/></td><td><span class="label">LONGITUD DEL NEGOCIO</span><span t-esc="'%.7f' % o.business_longitude if o.business_longitude else '-'"/></td></tr>
+                        </table>
+                        <div class="section-heading">CROQUIS CLIENTE</div>
+                        <div class="space-sketch">
+                            <t t-if="o.verification_sketch and (o.verification_sketch_filename or '').lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))">
+                                <img t-att-src="image_data_uri(o.verification_sketch)" alt="Croquis del negocio"/>
+                            </t>
+                            <t t-elif="o.verification_sketch"><span class="small muted">Croquis adjunto: <span t-esc="o.verification_sketch_filename or 'Archivo de verificación'"/> (consulte el expediente digital)</span></t>
+                        </div>
+                        <div class="tiny">NOTA: UBIQUE EN EL CROQUIS DOS CALLES PRINCIPALES</div>
+
+                        <div class="section-heading">VERIFICACIÓN DEL NEGOCIO (LLENAR POR PERSONAL DE CONEDERA S.A.)</div>
+                        <table><tr><td><span class="label">ZONA</span><span t-esc="{'urban':'Urbana','peripheral':'Periférica','rural':'Rural'}.get(o.verification_zone, '-')"/></td><td><span class="label">ESTADO DEL LOCAL</span><span t-esc="{'very_good':'Muy bueno','good':'Bueno','regular':'Regular','bad':'Malo'}.get(o.verification_local_state, '-')"/></td><td><span class="label">PERSONA ENTREVISTADA</span><span t-esc="o.interviewed_person or '-'"/></td><td><span class="label">RELACIÓN / PARENTESCO</span><span t-esc="o.interviewed_relationship or '-'"/></td></tr></table>
+
+                        <div class="section-heading">RESULTADOS DE LA VERIFICACIÓN (LLENAR POR PERSONAL DE CONEDERA S.A.)</div>
+                        <table>
+                            <tr><td><span class="label">SE REALIZÓ LA INSPECCIÓN</span><span t-esc="'Sí' if o.inspection_done == 'yes' else ('No' if o.inspection_done == 'no' else 'Pendiente')"/></td><td><span class="label">SE ENCONTRÓ LA DIRECCIÓN</span><span t-esc="'Sí' if o.address_found == 'yes' else ('No' if o.address_found == 'no' else 'Pendiente')"/></td></tr>
+                            <tr><td><span class="label">EL CLIENTE VIVE EN ESA DIRECCIÓN</span><span t-esc="'Sí' if o.client_lives_there == 'yes' else ('No' if o.client_lives_there == 'no' else 'Pendiente')"/></td><td><span class="label">NECESITA CROQUIS</span><span t-esc="'Sí' if o.sketch_needed == 'yes' else ('No' if o.sketch_needed == 'no' else 'Pendiente')"/></td></tr>
+                            <tr><td><span class="label">ESTADO DE VERIFICACIÓN</span><span t-esc="{'pending':'Pendiente','in_progress':'En verificación','verified':'Verificado','failed':'No conforme'}.get(o.verification_status, '-')"/></td><td><span class="label">FECHA DE VERIFICACIÓN</span><span t-field="o.verification_completed_at"/></td></tr>
+                        </table>
+                        <div class="section-heading">VERIFICADOR</div>
+                        <table><tr><td><span class="label">NOMBRE</span><span t-esc="o.verifier_name or '-'"/></td><td><span class="label">FIRMA</span>
+                            <t t-if="o.verifier_signature and (o.verifier_signature_filename or '').lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))"><img t-att-src="image_data_uri(o.verifier_signature)" style="max-height: 45px; max-width: 180px;" alt="Firma"/></t>
+                            <t t-elif="o.verifier_signature">Firma adjunta al expediente digital</t>
+                            <t t-else=""><span class="signature-line"/></t>
+                        </td></tr></table>
+                        <div class="report-footer">Solicitud <span t-esc="o.name"/> — Verificación de ubicación del negocio</div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

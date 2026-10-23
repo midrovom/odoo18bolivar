@@ -529,16 +529,9 @@ class ConederaCreditPortal(http.Controller):
         return values
 
     @http.route('/my/credito/acciones', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
-    def credit_quick_actions(self, **kw):
-        if not self._can_correct():
-            raise Forbidden(_('No dispone del permiso especial de acceso rápido.'))
-        applications = self._portal_applications()
-        return request.render('custom_web_credito_conedera.portal_credit_quick_actions', {
-            'applications': applications,
-            'editable_ids': applications.filtered(lambda a: self._can_correct(a)).ids,
-            'has_documents_enabled': bool(applications.filtered('document_access_allowed')),
-            'documentation_editable_ids': applications.filtered(lambda a: a.document_access_allowed and a.portal_can_update_documentation()).ids,
-        })
+    def credit_portal_legacy_actions(self, **kwargs):
+        """Acceso obsoleto: conservar enlaces guardados sin exponer gestión adicional."""
+        return request.redirect('/my/credito/historial')
 
     @http.route('/my/credito/<int:application_id>/editar', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
     def edit_credit_application(self, application_id, **kw):
