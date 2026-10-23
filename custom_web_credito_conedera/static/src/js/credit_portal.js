@@ -67,6 +67,102 @@
             }
         }
 
+        // Validar también el dígito verificador de las cédulas (sin llamadas de red).
+        function validCedula(value) {
+            if (!/^[0-9]{10}$/.test(value)) { return false; }
+            var province = Number(value.slice(0, 2));
+            if (!((province >= 1 && province <= 24) || province === 30) || Number(value[2]) > 5) {
+                return false;
+            }
+            var weights = [2, 1, 2, 1, 2, 1, 2, 1, 2];
+            var total = 0;
+            for (var j = 0; j < 9; j++) {
+                var product = Number(value[j]) * weights[j];
+                total += product > 9 ? product - 9 : product;
+            }
+            return (10 - total % 10) % 10 === Number(value[9]);
+        }
+
+        function validCedulaOrRuc(value) {
+            if (value.length === 10) { return validCedula(value); }
+            if (!/^[0-9]{13}$/.test(value)) { return false; }
+            var province = Number(value.slice(0, 2));
+            if (!((province >= 1 && province <= 24) || province === 30)) { return false; }
+            var kind = Number(value[2]);
+            if (kind <= 5) { return validCedula(value.slice(0, 10)) && Number(value.slice(10)) > 0; }
+            if (kind === 6) { return Number(value.slice(9)) > 0; }
+            if (kind === 9) { return Number(value.slice(10)) > 0; }
+            return false;
+        }
+
+        document.querySelectorAll('form.credit-form [data-credit-id]').forEach(function (input) {
+            function validateIdentity() {
+                var value = input.value.trim();
+                var kind = input.dataset.creditId;
+                var valid = !value || (kind === 'applicant' ? validCedulaOrRuc(value) :
+                    kind === 'spouse' ? validCedula(value) : /^[0-9]{10}$/.test(value));
+                var message = kind === 'mobile' ? 'El celular debe tener exactamente 10 dígitos numéricos.' :
+                    kind === 'spouse' ? 'Ingrese una cédula ecuatoriana válida de 10 dígitos.' :
+                        'Ingrese una cédula ecuatoriana válida de 10 dígitos o un RUC válido de 13 dígitos.';
+                input.setCustomValidity(valid ? '' : message);
+            }
+            input.addEventListener('input', validateIdentity);
+            input.addEventListener('change', validateIdentity);
+            validateIdentity();
+        });
+
+        // Se conservan dos espacios en el formulario. Cada clic agrega otro
+        // vehículo opcional y se manda al servidor en vehicle_ids (One2many).
+        var vehiclesContainer = document.getElementById('credit-vehicles');
+        var addVehicleButton = document.getElementById('credit-add-vehicle');
+        var vehicleCountInput = document.getElementById('credit-vehicle-count');
+        if (vehiclesContainer && addVehicleButton && vehicleCountInput) {
+            var maxVehicles = Number(vehiclesContainer.dataset.maxVehicles || 30);
+            function renumberVehicles() {
+                var rows = vehiclesContainer.querySelectorAll('.credit-vehicle-row');
+                rows.forEach(function (row, index) {
+                    var n = index + 1;
+                    row.dataset.vehicleIndex = String(n);
+                    var heading = row.querySelector('h3');
+                    if (heading) { heading.textContent = 'Vehículo ' + n; }
+                    row.querySelectorAll('[name]').forEach(function (input) {
+                        input.name = input.name.replace(/^vehicle[0-9]+_/, 'vehicle' + n + '_');
+                    });
+                });
+                vehicleCountInput.value = String(rows.length);
+                addVehicleButton.disabled = rows.length >= maxVehicles;
+            }
+            addVehicleButton.addEventListener('click', function () {
+                var rows = vehiclesContainer.querySelectorAll('.credit-vehicle-row');
+                if (rows.length >= maxVehicles) { return; }
+                var clone = rows[0].cloneNode(true);
+                clone.querySelectorAll('input').forEach(function (input) { input.value = ''; });
+                var headingWrap = clone.querySelector('.d-flex');
+                if (headingWrap && !clone.querySelector('[data-credit-remove-vehicle]')) {
+                    var remove = document.createElement('button');
+                    remove.type = 'button';
+                    remove.className = 'btn btn-outline-danger btn-sm';
+                    remove.dataset.creditRemoveVehicle = '1';
+                    remove.textContent = 'Quitar';
+                    headingWrap.appendChild(remove);
+                }
+                vehiclesContainer.appendChild(clone);
+                renumberVehicles();
+                var firstField = clone.querySelector('input');
+                if (firstField) { firstField.focus(); }
+            });
+            vehiclesContainer.addEventListener('click', function (event) {
+                var remove = event.target.closest('[data-credit-remove-vehicle]');
+                if (!remove) { return; }
+                var row = remove.closest('.credit-vehicle-row');
+                if (row && Number(row.dataset.vehicleIndex) > 2) {
+                    row.remove();
+                    renumberVehicles();
+                }
+            });
+            renumberVehicles();
+        }
+
         // Cinco pantallas de la solicitud. Los datos permanecen en el mismo form
         // mientras se avanza o retrocede. El servidor valida todas las aceptaciones.
         var wizard = document.querySelector('form.credit-form[data-credit-wizard="1"]');
@@ -123,6 +219,9 @@
 
             // Use JS client-side validation because hidden HTML5 controls in other
             // steps cannot be focused by the browser's native submit validator.
+            // Hidden steps are validated in validateStep(), so disable native
+            // submit validation, which cannot focus fields in hidden panels.
+            wizard.noValidate = true;
             wizard.classList.add('credit-wizard-ready');
             showStep(currentStep, false);
             if (backButton) {

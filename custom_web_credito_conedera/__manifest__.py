@@ -1,6 +1,6 @@
 {
     'name': 'Portal de Solicitudes de Crédito CONEDERA',
-    'version': '18.0.1.2.0',
+    'version': '18.0.1.3.0',
     'summary': 'Registro verificado, solicitudes de crédito, etapas e ingreso documental para CONEDERA S.A.',
     'description': '''
 Portal de solicitudes de crédito CONEDERA S.A. para Odoo 18.
@@ -23,11 +23,13 @@ Portal de solicitudes de crédito CONEDERA S.A. para Odoo 18.
         'data/credit_stages.xml',
         'data/credit_applicant_types.xml',
         'data/credit_marital_statuses.xml',
+        'data/credit_housing_types.xml',
         'data/website_menu.xml',
         'views/credit_stage_views.xml',
         'views/credit_application_views.xml',
         'views/credit_applicant_type_views.xml',
         'views/credit_marital_status_views.xml',
+        'views/credit_housing_type_views.xml',
         'views/credit_documents_views.xml',
         'views/ir_mail_server_view.xml',
         'views/portal_templates.xml',

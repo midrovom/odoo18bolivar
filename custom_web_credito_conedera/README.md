@@ -149,3 +149,9 @@ En Ajustes > Técnico > Correo > Servidores de correo saliente, marque el servid
 5. Pruebe las cinco pantallas, el botón Anterior, una aceptación faltante, una solicitud correcta, su etapa y los archivos documentales.
 
 Las verificaciones incluidas en el paquete son estáticas (compilación Python, parseo XML y sintaxis JavaScript, más inspección estructural del formulario). No se ha ejecutado una instancia de Odoo 18 ni probado la migración contra una base real.
+
+
+### Versión 18.0.1.3.0
+- Catálogo editable de tipos de vivienda, con identificadores estables (`VI-000001`), menú propio y migración de registros históricos.
+- Cédula/RUC del solicitante: estructura y dígito verificador cuando corresponde; cédula opcional del cónyuge y celular de exactamente 10 dígitos. Validación en portal y ORM. No consulta en tiempo real al SRI/Registro Civil.
+- Vehículos: dos filas predeterminadas en el formulario, botón «Agregar otro vehículo» (hasta 30 por solicitud para evitar envíos abusivos), almacenamiento One2many y migración idempotente de vehículos 1 y 2 de solicitudes anteriores.

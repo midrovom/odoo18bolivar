@@ -54,27 +54,47 @@
                                 </t>
                             </select><div class="form-text">Los tipos y requisitos documentales se configuran en Odoo.</div>
                         </div>
-                        <div class="col-12 col-md-4"><label class="form-label">Cédula o RUC del solicitante *</label><input class="form-control" name="identification" required="required" t-att-value="form_values.get('identification') or ''"/></div>
+                        <div class="col-12 col-md-4"><label class="form-label">Cédula o RUC del solicitante *</label><input class="form-control" name="identification" inputmode="numeric" maxlength="13" pattern="[0-9]{10}([0-9]{3})?" data-credit-id="applicant" title="Ingrese una cédula ecuatoriana (10 dígitos) o RUC (13 dígitos) válido" required="required" t-att-value="form_values.get('identification') or ''"/></div>
                         <div class="col-12 col-md-4"><label class="form-label">Fecha de solicitud</label><input class="form-control" type="date" name="application_date" t-att-value="form_values.get('application_date') or ''"/></div>
                         <div class="col-12 col-md-4"><label class="form-label">Lugar de solicitud</label><input class="form-control" name="application_place" t-att-value="form_values.get('application_place') or ''" placeholder="Ciudad o localidad"/></div>
                         <div class="col-12 col-md-6"><label class="form-label">Nombres y apellidos *</label><input class="form-control" name="applicant_name" required="required" t-att-value="form_values.get('applicant_name') or ''"/></div>
                         <div class="col-12 col-md-6"><label class="form-label">Correo electrónico *</label><input class="form-control" type="email" name="applicant_email" required="required" t-att-value="form_values.get('applicant_email') or ''"/></div>
                         <div class="col-12 col-md-4"><label class="form-label">Teléfono fijo</label><input class="form-control" name="phone_fixed" t-att-value="form_values.get('phone_fixed') or ''"/></div>
-                        <div class="col-12 col-md-4"><label class="form-label">Celular *</label><input class="form-control" name="mobile" required="required" t-att-value="form_values.get('mobile') or ''"/></div>
+                        <div class="col-12 col-md-4"><label class="form-label">Celular *</label><input class="form-control" name="mobile" inputmode="numeric" maxlength="10" pattern="[0-9]{10}" data-credit-id="mobile" title="Ingrese exactamente 10 dígitos numéricos" required="required" t-att-value="form_values.get('mobile') or ''"/></div>
                         <div class="col-12 col-md-4"><label class="form-label">Profesión</label><input class="form-control" name="profession" t-att-value="form_values.get('profession') or ''"/></div>
                         <div class="col-12 col-md-4"><label class="form-label">Estado civil</label><select name="marital_status_id" class="form-select"><option value="">Seleccione...</option><t t-foreach="marital_statuses" t-as="option"><option t-att-value="option.id" t-att-selected="form_values.get('marital_status_id') == str(option.id)" t-esc="option.name"/></t></select></div>
                         <div class="col-12 col-md-4"><label class="form-label">Tiempo de residencia (extranjero)</label><input class="form-control" name="foreign_residence_time" t-att-value="form_values.get('foreign_residence_time') or ''"/></div>
                         <div class="col-12 col-md-4"><label class="form-label">Visa de trabajo (extranjero)</label><select class="form-select" name="foreign_work_visa"><option value="">Seleccione...</option><option value="yes" t-att-selected="form_values.get('foreign_work_visa') == 'yes'">Sí</option><option value="no" t-att-selected="form_values.get('foreign_work_visa') == 'no'">No</option></select></div>
                         <div class="col-12 col-md-4"><label class="form-label">Nombres y apellidos del cónyuge</label><input class="form-control" name="spouse_name" t-att-value="form_values.get('spouse_name') or ''"/></div>
-                        <div class="col-12 col-md-4"><label class="form-label">Cédula del cónyuge</label><input class="form-control" name="spouse_identification" t-att-value="form_values.get('spouse_identification') or ''"/></div>
+                        <div class="col-12 col-md-4"><label class="form-label">Cédula del cónyuge</label><input class="form-control" name="spouse_identification" inputmode="numeric" maxlength="10" pattern="[0-9]{10}" data-credit-id="spouse" title="Ingrese una cédula ecuatoriana válida de 10 dígitos" t-att-value="form_values.get('spouse_identification') or ''"/></div>
                         <div class="col-12 col-md-4"><label class="form-label">Profesión del cónyuge</label><input class="form-control" name="spouse_profession" t-att-value="form_values.get('spouse_profession') or ''"/></div>
                         <div class="col-12 col-md-3"><label class="form-label">Número de cargas</label><input class="form-control" type="number" min="0" step="1" name="dependents_count" t-att-value="form_values.get('dependents_count') or '0'"/></div>
                         <div class="col-12 col-md-6"><label class="form-label">Dirección domiciliaria</label><input class="form-control" name="home_address" t-att-value="form_values.get('home_address') or ''"/></div>
-                        <div class="col-12 col-md-3"><label class="form-label">Vivienda</label><select class="form-select" name="housing_type"><option value="">Seleccione...</option><t t-foreach="housing_types" t-as="option"><option t-att-value="option[0]" t-att-selected="form_values.get('housing_type') == option[0]" t-esc="option[1]"/></t></select></div>
+                        <div class="col-12 col-md-3"><label class="form-label">Vivienda</label><select class="form-select" name="housing_type_id"><option value="">Seleccione...</option><t t-foreach="housing_types" t-as="option"><option t-att-value="option.id" t-att-selected="form_values.get('housing_type_id') == str(option.id)" t-esc="option.name"/></t></select></div>
                     </div>
-                    <div class="credit-subheading mt-4">Vehículos del solicitante (si corresponde)</div><div class="row g-3">
-                        <t t-foreach="[1,2]" t-as="number"><div class="col-12 col-lg-6"><div class="credit-repeat-card"><h3 class="h6">Vehículo <t t-esc="number"/></h3><div class="row g-2"><div class="col-6"><label class="form-label">Marca</label><input class="form-control" t-att-name="'vehicle%s_brand' % number" t-att-value="form_values.get('vehicle%s_brand' % number) or ''"/></div><div class="col-6"><label class="form-label">Modelo</label><input class="form-control" t-att-name="'vehicle%s_model' % number" t-att-value="form_values.get('vehicle%s_model' % number) or ''"/></div><div class="col-6"><label class="form-label">Año</label><input class="form-control" t-att-name="'vehicle%s_year' % number" t-att-value="form_values.get('vehicle%s_year' % number) or ''"/></div><div class="col-6"><label class="form-label">Avalúo comercial US$</label><input class="form-control" type="number" min="0" step="0.01" t-att-name="'vehicle%s_value' % number" t-att-value="form_values.get('vehicle%s_value' % number) or ''"/></div></div></div></div></t>
-                    </div></div></section>
+                    <div class="credit-subheading mt-4">Vehículos del solicitante (si corresponde)</div>
+                    <div class="row g-3" id="credit-vehicles" data-max-vehicles="30">
+                        <t t-foreach="vehicle_rows" t-as="number">
+                            <div class="col-12 col-lg-6 credit-vehicle-row" t-att-data-vehicle-index="number">
+                                <div class="credit-repeat-card">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h3 class="h6 mb-0">Vehículo <t t-esc="number"/></h3>
+                                        <button t-if="number &gt; 2" type="button" class="btn btn-outline-danger btn-sm" data-credit-remove-vehicle="1" aria-label="Quitar vehículo">Quitar</button>
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-6"><label class="form-label">Marca</label><input class="form-control" t-att-name="'vehicle%s_brand' % number" t-att-value="form_values.get('vehicle%s_brand' % number) or ''"/></div>
+                                        <div class="col-6"><label class="form-label">Modelo</label><input class="form-control" t-att-name="'vehicle%s_model' % number" t-att-value="form_values.get('vehicle%s_model' % number) or ''"/></div>
+                                        <div class="col-6"><label class="form-label">Año</label><input class="form-control" inputmode="numeric" maxlength="4" t-att-name="'vehicle%s_year' % number" t-att-value="form_values.get('vehicle%s_year' % number) or ''"/></div>
+                                        <div class="col-6"><label class="form-label">Avalúo comercial US$</label><input class="form-control" type="number" min="0" step="0.01" t-att-name="'vehicle%s_value' % number" t-att-value="form_values.get('vehicle%s_value' % number) or ''"/></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                    <input type="hidden" name="vehicle_count" id="credit-vehicle-count" t-att-value="len(vehicle_rows)"/>
+                    <button type="button" class="btn btn-outline-secondary mt-3" id="credit-add-vehicle">+ Agregar otro vehículo</button>
+                    <p class="form-text">Se muestran dos espacios inicialmente. Complete únicamente los vehículos que posee; agregue otros cuando sea necesario.</p>
+                    </div></section>
 
                     </div><div class="credit-step-panel" data-credit-step="2"><div class="credit-wizard-panel-title mb-3"><h2 class="h5 mb-1">Paso 2 de 5 · Negocio</h2></div><section class="card credit-section-card mb-4"><div class="card-header">Datos del negocio o empresa</div><div class="card-body"><div class="row g-3">
                         <div class="col-12 col-md-6"><label class="form-label">Nombre o razón social *</label><input class="form-control" name="business_name" required="required" t-att-value="form_values.get('business_name') or ''"/></div>

@@ -4,6 +4,8 @@ from markupsafe import escape
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
+from .credit_identity import valid_ecuador_cedula, valid_ecuador_cedula_or_ruc, valid_ecuador_mobile
+
 _logger = logging.getLogger(__name__)
 
 
@@ -48,9 +50,14 @@ class ConederaCreditApplication(models.Model):
     spouse_profession = fields.Char(string='Profesión del cónyuge')
     dependents_count = fields.Integer(string='Número de cargas')
     home_address = fields.Char(string='Dirección domiciliaria')
+    # Compatibilidad con las solicitudes anteriores. Nuevas solicitudes usan el catálogo.
     housing_type = fields.Selection([
         ('own', 'Propia'), ('rented', 'Alquilada'), ('family', 'Familiares'), ('mortgaged', 'Hipotecada'),
-    ], string='Vivienda')
+    ], string='Vivienda (anterior)', readonly=True, copy=False)
+    housing_type_id = fields.Many2one(
+        'conedera.credit.housing.type', string='Vivienda', index=True, ondelete='restrict',
+        help='Opciones configurables desde Crédito CONEDERA > Tipos de vivienda.')
+    vehicle_ids = fields.One2many('conedera.credit.vehicle', 'application_id', string='Vehículos del solicitante')
 
     vehicle1_brand = fields.Char(string='Vehículo 1 - marca')
     vehicle1_model = fields.Char(string='Vehículo 1 - modelo')
@@ -282,6 +289,16 @@ class ConederaCreditApplication(models.Model):
             'target': 'new',
         }
 
+    @api.constrains('identification', 'spouse_identification', 'mobile')
+    def _check_ecuador_contact_fields(self):
+        for record in self:
+            if record.identification and not valid_ecuador_cedula_or_ruc(record.identification.strip()):
+                raise ValidationError(_('La cédula o RUC del solicitante no es válida. Ingrese 10 o 13 dígitos ecuatorianos correctos.'))
+            if record.spouse_identification and not valid_ecuador_cedula(record.spouse_identification.strip()):
+                raise ValidationError(_('La cédula del cónyuge no es válida. Debe contener 10 dígitos y su dígito verificador correcto.'))
+            if record.mobile and not valid_ecuador_mobile(record.mobile.strip()):
+                raise ValidationError(_('El celular debe tener exactamente 10 dígitos numéricos.'))
+
     @api.constrains('dependents_count', 'monthly_sales', 'social_capital', 'assets_amount', 'monthly_income', 'liabilities_amount', 'monthly_expenses', 'vehicle1_value', 'vehicle2_value', 'employment_salary')
     def _check_non_negative_amounts(self):
         for record in self:
@@ -319,6 +336,40 @@ class ConederaCreditApplication(models.Model):
                 ])
                 if legacy_records:
                     legacy_records.write({'marital_status_id': status.id})
+        # Catálogo nuevo de vivienda; se preservan los valores históricos.
+        Housing = self.env['conedera.credit.housing.type'].sudo()
+        for old_code in ('own', 'rented', 'family', 'mortgaged'):
+            housing = Housing.search([('code', '=', old_code)], limit=1)
+            if housing:
+                old_requests = self.sudo().search([
+                    ('housing_type_id', '=', False), ('housing_type', '=', old_code),
+                ])
+                if old_requests:
+                    old_requests.write({'housing_type_id': housing.id})
+        # Migrar ambos vehículos antiguos una sola vez, sin duplicarlos en actualizaciones.
+        Vehicle = self.env['conedera.credit.vehicle'].sudo()
+        legacy_fields = [
+            'vehicle1_brand', 'vehicle1_model', 'vehicle1_year', 'vehicle1_value',
+            'vehicle2_brand', 'vehicle2_model', 'vehicle2_year', 'vehicle2_value',
+        ]
+        conditions = [(field, '!=', 0 if field.endswith('_value') else False)
+                      for field in legacy_fields]
+        applications_with_legacy = self.sudo().search(
+            ['|'] * (len(conditions) - 1) + conditions)
+        for application in applications_with_legacy:
+            for slot in (1, 2):
+                item = {
+                    'brand': application['vehicle%s_brand' % slot],
+                    'model': application['vehicle%s_model' % slot],
+                    'year': application['vehicle%s_year' % slot],
+                    'value': application['vehicle%s_value' % slot],
+                }
+                if not any(item.values()):
+                    continue
+                if Vehicle.search_count([('application_id', '=', application.id), ('legacy_slot', '=', slot)]):
+                    continue
+                Vehicle.create(dict(item, application_id=application.id,
+                                    sequence=slot * 10, legacy_slot=slot))
         # Los tipos creados anteriormente sin código adquieren un ID estable.
         for record in Type.search([('code', '=', False)]):
             new_code = self.env['ir.sequence'].next_by_code('conedera.credit.applicant.type')

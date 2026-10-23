@@ -12,6 +12,9 @@ from markupsafe import escape
 from odoo import http, fields, _
 from odoo.addons.custom_web_hr_datos_candidatos.controllers.portal_signup import AuthSignupHomeOTP
 from odoo.exceptions import ValidationError
+from ..models.credit_identity import (
+    valid_ecuador_cedula, valid_ecuador_cedula_or_ruc, valid_ecuador_mobile,
+)
 from odoo.http import request
 from werkzeug.exceptions import Forbidden, NotFound
 from werkzeug.utils import secure_filename
@@ -20,14 +23,13 @@ _logger = logging.getLogger(__name__)
 OTP_TTL_SECONDS = 3 * 60
 OTP_MAX_ATTEMPTS = 5
 MAX_FILE_SIZE = 12 * 1024 * 1024
+MAX_VEHICLES = 30
 
 APPLICATION_FIELDS = [
     'identification', 'application_place', 'application_date', 'applicant_name', 'applicant_email',
     'phone_fixed', 'mobile', 'profession', 'foreign_residence_time',
     'foreign_work_visa', 'spouse_name', 'spouse_identification', 'spouse_profession',
-    'dependents_count', 'home_address', 'housing_type', 'vehicle1_brand', 'vehicle1_model',
-    'vehicle1_year', 'vehicle1_value', 'vehicle2_brand', 'vehicle2_model', 'vehicle2_year',
-    'vehicle2_value', 'business_name', 'legal_representative', 'business_ruc', 'province',
+    'dependents_count', 'home_address', 'business_name', 'legal_representative', 'business_ruc', 'province',
     'canton', 'city', 'business_address', 'business_phone', 'representative_email',
     'activity_start_date', 'business_local_type', 'monthly_sales', 'social_capital', 'invoice_email',
     'assets_amount', 'monthly_income', 'liabilities_amount', 'monthly_expenses',
@@ -39,7 +41,7 @@ APPLICATION_FIELDS = [
 DATE_FIELDS = {'application_date', 'activity_start_date', 'employment_start_date'}
 INTEGER_FIELDS = {'dependents_count'}
 FLOAT_FIELDS = {
-    'vehicle1_value', 'vehicle2_value', 'monthly_sales', 'social_capital', 'assets_amount',
+    'monthly_sales', 'social_capital', 'assets_amount',
     'monthly_income', 'liabilities_amount', 'monthly_expenses', 'employment_salary',
 }
 
@@ -372,12 +374,15 @@ class ConederaCreditPortal(http.Controller):
                     'applicant_name': '',
                     'applicant_email': request.env.user.email or request.env.user.login}
         defaults.update(form_values or {})
+        count = _clean(defaults.get('vehicle_count'))
+        vehicle_count = min(MAX_VEHICLES, max(2, int(count))) if count.isdecimal() else 2
         return request.render('custom_web_credito_conedera.portal_credit_application_form', {
             'form_values': defaults,
             'errors': errors or [],
             'marital_statuses': request.env['conedera.credit.marital.status'].sudo().search([('active', '=', True)], order='sequence,name,id'),
             'start_step': max(1, min(5, int(start_step or 1))),
-            'housing_types': [('own', 'Propia'), ('rented', 'Alquilada'), ('family', 'Familiares'), ('mortgaged', 'Hipotecada')],
+            'housing_types': request.env['conedera.credit.housing.type'].sudo().search([('active', '=', True)], order='sequence,name,id'),
+            'vehicle_rows': range(1, vehicle_count + 1),
             'local_types': [('own', 'Propio'), ('rented', 'Alquilado'), ('family', 'Familiar'), ('mortgaged', 'Hipotecado')],
             'applicant_types': request.env['conedera.credit.applicant.type'].sudo().search([('active', '=', True)], order='sequence, name, id'),
         })
@@ -420,6 +425,28 @@ class ConederaCreditPortal(http.Controller):
                 commands.append((0, 0, bank))
         return commands
 
+    def _vehicle_commands(self, post, errors):
+        """Guarda todos los vehículos introducidos; los dos primeros son opcionales."""
+        raw_count = _clean(post.get('vehicle_count'))
+        if not raw_count.isdecimal() or not 2 <= int(raw_count) <= MAX_VEHICLES:
+            errors.append(_('La cantidad de vehículos indicada no es válida.'))
+            return []
+        commands = []
+        for number in range(1, int(raw_count) + 1):
+            values = {
+                'sequence': number * 10,
+                'brand': _clean(post.get('vehicle%s_brand' % number)),
+                'model': _clean(post.get('vehicle%s_model' % number)),
+                'year': _clean(post.get('vehicle%s_year' % number)),
+                'value': _parse_number(post.get('vehicle%s_value' % number),
+                                       _('Avalúo del vehículo %s') % number, errors),
+            }
+            if values['value'] < 0:
+                errors.append(_('El avalúo del vehículo %s no puede ser negativo.') % number)
+            if any(values[key] for key in ('brand', 'model', 'year', 'value')):
+                commands.append((0, 0, values))
+        return commands
+
     @http.route('/my/credito/solicitud/enviar', type='http', auth='user', website=True, methods=['POST'], sitemap=False)
     def submit_credit_application(self, **post):
         errors = []
@@ -448,6 +475,14 @@ class ConederaCreditPortal(http.Controller):
         if marital_code and not marital_record:
             errors.append(_('Seleccione un estado civil válido.'))
         values['marital_status_id'] = marital_record.id or False
+        housing_code = _clean(post.get('housing_type_id'))
+        housing_record = request.env['conedera.credit.housing.type'].sudo()
+        if housing_code.isdecimal():
+            housing_record = housing_record.search([('id', '=', int(housing_code)), ('active', '=', True)], limit=1)
+        if housing_code and not housing_record:
+            errors.append(_('Seleccione un tipo de vivienda válido.'))
+        values['housing_type_id'] = housing_record.id or False
+        values['vehicle_ids'] = self._vehicle_commands(post, errors)
         values['declaration_accepted'] = post.get('declaration_accepted') in ('on', '1', 'true', 'yes')
         consent_fields = [
             ('prior_commercial_relationship_accepted', _('Debe aceptar la cláusula sobre la relación comercial previa y su valor probatorio.')),
@@ -472,6 +507,12 @@ class ConederaCreditPortal(http.Controller):
         ]:
             if not values.get(field_name):
                 errors.append(_('El campo %(field)s es obligatorio.') % {'field': label})
+        if values.get('identification') and not valid_ecuador_cedula_or_ruc(values['identification']):
+            errors.append(_('La cédula o RUC del solicitante debe ser una identificación ecuatoriana válida de 10 o 13 dígitos.'))
+        if values.get('spouse_identification') and not valid_ecuador_cedula(values['spouse_identification']):
+            errors.append(_('La cédula del cónyuge debe ser una cédula ecuatoriana válida de 10 dígitos.'))
+        if values.get('mobile') and not valid_ecuador_mobile(values['mobile']):
+            errors.append(_('El celular debe contener exactamente 10 dígitos numéricos.'))
         if values.get('applicant_email') and not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', values['applicant_email']):
             errors.append(_('Ingrese un correo válido para el propietario o representante.'))
         if values.get('maps_url') and not values['maps_url'].lower().startswith(('https://', 'http://')):

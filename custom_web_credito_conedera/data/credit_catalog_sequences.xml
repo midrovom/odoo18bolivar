@@ -16,4 +16,12 @@
     <field name="number_next">1</field>
     <field name="implementation">standard</field>
   </record>
+  <record id="seq_conedera_credit_housing_type" model="ir.sequence">
+    <field name="name">Identificadores de tipo de vivienda</field>
+    <field name="code">conedera.credit.housing.type</field>
+    <field name="prefix">VI-</field>
+    <field name="padding">6</field>
+    <field name="number_next">1</field>
+    <field name="implementation">standard</field>
+  </record>
 </odoo>
