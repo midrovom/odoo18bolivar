@@ -42,3 +42,18 @@ def valid_ecuador_cedula_or_ruc(value):
 
 def valid_ecuador_mobile(value):
     return bool(re.fullmatch(r'[0-9]{10}', value or ''))
+
+
+def valid_foreign_document(value):
+    return bool(re.fullmatch(r'[0-9]{10}', value or ''))
+
+
+def valid_ruc_length(value):
+    """Regla solicitada: longitud/formato; no verifica estado en el SRI."""
+    return bool(re.fullmatch(r'[0-9]{13}', value or ''))
+
+
+def valid_credit_identity(value, document_type):
+    return ((document_type == 'cedula' and valid_ecuador_cedula(value)) or
+            (document_type == 'ruc' and valid_ruc_length(value)) or
+            (document_type == 'foreign' and valid_foreign_document(value)))

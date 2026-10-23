@@ -11,6 +11,7 @@ class ConederaCreditMaritalStatus(models.Model):
     code = fields.Char(string='ID único', readonly=True, copy=False, index=True)
     sequence = fields.Integer(default=10)
     active = fields.Boolean(default=True)
+    requires_spouse = fields.Boolean(string='Requiere datos del cónyuge', default=False, help='Al seleccionar este estado civil, el portal mostrará y exigirá nombres, documento y profesión del cónyuge.')
 
     _sql_constraints = [
         ('credit_marital_code_uniq', 'unique(code)', 'El ID del estado civil ya está registrado.'),

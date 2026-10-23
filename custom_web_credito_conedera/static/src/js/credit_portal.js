@@ -95,23 +95,148 @@
             return false;
         }
 
-        document.querySelectorAll('form.credit-form [data-credit-id]').forEach(function (input) {
-            function validateIdentity() {
-                var value = input.value.trim();
-                var kind = input.dataset.creditId;
-                var valid = !value || (kind === 'applicant' ? validCedulaOrRuc(value) :
-                    kind === 'spouse' ? validCedula(value) : /^[0-9]{10}$/.test(value));
-                var message = kind === 'mobile' ? 'El celular debe tener exactamente 10 dígitos numéricos.' :
-                    kind === 'spouse' ? 'Ingrese una cédula ecuatoriana válida de 10 dígitos.' :
-                        'Ingrese una cédula ecuatoriana válida de 10 dígitos o un RUC válido de 13 dígitos.';
-                input.setCustomValidity(valid ? '' : message);
+        var identityType = document.getElementById('credit-identification-type');
+        var creditForm = document.querySelector('form.credit-form[data-credit-wizard="1"]');
+        function identityValidation(input) {
+            var value = input.value.trim();
+            var kind = input.dataset.creditId;
+            var type = identityType ? identityType.value : 'cedula';
+            var valid = !value;
+            var message = '';
+            if (kind === 'applicant') {
+                valid = valid || (type === 'cedula' ? validCedula(value) :
+                    type === 'ruc' ? /^[0-9]{13}$/.test(value) :
+                    type === 'foreign' ? /^[0-9]{10}$/.test(value) : false);
+                message = 'Documento inválido. Cédula ecuatoriana: 10 dígitos y verificador; RUC: 13 dígitos; extranjera: 10 dígitos numéricos.';
+                input.maxLength = type === 'ruc' ? 13 : 10;
+                input.pattern = type === 'ruc' ? '[0-9]{13}' : '[0-9]{10}';
+            } else if (kind === 'spouse') {
+                // Validar la cédula ecuatoriana primero; en caso de fallo, permitir
+                // documento extranjero numérico de exactamente diez dígitos.
+                valid = valid || validCedula(value) || /^[0-9]{10}$/.test(value);
+                message = 'El documento del cónyuge debe tener 10 dígitos numéricos.';
+            } else if (kind === 'business_ruc') {
+                valid = valid || /^[0-9]{13}$/.test(value);
+                message = 'El RUC del negocio debe contener exactamente 13 dígitos.';
+            } else if (kind === 'mobile') {
+                valid = valid || /^[0-9]{10}$/.test(value);
+                message = 'El celular debe tener exactamente 10 dígitos numéricos.';
             }
-            input.addEventListener('input', validateIdentity);
-            input.addEventListener('change', validateIdentity);
-            validateIdentity();
+            input.setCustomValidity(valid ? '' : message);
+        }
+        document.querySelectorAll('form.credit-form [data-credit-id]').forEach(function (input) {
+            var validate = function () { identityValidation(input); };
+            input.addEventListener('input', validate);
+            input.addEventListener('change', validate);
+            validate();
+        });
+        if (identityType && creditForm) {
+            identityType.addEventListener('change', function () {
+                var input = creditForm.querySelector('[data-credit-id="applicant"]');
+                if (input) { identityValidation(input); }
+            });
+        }
+
+        // Estado civil configurable: decidir por código estable, nunca por el texto.
+        var maritalSelect = creditForm && creditForm.querySelector('[name="marital_status_id"]');
+        if (maritalSelect) {
+            function adjustSpouse() {
+                var option = maritalSelect.options[maritalSelect.selectedIndex];
+                var needsSpouse = Boolean(option && option.dataset.requiresSpouse === '1');
+                creditForm.querySelectorAll('.credit-spouse-field').forEach(function (wrap) {
+                    wrap.hidden = !needsSpouse;
+                    wrap.querySelectorAll('input').forEach(function (input) {
+                        input.disabled = !needsSpouse;
+                        input.required = needsSpouse;
+                        if (!needsSpouse) { input.value = ''; input.setCustomValidity(''); }
+                    });
+                });
+            }
+            maritalSelect.addEventListener('change', adjustSpouse);
+            adjustSpouse();
+        }
+
+        // Añadir referencias sin un límite fijo de tres (límite técnico 30 por sección).
+        document.querySelectorAll('[data-credit-reference-body]').forEach(function (body) {
+            var typ = body.dataset.creditReferenceBody;
+            var add = document.querySelector('[data-credit-add-reference="' + typ + '"]');
+            var countInput = creditForm && creditForm.querySelector('[name="' + typ + '_count"]');
+            var maxRows = Number(body.dataset.maxReferences || 30);
+            if (!add || !countInput) { return; }
+            function renumber() {
+                var rows = body.querySelectorAll('.credit-reference-row');
+                rows.forEach(function (row, index) {
+                    var n = index + 1;
+                    row.querySelectorAll('[name]').forEach(function (field) {
+                        field.name = field.name.replace(/_[0-9]+$/, '_' + n);
+                    });
+                });
+                countInput.value = String(rows.length);
+                add.disabled = rows.length >= maxRows;
+            }
+            add.addEventListener('click', function () {
+                var rows = body.querySelectorAll('.credit-reference-row');
+                if (!rows.length || rows.length >= maxRows) { return; }
+                var clone = rows[0].cloneNode(true);
+                clone.querySelectorAll('input').forEach(function (field) { field.value = ''; });
+                clone.querySelectorAll('select').forEach(function (field) { field.selectedIndex = 0; });
+                var actionCell = clone.querySelector('td:last-child');
+                if (actionCell) {
+                    actionCell.innerHTML = '';
+                    var remove = document.createElement('button');
+                    remove.type = 'button';
+                    remove.className = 'btn btn-outline-danger btn-sm';
+                    remove.dataset.creditRemoveReference = '1';
+                    remove.textContent = 'Quitar';
+                    actionCell.appendChild(remove);
+                }
+                body.appendChild(clone);
+                renumber();
+                var first = clone.querySelector('input');
+                if (first) { first.focus(); }
+            });
+            body.addEventListener('click', function (event) {
+                var remove = event.target.closest('[data-credit-remove-reference]');
+                if (remove && body.querySelectorAll('.credit-reference-row').length > 3) {
+                    remove.closest('.credit-reference-row').remove();
+                    renumber();
+                }
+            });
+            renumber();
         });
 
-        // Se conservan dos espacios en el formulario. Cada clic agrega otro
+        // El usuario debe conceder explícitamente permiso de geolocalización.
+        var locateButton = document.getElementById('credit-get-location');
+        if (locateButton) {
+            locateButton.addEventListener('click', function () {
+                if (!navigator.geolocation) {
+                    window.alert('Su navegador no permite obtener la ubicación. Puede escribir las coordenadas manualmente.');
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    document.getElementById('credit-business-latitude').value = position.coords.latitude.toFixed(7);
+                    document.getElementById('credit-business-longitude').value = position.coords.longitude.toFixed(7);
+                }, function () {
+                    window.alert('No se pudo acceder a su ubicación. Autorice el permiso o escriba latitud y longitud manualmente.');
+                }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
+            });
+        }
+        if (creditForm) {
+            var latitude = creditForm.querySelector('[name="business_latitude"]');
+            var longitude = creditForm.querySelector('[name="business_longitude"]');
+            if (latitude && longitude) {
+                function validateCoordinates() {
+                    var missingPair = Boolean(latitude.value.trim()) !== Boolean(longitude.value.trim());
+                    latitude.setCustomValidity(missingPair ? 'Debe ingresar latitud y longitud juntas.' : '');
+                    longitude.setCustomValidity(missingPair ? 'Debe ingresar latitud y longitud juntas.' : '');
+                }
+                latitude.addEventListener('input', validateCoordinates);
+                longitude.addEventListener('input', validateCoordinates);
+                validateCoordinates();
+            }
+        }
+
+        // Se muestra un solo vehículo por defecto. Cada clic agrega otro
         // vehículo opcional y se manda al servidor en vehicle_ids (One2many).
         var vehiclesContainer = document.getElementById('credit-vehicles');
         var addVehicleButton = document.getElementById('credit-add-vehicle');
@@ -155,7 +280,7 @@
                 var remove = event.target.closest('[data-credit-remove-vehicle]');
                 if (!remove) { return; }
                 var row = remove.closest('.credit-vehicle-row');
-                if (row && Number(row.dataset.vehicleIndex) > 2) {
+                if (row && Number(row.dataset.vehicleIndex) > 1) {
                     row.remove();
                     renumberVehicles();
                 }
@@ -247,7 +372,7 @@
                 showStep(panels.length, false);
                 if (submitButton) {
                     submitButton.disabled = true;
-                    submitButton.textContent = 'Enviando solicitud...';
+                    submitButton.textContent = creditForm && creditForm.querySelector('[name="credit_edit_mode"]') ? 'Guardando cambios...' : 'Enviando solicitud...';
                 }
             });
         }

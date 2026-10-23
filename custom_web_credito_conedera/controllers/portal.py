@@ -13,7 +13,7 @@ from odoo import http, fields, _
 from odoo.addons.custom_web_hr_datos_candidatos.controllers.portal_signup import AuthSignupHomeOTP
 from odoo.exceptions import ValidationError
 from ..models.credit_identity import (
-    valid_ecuador_cedula, valid_ecuador_cedula_or_ruc, valid_ecuador_mobile,
+    valid_ecuador_cedula, valid_ecuador_mobile, valid_credit_identity, valid_foreign_document, valid_ruc_length,
 )
 from odoo.http import request
 from werkzeug.exceptions import Forbidden, NotFound
@@ -24,9 +24,10 @@ OTP_TTL_SECONDS = 3 * 60
 OTP_MAX_ATTEMPTS = 5
 MAX_FILE_SIZE = 12 * 1024 * 1024
 MAX_VEHICLES = 30
+MAX_REFERENCES = 30
 
 APPLICATION_FIELDS = [
-    'identification', 'application_place', 'application_date', 'applicant_name', 'applicant_email',
+    'identification', 'identification_type', 'business_latitude', 'business_longitude', 'application_place', 'application_date', 'applicant_name', 'applicant_email',
     'phone_fixed', 'mobile', 'profession', 'foreign_residence_time',
     'foreign_work_visa', 'spouse_name', 'spouse_identification', 'spouse_profession',
     'dependents_count', 'home_address', 'business_name', 'legal_representative', 'business_ruc', 'province',
@@ -41,7 +42,7 @@ APPLICATION_FIELDS = [
 DATE_FIELDS = {'application_date', 'activity_start_date', 'employment_start_date'}
 INTEGER_FIELDS = {'dependents_count'}
 FLOAT_FIELDS = {
-    'monthly_sales', 'social_capital', 'assets_amount',
+    'business_latitude', 'business_longitude', 'monthly_sales', 'social_capital', 'assets_amount',
     'monthly_income', 'liabilities_amount', 'monthly_expenses', 'employment_salary',
 }
 
@@ -369,66 +370,92 @@ class ConederaCreditPortal(http.Controller):
         domain.append(('portal_user_id', '=', request.env.user.id))
         return request.env['conedera.credit.application'].sudo().search(domain, order='create_date desc, id desc')
 
-    def _render_application_form(self, form_values=None, errors=None, start_step=1):
+    def _can_correct(self, application=None):
+        has_permission = request.env.user.has_group('custom_web_credito_conedera.group_credit_portal_correction')
+        if not has_permission:
+            return False
+        return not application or (application.portal_user_id.id == request.env.user.id and
+            not application.stage_id.is_approved and not application.stage_id.is_rejected)
+
+    def _pending_application(self):
+        return request.env['conedera.credit.application'].sudo()._blocking_application(request.env.user.id)
+
+    def _render_application_form(self, form_values=None, errors=None, start_step=1, application=None):
         defaults = {'application_date': fields.Date.context_today(request.env.user).strftime('%Y-%m-%d'),
-                    'applicant_name': '',
+                    'applicant_name': '', 'identification_type': 'cedula',
                     'applicant_email': request.env.user.email or request.env.user.login}
         defaults.update(form_values or {})
         count = _clean(defaults.get('vehicle_count'))
-        vehicle_count = min(MAX_VEHICLES, max(2, int(count))) if count.isdecimal() else 2
+        vehicle_count = min(MAX_VEHICLES, max(1, int(count))) if count.isdecimal() else 1
+        reference_rows = {}
+        for typ in ('commercial', 'personal', 'bank'):
+            raw = _clean(defaults.get('%s_count' % typ))
+            reference_rows[typ] = range(1, min(MAX_REFERENCES, max(3, int(raw))) + 1) if raw.isdecimal() else range(1, 4)
         return request.render('custom_web_credito_conedera.portal_credit_application_form', {
             'form_values': defaults,
             'errors': errors or [],
+            'application': application,
             'marital_statuses': request.env['conedera.credit.marital.status'].sudo().search([('active', '=', True)], order='sequence,name,id'),
             'start_step': max(1, min(5, int(start_step or 1))),
             'housing_types': request.env['conedera.credit.housing.type'].sudo().search([('active', '=', True)], order='sequence,name,id'),
             'vehicle_rows': range(1, vehicle_count + 1),
+            'reference_rows': reference_rows,
             'local_types': [('own', 'Propio'), ('rented', 'Alquilado'), ('family', 'Familiar'), ('mortgaged', 'Hipotecado')],
             'applicant_types': request.env['conedera.credit.applicant.type'].sudo().search([('active', '=', True)], order='sequence, name, id'),
         })
 
     @http.route('/my/credito/nueva', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
     def new_credit_application(self, **kwargs):
+        existing = self._pending_application()
+        if existing:
+            return request.redirect('/my/credito/%s?pending=1' % existing.id)
         return self._render_application_form({'applicant_name': '', 'applicant_email': request.env.user.email or request.env.user.login})
 
     def _reference_commands(self, post, errors):
         commands = []
-        for number in range(1, 4):
-            commercial = {
-                'reference_type': 'commercial', 'sequence': number * 10,
-                'provider': _clean(post.get('commercial_provider_%s' % number)),
-                'customer_since': _clean(post.get('commercial_since_%s' % number)),
-                'credit_limit': _parse_number(post.get('commercial_limit_%s' % number), _('Cupo de referencia comercial %s') % number, errors),
-                'term': _clean(post.get('commercial_term_%s' % number)),
-                'phone': _clean(post.get('commercial_phone_%s' % number)),
-                'contact': _clean(post.get('commercial_contact_%s' % number)),
-            }
-            if any(commercial[key] not in ('', 0, 0.0, False) for key in ('provider', 'customer_since', 'credit_limit', 'term', 'phone', 'contact')):
-                commands.append((0, 0, commercial))
-            personal = {
-                'reference_type': 'personal', 'sequence': number * 10,
-                'person_name': _clean(post.get('personal_name_%s' % number)),
-                'address': _clean(post.get('personal_address_%s' % number)),
-                'home_phone': _clean(post.get('personal_phone_%s' % number)),
-                'relationship': _clean(post.get('personal_relationship_%s' % number)),
-            }
-            if any(personal[key] for key in ('person_name', 'address', 'home_phone', 'relationship')):
-                commands.append((0, 0, personal))
-            bank = {
-                'reference_type': 'bank', 'sequence': number * 10,
-                'bank_name': _clean(post.get('bank_name_%s' % number)),
-                'account_number': _clean(post.get('bank_account_%s' % number)),
-                'opening_date': _parse_date(post.get('bank_opening_%s' % number)),
-                'account_type': _clean(post.get('bank_type_%s' % number)) or False,
-            }
-            if any(bank[key] for key in ('bank_name', 'account_number', 'opening_date', 'account_type')):
-                commands.append((0, 0, bank))
+        for typ in ('commercial', 'personal', 'bank'):
+            raw_count = _clean(post.get('%s_count' % typ))
+            if not raw_count.isdecimal() or not 3 <= int(raw_count) <= MAX_REFERENCES:
+                errors.append(_('La cantidad de referencias %(tipo)s no es válida.') % {'tipo': typ})
+                continue
+            for number in range(1, int(raw_count) + 1):
+                if typ == 'commercial':
+                    values = {
+                        'reference_type': typ, 'sequence': number * 10,
+                        'provider': _clean(post.get('commercial_provider_%s' % number)),
+                        'customer_since': _clean(post.get('commercial_since_%s' % number)),
+                        'credit_limit': _parse_number(post.get('commercial_limit_%s' % number), _('Cupo de referencia comercial %s') % number, errors),
+                        'term': _clean(post.get('commercial_term_%s' % number)),
+                        'phone': _clean(post.get('commercial_phone_%s' % number)),
+                        'contact': _clean(post.get('commercial_contact_%s' % number)),
+                    }
+                    relevant = ('provider', 'customer_since', 'credit_limit', 'term', 'phone', 'contact')
+                elif typ == 'personal':
+                    values = {
+                        'reference_type': typ, 'sequence': number * 10,
+                        'person_name': _clean(post.get('personal_name_%s' % number)),
+                        'address': _clean(post.get('personal_address_%s' % number)),
+                        'home_phone': _clean(post.get('personal_phone_%s' % number)),
+                        'relationship': _clean(post.get('personal_relationship_%s' % number)),
+                    }
+                    relevant = ('person_name', 'address', 'home_phone', 'relationship')
+                else:
+                    values = {
+                        'reference_type': typ, 'sequence': number * 10,
+                        'bank_name': _clean(post.get('bank_name_%s' % number)),
+                        'account_number': _clean(post.get('bank_account_%s' % number)),
+                        'opening_date': _parse_date(post.get('bank_opening_%s' % number)),
+                        'account_type': _clean(post.get('bank_type_%s' % number)) or False,
+                    }
+                    relevant = ('bank_name', 'account_number', 'opening_date', 'account_type')
+                if any(values[key] not in ('', 0, 0.0, False) for key in relevant):
+                    commands.append((0, 0, values))
         return commands
 
     def _vehicle_commands(self, post, errors):
-        """Guarda todos los vehículos introducidos; los dos primeros son opcionales."""
+        """Guarda vehículos opcionales y conserva el primero por defecto en pantalla."""
         raw_count = _clean(post.get('vehicle_count'))
-        if not raw_count.isdecimal() or not 2 <= int(raw_count) <= MAX_VEHICLES:
+        if not raw_count.isdecimal() or not 1 <= int(raw_count) <= MAX_VEHICLES:
             errors.append(_('La cantidad de vehículos indicada no es válida.'))
             return []
         commands = []
@@ -449,6 +476,76 @@ class ConederaCreditPortal(http.Controller):
 
     @http.route('/my/credito/solicitud/enviar', type='http', auth='user', website=True, methods=['POST'], sitemap=False)
     def submit_credit_application(self, **post):
+        return self._process_application(post)
+
+    def _application_to_form(self, application):
+        values = {}
+        for name in APPLICATION_FIELDS:
+            field_value = application[name]
+            if name in DATE_FIELDS and field_value:
+                values[name] = str(field_value)
+            elif name in FLOAT_FIELDS or name in INTEGER_FIELDS:
+                values[name] = str(field_value) if field_value else ''
+            else:
+                values[name] = field_value or ''
+        values['applicant_type_id'] = str(application.applicant_type_id.id or '')
+        values['marital_status_id'] = str(application.marital_status_id.id or '')
+        values['housing_type_id'] = str(application.housing_type_id.id or '')
+        vehicles = application.vehicle_ids.sorted(key=lambda v: (v.sequence, v.id))
+        values['vehicle_count'] = str(max(1, len(vehicles)))
+        for number, vehicle in enumerate(vehicles, 1):
+            for suffix, field_name in (('brand', 'brand'), ('model', 'model'), ('year', 'year'), ('value', 'value')):
+                value = vehicle[field_name]
+                values['vehicle%s_%s' % (number, suffix)] = str(value) if value else ''
+        for typ in ('commercial', 'personal', 'bank'):
+            refs = application.reference_ids.filtered(lambda r: r.reference_type == typ).sorted(key=lambda r: (r.sequence, r.id))
+            values['%s_count' % typ] = str(max(3, len(refs)))
+            fields_map = {
+                'commercial': [('provider', 'provider'), ('since', 'customer_since'), ('limit', 'credit_limit'), ('term', 'term'), ('phone', 'phone'), ('contact', 'contact')],
+                'personal': [('name', 'person_name'), ('address', 'address'), ('phone', 'home_phone'), ('relationship', 'relationship')],
+                'bank': [('name', 'bank_name'), ('account', 'account_number'), ('opening', 'opening_date'), ('type', 'account_type')],
+            }[typ]
+            for number, ref in enumerate(refs, 1):
+                for suffix, field_name in fields_map:
+                    value = ref[field_name]
+                    values['%s_%s_%s' % (typ, suffix, number)] = str(value) if value else ''
+        for term in ('declaration_accepted', 'prior_commercial_relationship_accepted',
+                     'electronic_service_accepted', 'credit_bureau_authorized',
+                     'company_signature_stamp_acknowledged', 'additional_financial_documents_accepted'):
+            values[term] = 'on' if application[term] else ''
+        return values
+
+    @http.route('/my/credito/acciones', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
+    def credit_quick_actions(self, **kw):
+        if not self._can_correct():
+            raise Forbidden(_('No dispone del permiso especial de acceso rápido.'))
+        applications = self._portal_applications()
+        return request.render('custom_web_credito_conedera.portal_credit_quick_actions', {
+            'applications': applications,
+            'editable_ids': applications.filtered(lambda a: self._can_correct(a)).ids,
+        })
+
+    @http.route('/my/credito/<int:application_id>/editar', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
+    def edit_credit_application(self, application_id, **kw):
+        application = self._get_owned_application(application_id)
+        if not self._can_correct(application):
+            raise Forbidden(_('No tiene permiso para modificar esta solicitud o ya tiene una decisión registrada.'))
+        return self._render_application_form(self._application_to_form(application), application=application)
+
+    @http.route('/my/credito/<int:application_id>/actualizar', type='http', auth='user', website=True, methods=['POST'], sitemap=False)
+    def update_credit_application(self, application_id, **post):
+        application = self._get_owned_application(application_id)
+        if not self._can_correct(application):
+            raise Forbidden(_('No tiene permiso para modificar esta solicitud o ya tiene una decisión registrada.'))
+        return self._process_application(post, application=application)
+
+    def _process_application(self, post, application=None):
+        if not application:
+            existing = self._pending_application()
+            if existing:
+                return request.redirect('/my/credito/%s?pending=1' % existing.id)
+        elif not self._can_correct(application):
+            raise Forbidden()
         errors = []
         values = {}
         for field_name in APPLICATION_FIELDS:
@@ -461,6 +558,16 @@ class ConederaCreditPortal(http.Controller):
                 values[field_name] = _parse_number(value, field_name, errors)
             else:
                 values[field_name] = _clean(value) or False
+        latitude_raw = _clean(post.get('business_latitude'))
+        longitude_raw = _clean(post.get('business_longitude'))
+        if bool(latitude_raw) != bool(longitude_raw):
+            errors.append(_('Ingrese ambos valores: latitud y longitud.'))
+        if latitude_raw and not -90 <= values['business_latitude'] <= 90:
+            errors.append(_('La latitud debe estar entre -90 y 90.'))
+        if longitude_raw and not -180 <= values['business_longitude'] <= 180:
+            errors.append(_('La longitud debe estar entre -180 y 180.'))
+        if latitude_raw and longitude_raw and not values.get('maps_url'):
+            values['maps_url'] = 'https://www.google.com/maps?q=%s,%s' % (latitude_raw, longitude_raw)
         values['application_date'] = values.get('application_date') or fields.Date.context_today(request.env.user).strftime('%Y-%m-%d')
         values['portal_user_id'] = request.env.user.id
         selected_type = _clean(post.get('applicant_type_id'))
@@ -475,6 +582,15 @@ class ConederaCreditPortal(http.Controller):
         if marital_code and not marital_record:
             errors.append(_('Seleccione un estado civil válido.'))
         values['marital_status_id'] = marital_record.id or False
+        spouse_required = bool(marital_record and marital_record.requires_spouse)
+        if spouse_required:
+            for field_name, label in (('spouse_name', _('nombres del cónyuge')),
+                                      ('spouse_identification', _('cédula del cónyuge')),
+                                      ('spouse_profession', _('profesión del cónyuge'))):
+                if not values.get(field_name):
+                    errors.append(_('El campo %(field)s es obligatorio para casados o unión de hecho.') % {'field': label})
+        else:
+            values.update({'spouse_name': False, 'spouse_identification': False, 'spouse_profession': False})
         housing_code = _clean(post.get('housing_type_id'))
         housing_record = request.env['conedera.credit.housing.type'].sudo()
         if housing_code.isdecimal():
@@ -497,7 +613,8 @@ class ConederaCreditPortal(http.Controller):
 
         for field_name, label in [
             ('applicant_type_id', _('tipo de solicitante')),
-            ('identification', _('cédula o RUC del solicitante')),
+            ('identification', _('documento del solicitante')),
+            ('identification_type', _('tipo de documento')),
             ('applicant_name', _('nombres y apellidos')),
             ('applicant_email', _('correo electrónico')),
             ('mobile', _('celular')),
@@ -507,10 +624,12 @@ class ConederaCreditPortal(http.Controller):
         ]:
             if not values.get(field_name):
                 errors.append(_('El campo %(field)s es obligatorio.') % {'field': label})
-        if values.get('identification') and not valid_ecuador_cedula_or_ruc(values['identification']):
-            errors.append(_('La cédula o RUC del solicitante debe ser una identificación ecuatoriana válida de 10 o 13 dígitos.'))
-        if values.get('spouse_identification') and not valid_ecuador_cedula(values['spouse_identification']):
-            errors.append(_('La cédula del cónyuge debe ser una cédula ecuatoriana válida de 10 dígitos.'))
+        if values.get('identification') and not valid_credit_identity(values['identification'], values.get('identification_type')):
+            errors.append(_('El documento del solicitante no corresponde al tipo elegido: cédula ecuatoriana válida (10), RUC numérico (13) o cédula extranjera numérica (10).'))
+        if values.get('spouse_identification') and not (valid_ecuador_cedula(values['spouse_identification']) or valid_foreign_document(values['spouse_identification'])):
+            errors.append(_('La identificación del cónyuge debe tener 10 dígitos numéricos.'))
+        if values.get('business_ruc') and not valid_ruc_length(values['business_ruc']):
+            errors.append(_('El RUC del negocio debe tener exactamente 13 dígitos numéricos.'))
         if values.get('mobile') and not valid_ecuador_mobile(values['mobile']):
             errors.append(_('El celular debe contener exactamente 10 dígitos numéricos.'))
         if values.get('applicant_email') and not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', values['applicant_email']):
@@ -529,18 +648,28 @@ class ConederaCreditPortal(http.Controller):
             step = (1 if any(not values.get(key) for key in required_person) else
                     2 if any(not values.get(key) for key in required_business) else
                     5 if invalid_terms else 1)
-            return self._render_application_form(post, errors, start_step=step)
+            return self._render_application_form(post, errors, start_step=step, application=application)
 
         try:
-            application = request.env['conedera.credit.application'].sudo().create(values)
+            with request.env.cr.savepoint():
+                if application:
+                    # Reemplazar SOLO los vehículos/referencias, de manera atómica.
+                    # No tocar historial, documentos, aprobación o verificación interna.
+                    values['vehicle_ids'] = [(5, 0, 0)] + values['vehicle_ids']
+                    values['legacy_vehicle_migrated'] = True
+                    values['reference_ids'] = [(5, 0, 0)] + values['reference_ids']
+                    application.sudo().write(values)
+                    application.message_post(body=_('El solicitante actualizó sus datos mediante el permiso especial del portal.'))
+                else:
+                    application = request.env['conedera.credit.application'].sudo().create(values)
         except (ValidationError, ValueError) as exc:
-            return self._render_application_form(post, [str(exc)])
+            return self._render_application_form(post, [str(exc)], application=application)
         except Exception:
-            _logger.exception('Error registrando la solicitud de crédito desde el portal')
-            return self._render_application_form(post, [_('No se pudo registrar la solicitud. Revise los datos e inténtelo nuevamente.')])
+            _logger.exception('Error registrando o actualizando la solicitud de crédito desde el portal')
+            return self._render_application_form(post, [_('No se pudo guardar la solicitud. Revise los datos e inténtelo nuevamente.')], application=application)
 
         # El PDF de referencia indica remitir a cobranzas@viteltek.com el enlace de Google Maps del negocio.
-        if application.maps_url:
+        if application.maps_url and not post.get('credit_edit_mode'):
             try:
                 credit_mail_server = request.env['ir.mail_server'].sudo().get_conedera_credit_mail_server()
                 email_from = (credit_mail_server.smtp_user or '').strip()
@@ -551,7 +680,8 @@ class ConederaCreditPortal(http.Controller):
                         '<p><b>Solicitud:</b> %s<br/><b>Solicitante:</b> %s<br/>'
                         '<b>Negocio:</b> %s<br/><b>Identificación:</b> %s</p>'
                         '<p><b>Ubicación Google Maps:</b> <a href="%s">%s</a></p>'
-                    ) % tuple(escape(value or '') for value in (application.name, application.applicant_name, application.business_name, application.identification, application.maps_url, application.maps_url)),
+                        '<p><b>Latitud:</b> %s &nbsp; <b>Longitud:</b> %s</p>'
+                    ) % tuple(escape(value or '') for value in (application.name, application.applicant_name, application.business_name, application.identification, application.maps_url, application.maps_url, str(application.business_latitude), str(application.business_longitude))),
                     'email_to': 'cobranzas@viteltek.com',
                     'email_from': email_from,
                     'mail_server_id': credit_mail_server.id,
@@ -559,7 +689,7 @@ class ConederaCreditPortal(http.Controller):
                 request.env['mail.mail'].sudo().create(mail_vals).send()
             except Exception:
                 _logger.exception('No se pudo enviar el enlace de Maps al buzón indicado en el formulario CONEDERA')
-        return request.redirect('/my/credito/%s?sent=1' % application.id)
+        return request.redirect('/my/credito/%s?%s=1' % (application.id, 'updated' if post.get('credit_edit_mode') else 'sent'))
 
     @http.route('/my/credito/historial', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
     def credit_history(self, **kwargs):
@@ -576,6 +706,7 @@ class ConederaCreditPortal(http.Controller):
             'application': application,
             'history': history,
             'documents': documents,
+            'verification_label': dict(application._fields['verification_status']._description_selection(request.env)).get(application.verification_status, '-'),
         })
 
     @http.route('/my/credito/documentos', type='http', auth='user', website=True, methods=['GET'], sitemap=False)

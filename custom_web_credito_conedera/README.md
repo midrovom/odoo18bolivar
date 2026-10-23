@@ -9,7 +9,7 @@ Módulo nuevo e independiente de los módulos de Recursos Humanos utilizados com
 - El acceso público de **Solicitar crédito** conduce primero a `/web/login` nativo de Odoo. Desde el propio login, el visitante puede abrir el registro nativo `/web/signup`.
 - Código de verificación OTP de seis dígitos enviado por correo; vence en 3 minutos y limita los intentos de validación.
 - La cuenta nativa de Odoo se crea únicamente después de validar el código. Luego se solicita iniciar sesión en `/web/login` y el acceso por defecto redirige a `/my/credito/nueva`.
-- Formulario web con los campos de la página 1 del PDF: propietario/representante, tipo de solicitante configurable, negocio, datos económicos, relación de dependencia y hasta tres referencias comerciales, personales y bancarias.
+- Formulario web con los campos de la página 1 del PDF: propietario/representante, tipo de solicitante configurable, negocio, datos económicos, relación de dependencia y referencias comerciales, personales y bancarias ampliables desde tres líneas iniciales.
 - Historial personal de solicitudes y detalle con etapas visibles para el cliente.
 - Kanban interno por etapas para arrastrar solicitudes y avanzar el proceso. Los cambios se registran en la línea de tiempo y generan intento de notificación por correo al solicitante.
 - La etapa **Aprobada** habilita la carga documental. El tipo de solicitante configurado en Odoo determina los documentos y sus requisitos obligatorios.
@@ -155,3 +155,16 @@ Las verificaciones incluidas en el paquete son estáticas (compilación Python, 
 - Catálogo editable de tipos de vivienda, con identificadores estables (`VI-000001`), menú propio y migración de registros históricos.
 - Cédula/RUC del solicitante: estructura y dígito verificador cuando corresponde; cédula opcional del cónyuge y celular de exactamente 10 dígitos. Validación en portal y ORM. No consulta en tiempo real al SRI/Registro Civil.
 - Vehículos: dos filas predeterminadas en el formulario, botón «Agregar otro vehículo» (hasta 30 por solicitud para evitar envíos abusivos), almacenamiento One2many y migración idempotente de vehículos 1 y 2 de solicitudes anteriores.
+
+## Novedades 18.0.1.4.0
+
+- **Vehículos:** se muestra solo Vehículo 1. El botón «Agregar otro vehículo» crea Vehículo 2, 3, etc. (hasta 30 por formulario). Los datos se guardan en `vehicle_ids`.
+- **Referencias:** se muestran tres líneas iniciales independientes para comerciales, personales y bancarias. Cada sección permite añadir filas (hasta 30) y eliminarlas; se guardan en `reference_ids`.
+- **Documento del propietario:** `identification_type` es cédula ecuatoriana (10 dígitos con verificador), RUC (exactamente 13 numéricos) o cédula extranjera (exactamente 10 numéricos). El RUC del negocio exige 13 numéricos. Esta regla estructural no consulta ni garantiza existencia en el SRI.
+- **Cónyuge:** los campos de nombre, identificación y profesión son obligatorios para los estados civiles marcados como **Requiere datos del cónyuge** (por defecto Casado/a y Unión de hecho); los demás tipos los ocultan y no los guardan. El documento admite cédula ecuatoriana válida o identificación extranjera numérica de 10 dígitos.
+- **Ubicación:** `business_latitude` y `business_longitude` permiten escribir coordenadas o usar geolocalización del navegador mediante autorización. Si el usuario llena coordenadas sin enlace, se genera enlace de Google Maps.
+- **Permiso especial:** el grupo `Portal: corrección de solicitudes y acceso rápido`, asignable en configuración de usuarios de Odoo, muestra la tarjeta «Gestión de solicitudes» con historial, documentos y corrección de solicitudes aún sin decisión. La edición siempre comprueba el usuario propietario y su grupo en el servidor. No cambia decisiones administrativas, documentos, historial ni los campos de verificación.
+- **Verificación paralela:** `verification_status` es independiente de `stage_id`: Pendiente, En verificación, Verificado y No conforme. Para aprobar, se requiere Verificado, inspección realizada, dirección encontrada, dirección verificada y verificador identificado. Para rechazar, la verificación debe estar finalizada. La antigua etapa «Verificación» se archiva sin borrar su historial.
+- **Una solicitud en trámite por usuario:** no se permite crear otra hasta que la anterior se apruebe o rechace; una solicitud ya aprobada que avanza al expediente documental sigue considerándose decidida. La comprobación se aplica también desde el ORM con bloqueo transaccional por usuario.
+
+Instalación: respaldar base de datos y filestore, sustituir directorio, reiniciar Odoo y actualizar el módulo. Probar con una base de ensayo, especialmente si hay expedientes históricos, antes de llevarlo a producción.

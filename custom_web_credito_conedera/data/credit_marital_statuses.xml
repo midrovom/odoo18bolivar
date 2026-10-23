@@ -7,6 +7,7 @@
       <field name="sequence">10</field>
     </record>
     <record id="credit_marital_status_married" model="conedera.credit.marital.status">
+      <field name="requires_spouse">True</field>
       <field name="name">Casado/a</field>
       <field name="code">married</field>
       <field name="sequence">20</field>
@@ -22,6 +23,7 @@
       <field name="sequence">40</field>
     </record>
     <record id="credit_marital_status_free_union" model="conedera.credit.marital.status">
+      <field name="requires_spouse">True</field>
       <field name="name">Unión de hecho</field>
       <field name="code">free_union</field>
       <field name="sequence">50</field>

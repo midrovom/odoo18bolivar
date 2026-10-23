@@ -4,7 +4,7 @@ from markupsafe import escape
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
-from .credit_identity import valid_ecuador_cedula, valid_ecuador_cedula_or_ruc, valid_ecuador_mobile
+from .credit_identity import valid_ecuador_cedula, valid_ecuador_mobile, valid_credit_identity, valid_foreign_document, valid_ruc_length
 
 _logger = logging.getLogger(__name__)
 
@@ -28,7 +28,8 @@ class ConederaCreditApplication(models.Model):
         tracking=True, index=True, ondelete='restrict',
         help='Catálogo editable en Crédito CONEDERA > Tipos de solicitante.')
     application_place = fields.Char(string='Lugar de solicitud')
-    identification = fields.Char(string='Cédula o RUC del solicitante', required=True, tracking=True, index=True)
+    identification = fields.Char(string='Documento del solicitante', required=True, tracking=True, index=True)
+    identification_type = fields.Selection([('cedula', 'Cédula ecuatoriana'), ('ruc', 'RUC'), ('foreign', 'Cédula extranjera')], string='Tipo de documento', default='cedula', required=True, tracking=True)
     application_date = fields.Date(string='Lugar y fecha de solicitud', required=True, default=fields.Date.context_today)
     applicant_name = fields.Char(string='Nombres y apellidos del propietario o representante', required=True, tracking=True)
     applicant_email = fields.Char(string='Correo electrónico del propietario o representante', required=True)
@@ -58,6 +59,7 @@ class ConederaCreditApplication(models.Model):
         'conedera.credit.housing.type', string='Vivienda', index=True, ondelete='restrict',
         help='Opciones configurables desde Crédito CONEDERA > Tipos de vivienda.')
     vehicle_ids = fields.One2many('conedera.credit.vehicle', 'application_id', string='Vehículos del solicitante')
+    legacy_vehicle_migrated = fields.Boolean(string='Vehículos históricos migrados', default=False, copy=False)
 
     vehicle1_brand = fields.Char(string='Vehículo 1 - marca')
     vehicle1_model = fields.Char(string='Vehículo 1 - modelo')
@@ -93,6 +95,8 @@ class ConederaCreditApplication(models.Model):
     authorized_buyer_email = fields.Char(string='Correo de persona autorizada a comprar')
     authorized_pickup_name = fields.Char(string='Persona autorizada a retirar mercadería')
     authorized_pickup_identification = fields.Char(string='Cédula de persona autorizada a retirar mercadería')
+    business_latitude = fields.Float(string='Latitud del negocio', digits=(10, 7))
+    business_longitude = fields.Float(string='Longitud del negocio', digits=(10, 7))
     maps_url = fields.Char(string='Enlace de ubicación de Google Maps', help='El PDF de CONEDERA indica enviar esta ubicación a cobranzas@viteltek.com.')
 
     employment_company = fields.Char(string='Empresa donde trabaja (relación de dependencia)')
@@ -113,6 +117,8 @@ class ConederaCreditApplication(models.Model):
         group_expand='_read_group_stage_ids', ondelete='restrict',
         default=lambda self: self.env['conedera.credit.stage'].search([('is_initial', '=', True)], order='sequence,id', limit=1),
     )
+    verification_status = fields.Selection([('pending', 'Pendiente'), ('in_progress', 'En verificación'), ('verified', 'Verificado'), ('failed', 'No conforme')], string='Estado de verificación del negocio', default='pending', required=True, tracking=True, copy=False, index=True, help='Se gestiona en paralelo con la etapa de revisión del crédito.')
+    verification_completed_at = fields.Datetime(string='Fecha de verificación', readonly=True, copy=False)
     documents_unlocked = fields.Boolean(string='Ingreso documental habilitado', default=False, copy=False, readonly=True, tracking=True)
     currency_id = fields.Many2one('res.currency', string='Moneda', default=lambda self: self.env.company.currency_id, required=True)
     declaration_accepted = fields.Boolean(string='Declaración y autorización general aceptada', required=True, default=False, tracking=True)
@@ -161,6 +167,25 @@ class ConederaCreditApplication(models.Model):
             docs = record.document_ids[:1]
             record.document_complete = bool(docs and docs.is_complete)
 
+    @api.model
+    def _blocking_application(self, user_id, exclude_id=False):
+        domain = [('portal_user_id', '=', user_id),
+                  ('stage_id.is_approved', '=', False), ('stage_id.is_rejected', '=', False),
+                  ('documents_unlocked', '=', False)]
+        if exclude_id:
+            domain.append(('id', '!=', exclude_id))
+        return self.with_context(active_test=False).sudo().search(domain, limit=1)
+
+    @api.constrains('verification_status', 'stage_id', 'inspection_done', 'address_found', 'verifier_name')
+    def _check_credit_decision(self):
+        for record in self:
+            if record.stage_id.is_approved and (record.verification_status != 'verified' or
+                    record.inspection_done != 'yes' or record.address_found != 'yes' or
+                    not record.verifier_name or not record.verification_address):
+                raise ValidationError(_('Antes de aprobar debe completar la verificación del negocio: resultado Verificado, inspección realizada, dirección localizada, dirección verificada y nombre del verificador.'))
+            if record.stage_id.is_rejected and record.verification_status not in ('verified', 'failed'):
+                raise ValidationError(_('Antes de rechazar debe finalizar la verificación del negocio como Verificado o No conforme.'))
+
     @api.model_create_multi
     def create(self, vals_list):
         Stage = self.env['conedera.credit.stage']
@@ -169,7 +194,17 @@ class ConederaCreditApplication(models.Model):
             'electronic_service_accepted', 'credit_bureau_authorized',
             'company_signature_stamp_acknowledged', 'additional_financial_documents_accepted',
         )
+        # Serializar por usuario para evitar dos solicitudes simultáneas desde dos pestañas.
+        for user_id in sorted({v.get('portal_user_id') for v in vals_list if v.get('portal_user_id')}):
+            self.env.cr.execute('SELECT id FROM res_users WHERE id = %s FOR UPDATE', (user_id,))
+            if self._blocking_application(user_id):
+                raise ValidationError(_('Ya tiene una solicitud en trámite. Solo podrá registrar otra cuando la anterior esté aprobada o rechazada.'))
+        seen_users = set()
         for vals in vals_list:
+            user_id = vals.get('portal_user_id')
+            if user_id in seen_users:
+                raise ValidationError(_('Solo puede crear una solicitud en trámite por usuario.'))
+            seen_users.add(user_id)
             if not all(vals.get(field) for field in required_consents):
                 raise ValidationError(_('Para guardar una nueva solicitud debe aceptar la declaración general y todas las condiciones adicionales.'))
             if not vals.get('applicant_type_id'):
@@ -208,6 +243,8 @@ class ConederaCreditApplication(models.Model):
         )
         if any(field in vals and not vals[field] for field in protected_consents):
             raise ValidationError(_('No es posible quitar una aceptación registrada en una solicitud de crédito.'))
+        if 'verification_status' in vals and vals['verification_status'] in ('verified', 'failed'):
+            vals = dict(vals, verification_completed_at=fields.Datetime.now())
         if 'applicant_type_id' in vals and not vals['applicant_type_id']:
             raise ValidationError(_('El tipo de solicitante es obligatorio.'))
         if 'applicant_type_id' in vals:
@@ -289,15 +326,26 @@ class ConederaCreditApplication(models.Model):
             'target': 'new',
         }
 
-    @api.constrains('identification', 'spouse_identification', 'mobile')
+    @api.constrains('identification', 'identification_type', 'spouse_identification', 'mobile', 'business_ruc', 'marital_status_id', 'spouse_name', 'spouse_profession', 'business_latitude', 'business_longitude')
     def _check_ecuador_contact_fields(self):
+        # No bloquear actualizaciones de catálogos para expedientes históricos
+        # incompletos que ya existían antes de introducir estos requisitos.
+        if self.env.context.get('credit_catalog_migration'):
+            return
         for record in self:
-            if record.identification and not valid_ecuador_cedula_or_ruc(record.identification.strip()):
-                raise ValidationError(_('La cédula o RUC del solicitante no es válida. Ingrese 10 o 13 dígitos ecuatorianos correctos.'))
-            if record.spouse_identification and not valid_ecuador_cedula(record.spouse_identification.strip()):
-                raise ValidationError(_('La cédula del cónyuge no es válida. Debe contener 10 dígitos y su dígito verificador correcto.'))
+            if record.identification and not valid_credit_identity(record.identification.strip(), record.identification_type):
+                raise ValidationError(_('El documento del solicitante no cumple la validación del tipo seleccionado.'))
+            if record.business_ruc and not valid_ruc_length(record.business_ruc.strip()):
+                raise ValidationError(_('El RUC del negocio debe tener exactamente 13 dígitos numéricos.'))
             if record.mobile and not valid_ecuador_mobile(record.mobile.strip()):
                 raise ValidationError(_('El celular debe tener exactamente 10 dígitos numéricos.'))
+            if record.spouse_identification and not (valid_ecuador_cedula(record.spouse_identification.strip()) or valid_foreign_document(record.spouse_identification.strip())):
+                raise ValidationError(_('El documento del cónyuge debe contener exactamente 10 dígitos; se admite cédula ecuatoriana o documento extranjero numérico.'))
+            needs_spouse = record.marital_status_id.requires_spouse
+            if needs_spouse and not all((record.spouse_name, record.spouse_identification, record.spouse_profession)):
+                raise ValidationError(_('Para casado/a o unión de hecho complete nombres, documento y profesión del cónyuge.'))
+            if (record.business_latitude or record.business_longitude) and not (-90 <= record.business_latitude <= 90 and -180 <= record.business_longitude <= 180):
+                raise ValidationError(_('La latitud debe estar entre -90 y 90, y la longitud entre -180 y 180.'))
 
     @api.constrains('dependents_count', 'monthly_sales', 'social_capital', 'assets_amount', 'monthly_income', 'liabilities_amount', 'monthly_expenses', 'vehicle1_value', 'vehicle2_value', 'employment_salary')
     def _check_non_negative_amounts(self):
@@ -325,6 +373,45 @@ class ConederaCreditApplication(models.Model):
             if applications:
                 applications.write({'applicant_type_id': applicant_type.id})
 
+        # Migración de identificaciones históricas: antes se aceptaba cédula o RUC.
+        self.env.cr.execute("""UPDATE conedera_credit_application
+            SET identification_type = CASE WHEN length(identification) = 13 THEN 'ruc' ELSE 'cedula' END
+            WHERE identification_type IS NULL
+               OR (identification_type = 'cedula' AND length(identification) = 13)""")
+        # La etapa de verificación antigua deja de ser una fase obligatoria
+        # del kanban: ahora tiene estado independiente en cada solicitud.
+        old_verification_stage = self.env.ref('custom_web_credito_conedera.stage_credit_verification', raise_if_not_found=False)
+        review_stage = self.env.ref('custom_web_credito_conedera.stage_credit_review', raise_if_not_found=False)
+        if old_verification_stage and review_stage:
+            # La antigua etapa era secuencial. Volver a revisión preservando
+            # una marca independiente para los expedientes que ya la utilizaban.
+            self.env.cr.execute("""UPDATE conedera_credit_application
+                SET stage_id = %s, verification_status = 'in_progress'
+                WHERE stage_id = %s RETURNING id""", (review_stage.id, old_verification_stage.id))
+            migrated_ids = [row[0] for row in self.env.cr.fetchall()]
+            if migrated_ids:
+                self.invalidate_model(['stage_id', 'verification_status'])
+                for application_id in migrated_ids:
+                    self.env['conedera.credit.stage.history'].sudo().create({
+                        'application_id': application_id, 'stage_id': review_stage.id,
+                        'user_id': self.env.user.id,
+                        'notes': _('Migración: revisión y verificación del negocio funcionan en paralelo.'),
+                        'visible_to_portal': True,
+                    })
+        if old_verification_stage and old_verification_stage.active:
+            old_verification_stage.active = False
+        
+        # Una sola inicialización para instalaciones que ya tenían el catálogo.
+        # Luego el administrador puede personalizar requiere_cónyuge sin que
+        # actualizaciones futuras sobrescriban su elección.
+        Params = self.env['ir.config_parameter'].sudo()
+        if not Params.get_param('conedera.credit.spouse_rules_initialized'):
+            for code in ('married', 'free_union'):
+                rule = self.env['conedera.credit.marital.status'].sudo().search([('code', '=', code)], limit=1)
+                if rule and not rule.requires_spouse:
+                    rule.requires_spouse = True
+            Params.set_param('conedera.credit.spouse_rules_initialized', '1')
+
         # Los antiguos valores Selection permanecen disponibles; una sola
         # migración idempotente los relaciona con el nuevo catálogo de estados civiles.
         MaritalStatus = self.env['conedera.credit.marital.status'].sudo()
@@ -335,7 +422,7 @@ class ConederaCreditApplication(models.Model):
                     ('marital_status_id', '=', False), ('marital_status', '=', code),
                 ])
                 if legacy_records:
-                    legacy_records.write({'marital_status_id': status.id})
+                    legacy_records.with_context(credit_catalog_migration=True).write({'marital_status_id': status.id})
         # Catálogo nuevo de vivienda; se preservan los valores históricos.
         Housing = self.env['conedera.credit.housing.type'].sudo()
         for old_code in ('own', 'rented', 'family', 'mortgaged'):
@@ -355,7 +442,7 @@ class ConederaCreditApplication(models.Model):
         conditions = [(field, '!=', 0 if field.endswith('_value') else False)
                       for field in legacy_fields]
         applications_with_legacy = self.sudo().search(
-            ['|'] * (len(conditions) - 1) + conditions)
+            [('legacy_vehicle_migrated', '=', False)] + ['|'] * (len(conditions) - 1) + conditions)
         for application in applications_with_legacy:
             for slot in (1, 2):
                 item = {
@@ -370,6 +457,7 @@ class ConederaCreditApplication(models.Model):
                     continue
                 Vehicle.create(dict(item, application_id=application.id,
                                     sequence=slot * 10, legacy_slot=slot))
+            application.write({'legacy_vehicle_migrated': True})
         # Los tipos creados anteriormente sin código adquieren un ID estable.
         for record in Type.search([('code', '=', False)]):
             new_code = self.env['ir.sequence'].next_by_code('conedera.credit.applicant.type')

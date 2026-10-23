@@ -10,4 +10,9 @@
         <field name="category_id" ref="module_category_conedera_credit"/>
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
+    <record id="group_credit_portal_correction" model="res.groups">
+        <field name="name">Portal: corrección de solicitudes y acceso rápido</field>
+        <field name="category_id" ref="module_category_conedera_credit"/>
+        <field name="comment">Permite al usuario del portal corregir sus solicitudes no resueltas y acceder al menú rápido de historial y documentos.</field>
+    </record>
 </odoo>
