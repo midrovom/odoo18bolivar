@@ -252,3 +252,12 @@ El botón «Usar mi ubicación actual» distingue entre sitio sin HTTPS, permiso
 - El croquis es opcional al enviar la solicitud inicial, para entregarlo después durante la revisión. No reemplaza ni desbloquea los documentos posteriores a la aprobación.
 - El acceso se valida por propietario, etapa y servidor. El permiso especial de actualización del formulario sigue independiente y no se consume al cargar el croquis.
 - El administrador puede habilitar/deshabilitar el botón por etapa desde «Etapas del flujo». Una migración idempotente configura la etapa de revisión previamente instalada.
+
+
+## Versión 18.0.1.8.11 — Formato PDF y cierre de verificación
+
+- Se oculta **Firma del verificador** en la ficha interna de solicitud; el campo técnico se conserva solo para no destruir archivos históricos. El reporte tampoco la muestra.
+- El reporte de Solicitud de Crédito ahora sigue el formato CONEDERA: primera hoja con propietario, empresa, actividad, referencias, declaración y espacios en blanco independientes para la firma electrónica del **solicitante** y del **gerente**; segunda hoja con ubicación, croquis, inspección, resultados y verificador.
+- El PDF incorpora los croquis de imagen. Si se adjunta PDF, intenta generar una vista previa de su primera página usando PyMuPDF o Poppler (`pdftoppm`) cuando esté disponible. En ausencia del conversor se mantiene la referencia al archivo digital, sin impedir imprimir.
+- Las áreas de firma son espacios **visuales** para que un firmante firme después en un sistema de firmas electrónicas. El módulo no aplica certificados ni crea firmas digitales criptográficas por sí solo.
+- Cuando hay muchas referencias o contenidos de texto extensos, el reporte puede ocupar páginas adicionales para evitar recortar información.

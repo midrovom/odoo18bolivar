@@ -163,6 +163,62 @@ class ConederaCreditApplication(models.Model):
         ('conedera_credit_application_name_uniq', 'unique(name)', 'El número de solicitud debe ser único.'),
     ]
 
+    def _credit_report_sketch_image(self):
+        """Imagen base64 del croquis, para incrustarla en el PDF QWeb.
+
+        Si el cliente cargó un PDF, se convierte únicamente la primera página.
+        La conversión es opcional: no puede bloquear la impresión del reporte.
+        """
+        self.ensure_one()
+        if not self.verification_sketch:
+            return False
+        import base64
+        import os
+        import shutil
+        import subprocess
+        import tempfile
+
+        filename = (self.verification_sketch_filename or '').lower()
+        if filename.endswith(('.png', '.jpg', '.jpeg', '.webp')):
+            return self.verification_sketch
+        if not filename.endswith('.pdf'):
+            return False
+        try:
+            pdf_bytes = base64.b64decode(self.verification_sketch)
+            if len(pdf_bytes) > 12 * 1024 * 1024 or not pdf_bytes.startswith(b'%PDF-'):
+                return False
+            # PyMuPDF, si se encuentra instalado en el entorno Odoo.
+            try:
+                import fitz
+            except ImportError:
+                fitz = None
+            if fitz:
+                with fitz.open(stream=pdf_bytes, filetype='pdf') as doc:
+                    if not doc.page_count:
+                        return False
+                    page = doc.load_page(0)
+                    # 96 dpi; limita tiempo y memoria en croquis de gran tamaño.
+                    scale = min(1.3333, 1300.0 / max(page.rect.width, page.rect.height))
+                    raster = page.get_pixmap(matrix=fitz.Matrix(scale, scale), alpha=False)
+                    return base64.b64encode(raster.tobytes('png'))
+            # Alternativa del sistema para instalaciones con Poppler.
+            if shutil.which('pdftoppm'):
+                with tempfile.TemporaryDirectory(prefix='conedera_sketch_') as tmpdir:
+                    pdf_file = os.path.join(tmpdir, 'croquis.pdf')
+                    with open(pdf_file, 'wb') as dst:
+                        dst.write(pdf_bytes)
+                    subprocess.run(
+                        ['pdftoppm', '-f', '1', '-l', '1', '-singlefile', '-scale-to', '1300',
+                         '-png', pdf_file, os.path.join(tmpdir, 'croquis')],
+                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                        check=True, timeout=15,
+                    )
+                    with open(os.path.join(tmpdir, 'croquis.png'), 'rb') as src:
+                        return base64.b64encode(src.read())
+        except Exception:
+            _logger.warning('No fue posible previsualizar el PDF de croquis de la solicitud %s', self.id, exc_info=True)
+        return False
+
     def action_print_credit_application(self):
         """Descarga de solicitud y verificación siguiendo el formato CONEDERA."""
         self.ensure_one()
