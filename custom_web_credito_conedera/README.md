@@ -261,3 +261,28 @@ El botón «Usar mi ubicación actual» distingue entre sitio sin HTTPS, permiso
 - El PDF incorpora los croquis de imagen. Si se adjunta PDF, intenta generar una vista previa de su primera página usando PyMuPDF o Poppler (`pdftoppm`) cuando esté disponible. En ausencia del conversor se mantiene la referencia al archivo digital, sin impedir imprimir.
 - Las áreas de firma son espacios **visuales** para que un firmante firme después en un sistema de firmas electrónicas. El módulo no aplica certificados ni crea firmas digitales criptográficas por sí solo.
 - Cuando hay muchas referencias o contenidos de texto extensos, el reporte puede ocupar páginas adicionales para evitar recortar información.
+
+## Versión 18.0.1.8.12: habilitación del croquis por solicitud
+
+En Solicitudes de crédito, el botón «Habilitar permiso del portal» ofrece tres casillas
+independientes: (1) corrección de solicitud, (2) corrección de documentos y
+(3) corrección de croquis del cliente. El responsable puede combinarlas libremente.
+Los permisos existentes de versiones anteriores se preservan.
+
+Mientras la etapa tenga activado «Permitir subir croquis en el portal»,
+el primer croquis continúa habilitado por defecto para el cliente.
+Tras guardarlo, el historial vuelve a «Ver detalle».
+Si es necesario corregir el croquis ya entregado, el responsable marca
+«Croquis del cliente» en el asistente para esa solicitud; reaparece
+«Subir croquis». Al guardar, ese permiso se consume automáticamente sin
+afectar la autorización de solicitud ni documentación. No se puede modificar
+un croquis fuera de la etapa de revisión habilitada, incluso con el permiso.
+
+
+## Versión 18.0.1.8.13 — catálogos de verificación y cierre obligatorio
+
+- En Crédito CONEDERA → Zonas de verificación / Estados del local, el administrador puede añadir, editar, archivar y eliminar opciones que no estén vinculadas a solicitudes. Los usuarios de crédito solo las consultan y seleccionan.
+- Zona y estado del local en la solicitud ahora son campos Many2one. Los valores históricos se enlazan mediante una migración repetible, conservando las columnas antiguas como compatibilidad.
+- Debajo de Relación / parentesco aparece el campo Nombre de la persona entrevistada.
+- El estado técnico de verificación se oculta del formulario interno; se determina automáticamente cuando el personal completa las cuatro respuestas y el nombre del verificador.
+- Para aprobar o rechazar se exigen las cuatro respuestas, el nombre del verificador y la fecha (asignada automáticamente). Una inspección incompleta puede guardarse durante la etapa de revisión, pero no pasar a una decisión final.

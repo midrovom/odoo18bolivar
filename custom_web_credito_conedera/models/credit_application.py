@@ -8,6 +8,20 @@ from .credit_identity import valid_ecuador_mobile, valid_credit_identity, valid_
 
 _logger = logging.getLogger(__name__)
 
+# Mantiene las claves existentes en la base de datos; las combinaciones nuevas
+# permiten conceder por solicitud cada formulario de manera independiente.
+PORTAL_SCOPE_SECTIONS = {
+    'none': frozenset(),
+    'history': frozenset({'history'}),
+    'documentation': frozenset({'documentation'}),
+    'both': frozenset({'history', 'documentation'}),
+    'sketch': frozenset({'sketch'}),
+    'history_sketch': frozenset({'history', 'sketch'}),
+    'documentation_sketch': frozenset({'documentation', 'sketch'}),
+    'all': frozenset({'history', 'documentation', 'sketch'}),
+}
+
+
 
 class ConederaCreditApplication(models.Model):
     _name = 'conedera.credit.application'
@@ -147,10 +161,20 @@ class ConederaCreditApplication(models.Model):
     verification_reference = fields.Char(string='Referencia de ubicación')
     verification_sketch = fields.Binary(string='Croquis del cliente', attachment=True)
     verification_sketch_filename = fields.Char(string='Archivo del croquis')
-    verification_zone = fields.Selection([('urban', 'Urbana'), ('peripheral', 'Periférica'), ('rural', 'Rural')], string='Zona')
-    verification_local_state = fields.Selection([('very_good', 'Muy bueno'), ('good', 'Bueno'), ('regular', 'Regular'), ('bad', 'Malo')], string='Estado del local')
+    # Conservados solo para migrar la información antigua. Ya no se usan en las vistas.
+    verification_zone = fields.Selection([
+        ('urban', 'Urbana'), ('peripheral', 'Periférica'), ('rural', 'Rural'),
+    ], string='Zona (histórico)', readonly=True, copy=False)
+    verification_local_state = fields.Selection([
+        ('very_good', 'Muy bueno'), ('good', 'Bueno'), ('regular', 'Regular'), ('bad', 'Malo'),
+    ], string='Estado del local (histórico)', readonly=True, copy=False)
+    verification_zone_id = fields.Many2one(
+        'conedera.credit.verification.zone', string='Zona', index=True, ondelete='restrict')
+    verification_local_state_id = fields.Many2one(
+        'conedera.credit.local.condition', string='Estado del local', index=True, ondelete='restrict')
     interviewed_person = fields.Char(string='Persona entrevistada')
     interviewed_relationship = fields.Char(string='Relación / parentesco')
+    interviewed_name = fields.Char(string='Nombre')
     inspection_done = fields.Selection([('yes', 'Sí'), ('no', 'No')], string='Se realizó la inspección')
     address_found = fields.Selection([('yes', 'Sí'), ('no', 'No')], string='Se encontró la dirección')
     client_lives_there = fields.Selection([('yes', 'Sí'), ('no', 'No')], string='El cliente vive en esa dirección')
@@ -158,6 +182,17 @@ class ConederaCreditApplication(models.Model):
     verifier_name = fields.Char(string='Nombre del verificador')
     verifier_signature = fields.Binary(string='Firma del verificador', attachment=True)
     verifier_signature_filename = fields.Char(string='Archivo de firma')
+    credit_verification_final_required = fields.Boolean(
+        compute='_compute_credit_verification_final_required',
+        string='Verificación final obligatoria')
+
+    @api.depends('stage_id.is_approved', 'stage_id.is_rejected', 'verification_status')
+    def _compute_credit_verification_final_required(self):
+        for record in self:
+            record.credit_verification_final_required = bool(
+                (record.stage_id and (record.stage_id.is_approved or record.stage_id.is_rejected))
+                or record.verification_status in ('verified', 'failed')
+            )
 
     _sql_constraints = [
         ('conedera_credit_application_name_uniq', 'unique(name)', 'El número de solicitud debe ser único.'),
@@ -236,8 +271,8 @@ class ConederaCreditApplication(models.Model):
     # del negocio. Protegido en ORM además de en las vistas (RPC/importaciones).
     _credit_reviewer_writable = frozenset({
         'stage_id', 'verification_status', 'verification_completed_at',
-        'verification_zone', 'verification_local_state',
-        'interviewed_person', 'interviewed_relationship',
+        'verification_zone_id', 'verification_local_state_id',
+        'interviewed_person', 'interviewed_relationship', 'interviewed_name',
         'inspection_done', 'address_found', 'client_lives_there',
         'sketch_needed', 'verifier_name', 'verifier_signature',
         'verifier_signature_filename',
@@ -264,11 +299,16 @@ class ConederaCreditApplication(models.Model):
     # Permiso POR SOLICITUD como custom_web_hr_historial_postulaciones.
     # El grupo del usuario no autoriza a modificar expedientes ajenos o sin habilitar.
     portal_history_consumed_at = fields.Datetime(string='Última corrección autorizada del portal', readonly=True, copy=False)
+    portal_sketch_consumed_at = fields.Datetime(string='Última corrección autorizada del croquis', readonly=True, copy=False)
     portal_update_scope = fields.Selection([
         ('none', 'Ninguna sección'),
         ('history', 'Historial de solicitudes (actualizar formulario)'),
         ('documentation', 'Ingreso de documentos (actualizar archivos)'),
         ('both', 'Historial + documentación'),
+        ('sketch', 'Croquis del cliente'),
+        ('history_sketch', 'Solicitud + croquis'),
+        ('documentation_sketch', 'Documentación + croquis'),
+        ('all', 'Solicitud + documentación + croquis'),
     ], string='Sección habilitada para actualizar desde el portal',
        required=True, default='none', copy=False, tracking=True, index=True)
     portal_update_allowed = fields.Boolean(
@@ -284,13 +324,27 @@ class ConederaCreditApplication(models.Model):
         for record in self:
             record.portal_update_allowed = record.portal_update_scope not in (False, 'none')
 
-    def portal_can_update_history(self):
+    def portal_enabled_sections(self):
+        """Secciones autorizadas para esta solicitud, sin afectar etapas."""
         self.ensure_one()
-        return self.portal_update_scope in ('history', 'both')
+        return PORTAL_SCOPE_SECTIONS.get(self.portal_update_scope or 'none', frozenset())
+
+    @api.model
+    def portal_scope_from_sections(self, sections):
+        enabled = frozenset(sections)
+        for scope, members in PORTAL_SCOPE_SECTIONS.items():
+            if members == enabled:
+                return scope
+        raise ValueError(_('Combinación no válida de permisos del portal.'))
+
+    def portal_can_update_history(self):
+        return 'history' in self.portal_enabled_sections()
 
     def portal_can_update_documentation(self):
-        self.ensure_one()
-        return self.portal_update_scope in ('documentation', 'both')
+        return 'documentation' in self.portal_enabled_sections()
+
+    def portal_can_update_sketch(self):
+        return 'sketch' in self.portal_enabled_sections()
 
     credit_access_button_visible = fields.Boolean(
         string='Puede conceder permisos del portal', compute='_compute_credit_access_button_visible'
@@ -323,15 +377,58 @@ class ConederaCreditApplication(models.Model):
             domain.append(('id', '!=', exclude_id))
         return self.with_context(active_test=False).sudo().search(domain, limit=1)
 
-    @api.constrains('verification_status', 'stage_id', 'inspection_done', 'address_found', 'verifier_name')
+    _credit_verification_result_fields = (
+        ('inspection_done', 'Se realizó la inspección'),
+        ('address_found', 'Se encontró la dirección'),
+        ('client_lives_there', 'El cliente vive en esa dirección'),
+        ('sketch_needed', 'Necesita croquis'),
+    )
+
+    def _credit_complete_verification_values(self, vals):
+        """Cierra la verificación automáticamente solo cuando hay cuatro respuestas y responsable.
+
+        El personal no necesita modificar un estado técnico. Mientras falte un dato, la
+        inspección puede guardarse en revisión, pero nunca aprobarse/rechazarse.
+        """
+        self.ensure_one()
+        get_value = lambda key: vals.get(key, self[key])
+        all_answers = all(get_value(key) in ('yes', 'no') for key, _ in self._credit_verification_result_fields)
+        responsible = bool((get_value('verifier_name') or '').strip())
+        if all_answers and responsible:
+            outcome = ('verified' if get_value('inspection_done') == 'yes' and
+                       get_value('address_found') == 'yes' else 'failed')
+            if get_value('verification_status') != outcome:
+                vals['verification_status'] = outcome
+            if not get_value('verification_completed_at'):
+                vals['verification_completed_at'] = fields.Datetime.now()
+        else:
+            if get_value('verification_status') in ('verified', 'failed'):
+                vals['verification_status'] = 'in_progress'
+                vals['verification_completed_at'] = False
+        return vals
+
+    @api.constrains(
+        'verification_status', 'verification_completed_at', 'stage_id', 'inspection_done',
+        'address_found', 'client_lives_there', 'sketch_needed', 'verifier_name',
+    )
     def _check_credit_decision(self):
         for record in self:
+            final_stage = bool(record.stage_id and (record.stage_id.is_approved or record.stage_id.is_rejected))
+            final_verification = record.verification_status in ('verified', 'failed')
+            if final_stage or final_verification:
+                missing = [label for field, label in self._credit_verification_result_fields if record[field] not in ('yes', 'no')]
+                if not (record.verifier_name or '').strip():
+                    missing.append('Nombre del verificador')
+                if not record.verification_completed_at:
+                    missing.append('Fecha de verificación')
+                if missing:
+                    raise ValidationError(_('Complete los campos obligatorios de Resultados de la verificación y Responsable y cierre: %s.') % ', '.join(missing))
             if record.stage_id.is_approved and (record.verification_status != 'verified' or
                     record.inspection_done != 'yes' or record.address_found != 'yes' or
-                    not record.verifier_name or not record.verification_address):
-                raise ValidationError(_('Antes de aprobar debe completar la verificación del negocio: resultado Verificado, inspección realizada, dirección localizada, dirección verificada y nombre del verificador.'))
+                    not record.verification_address):
+                raise ValidationError(_('Antes de aprobar debe terminar la verificación correctamente: inspección realizada, dirección encontrada, ubicación registrada por el cliente y responsable identificado.'))
             if record.stage_id.is_rejected and record.verification_status not in ('verified', 'failed'):
-                raise ValidationError(_('Antes de rechazar debe finalizar la verificación del negocio como Verificado o No conforme.'))
+                raise ValidationError(_('Antes de rechazar complete todos los resultados y el responsable de la verificación.'))
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -393,8 +490,18 @@ class ConederaCreditApplication(models.Model):
         )
         if any(field in vals and not vals[field] for field in protected_consents):
             raise ValidationError(_('No es posible quitar una aceptación registrada en una solicitud de crédito.'))
-        if 'verification_status' in vals and vals['verification_status'] in ('verified', 'failed'):
-            vals = dict(vals, verification_completed_at=fields.Datetime.now())
+        verification_fields = {key for key, _label in self._credit_verification_result_fields} | {
+            'verifier_name', 'verification_status', 'stage_id'
+        }
+        if verification_fields.intersection(vals):
+            # En operaciones masivas, cada expediente puede tener respuestas diferentes.
+            # Evaluarlas por separado evita asignar por error el mismo resultado a todos.
+            if len(self) > 1:
+                for record in self:
+                    record.write(dict(vals))
+                return True
+            if self:
+                vals = self._credit_complete_verification_values(dict(vals))
         if 'applicant_type_id' in vals and not vals['applicant_type_id']:
             raise ValidationError(_('El tipo de solicitante es obligatorio.'))
         if 'applicant_type_id' in vals:
@@ -505,7 +612,6 @@ class ConederaCreditApplication(models.Model):
             'target': 'new',
             'context': {
                 'default_application_id': self.id,
-                'default_portal_update_scope': self.portal_update_scope or 'none',
             },
         }
 
@@ -715,4 +821,20 @@ class ConederaCreditApplication(models.Model):
                         })
                 except Exception:
                     _logger.exception('No se pudo trasladar archivo histórico %s del expediente %s; original conservado.', old_field, doc.id)
+        # Catálogos editables: enlazar valores históricos una sola vez, sin
+        # reescribir opciones escogidas manualmente por los administradores.
+        for legacy_field, new_field, model_name, old_codes in (
+            ('verification_zone', 'verification_zone_id', 'conedera.credit.verification.zone', ('urban', 'peripheral', 'rural')),
+            ('verification_local_state', 'verification_local_state_id', 'conedera.credit.local.condition', ('very_good', 'good', 'regular', 'bad')),
+        ):
+            Catalog = self.env[model_name].sudo().with_context(active_test=False)
+            for code in old_codes:
+                catalog_record = Catalog.search([('code', '=', code)], limit=1)
+                if catalog_record:
+                    self.env.cr.execute(
+                        'UPDATE conedera_credit_application SET %s = %%s WHERE %s IS NULL AND %s = %%s' %
+                        (new_field, new_field, legacy_field),
+                        (catalog_record.id, code),
+                    )
+        self.invalidate_model(['verification_zone_id', 'verification_local_state_id'])
         return True

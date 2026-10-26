@@ -187,9 +187,9 @@
                         <table>
                             <tr><th width="28%">ZONA</th><th width="29%">ESTADO DEL LOCAL</th><th>PERSONA ENTREVISTADA / RELACIÓN O PARENTESCO</th></tr>
                             <tr>
-                                <td><span t-esc="{'urban':'URBANA', 'peripheral':'PERIFÉRICA', 'rural':'RURAL'}.get(o.verification_zone, '-')"/></td>
-                                <td><span t-esc="{'very_good':'MUY BUENO', 'good':'BUENO', 'regular':'REGULAR', 'bad':'MALO'}.get(o.verification_local_state, '-')"/></td>
-                                <td><span class="label">NOMBRE:</span> <span t-esc="o.interviewed_person or '-'"/><br/><span class="label">RELACIÓN / PARENTESCO:</span> <span t-esc="o.interviewed_relationship or '-'"/></td>
+                                <td><span t-esc="o.verification_zone_id.name or '-'"/></td>
+                                <td><span t-esc="o.verification_local_state_id.name or '-'"/></td>
+                                <td><span class="label">PERSONA ENTREVISTADA:</span> <span t-esc="o.interviewed_person or '-'"/><br/><span class="label">RELACIÓN / PARENTESCO:</span> <span t-esc="o.interviewed_relationship or '-'"/><br/><span class="label">NOMBRE:</span> <span t-esc="o.interviewed_name or o.interviewed_person or '-'"/></td>
                             </tr>
                         </table>
 

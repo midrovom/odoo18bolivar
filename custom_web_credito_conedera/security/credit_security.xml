@@ -22,6 +22,6 @@
         <field name="name">Gestionar permisos de actualización del portal de crédito</field>
         <field name="category_id" ref="module_category_conedera_credit"/>
         <field name="implied_ids" eval="[(4, ref('custom_web_credito_conedera.group_credit_manager'))]"/>
-        <field name="comment">Permite habilitar por solicitud la actualización de datos y/o documentación desde el portal.</field>
+        <field name="comment">Permite habilitar por solicitud la corrección de datos, documentos y croquis del cliente desde el portal.</field>
     </record>
 </odoo>

@@ -15,11 +15,11 @@
     <record id="view_conedera_credit_application_form" model="ir.ui.view">
         <field name="name">conedera.credit.application.form</field><field name="model">conedera.credit.application</field>
         <field name="arch" type="xml"><form string="Solicitud de crédito CONEDERA">
-            <header><button name="action_print_credit_application" type="object" string="Descargar solicitud PDF" icon="fa-file-pdf-o" class="btn-secondary" groups="custom_web_credito_conedera.group_credit_manager"/><field name="document_complete" invisible="1" readonly="not credit_is_admin"/><field name="document_access_allowed" invisible="1" readonly="not credit_is_admin"/><field name="credit_access_button_visible" invisible="1" readonly="not credit_is_admin"/><button name="action_open_portal_update_wizard" type="object" string="Habilitar permiso del portal" class="btn-primary" groups="custom_web_credito_conedera.group_credit_portal_update_manager" invisible="not credit_access_button_visible"/><field name="stage_id" widget="statusbar" options="{'clickable': 1}"/><button name="action_mark_documentation_received" type="object" string="Marcar documentación recibida" class="btn-primary" invisible="not document_access_allowed or document_complete == False" groups="custom_web_credito_conedera.group_credit_administrator"/></header>
+            <header><field name="credit_verification_final_required" invisible="1"/><button name="action_print_credit_application" type="object" string="Descargar solicitud PDF" icon="fa-file-pdf-o" class="btn-secondary" groups="custom_web_credito_conedera.group_credit_manager"/><field name="document_complete" invisible="1" readonly="not credit_is_admin"/><field name="document_access_allowed" invisible="1" readonly="not credit_is_admin"/><field name="credit_access_button_visible" invisible="1" readonly="not credit_is_admin"/><button name="action_open_portal_update_wizard" type="object" string="Habilitar permiso del portal" class="btn-primary" groups="custom_web_credito_conedera.group_credit_portal_update_manager" invisible="not credit_access_button_visible"/><field name="stage_id" widget="statusbar" options="{'clickable': 1}"/><button name="action_mark_documentation_received" type="object" string="Marcar documentación recibida" class="btn-primary" invisible="not document_access_allowed or document_complete == False" groups="custom_web_credito_conedera.group_credit_administrator"/></header>
             <sheet>
                 <field name="credit_is_admin" invisible="1"/><div class="oe_button_box" name="button_box"><button name="action_open_portal_update_wizard" type="object" class="oe_stat_button" icon="fa-key" groups="custom_web_credito_conedera.group_credit_portal_update_manager" invisible="not credit_access_button_visible"><div class="o_stat_info"><span class="o_stat_text">Permiso portal</span></div></button></div>
                 <div class="oe_title"><label for="name"/><h1><field name="name" readonly="not credit_is_admin"/></h1><div class="text-muted">Solicitud enviada desde el portal CONEDERA</div></div>
-                <group><group><field name="application_date" readonly="not credit_is_admin"/><field name="application_place" readonly="not credit_is_admin"/><field name="portal_user_id" readonly="not credit_is_admin"/><field name="portal_update_scope" readonly="1"/><field name="portal_update_allowed_at" readonly="1"/><field name="portal_update_allowed_by" readonly="1"/><field name="portal_history_consumed_at" readonly="1"/><field name="applicant_type_id" readonly="not credit_is_admin"/><field name="identification_type" readonly="not credit_is_admin"/><field name="identification" readonly="not credit_is_admin"/><field name="declaration_accepted" readonly="not credit_is_admin"/><field name="prior_commercial_relationship_accepted" readonly="not credit_is_admin"/><field name="electronic_service_accepted" readonly="not credit_is_admin"/><field name="credit_bureau_authorized" readonly="not credit_is_admin"/><field name="company_signature_stamp_acknowledged" readonly="not credit_is_admin"/><field name="additional_financial_documents_accepted" readonly="not credit_is_admin"/><field name="declaration_date" readonly="not credit_is_admin"/></group><group><field name="applicant_name" readonly="not credit_is_admin"/><field name="applicant_email" readonly="not credit_is_admin"/><field name="mobile" readonly="not credit_is_admin"/><field name="phone_fixed" readonly="not credit_is_admin"/><field name="document_access_allowed" readonly="not credit_is_admin"/><field name="currency_id" groups="base.group_system" readonly="not credit_is_admin"/></group></group>
+                <group><group><field name="application_date" readonly="not credit_is_admin"/><field name="application_place" readonly="not credit_is_admin"/><field name="portal_user_id" readonly="not credit_is_admin"/><field name="portal_update_scope" readonly="1"/><field name="portal_update_allowed_at" readonly="1"/><field name="portal_update_allowed_by" readonly="1"/><field name="portal_history_consumed_at" readonly="1"/><field name="portal_sketch_consumed_at" readonly="1"/><field name="applicant_type_id" readonly="not credit_is_admin"/><field name="identification_type" readonly="not credit_is_admin"/><field name="identification" readonly="not credit_is_admin"/><field name="declaration_accepted" readonly="not credit_is_admin"/><field name="prior_commercial_relationship_accepted" readonly="not credit_is_admin"/><field name="electronic_service_accepted" readonly="not credit_is_admin"/><field name="credit_bureau_authorized" readonly="not credit_is_admin"/><field name="company_signature_stamp_acknowledged" readonly="not credit_is_admin"/><field name="additional_financial_documents_accepted" readonly="not credit_is_admin"/><field name="declaration_date" readonly="not credit_is_admin"/></group><group><field name="applicant_name" readonly="not credit_is_admin"/><field name="applicant_email" readonly="not credit_is_admin"/><field name="mobile" readonly="not credit_is_admin"/><field name="phone_fixed" readonly="not credit_is_admin"/><field name="document_access_allowed" readonly="not credit_is_admin"/><field name="currency_id" groups="base.group_system" readonly="not credit_is_admin"/></group></group>
                 <notebook>
                     <page string="Propietario o representante">
                         <group><group><field name="profession" readonly="not credit_is_admin"/><field name="marital_status_id" readonly="not credit_is_admin"/><field name="foreign_residence_time" readonly="not credit_is_admin"/><field name="foreign_work_visa" readonly="not credit_is_admin"/><field name="spouse_name" readonly="not credit_is_admin"/><field name="spouse_identification" readonly="not credit_is_admin"/><field name="spouse_profession" readonly="not credit_is_admin"/><field name="dependents_count" readonly="not credit_is_admin"/></group><group><field name="home_address" readonly="not credit_is_admin"/><field name="housing_type_id" readonly="not credit_is_admin"/></group></group>
@@ -88,27 +88,30 @@
                     <page string="Verificación de ubicación (uso interno)" groups="custom_web_credito_conedera.group_credit_manager" class="o_credit_verification_page">
     <div class="alert alert-info mb-3" role="alert">
         La revisión del crédito y la verificación del negocio se realizan en paralelo.
-        Para aprobar una solicitud se requiere: estado Verificado, inspección realizada,
-        dirección encontrada, dirección registrada por el cliente y nombre del verificador.
+        Para aprobar o rechazar debe completar todas las respuestas de Resultados y el
+        nombre del verificador. La fecha y el resultado se registran automáticamente
+        cuando la verificación esté completa. La aprobación requiere una inspección
+        favorable y la ubicación proporcionada por el cliente.
     </div>
 
     <group string="Verificación del negocio (personal CONEDERA)" col="2" class="o_credit_verification_section">
-        <field name="verification_zone"/>
-        <field name="verification_local_state"/>
-        <field name="interviewed_person"/>
-        <field name="interviewed_relationship"/>
+        <field name="verification_zone_id"/>
+        <field name="verification_local_state_id"/>
+        <separator string="Persona entrevistada" colspan="2"/>
+        <field name="interviewed_person" colspan="2"/>
+        <field name="interviewed_relationship" colspan="2"/>
+        <field name="interviewed_name" colspan="2"/>
     </group>
 
     <group string="Resultados de la verificación (personal CONEDERA)" col="2" class="o_credit_verification_section">
-        <field name="inspection_done"/>
-        <field name="address_found"/>
-        <field name="client_lives_there"/>
-        <field name="sketch_needed"/>
+        <field name="inspection_done" required="credit_verification_final_required"/>
+        <field name="address_found" required="credit_verification_final_required"/>
+        <field name="client_lives_there" required="credit_verification_final_required"/>
+        <field name="sketch_needed" required="credit_verification_final_required"/>
     </group>
 
     <group string="Responsable y cierre de la verificación" col="2" class="o_credit_verification_section">
-        <field name="verification_status"/>
-        <field name="verifier_name"/>
+        <field name="verifier_name" required="credit_verification_final_required"/>
         <field name="verification_completed_at" readonly="1"/>
     </group>
 </page><page string="Historial de etapas"><field name="history_ids" readonly="1"><list create="0" edit="0" delete="0"><field name="date" readonly="1"/><field name="stage_id" readonly="1"/><field name="user_id" readonly="1"/><field name="notes" readonly="1"/><field name="visible_to_portal" readonly="1"/></list></field></page>

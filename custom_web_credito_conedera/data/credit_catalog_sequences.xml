@@ -24,4 +24,18 @@
     <field name="number_next">1</field>
     <field name="implementation">standard</field>
   </record>
+  <record id="seq_conedera_credit_verification_zone" model="ir.sequence">
+    <field name="name">Identificadores de zona de verificación</field>
+    <field name="code">conedera.credit.verification.zone</field>
+    <field name="prefix">ZO-</field>
+    <field name="padding">6</field>
+    <field name="implementation">standard</field>
+  </record>
+  <record id="seq_conedera_credit_local_condition" model="ir.sequence">
+    <field name="name">Identificadores de estado del local</field>
+    <field name="code">conedera.credit.local.condition</field>
+    <field name="prefix">EL-</field>
+    <field name="padding">6</field>
+    <field name="implementation">standard</field>
+  </record>
 </odoo>

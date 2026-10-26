@@ -12,11 +12,20 @@
                     </div>
                     <group>
                         <field name="application_id" readonly="1"/>
-                        <field name="portal_update_scope" widget="radio"/>
+                        <field name="allow_history"/>
+                        <field name="allow_documentation"/>
+                        <field name="allow_sketch"/>
                         <field name="document_access_allowed" invisible="1"/>
+                        <field name="sketch_stage_enabled" invisible="1"/>
                     </group>
-                    <div class="alert alert-warning" invisible="document_access_allowed">
+                    <div class="alert alert-warning" invisible="not allow_documentation or document_access_allowed">
                         La documentación no se podrá cargar hasta la aprobación del crédito, aunque se habilite su actualización.
+                    </div>
+                    <div class="alert alert-warning" invisible="not allow_sketch or sketch_stage_enabled">
+                        El croquis solo se podrá completar o corregir cuando la solicitud esté en una etapa de revisión habilitada para cargar croquis.
+                    </div>
+                    <div class="text-muted small mt-2">
+                        Las autorizaciones son independientes: si el cliente guarda una corrección de croquis, solo se consume ese permiso; los demás permanecen vigentes.
                     </div>
                 </sheet>
                 <footer>

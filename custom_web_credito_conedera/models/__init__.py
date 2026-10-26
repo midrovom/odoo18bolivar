@@ -2,6 +2,7 @@ from . import credit_stage
 from . import credit_applicant_type
 from . import credit_marital_status
 from . import credit_housing_type
+from . import credit_verification_catalog
 from . import credit_identity
 from . import credit_application
 from . import credit_reference

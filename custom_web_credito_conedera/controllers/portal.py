@@ -424,7 +424,7 @@ class ConederaCreditPortal(http.Controller):
         return request.env['conedera.credit.application'].sudo().search(domain, order='create_date desc, id desc')
 
     def _has_portal_update_scope(self):
-        return bool(self._portal_applications([('portal_update_scope', 'in', ['history', 'documentation', 'both'])]))
+        return bool(self._portal_applications([('portal_update_scope', 'in', ['history', 'both', 'history_sketch', 'all'])]))
 
     def _can_correct(self, application=None):
         # Igual que historial_postulaciones: autorización por solicitud.
@@ -437,10 +437,10 @@ class ConederaCreditPortal(http.Controller):
             not application.stage_id.is_documents_received)
 
     def _can_upload_sketch(self, application):
-        """Únicamente su expediente, durante una etapa habilitada de revisión.
+        """Croquis inicial durante revisión, o nueva corrección autorizada.
 
-        El croquis es aportado por el cliente y NO forma parte de los
-        documentos posteriores a la aprobación ni del permiso de corrección.
+        Tras la primera entrega, el formulario solo se reabre si CONEDERA
+        concede expresamente el permiso de croquis para esa solicitud.
         """
         return bool(
             application.portal_user_id.id == request.env.user.id
@@ -450,7 +450,8 @@ class ConederaCreditPortal(http.Controller):
             and not application.stage_id.is_documents_received
             # Una vez entregado el formulario de croquis, Historial regresa a «Ver detalle».
             # También reconoce croquis de versiones anteriores, sin pedir una nueva carga.
-            and not (application.verification_sketch_filename and application.verification_address)
+            and (application.portal_can_update_sketch() or not (
+                application.verification_sketch_filename and application.verification_address))
         )
 
     def _can_update_credit_documents(self, application, document=None):
@@ -679,10 +680,22 @@ class ConederaCreditPortal(http.Controller):
                 request.env.cr.execute(
                     'SELECT id FROM conedera_credit_application WHERE id = %s FOR UPDATE',
                     (application.id,))
-                application.invalidate_recordset(['stage_id', 'verification_sketch_filename', 'verification_address'])
+                application.invalidate_recordset([
+                    'stage_id', 'verification_sketch_filename', 'verification_address',
+                    'portal_update_scope',
+                ])
                 if not self._can_upload_sketch(application):
-                    raise Forbidden(_('La solicitud dejó de estar en revisión; no se guardó el croquis.'))
+                    raise Forbidden(_('La solicitud dejó de estar en revisión o el permiso del croquis ya fue utilizado.'))
+                permitted_reupload = application.portal_can_update_sketch()
                 application.sudo().write(values)
+                if permitted_reupload:
+                    # Una corrección por autorización. Mantener sin cambios
+                    # los permisos de formulario y de documentos.
+                    remaining = application.portal_enabled_sections() - {'sketch'}
+                    application.sudo().write({
+                        'portal_update_scope': application.portal_scope_from_sections(remaining),
+                        'portal_sketch_consumed_at': fields.Datetime.now(),
+                    })
                 application.sudo().message_post(body=_('El solicitante actualizó su ubicación y adjuntó el croquis desde el historial del portal.'))
         except (ValidationError, ValueError) as exc:
             return self._render_client_sketch(application, values, [str(exc)])
@@ -845,7 +858,8 @@ class ConederaCreditPortal(http.Controller):
                     # La autorización de corrección es para un único guardado.
                     # Si también se autorizó documentos, conservar SOLO ese acceso.
                     # Tras guardar, Historial vuelve a mostrar «Ver detalle».
-                    remaining_scope = 'documentation' if application.portal_update_scope == 'both' else 'none'
+                    remaining_scope = application.portal_scope_from_sections(
+                        application.portal_enabled_sections() - {'history'})
                     application.sudo().write({
                         'portal_update_scope': remaining_scope,
                         'portal_history_consumed_at': fields.Datetime.now(),

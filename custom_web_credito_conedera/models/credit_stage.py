@@ -14,7 +14,7 @@ class ConederaCreditStage(models.Model):
     is_approved = fields.Boolean(string='Etapa de aprobación')
     is_documents_received = fields.Boolean(string='Documentación recibida (acción automática)')
     is_rejected = fields.Boolean(string='Etapa denegada')
-    portal_sketch_enabled = fields.Boolean(string='Permitir subir croquis en el portal', help='En esta etapa el solicitante puede completar o reemplazar la ubicación y el archivo del croquis desde su historial, sin permiso especial de corrección.')
+    portal_sketch_enabled = fields.Boolean(string='Permitir subir croquis en el portal', help='En esta etapa el solicitante puede subir el croquis por primera vez desde su historial. Para corregir uno ya entregado, CONEDERA debe habilitar el permiso de croquis en la solicitud.')
     description = fields.Text(string='Descripción interna')
 
     _sql_constraints = [
