@@ -29,6 +29,20 @@ class ConederaCreditApplication(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'create_date desc, id desc'
 
+    company_id = fields.Many2one(
+        'res.company', string='Empresa', required=True, index=True, tracking=True,
+        default=lambda self: self.env.company,
+        help='Empresa propietaria de la solicitud. Controla el acceso y los datos impresos en PDF.')
+    @api.constrains('company_id')
+    def _check_company_assignment(self):
+        # Users with internal access may only associate records with an
+        # authorized company. Portal registration uses an Odoo-controlled value.
+        if not self.env.su:
+            allowed_ids = set(self.env.companies.ids)
+            for application in self:
+                if application.company_id.id not in allowed_ids:
+                    raise AccessError(_('La empresa de esta solicitud no está entre sus empresas autorizadas.'))
+
     name = fields.Char(string='Número de solicitud', required=True, copy=False, readonly=True, default='Nuevo', tracking=True, index=True)
     active = fields.Boolean(default=True)
     portal_user_id = fields.Many2one('res.users', string='Usuario del portal', required=True, readonly=True, index=True, ondelete='restrict')
@@ -256,9 +270,22 @@ class ConederaCreditApplication(models.Model):
         return False
 
     def action_print_credit_application(self):
-        """Descarga de solicitud y verificación siguiendo el formato CONEDERA."""
+        """Seleccionar la sección del PDF sin alterar la solicitud."""
+        return self.action_open_credit_print_wizard()
+
+    def action_open_credit_print_wizard(self):
         self.ensure_one()
-        return self.env.ref('custom_web_credito_conedera.action_report_credit_application').report_action(self)
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Descargar documentos de crédito'),
+            'res_model': 'conedera.credit.print.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_application_id': self.id,
+                'default_report_choice': 'both',
+            },
+        }
 
     credit_is_admin = fields.Boolean(compute='_compute_credit_is_admin', string='Edición completa habilitada')
 
@@ -667,6 +694,18 @@ class ConederaCreditApplication(models.Model):
             for field_name in ('monthly_sales', 'social_capital', 'assets_amount', 'monthly_income', 'liabilities_amount', 'monthly_expenses', 'vehicle1_value', 'vehicle2_value', 'employment_salary'):
                 if record[field_name] < 0:
                     raise ValidationError(_('Los montos de la solicitud no pueden ser negativos.'))
+
+    @api.model
+    def _migrate_credit_company(self):
+        """Assign a legacy company only where old versions had no company field.
+
+        Historical forms never saved their website company: use the upgrade
+        environment's company as a fallback, and expose it for audit/editing.
+        """
+        legacy = self.sudo().with_context(active_test=False).search([('company_id', '=', False)])
+        if legacy:
+            legacy.write({'company_id': self.env.company.id})
+            _logger.warning('Asignada empresa %s a %s solicitudes anteriores sin empresa; revisar asignación multiempresa.', self.env.company.display_name, len(legacy))
 
     @api.model
     def _migrate_credit_configuration(self):

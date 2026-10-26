@@ -286,3 +286,13 @@ un croquis fuera de la etapa de revisión habilitada, incluso con el permiso.
 - Debajo de Relación / parentesco aparece el campo Nombre de la persona entrevistada.
 - El estado técnico de verificación se oculta del formulario interno; se determina automáticamente cuando el personal completa las cuatro respuestas y el nombre del verificador.
 - Para aprobar o rechazar se exigen las cuatro respuestas, el nombre del verificador y la fecha (asignada automáticamente). Una inspección incompleta puede guardarse durante la etapa de revisión, pero no pasar a una decisión final.
+
+## PDF y operación multiempresa (18.0.1.8.17)
+
+- Las solicitudes nuevas usan la empresa del sitio web Odoo desde el que se enviaron.
+- Los reportes usan `application.company_id` para logotipo y rótulos de gerencia, y no la compañía activa del usuario que imprime.
+- El personal interno consulta expedientes exclusivamente de compañías permitidas por reglas de registro.
+- Los catálogos generales (etapas, tipos, requisitos) siguen compartidos entre empresas.
+- Las solicitudes anteriores no almacenaban empresa: se asignan a la empresa activa durante la actualización, y debe revisarse el resultado si ya trabajaba con varias compañías.
+- Los textos legales (por ejemplo, ciudad de jurisdicción, referencias a la sede principal) deben ser revisados y personalizados por empresa antes de usarlos con personas jurídicas distintas.
+- PDF del portal requiere sesión y pertenencia de la solicitud; las áreas de firmas se mantienen vacías y NO son una firma electrónica aplicada.

@@ -24,4 +24,41 @@
         <field name="implied_ids" eval="[(4, ref('custom_web_credito_conedera.group_credit_manager'))]"/>
         <field name="comment">Permite habilitar por solicitud la corrección de datos, documentos y croquis del cliente desde el portal.</field>
     </record>
+    <!-- Multiempresa: funcionarios solo acceden a expedientes de sus compañías autorizadas. -->
+    <record id="rule_credit_application_multi_company" model="ir.rule">
+        <field name="name">Crédito: solicitudes de empresas permitidas</field>
+        <field name="model_id" ref="model_conedera_credit_application"/>
+        <field name="groups" eval="[(4, ref('custom_web_credito_conedera.group_credit_manager'))]"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_credit_vehicle_multi_company" model="ir.rule">
+        <field name="name">Crédito: vehículos de empresas permitidas</field>
+        <field name="model_id" ref="model_conedera_credit_vehicle"/>
+        <field name="groups" eval="[(4, ref('custom_web_credito_conedera.group_credit_manager'))]"/>
+        <field name="domain_force">[('application_id.company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_credit_reference_multi_company" model="ir.rule">
+        <field name="name">Crédito: referencias de empresas permitidas</field>
+        <field name="model_id" ref="model_conedera_credit_reference"/>
+        <field name="groups" eval="[(4, ref('custom_web_credito_conedera.group_credit_manager'))]"/>
+        <field name="domain_force">[('application_id.company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_credit_documents_multi_company" model="ir.rule">
+        <field name="name">Crédito: documentos de empresas permitidas</field>
+        <field name="model_id" ref="model_conedera_credit_documents"/>
+        <field name="groups" eval="[(4, ref('custom_web_credito_conedera.group_credit_manager'))]"/>
+        <field name="domain_force">[('application_id.company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_credit_document_line_multi_company" model="ir.rule">
+        <field name="name">Crédito: archivos de empresas permitidas</field>
+        <field name="model_id" ref="model_conedera_credit_document_line"/>
+        <field name="groups" eval="[(4, ref('custom_web_credito_conedera.group_credit_manager'))]"/>
+        <field name="domain_force">[('document_id.application_id.company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_credit_stage_history_multi_company" model="ir.rule">
+        <field name="name">Crédito: historial de empresas permitidas</field>
+        <field name="model_id" ref="model_conedera_credit_stage_history"/>
+        <field name="groups" eval="[(4, ref('custom_web_credito_conedera.group_credit_manager'))]"/>
+        <field name="domain_force">[('application_id.company_id', 'in', company_ids)]</field>
+    </record>
 </odoo>

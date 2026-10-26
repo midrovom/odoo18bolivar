@@ -45,3 +45,6 @@
                 .conedera-print .banner td { word-break: normal; }
                 .conedera-print .signature-table tr { page-break-inside: avoid; }
                 .conedera-print .verification-page { page-break-before: always; }
+
+.conedera-print .verification-signatures { margin-top: 5px; page-break-inside: avoid; }
+.conedera-print .verification-signatures td { width: 50%; border: 0; padding: 3px 12px 2px; text-align: center; vertical-align: bottom; }

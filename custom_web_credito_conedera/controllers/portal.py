@@ -605,6 +605,34 @@ class ConederaCreditPortal(http.Controller):
         """Acceso obsoleto: conservar enlaces guardados sin exponer gestión adicional."""
         return request.redirect('/my/credito/historial')
 
+    @http.route('/my/credito/<int:application_id>/pdf/<string:section>',
+                type='http', auth='user', website=False, methods=['GET'], sitemap=False)
+    def credit_portal_download_pdf(self, application_id, section, **kw):
+        """Only the owner may download their credit file; no public report URLs."""
+        application = self._get_owned_application(application_id)
+        reports = {
+            'solicitud': 'action_report_credit_application_only',
+            'verificacion': 'action_report_credit_verification_only',
+            'completo': 'action_report_credit_application',
+        }
+        if section not in reports:
+            raise NotFound()
+        report = request.env.ref('custom_web_credito_conedera.' + reports[section]).sudo()
+        # Report reads company directly from the credit application (not env.company).
+        # Render with the application's company context to avoid cross-company branding.
+        pdf, _ = report.with_company(application.company_id)._render_qweb_pdf(
+            report.report_name, res_ids=[application.id])
+        from odoo.http import content_disposition
+        safe_number = re.sub(r'[^A-Za-z0-9_-]', '_', application.name or str(application.id))
+        filename = 'Credito_%s_%s.pdf' % (section, safe_number)
+        return request.make_response(pdf, headers=[
+            ('Content-Type', 'application/pdf'),
+            ('Content-Disposition', content_disposition(filename)),
+            ('Content-Length', str(len(pdf))),
+            ('Cache-Control', 'private, no-store'),
+            ('X-Content-Type-Options', 'nosniff'),
+        ])
+
     @http.route('/my/credito/<int:application_id>/croquis', type='http', auth='user', website=False, methods=['GET'], sitemap=False)
     def credit_customer_sketch(self, application_id, **kw):
         application = self._get_owned_application(application_id)
@@ -746,6 +774,9 @@ class ConederaCreditPortal(http.Controller):
             errors.append(_('La longitud debe estar entre -180 y 180.'))
         values['application_date'] = values.get('application_date') or fields.Date.context_today(request.env.user).strftime('%Y-%m-%d')
         values['portal_user_id'] = request.env.user.id
+        # La empresa viene del sitio web actual, nunca de los datos enviados por el navegador.
+        if not post.get('credit_edit_mode'):
+            values['company_id'] = (request.website.company_id or request.env.company).id
         selected_type = _clean(post.get('applicant_type_id'))
         applicant_type = request.env['conedera.credit.applicant.type'].sudo()
         if selected_type.isdecimal():
