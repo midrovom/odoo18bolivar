@@ -31,7 +31,6 @@ MAX_REFERENCES = 30
 # Los del cónyuge, extranjeros, empleo y vehículos se comprueban según corresponda.
 PORTAL_REQUIRED_OWNER = (
     ('application_date', 'Fecha de solicitud'),
-    ('application_place', 'Lugar de solicitud'),
     ('applicant_type_id', 'Tipo de solicitante'),
     ('identification_type', 'Tipo de documento'),
     ('identification', 'Número de documento'),
@@ -89,7 +88,7 @@ LOCATION_CLIENT_FIELDS = (
 )
 
 APPLICATION_FIELDS = [
-    'identification', 'identification_type', 'business_latitude', 'business_longitude', 'application_place', 'application_date', 'applicant_name', 'applicant_email',
+    'identification', 'identification_type', 'business_latitude', 'business_longitude', 'application_date', 'applicant_name', 'applicant_email',
     'phone_fixed', 'mobile', 'profession', 'foreign_residence_time',
     'foreign_work_visa', 'spouse_name', 'spouse_identification', 'spouse_profession',
     'dependents_count', 'home_address', 'business_name', 'legal_representative', 'business_ruc', 'province',

@@ -55,23 +55,31 @@
                 <form t-att-action="'/my/credito/%s/actualizar' % application.id if application else '/my/credito/solicitud/enviar'" method="post" enctype="multipart/form-data" class="credit-form" data-credit-wizard="1" data-start-step="1" t-att-data-start-step="start_step" novalidate="novalidate">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <input t-if="application" type="hidden" name="credit_edit_mode" value="1"/>
-                    <div class="credit-wizard-progress mb-4" aria-label="Progreso de solicitud"><p class="text-muted small mb-2">Complete los cinco pasos. Puede volver para revisar la información antes de enviarla.</p><ol class="credit-wizard-steps list-unstyled mb-0"><li data-credit-step-indicator="1"><span class="credit-wizard-number" aria-hidden="true">1</span><span class="credit-wizard-label">Propietario</span></li><li data-credit-step-indicator="2"><span class="credit-wizard-number" aria-hidden="true">2</span><span class="credit-wizard-label">Negocio</span></li><li data-credit-step-indicator="3"><span class="credit-wizard-number" aria-hidden="true">3</span><span class="credit-wizard-label">Actividad y comercio</span></li><li data-credit-step-indicator="4"><span class="credit-wizard-number" aria-hidden="true">4</span><span class="credit-wizard-label">Referencias</span></li><li data-credit-step-indicator="5"><span class="credit-wizard-number" aria-hidden="true">5</span><span class="credit-wizard-label">Términos y condiciones</span></li></ol></div><div class="credit-step-panel" data-credit-step="1"><div class="credit-wizard-panel-title mb-3"><h2 class="h5 mb-1">Paso 1 de 5 · Propietario</h2></div><div class="row g-3 mb-3"><div class="col-12 col-md-6"><label class="form-label">LUGAR: *</label><input class="form-control" name="application_place" t-att-value="form_values.get('application_place') or ''" placeholder="Ciudad o localidad" required="required"/></div>
-                        <div class="col-12 col-md-6"><label class="form-label">FECHA: *</label><input class="form-control" type="date" name="application_date" t-att-value="form_values.get('application_date') or ''" required="required"/></div>
-                        </div><div class="row g-3 mb-3"><div class="col-12 col-md-6"><label class="form-label">Tipo de solicitante *</label>
-                            <select name="applicant_type_id" class="form-select" required="required">
+                    <div class="credit-wizard-progress mb-4" aria-label="Progreso de solicitud"><p class="text-muted small mb-2">Complete los cinco pasos. Puede volver para revisar la información antes de enviarla.</p><ol class="credit-wizard-steps list-unstyled mb-0"><li data-credit-step-indicator="1"><span class="credit-wizard-number" aria-hidden="true">1</span><span class="credit-wizard-label">Propietario</span></li><li data-credit-step-indicator="2"><span class="credit-wizard-number" aria-hidden="true">2</span><span class="credit-wizard-label">Negocio</span></li><li data-credit-step-indicator="3"><span class="credit-wizard-number" aria-hidden="true">3</span><span class="credit-wizard-label">Actividad y comercio</span></li><li data-credit-step-indicator="4"><span class="credit-wizard-number" aria-hidden="true">4</span><span class="credit-wizard-label">Referencias</span></li><li data-credit-step-indicator="5"><span class="credit-wizard-number" aria-hidden="true">5</span><span class="credit-wizard-label">Términos y condiciones</span></li></ol></div><div class="credit-step-panel" data-credit-step="1"><div class="credit-wizard-panel-title mb-3"><h2 class="h5 mb-1">Paso 1 de 5 · Propietario</h2></div>
+                    <div class="row g-2 mb-3 credit-owner-meta-row">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label" for="credit-applicant-type">Tipo de solicitante *</label>
+                            <select id="credit-applicant-type" name="applicant_type_id" class="form-select form-select-sm" required="required">
                                 <option value="">Seleccione...</option>
                                 <t t-foreach="applicant_types" t-as="applicant_type">
                                     <option t-att-value="applicant_type.id" t-att-data-type-code="applicant_type.code" t-att-selected="form_values.get('applicant_type_id') == str(applicant_type.id)" t-esc="applicant_type.name"/>
                                 </t>
-                            </select><div class="form-text">Los tipos y requisitos documentales se configuran en Odoo.</div>
+                            </select>
                         </div>
-                        <div class="col-12 col-md-6"><label class="form-label">Tipo de documento *</label>
-                            <select name="identification_type" class="form-select" required="required" id="credit-identification-type">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label" for="credit-application-date">Fecha *</label>
+                            <input id="credit-application-date" class="form-control form-control-sm" type="date" name="application_date" t-att-value="form_values.get('application_date') or ''" required="required"/>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label" for="credit-identification-type">Tipo de documento *</label>
+                            <select name="identification_type" class="form-select form-select-sm" required="required" id="credit-identification-type">
                                 <option value="cedula" t-att-selected="(form_values.get('identification_type') or 'cedula') == 'cedula'">Cédula ecuatoriana</option>
                                 <option value="ruc" t-att-selected="form_values.get('identification_type') == 'ruc'">RUC</option>
                                 <option value="foreign" t-att-selected="form_values.get('identification_type') == 'foreign'">Cédula extranjera</option>
-                            </select></div>
-                        </div><section class="card credit-section-card mb-4"><div class="card-header">Datos del propietario o representante</div><div class="card-body"><div class="row g-3">
+                            </select>
+                        </div>
+                    </div>
+                    <section class="card credit-section-card mb-4"><div class="card-header">Datos del propietario o representante</div><div class="card-body"><div class="row g-3">
                         <div class="col-12 col-md-6"><label class="form-label">NOMBRES Y APELLIDOS: *</label><input class="form-control" name="applicant_name" required="required" t-att-value="form_values.get('applicant_name') or ''"/></div>
                         <div class="col-12 col-md-6"><label class="form-label">EMAIL: *</label><input class="form-control" type="email" name="applicant_email" required="required" t-att-value="form_values.get('applicant_email') or ''"/></div>
                         <div class="col-12 col-md-4"><label class="form-label">NO CÉDULA:/RUC No. *</label><input class="form-control" name="identification" inputmode="numeric" maxlength="13" pattern="[0-9]{10}([0-9]{3})?" data-credit-id="applicant" required="required" t-att-value="form_values.get('identification') or ''"/></div>

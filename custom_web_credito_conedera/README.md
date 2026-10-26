@@ -316,3 +316,9 @@ un croquis fuera de la etapa de revisión habilitada, incluso con el permiso.
 - En el detalle de una solicitud aparece **Descargar PDF** solo si ya está aprobada y se cargó al menos uno de los PDF firmados.
 - El portal descarga exclusivamente los binarios originales de esa solicitud. Los dos PDF se entregan como ZIP sin fusionar, para conservar las firmas electrónicas.
 - Para solicitudes en la etapa «Documentación recibida», la descarga requiere una aprobación previa registrada en el historial.
+
+## Versión 18.0.1.8.23 - Cabecera compacta del propietario
+
+- El primer paso ya no muestra ni obliga a introducir Lugar. El campo histórico del modelo se conserva para expedientes anteriores y no se borra al actualizar una solicitud.
+- Tipo de solicitante, Fecha y Tipo de documento comparten una fila de tres columnas en escritorio. En móvil se apilan para evitar recortes.
+- Se conservan las validaciones y todos los demás campos del formulario.
