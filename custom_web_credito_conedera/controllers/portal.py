@@ -35,7 +35,10 @@ APPLICATION_FIELDS = [
     'activity_start_date', 'business_local_type', 'monthly_sales', 'social_capital', 'invoice_email',
     'assets_amount', 'monthly_income', 'liabilities_amount', 'monthly_expenses',
     'authorized_buyer_name', 'authorized_buyer_identification', 'authorized_buyer_email',
-    'authorized_pickup_name', 'authorized_pickup_identification', 'employment_company',
+    'authorized_pickup_name', 'authorized_pickup_identification',
+    'verification_province', 'verification_city', 'verification_canton', 'verification_parish',
+    'verification_neighborhood', 'verification_address', 'verification_house_number',
+    'verification_reference', 'employment_company',
     'employment_activity', 'employment_address', 'employment_phone', 'employment_start_date',
     'employment_position', 'employment_salary',
 ]
@@ -67,6 +70,53 @@ def _parse_number(value, label, errors, integer=False):
     except (TypeError, ValueError):
         errors.append(_('El campo \"%s\" debe contener un número válido.') % label)
         return 0 if integer else 0.0
+
+
+def _sketch_content(post, errors):
+    """Aceptar croquis PNG/JPEG/WEBP/PDF, o el dibujo hecho en el navegador.
+
+    El resultado es (contenido_base64, nombre_archivo) o (None, None).
+    La ausencia de un nuevo croquis NO borra el que ya existe en una solicitud.
+    """
+    uploaded = request.httprequest.files.get('verification_sketch_file')
+    if uploaded and uploaded.filename:
+        filename = secure_filename(uploaded.filename) or 'croquis'
+        extension = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
+        if extension not in ('png', 'jpg', 'jpeg', 'webp', 'pdf'):
+            errors.append(_('El croquis debe ser PNG, JPG, WEBP o PDF.'))
+            return None, None
+        content = uploaded.read(MAX_FILE_SIZE + 1)
+        if not content or len(content) > MAX_FILE_SIZE:
+            errors.append(_('El croquis está vacío o supera el límite de 12 MB.'))
+            return None, None
+        signatures = {
+            'png': content.startswith(b'\x89PNG\r\n\x1a\n'),
+            'jpg': content.startswith(b'\xff\xd8\xff'),
+            'jpeg': content.startswith(b'\xff\xd8\xff'),
+            'webp': content.startswith(b'RIFF') and content[8:12] == b'WEBP',
+            'pdf': content.startswith(b'%PDF-'),
+        }
+        if not signatures.get(extension):
+            errors.append(_('El contenido del croquis no corresponde al formato del archivo.'))
+            return None, None
+        return base64.b64encode(content).decode('ascii'), filename
+
+    drawing = _clean(post.get('verification_sketch_drawing'))
+    if drawing:
+        prefix = 'data:image/png;base64,'
+        if not drawing.startswith(prefix) or len(drawing) > (MAX_FILE_SIZE * 4 // 3) + 128:
+            errors.append(_('El dibujo del croquis no tiene un formato válido o supera 12 MB.'))
+            return None, None
+        try:
+            raw = base64.b64decode(drawing[len(prefix):], validate=True)
+        except (ValueError, base64.binascii.Error):
+            errors.append(_('No se pudo interpretar el dibujo del croquis.'))
+            return None, None
+        if not raw.startswith(b'\x89PNG\r\n\x1a\n') or len(raw) > MAX_FILE_SIZE:
+            errors.append(_('El croquis dibujado no es un PNG válido o supera 12 MB.'))
+            return None, None
+        return base64.b64encode(raw).decode('ascii'), 'croquis_cliente.png'
+    return None, None
 
 
 def _send_otp_email(email, code):
@@ -408,6 +458,7 @@ class ConederaCreditPortal(http.Controller):
             'form_values': defaults,
             'errors': errors or [],
             'application': application,
+            'existing_sketch': bool(application and application.verification_sketch),
             'marital_statuses': request.env['conedera.credit.marital.status'].sudo().search([('active', '=', True)], order='sequence,name,id'),
             'start_step': max(1, min(5, int(start_step or 1))),
             'housing_types': request.env['conedera.credit.housing.type'].sudo().search([('active', '=', True)], order='sequence,name,id'),
@@ -533,6 +584,26 @@ class ConederaCreditPortal(http.Controller):
         """Acceso obsoleto: conservar enlaces guardados sin exponer gestión adicional."""
         return request.redirect('/my/credito/historial')
 
+    @http.route('/my/credito/<int:application_id>/croquis', type='http', auth='user', website=False, methods=['GET'], sitemap=False)
+    def credit_customer_sketch(self, application_id, **kw):
+        application = self._get_owned_application(application_id)
+        if not application.verification_sketch:
+            raise NotFound()
+        filename = (application.verification_sketch_filename or '').lower()
+        mime = ('image/png' if filename.endswith('.png') else
+                'image/jpeg' if filename.endswith(('.jpg', '.jpeg')) else
+                'image/webp' if filename.endswith('.webp') else
+                'application/pdf' if filename.endswith('.pdf') else None)
+        if not mime:
+            raise NotFound()
+        payload = base64.b64decode(application.verification_sketch)
+        return request.make_response(payload, headers=[
+            ('Content-Type', mime),
+            ('Content-Disposition', 'inline; filename="croquis"'),
+            ('Cache-Control', 'private, no-store'),
+            ('X-Content-Type-Options', 'nosniff'),
+        ])
+
     @http.route('/my/credito/<int:application_id>/editar', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
     def edit_credit_application(self, application_id, **kw):
         application = self._get_owned_application(application_id)
@@ -604,6 +675,15 @@ class ConederaCreditPortal(http.Controller):
         if housing_code and not housing_record:
             errors.append(_('Seleccione un tipo de vivienda válido.'))
         values['housing_type_id'] = housing_record.id or False
+        # El usuario del portal carga el croquis (imagen/PDF) o lo dibuja.
+        # Su expediente puede tener un croquis previo que debe conservarse si
+        # no se seleccionó otro archivo ni se realizó un dibujo nuevo.
+        sketch_data, sketch_filename = _sketch_content(post, errors)
+        if sketch_data is not None:
+            values['verification_sketch'] = sketch_data
+            values['verification_sketch_filename'] = sketch_filename
+        if not sketch_data and not (application and application.verification_sketch):
+            errors.append(_('Debe dibujar o adjuntar el croquis de ubicación del negocio.'))
         values['vehicle_ids'] = self._vehicle_commands(post, errors)
         values['declaration_accepted'] = post.get('declaration_accepted') in ('on', '1', 'true', 'yes')
         consent_fields = [
@@ -627,6 +707,7 @@ class ConederaCreditPortal(http.Controller):
             ('business_name', _('nombre o razón social')),
             ('business_ruc', _('RUC del negocio')),
             ('business_address', _('dirección de la empresa')),
+            ('verification_address', _('dirección para verificar la ubicación del negocio')), 
         ]:
             if not values.get(field_name):
                 errors.append(_('El campo %(field)s es obligatorio.') % {'field': label})
@@ -657,9 +738,10 @@ class ConederaCreditPortal(http.Controller):
                 errors.append(message)
         if errors:
             required_person = ('applicant_type_id', 'identification', 'applicant_name', 'applicant_email', 'mobile')
-            required_business = ('business_name', 'business_ruc', 'business_address')
+            required_business = ('business_name', 'business_ruc', 'business_address', 'verification_address')
             invalid_terms = not values['declaration_accepted'] or any(not values[key] for key, _message in consent_fields)
-            step = (1 if any(not values.get(key) for key in required_person) else
+            step = (2 if any('croquis' in err.lower() for err in errors) else
+                    1 if any(not values.get(key) for key in required_person) else
                     2 if any(not values.get(key) for key in required_business) else
                     5 if invalid_terms else 1)
             return self._render_application_form(post, errors, start_step=step, application=application)

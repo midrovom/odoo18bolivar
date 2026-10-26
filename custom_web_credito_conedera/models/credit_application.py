@@ -136,13 +136,13 @@ class ConederaCreditApplication(models.Model):
     declaration_date = fields.Datetime(string='Fecha de aceptación', readonly=True, copy=False)
 
     # Verificación interna de ubicación y negocio: estos campos solo se completan en Odoo.
-    verification_province = fields.Char(string='Provincia de verificación')
+    verification_province = fields.Char(string='Provincia indicada por el cliente')
     verification_city_canton_parish = fields.Char(string='Ciudad / cantón / parroquia (histórico)')
-    verification_city = fields.Char(string='Ciudad verificada')
-    verification_canton = fields.Char(string='Cantón verificado')
-    verification_parish = fields.Char(string='Parroquia verificada')
+    verification_city = fields.Char(string='Ciudad indicada por el cliente')
+    verification_canton = fields.Char(string='Cantón indicado por el cliente')
+    verification_parish = fields.Char(string='Parroquia indicada por el cliente')
     verification_neighborhood = fields.Char(string='Barrio')
-    verification_address = fields.Char(string='Dirección verificada')
+    verification_address = fields.Char(string='Dirección indicada por el cliente')
     verification_house_number = fields.Char(string='Número de casa')
     verification_reference = fields.Char(string='Referencia de ubicación')
     verification_sketch = fields.Binary(string='Croquis del cliente', attachment=True)
@@ -180,11 +180,6 @@ class ConederaCreditApplication(models.Model):
     # del negocio. Protegido en ORM además de en las vistas (RPC/importaciones).
     _credit_reviewer_writable = frozenset({
         'stage_id', 'verification_status', 'verification_completed_at',
-        'verification_province', 'verification_city_canton_parish',
-        'verification_city', 'verification_canton', 'verification_parish',
-        'verification_neighborhood', 'verification_address',
-        'verification_house_number', 'verification_reference',
-        'verification_sketch', 'verification_sketch_filename',
         'verification_zone', 'verification_local_state',
         'interviewed_person', 'interviewed_relationship',
         'inspection_done', 'address_found', 'client_lives_there',

@@ -60,34 +60,37 @@
                             </form>
                         </field>
                     </page>
-                    <page string="Verificación de ubicación (uso interno)" groups="custom_web_credito_conedera.group_credit_manager" class="o_credit_verification_page">
-    <div class="alert alert-info mb-3" role="alert">
-        La revisión del crédito y la verificación del negocio se realizan en paralelo.
-        Para aprobar una solicitud se requiere: estado Verificado, inspección realizada,
-        dirección encontrada, dirección verificada y nombre del verificador.
-    </div>
-
+                    <page string="Ubicación y croquis (cliente)" groups="custom_web_credito_conedera.group_credit_manager" class="o_credit_verification_page">
+    <div class="alert alert-info mb-3" role="alert">Estos datos y el croquis los completa el cliente desde el portal. El personal de revisión solo puede consultarlos; el administrador conserva la edición completa.</div>
     <group string="Identificación del solicitante" col="2" class="o_credit_verification_section">
         <field name="identification" readonly="1"/>
         <field name="applicant_name" readonly="1"/>
     </group>
 
-    <group string="Ubicación del negocio" col="2" class="o_credit_verification_section">
-        <field name="verification_province"/>
-        <field name="verification_city"/>
-        <field name="verification_canton"/>
-        <field name="verification_parish"/>
-        <field name="verification_neighborhood"/>
-        <field name="verification_address"/>
-        <field name="verification_house_number"/>
-        <field name="verification_reference"/>
+    <group string="Ubicación proporcionada por el cliente" col="2" class="o_credit_verification_section">
+        <field name="verification_province" readonly="not credit_is_admin"/>
+        <field name="verification_city" readonly="not credit_is_admin"/>
+        <field name="verification_canton" readonly="not credit_is_admin"/>
+        <field name="verification_parish" readonly="not credit_is_admin"/>
+        <field name="verification_neighborhood" readonly="not credit_is_admin"/>
+        <field name="verification_address" readonly="not credit_is_admin"/>
+        <field name="verification_house_number" readonly="not credit_is_admin"/>
+        <field name="verification_reference" readonly="not credit_is_admin"/>
         <field name="verification_city_canton_parish" readonly="1" invisible="not verification_city_canton_parish"/>
     </group>
 
-    <group string="Croquis del cliente" col="2" class="o_credit_verification_section">
-        <field name="verification_sketch" filename="verification_sketch_filename" help="El croquis debe incluir dos calles principales"/>
+    <group string="Croquis proporcionado por el cliente" col="2" class="o_credit_verification_section">
+        <field name="verification_sketch" readonly="not credit_is_admin" filename="verification_sketch_filename" help="El croquis debe incluir dos calles principales"/>
         <field name="verification_sketch_filename" invisible="1"/>
     </group>
+
+</page>
+                    <page string="Verificación de ubicación (uso interno)" groups="custom_web_credito_conedera.group_credit_manager" class="o_credit_verification_page">
+    <div class="alert alert-info mb-3" role="alert">
+        La revisión del crédito y la verificación del negocio se realizan en paralelo.
+        Para aprobar una solicitud se requiere: estado Verificado, inspección realizada,
+        dirección encontrada, dirección registrada por el cliente y nombre del verificador.
+    </div>
 
     <group string="Verificación del negocio (personal CONEDERA)" col="2" class="o_credit_verification_section">
         <field name="verification_zone"/>

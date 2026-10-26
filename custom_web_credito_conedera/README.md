@@ -15,7 +15,7 @@ Módulo nuevo e independiente de los módulos de Recursos Humanos utilizados com
 - Kanban interno por etapas para arrastrar solicitudes y avanzar el proceso. Los cambios se registran en la línea de tiempo y generan intento de notificación por correo al solicitante.
 - La etapa **Aprobada** habilita la carga documental. El tipo de solicitante configurado en Odoo determina los documentos y sus requisitos obligatorios.
 - Gestión de la documentación recibida y controles para aceptar el expediente o pedir correcciones.
-- Campos de la página 2 del PDF destinados a la verificación interna de la ubicación del negocio.
+- En el paso 2 del portal, el cliente registra provincia, ciudad, cantón, parroquia, barrio, dirección, número y referencia para la verificación de ubicación y dibuja el croquis o adjunta un archivo. Los resultados de inspección permanecen en Odoo para el personal CONEDERA.
 - Se notifica a `cobranzas@viteltek.com` la latitud y longitud ingresadas del negocio, sin generar ni almacenar enlaces de Google Maps.
 
 ## Documentos posteriores a la aprobación
@@ -68,7 +68,7 @@ Las etapas se pueden administrar desde **Crédito CONEDERA → Etapas del flujo*
 
 - El usuario del portal solo puede consultar los registros enlazados a su propio usuario; las rutas verifican propiedad antes de leer una solicitud o cargar archivos.
 - Los accesos de backend y las etapas están restringidos al grupo interno del módulo.
-- Los datos de verificación de ubicación son campos internos. El portal solicita dirección del negocio, latitud y longitud, con opción de geolocalización autorizada por el navegador.
+- La ubicación y el croquis son completados por el cliente. Los usuarios de crédito los consultan sin poder modificarlos; las evaluaciones y resultados de la inspección se registran solo en Odoo. El portal conserva latitud y longitud y el botón de geolocalización sujeto a permisos/HTTPS.
 - La declaración/autorización del formulario web sigue el texto de la solicitud PDF entregada. Por tratarse de una autorización legal de crédito, el área legal de CONEDERA debe validar la versión web antes de producción.
 - Este paquete se validó estáticamente (estructura, XML y sintaxis Python). No se ejecutó contra una instancia real de Odoo ni se verificó el SMTP, por lo que se recomienda instalar primero en una base de pruebas.
 
@@ -234,3 +234,13 @@ El botón «Usar mi ubicación actual» distingue entre sitio sin HTTPS, permiso
 - El reporte QWeb en A4 sigue los dos apartados del formato «SOLICITUD DE CREDITO CONEDERA ACTUALIZADA»: solicitud / datos económicos / referencias / autorizaciones y verificación de ubicación.
 - Incluye vehículos y referencias de longitud variable; muestra los campos del cónyuge solo cuando corresponden al estado civil o tengan información histórica, y utiliza únicamente coordenadas para la ubicación del negocio.
 - Para solicitudes con muchas líneas el documento puede ocupar páginas adicionales, sin recortar las referencias.
+
+
+## Versión 18.0.1.8.7 — Croquis del cliente desde el portal
+
+- En **Paso 2: Datos del negocio**, el cliente completa los datos de **Verificación de ubicación del negocio** (provincia, ciudad, cantón, parroquia, barrio, dirección, número de casa/local y referencia). Su documento y nombre se muestran automáticamente desde el paso 1.
+- El croquis es obligatorio en nuevas solicitudes; se puede dibujar con mouse/pantalla táctil o adjuntar un PNG/JPG/WEBP/PDF de hasta 12 MB. No forma parte de los documentos posteriores a la aprobación.
+- El sistema conserva el croquis histórico durante una corrección si el cliente no adjunta ni dibuja uno nuevo. El permiso individual para actualizar el historial sigue siendo de un solo uso.
+- Los croquis existentes son accesibles desde el historial de la solicitud mediante una URL que valida la propiedad del expediente. No son archivos públicos.
+- En el backend se separan las pestañas **Ubicación y croquis (cliente)** (solo lectura para usuario de crédito; editable para administrador) y **Verificación de ubicación (uso interno)**, donde el personal autorizado completa zona, estado del local, persona entrevistada, resultados, verificador y firma.
+- El PDF continúa mostrando el croquis y la información de verificación con sus respectivos datos guardados. Los datos previos no se eliminan en la actualización.

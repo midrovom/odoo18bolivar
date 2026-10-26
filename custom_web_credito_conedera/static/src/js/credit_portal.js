@@ -207,6 +207,98 @@
             renumber();
         });
 
+        // El croquis del cliente puede dibujarse con pointer events (mouse/touch)
+        // o adjuntarse en PNG/JPG/WEBP/PDF. El dibujo no sustituye el archivo
+        // anterior hasta que el cliente guarda correctamente su solicitud.
+        var sketchEditor = document.getElementById('credit-sketch-editor');
+        var sketchCanvas = document.getElementById('credit-sketch-canvas');
+        var sketchDrawing = document.getElementById('credit-sketch-drawing');
+        var sketchFile = document.getElementById('credit-sketch-file');
+        if (sketchEditor && sketchCanvas && sketchDrawing && sketchFile) {
+            var ctx = sketchCanvas.getContext('2d');
+            var hasInk = Boolean(sketchDrawing.value);
+            var hasExisting = sketchEditor.dataset.existingSketch === '1';
+            var painting = false;
+            if (ctx) {
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.strokeStyle = '#303030';
+                if (hasInk) {
+                    var existingDraw = new Image();
+                    existingDraw.onload = function () { ctx.drawImage(existingDraw, 0, 0, sketchCanvas.width, sketchCanvas.height); };
+                    existingDraw.src = sketchDrawing.value;
+                }
+                function point(event) {
+                    var bounds = sketchCanvas.getBoundingClientRect();
+                    return {
+                        x: (event.clientX - bounds.left) * sketchCanvas.width / bounds.width,
+                        y: (event.clientY - bounds.top) * sketchCanvas.height / bounds.height
+                    };
+                }
+                sketchCanvas.addEventListener('pointerdown', function (event) {
+                    if (event.button !== undefined && event.button !== 0) { return; }
+                    event.preventDefault();
+                    var pos = point(event);
+                    painting = true;
+                    hasInk = true;
+                    ctx.beginPath();
+                    ctx.moveTo(pos.x, pos.y);
+                    ctx.lineTo(pos.x + 0.05, pos.y + 0.05);
+                    ctx.stroke();
+                    sketchCanvas.setPointerCapture(event.pointerId);
+                    sketchFile.value = '';
+                    validateSketch();
+                });
+                sketchCanvas.addEventListener('pointermove', function (event) {
+                    if (!painting) { return; }
+                    event.preventDefault();
+                    var pos = point(event);
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+                });
+                function finishDrawing() {
+                    if (!painting) { return; }
+                    painting = false;
+                    sketchDrawing.value = sketchCanvas.toDataURL('image/png');
+                    validateSketch();
+                }
+                sketchCanvas.addEventListener('pointerup', finishDrawing);
+                sketchCanvas.addEventListener('pointercancel', finishDrawing);
+                sketchCanvas.addEventListener('lostpointercapture', finishDrawing);
+                document.getElementById('credit-clear-sketch').addEventListener('click', function () {
+                    ctx.clearRect(0, 0, sketchCanvas.width, sketchCanvas.height);
+                    hasInk = false;
+                    sketchDrawing.value = '';
+                    validateSketch();
+                });
+            }
+            function validateSketch() {
+                var valid = hasExisting || hasInk || Boolean(sketchFile.files && sketchFile.files.length);
+                sketchFile.setCustomValidity(valid ? '' : 'Dibuje o adjunte el croquis de ubicación del negocio.');
+            }
+            sketchFile.addEventListener('change', function () {
+                if (sketchFile.files && sketchFile.files.length) {
+                    // Un archivo adjunto prevalece sobre un dibujo anterior.
+                    sketchDrawing.value = '';
+                    hasInk = false;
+                    if (ctx) { ctx.clearRect(0, 0, sketchCanvas.width, sketchCanvas.height); }
+                }
+                validateSketch();
+            });
+            if (creditForm) {
+                creditForm.querySelectorAll('[name="identification"], [name="applicant_name"]').forEach(function (field) {
+                    var mirror = creditForm.querySelector('[data-credit-location-mirror="' + field.name + '"]');
+                    if (mirror) {
+                        var sync = function () { mirror.value = field.value; };
+                        field.addEventListener('input', sync);
+                        sync();
+                    }
+                });
+            }
+            validateSketch();
+        }
+
         // Geolocalización del navegador: exige HTTPS (salvo localhost) y permiso del usuario.
         // Se informa la causa real del error sin sustituir la seguridad del navegador.
         var locateButton = document.getElementById('credit-get-location');
