@@ -1,4 +1,6 @@
 import base64
+import io
+import zipfile
 import hmac
 import logging
 import math
@@ -688,6 +690,8 @@ class ConederaCreditPortal(http.Controller):
         if not any(values.get(field) for field, _label in PORTAL_EMPLOYMENT_FIELDS
                    if field != 'employment_salary'):
             values['employment_salary'] = ''
+        values['business_location_method'] = application.business_location_method or 'manual'
+        values['business_location_captured'] = application.business_location_captured or ''
         values['applicant_type_id'] = str(application.applicant_type_id.id or '')
         values['marital_status_id'] = str(application.marital_status_id.id or '')
         values['housing_type_id'] = str(application.housing_type_id.id or '')
@@ -725,27 +729,55 @@ class ConederaCreditPortal(http.Controller):
     @http.route('/my/credito/<int:application_id>/pdf/<string:section>',
                 type='http', auth='user', website=False, methods=['GET'], sitemap=False)
     def credit_portal_download_pdf(self, application_id, section, **kw):
-        """Only the owner may download their credit file; no public report URLs."""
-        application = self._get_owned_application(application_id)
-        reports = {
-            'solicitud': 'action_report_credit_application_only',
-            'verificacion': 'action_report_credit_verification_only',
-            'completo': 'action_report_credit_application',
-        }
-        if section not in reports:
+        """Descarga controlada de los PDFs firmados originales de la solicitud.
+
+        Nunca renderizar el QWeb sin firmas en este acceso. Los PDFs firmados
+        se entregan intactos; si piden ambos, van en ZIP sin fusionarlos para
+        conservar las firmas digitales existentes.
+        """
+        if section not in ('solicitud', 'verificacion', 'completo'):
             raise NotFound()
-        report = request.env.ref('custom_web_credito_conedera.' + reports[section]).sudo()
-        # Report reads company directly from the credit application (not env.company).
-        # Render with the application's company context to avoid cross-company branding.
-        pdf, _ = report.with_company(application.company_id)._render_qweb_pdf(
-            report.report_name, res_ids=[application.id])
-        from odoo.http import content_disposition
+        application = self._get_owned_application(application_id)
+        if not application.stage_id or not (
+                application.stage_id.is_approved or application.stage_id.is_documents_received):
+            raise NotFound()  # Ocultar y bloquear PDFs firmados antes de aprobar.
         safe_number = re.sub(r'[^A-Za-z0-9_-]', '_', application.name or str(application.id))
-        filename = 'Credito_%s_%s.pdf' % (section, safe_number)
-        return request.make_response(pdf, headers=[
-            ('Content-Type', 'application/pdf'),
-            ('Content-Disposition', content_disposition(filename)),
-            ('Content-Length', str(len(pdf))),
+        from odoo.http import content_disposition
+
+        signed = {
+            'solicitud': ('signed_application_available', 'signed_application_pdf',
+                          'Solicitud_Firmada_%s.pdf' % safe_number),
+            'verificacion': ('signed_verification_available', 'signed_verification_pdf',
+                             'Verificacion_Ubicacion_Firmada_%s.pdf' % safe_number),
+        }
+        if section in signed:
+            available_field, data_field, filename = signed[section]
+            if not application[available_field]:
+                raise NotFound()  # No ofrecer archivos sin firma ni de otra solicitud.
+            payload = base64.b64decode(application[data_field])
+            return request.make_response(payload, headers=[
+                ('Content-Type', 'application/pdf'),
+                ('Content-Disposition', content_disposition(filename)),
+                ('Content-Length', str(len(payload))),
+                ('Cache-Control', 'private, no-store'),
+                ('X-Content-Type-Options', 'nosniff'),
+            ])
+
+        # Fusionar PDFs podría invalidar firmas electrónicas: ZIP conserva cada
+        # archivo binariamente idéntico al cargado por el administrador.
+        if not (application.signed_application_available and
+                application.signed_verification_available):
+            raise NotFound()
+        memory = io.BytesIO()
+        with zipfile.ZipFile(memory, 'w', compression=zipfile.ZIP_STORED) as archive:
+            for key in ('solicitud', 'verificacion'):
+                _available, data_field, filename = signed[key]
+                archive.writestr(filename, base64.b64decode(application[data_field]))
+        contents = memory.getvalue()
+        return request.make_response(contents, headers=[
+            ('Content-Type', 'application/zip'),
+            ('Content-Disposition', content_disposition('Documentos_Firmados_%s.zip' % safe_number)),
+            ('Content-Length', str(len(contents))),
             ('Cache-Control', 'private, no-store'),
             ('X-Content-Type-Options', 'nosniff'),
         ])
@@ -889,6 +921,19 @@ class ConederaCreditPortal(http.Controller):
             errors.append(_('La latitud debe estar entre -90 y 90.'))
         if longitude_raw and not -180 <= values['business_longitude'] <= 180:
             errors.append(_('La longitud debe estar entre -180 y 180.'))
+        if not latitude_raw or not longitude_raw:
+            errors.append(_('Debe registrar la ubicación del negocio mediante la ubicación actual o ingresar latitud y longitud manualmente.'))
+        values['business_location_method'] = (
+            'automatic' if _clean(post.get('business_location_method')) == 'automatic'
+            else 'manual'
+        )
+        # Normalizar la coordenada en el servidor: jamás confiar en texto libre
+        # que el navegador indique como ubicación capturada.
+        values['business_location_captured'] = (
+            ('%.7f, %.7f' % (values.get('business_latitude') or 0.0, values.get('business_longitude') or 0.0))
+            if values['business_location_method'] == 'automatic' and latitude_raw and longitude_raw
+            else False
+        )
         values['application_date'] = values.get('application_date') or fields.Date.context_today(request.env.user).strftime('%Y-%m-%d')
         values['portal_user_id'] = request.env.user.id
         # La empresa viene del sitio web actual, nunca de los datos enviados por el navegador.

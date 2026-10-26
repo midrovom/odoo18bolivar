@@ -1,3 +1,5 @@
+import base64
+import binascii
 import logging
 from markupsafe import escape
 
@@ -123,6 +125,8 @@ class ConederaCreditApplication(models.Model):
     authorized_buyer_email = fields.Char(string='Correo de persona autorizada a comprar')
     authorized_pickup_name = fields.Char(string='Persona autorizada a retirar mercadería')
     authorized_pickup_identification = fields.Char(string='Cédula de persona autorizada a retirar mercadería')
+    business_location_captured = fields.Char(string='Ubicación capturada automáticamente', copy=False, readonly=True, help='Coordenadas declaradas por el navegador cuando el cliente usa la captura automática. No constituye certificación de GPS.')
+    business_location_method = fields.Selection([('automatic', 'Ubicación actual'), ('manual', 'Coordenadas ingresadas manualmente')], string='Método de ubicación', default='manual', copy=False, readonly=True)
     business_latitude = fields.Float(string='Latitud del negocio', digits=(10, 7))
     business_longitude = fields.Float(string='Longitud del negocio', digits=(10, 7))
     # Compatibilidad temporal con vistas almacenadas de versiones anteriores.
@@ -142,6 +146,51 @@ class ConederaCreditApplication(models.Model):
     history_ids = fields.One2many('conedera.credit.stage.history', 'application_id', string='Historial de etapas', readonly=True)
     document_ids = fields.One2many('conedera.credit.documents', 'application_id', string='Documentos solicitados', copy=False)
     document_complete = fields.Boolean(string='Documentación completa', compute='_compute_document_complete')
+
+    # PDFs ya firmados que carga CONEDERA. No son los reportes QWeb originales.
+    # El almacenamiento attachment=True respeta la base de datos/filestore de Odoo.
+    signed_application_pdf = fields.Binary(
+        string='Solicitud de crédito firmada (PDF)', attachment=True, copy=False)
+    signed_application_filename = fields.Char(
+        string='Nombre de la solicitud firmada', copy=False)
+    signed_verification_pdf = fields.Binary(
+        string='Verificación de ubicación firmada (PDF)', attachment=True, copy=False)
+    signed_verification_filename = fields.Char(
+        string='Nombre de la verificación firmada', copy=False)
+    signed_application_available = fields.Boolean(
+        string='Solicitud firmada disponible', compute='_compute_signed_pdf_available', store=True)
+    signed_verification_available = fields.Boolean(
+        string='Verificación firmada disponible', compute='_compute_signed_pdf_available', store=True)
+
+    @api.depends('signed_application_pdf', 'signed_verification_pdf')
+    def _compute_signed_pdf_available(self):
+        for application in self:
+            application.signed_application_available = bool(application.signed_application_pdf)
+            application.signed_verification_available = bool(application.signed_verification_pdf)
+
+    @api.constrains('signed_application_pdf', 'signed_application_filename',
+                    'signed_verification_pdf', 'signed_verification_filename')
+    def _check_signed_pdfs(self):
+        """Aceptar exclusivamente PDFs originales, con límite de 25 MB por archivo."""
+        for application in self:
+            for data_field, name_field, label in (
+                ('signed_application_pdf', 'signed_application_filename', 'solicitud firmada'),
+                ('signed_verification_pdf', 'signed_verification_filename', 'verificación firmada'),
+            ):
+                payload = application[data_field]
+                if not payload:
+                    continue
+                filename = (application[name_field] or '').strip()
+                if not filename.lower().endswith('.pdf'):
+                    raise ValidationError(_('El archivo de %s debe tener extensión .pdf.') % label)
+                try:
+                    raw = base64.b64decode(payload, validate=True)
+                except (ValueError, TypeError, binascii.Error):
+                    raise ValidationError(_('El archivo de %s no contiene un PDF válido.') % label)
+                if not raw.startswith(b'%PDF-'):
+                    raise ValidationError(_('El archivo de %s debe ser un PDF real.') % label)
+                if len(raw) > 25 * 1024 * 1024:
+                    raise ValidationError(_('El PDF de %s supera el límite de 25 MB.') % label)
 
     stage_id = fields.Many2one(
         'conedera.credit.stage', string='Etapa', tracking=True, index=True,

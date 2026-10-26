@@ -164,9 +164,9 @@
             function adjustForeignFields() {
                 var needsForeign = identityType.value === 'foreign';
                 creditForm.querySelectorAll('.credit-foreign-field').forEach(function (wrap) {
-                    wrap.hidden = !needsForeign;
+                    wrap.hidden = false;
                     wrap.querySelectorAll('input, select').forEach(function (field) {
-                        field.disabled = !needsForeign;
+                        field.disabled = false;
                         field.required = needsForeign;
                         if (!needsForeign) { field.setCustomValidity(''); }
                     });
@@ -292,64 +292,102 @@
             }, { once: true });
         }
 
-        // Geolocalización del navegador: exige HTTPS (salvo localhost) y permiso del usuario.
-        // Se informa la causa real del error sin sustituir la seguridad del navegador.
+        // Dos formas de declarar la ubicación: capturar coordenadas del navegador
+        // o introducirlas manualmente. Ambas se almacenan en latitud/longitud.
         var locateButton = document.getElementById('credit-get-location');
-        if (locateButton) {
-            locateButton.addEventListener('click', function () {
-                if (window.isSecureContext === false) {
-                    window.alert('La ubicación automática requiere abrir el portal con HTTPS y un certificado válido. Está usando una conexión no segura (HTTP). Abra el portal con https:// y vuelva a intentarlo; mientras tanto puede escribir latitud y longitud manualmente.');
-                    return;
+        var manualButton = document.getElementById('credit-enter-location-manually');
+        var latitudeInput = document.getElementById('credit-business-latitude');
+        var longitudeInput = document.getElementById('credit-business-longitude');
+        var capturedInput = document.getElementById('credit-location-captured');
+        var locationMethod = document.getElementById('credit-location-method');
+        var locationStatus = document.getElementById('credit-location-status');
+        var manualContainers = document.querySelectorAll('.credit-manual-coordinates');
+        if (latitudeInput && longitudeInput && locationMethod && capturedInput) {
+            function showManualCoordinates(clearAutomatic) {
+                manualContainers.forEach(function (el) { el.hidden = false; });
+                if (clearAutomatic) {
+                    locationMethod.value = 'manual';
+                    capturedInput.value = '';
                 }
-                if (!navigator.geolocation) {
-                    window.alert('La geolocalización no está disponible en este navegador o está bloqueada. Revise que el portal utilice HTTPS y que el navegador permita la ubicación. También puede introducir las coordenadas manualmente.');
-                    return;
-                }
-                var latitudeInput = document.getElementById('credit-business-latitude');
-                var longitudeInput = document.getElementById('credit-business-longitude');
-                if (!latitudeInput || !longitudeInput) { return; }
-                var initialText = locateButton.textContent;
-                locateButton.disabled = true;
-                locateButton.textContent = 'Obteniendo ubicación...';
-                function finish() {
-                    locateButton.disabled = false;
-                    locateButton.textContent = initialText;
-                }
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    latitudeInput.value = position.coords.latitude.toFixed(7);
-                    longitudeInput.value = position.coords.longitude.toFixed(7);
-                    latitudeInput.dispatchEvent(new Event('input', { bubbles: true }));
-                    longitudeInput.dispatchEvent(new Event('input', { bubbles: true }));
-                    finish();
-                }, function (error) {
-                    finish();
-                    var message;
-                    if (error.code === 1) {
-                        message = 'El navegador denegó el permiso para acceder a su ubicación. Abra los permisos del sitio en la barra de direcciones, permita Ubicación y vuelva a intentarlo. Si utiliza HTTPS, compruebe también los permisos de ubicación del dispositivo.';
-                    } else if (error.code === 2) {
-                        message = 'El dispositivo no pudo determinar su ubicación. Active la ubicación/GPS del dispositivo, compruebe la conexión y vuelva a intentarlo.';
-                    } else if (error.code === 3) {
-                        message = 'Se agotó el tiempo para obtener la ubicación. Pruebe en un lugar con mejor señal GPS o escriba las coordenadas manualmente.';
-                    } else {
-                        message = 'No fue posible obtener su ubicación. Compruebe los permisos del navegador o escriba las coordenadas manualmente.';
-                    }
-                    window.alert(message);
-                }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 30000 });
-            });
-        }
-        if (creditForm) {
-            var latitude = creditForm.querySelector('[name="business_latitude"]');
-            var longitude = creditForm.querySelector('[name="business_longitude"]');
-            if (latitude && longitude) {
-                function validateCoordinates() {
-                    var missingPair = Boolean(latitude.value.trim()) !== Boolean(longitude.value.trim());
-                    latitude.setCustomValidity(missingPair ? 'Debe ingresar latitud y longitud juntas.' : '');
-                    longitude.setCustomValidity(missingPair ? 'Debe ingresar latitud y longitud juntas.' : '');
-                }
-                latitude.addEventListener('input', validateCoordinates);
-                longitude.addEventListener('input', validateCoordinates);
-                validateCoordinates();
+                latitudeInput.required = true;
+                longitudeInput.required = true;
             }
+            function showAutomaticallyCaptured(latitude, longitude) {
+                latitudeInput.value = latitude.toFixed(7);
+                longitudeInput.value = longitude.toFixed(7);
+                locationMethod.value = 'automatic';
+                capturedInput.value = latitudeInput.value + ', ' + longitudeInput.value;
+                manualContainers.forEach(function (el) { el.hidden = true; });
+                latitudeInput.required = true;
+                longitudeInput.required = true;
+                latitudeInput.dispatchEvent(new Event('input', { bubbles: true }));
+                longitudeInput.dispatchEvent(new Event('input', { bubbles: true }));
+                if (locationStatus) { locationStatus.textContent = 'Ubicación capturada; las coordenadas se guardarán con la solicitud.'; }
+            }
+            // Mantener la modalidad con que se guardó una solicitud al volver a editarla.
+            if (locationMethod.value === 'automatic' && capturedInput.value && latitudeInput.value && longitudeInput.value) {
+                manualContainers.forEach(function (el) { el.hidden = true; });
+            } else {
+                // En el primer ingreso se ofrecen ambos botones; los campos solo
+                // aparecen cuando el usuario escoge el modo manual.
+                manualContainers.forEach(function (el) { el.hidden = true; });
+                if (latitudeInput.value && longitudeInput.value) { showManualCoordinates(false); }
+            }
+            if (manualButton) {
+                manualButton.addEventListener('click', function () {
+                    showManualCoordinates(true);
+                    if (locationStatus) { locationStatus.textContent = 'Escriba las dos coordenadas del negocio para continuar.'; }
+                    latitudeInput.focus();
+                });
+            }
+            if (locateButton) {
+                locateButton.addEventListener('click', function () {
+                    function fallback(message) {
+                        showManualCoordinates(true);
+                        if (locationStatus) { locationStatus.textContent = message; }
+                        window.alert(message);
+                    }
+                    if (!window.isSecureContext) {
+                        fallback('La captura de ubicación requiere HTTPS. Puede escribir latitud y longitud manualmente.');
+                        return;
+                    }
+                    if (!navigator.geolocation) {
+                        fallback('Su navegador no permite obtener la ubicación. Ingrese latitud y longitud manualmente.');
+                        return;
+                    }
+                    locateButton.disabled = true;
+                    var originalText = locateButton.textContent;
+                    locateButton.textContent = 'Obteniendo ubicación...';
+                    function finish() { locateButton.disabled = false; locateButton.textContent = originalText; }
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        finish();
+                        showAutomaticallyCaptured(position.coords.latitude, position.coords.longitude);
+                    }, function (error) {
+                        finish();
+                        var msg = error.code === 1 ? 'El navegador denegó el permiso de ubicación.' :
+                            (error.code === 2 ? 'No se pudo determinar la ubicación del dispositivo.' :
+                            (error.code === 3 ? 'Se agotó el tiempo de espera para obtener la ubicación.' : 'No se pudo detectar la ubicación.'));
+                        fallback(msg + ' Ingrese latitud y longitud manualmente o reintente con HTTPS y el permiso habilitado.');
+                    }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 30000 });
+                });
+            }
+            function validateCoordinates() {
+                var missingPair = Boolean(latitudeInput.value.trim()) !== Boolean(longitudeInput.value.trim());
+                latitudeInput.setCustomValidity(missingPair ? 'Debe ingresar latitud y longitud juntas.' : '');
+                longitudeInput.setCustomValidity(missingPair ? 'Debe ingresar latitud y longitud juntas.' : '');
+                if (locationMethod.value === 'manual' && capturedInput.value) {
+                    capturedInput.value = '';
+                }
+            }
+            latitudeInput.addEventListener('input', function () {
+                if (locationMethod.value === 'automatic' && capturedInput.value &&
+                    capturedInput.value !== (latitudeInput.value + ', ' + longitudeInput.value)) {
+                    showManualCoordinates(true);
+                }
+                validateCoordinates();
+            });
+            longitudeInput.addEventListener('input', validateCoordinates);
+            validateCoordinates();
         }
 
         // Se muestra un solo vehículo por defecto. Cada clic agrega otro
@@ -481,6 +519,17 @@
             function validateStep(step) {
                 var panel = panels[step - 1];
                 if (!panel) { return true; }
+                // En Negocio se debe escoger una de las dos opciones de ubicación;
+                // los campos manuales no están visibles hasta activar esa opción.
+                if (step === 2 && latitudeInput && longitudeInput &&
+                        (!latitudeInput.value.trim() || !longitudeInput.value.trim())) {
+                    if (locationStatus) {
+                        locationStatus.textContent = 'Seleccione Usar mi ubicación actual o Ingresar latitud y longitud manualmente para continuar.';
+                    }
+                    var locationChoice = document.getElementById('credit-location-choice');
+                    if (locationChoice) { locationChoice.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+                    return false;
+                }
                 var fields = panel.querySelectorAll('input, select, textarea');
                 for (var i = 0; i < fields.length; i++) {
                     var field = fields[i];

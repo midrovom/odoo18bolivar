@@ -296,3 +296,14 @@ un croquis fuera de la etapa de revisión habilitada, incluso con el permiso.
 - Las solicitudes anteriores no almacenaban empresa: se asignan a la empresa activa durante la actualización, y debe revisarse el resultado si ya trabajaba con varias compañías.
 - Los textos legales (por ejemplo, ciudad de jurisdicción, referencias a la sede principal) deben ser revisados y personalizados por empresa antes de usarlos con personas jurídicas distintas.
 - PDF del portal requiere sesión y pertenencia de la solicitud; las áreas de firmas se mantienen vacías y NO son una firma electrónica aplicada.
+
+
+## Versión 18.0.1.8.20 - Documentos firmados
+
+- Nueva pestaña **Documentos firmados** posterior a Verificación de ubicación, con dos PDF adjuntos a la solicitud: solicitud firmada y verificación de ubicación firmada.
+- Solo el Administrador de crédito puede cargar o sustituir los archivos; el personal de revisión puede consultarlos.
+- Validación de extensión .pdf, cabecera PDF y tamaño máximo 25 MB por archivo.
+- En el portal, el menú de descarga permite obtener únicamente los PDFs firmados que se hayan cargado para la solicitud propia. Si aún no hay archivos muestra *Firmas pendientes*.
+- Si están disponibles ambos, se ofrecen juntos en **ZIP**, no en un PDF fusionado: modificar un PDF firmado electrónicamente invalidaría sus firmas.
+- Los reportes QWeb originales siguen disponibles para impresión en el backend; en el portal se descargan únicamente los PDF firmados guardados en la nueva pestaña.
+- El archivo queda vinculado a la solicitud y su empresa, sin compartir adjuntos entre expedientes.

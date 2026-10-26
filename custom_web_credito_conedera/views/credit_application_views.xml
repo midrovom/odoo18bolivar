@@ -31,7 +31,7 @@
                         </field>
                     </page>
                     <page string="Negocio o empresa">
-                        <group><group><field name="business_name" readonly="not credit_is_admin"/><field name="legal_representative" readonly="not credit_is_admin"/><field name="business_ruc" readonly="not credit_is_admin"/><field name="province" readonly="not credit_is_admin"/><field name="canton" readonly="not credit_is_admin"/><field name="city" readonly="not credit_is_admin"/><field name="business_address" readonly="not credit_is_admin"/></group><group><field name="business_phone" readonly="not credit_is_admin"/><field name="representative_email" readonly="not credit_is_admin"/><field name="activity_start_date" readonly="not credit_is_admin"/><field name="business_local_type" readonly="not credit_is_admin"/><field name="business_latitude" readonly="not credit_is_admin"/><field name="business_longitude" readonly="not credit_is_admin"/><field name="invoice_email" readonly="not credit_is_admin"/></group></group>
+                        <group><group><field name="business_name" readonly="not credit_is_admin"/><field name="legal_representative" readonly="not credit_is_admin"/><field name="business_ruc" readonly="not credit_is_admin"/><field name="province" readonly="not credit_is_admin"/><field name="canton" readonly="not credit_is_admin"/><field name="city" readonly="not credit_is_admin"/><field name="business_address" readonly="not credit_is_admin"/></group><group><field name="business_phone" readonly="not credit_is_admin"/><field name="representative_email" readonly="not credit_is_admin"/><field name="activity_start_date" readonly="not credit_is_admin"/><field name="business_local_type" readonly="not credit_is_admin"/><field name="business_location_method" readonly="1"/><field name="business_location_captured" readonly="1"/><field name="business_latitude" readonly="not credit_is_admin"/><field name="business_longitude" readonly="not credit_is_admin"/><field name="invoice_email" readonly="not credit_is_admin"/></group></group>
                         <group string="Información económica"><group><field name="monthly_sales" readonly="not credit_is_admin"/><field name="social_capital" readonly="not credit_is_admin"/><field name="assets_amount" readonly="not credit_is_admin"/><field name="liabilities_amount" readonly="not credit_is_admin"/></group><group><field name="monthly_income" readonly="not credit_is_admin"/><field name="monthly_expenses" readonly="not credit_is_admin"/><field name="authorized_buyer_name" readonly="not credit_is_admin"/><field name="authorized_buyer_identification" readonly="not credit_is_admin"/><field name="authorized_buyer_email" readonly="not credit_is_admin"/><field name="authorized_pickup_name" readonly="not credit_is_admin"/><field name="authorized_pickup_identification" readonly="not credit_is_admin"/></group></group>
                     </page>
                     <page string="Relación de dependencia"><group><group><field name="employment_company" readonly="not credit_is_admin"/><field name="employment_activity" readonly="not credit_is_admin"/><field name="employment_address" readonly="not credit_is_admin"/><field name="employment_phone" readonly="not credit_is_admin"/></group><group><field name="employment_start_date" readonly="not credit_is_admin"/><field name="employment_position" readonly="not credit_is_admin"/><field name="employment_salary" readonly="not credit_is_admin"/></group></group></page>
@@ -112,7 +112,27 @@
         <field name="verifier_name" required="credit_verification_final_required"/>
         <field name="verification_completed_at" readonly="1"/>
     </group>
-</page><page string="Historial de etapas"><field name="history_ids" readonly="1"><list create="0" edit="0" delete="0"><field name="date" readonly="1"/><field name="stage_id" readonly="1"/><field name="user_id" readonly="1"/><field name="notes" readonly="1"/><field name="visible_to_portal" readonly="1"/></list></field></page>
+</page>
+                    <page string="Documentos firmados" groups="custom_web_credito_conedera.group_credit_manager">
+                        <div class="alert alert-info mb-3" role="alert">
+                            Cargue aquí los dos archivos PDF ya firmados por los responsables.
+                            El cliente podrá descargar desde su portal únicamente los documentos cargados.
+                            La carga o sustitución de documentos firmados corresponde al Administrador de crédito.
+                        </div>
+                        <group string="Solicitud de crédito firmada" col="2">
+                            <field name="signed_application_pdf" filename="signed_application_filename"
+                                   readonly="not credit_is_admin" widget="binary"/>
+                            <field name="signed_application_filename" invisible="1"/>
+                            <field name="signed_application_available" readonly="1"/>
+                        </group>
+                        <group string="Verificación ubicación del negocio firmada" col="2">
+                            <field name="signed_verification_pdf" filename="signed_verification_filename"
+                                   readonly="not credit_is_admin" widget="binary"/>
+                            <field name="signed_verification_filename" invisible="1"/>
+                            <field name="signed_verification_available" readonly="1"/>
+                        </group>
+                    </page>
+                    <page string="Historial de etapas"><field name="history_ids" readonly="1"><list create="0" edit="0" delete="0"><field name="date" readonly="1"/><field name="stage_id" readonly="1"/><field name="user_id" readonly="1"/><field name="notes" readonly="1"/><field name="visible_to_portal" readonly="1"/></list></field></page>
                 </notebook>
             </sheet><chatter/>
         </form></field>
