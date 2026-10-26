@@ -726,6 +726,26 @@ class ConederaCreditPortal(http.Controller):
         """Acceso obsoleto: conservar enlaces guardados sin exponer gestión adicional."""
         return request.redirect('/my/credito/historial')
 
+    @staticmethod
+    def _signed_pdf_access(application):
+        """Estado aprobado + adjunto original presente en ESTA solicitud.
+
+        Los marcadores calculados del modelo sirven para listas, pero el portal
+        verifica directamente ambos archivos (evita enlaces a adjuntos vacíos).
+        Una etapa de documentación recibida solo cuenta si hubo aprobación.
+        """
+        stage = application.stage_id
+        approved = bool(stage and (
+            stage.is_approved or (
+                stage.is_documents_received and
+                bool(application.history_ids.filtered(lambda h: h.stage_id.is_approved))
+            )
+        ))
+        return {
+            'has_signed_application_pdf': approved and bool(application.signed_application_pdf),
+            'has_signed_verification_pdf': approved and bool(application.signed_verification_pdf),
+        }
+
     @http.route('/my/credito/<int:application_id>/pdf/<string:section>',
                 type='http', auth='user', website=False, methods=['GET'], sitemap=False)
     def credit_portal_download_pdf(self, application_id, section, **kw):
@@ -738,23 +758,25 @@ class ConederaCreditPortal(http.Controller):
         if section not in ('solicitud', 'verificacion', 'completo'):
             raise NotFound()
         application = self._get_owned_application(application_id)
-        if not application.stage_id or not (
-                application.stage_id.is_approved or application.stage_id.is_documents_received):
-            raise NotFound()  # Ocultar y bloquear PDFs firmados antes de aprobar.
+        signed_access = self._signed_pdf_access(application)
+        if not any(signed_access.values()):
+            raise NotFound()  # No aprobada o sin documentos firmados cargados.
         safe_number = re.sub(r'[^A-Za-z0-9_-]', '_', application.name or str(application.id))
         from odoo.http import content_disposition
 
         signed = {
-            'solicitud': ('signed_application_available', 'signed_application_pdf',
+            'solicitud': ('has_signed_application_pdf', 'signed_application_pdf',
                           'Solicitud_Firmada_%s.pdf' % safe_number),
-            'verificacion': ('signed_verification_available', 'signed_verification_pdf',
+            'verificacion': ('has_signed_verification_pdf', 'signed_verification_pdf',
                              'Verificacion_Ubicacion_Firmada_%s.pdf' % safe_number),
         }
         if section in signed:
             available_field, data_field, filename = signed[section]
-            if not application[available_field]:
+            if not signed_access[available_field]:
                 raise NotFound()  # No ofrecer archivos sin firma ni de otra solicitud.
             payload = base64.b64decode(application[data_field])
+            if not payload.startswith(b'%PDF-'):
+                raise NotFound()
             return request.make_response(payload, headers=[
                 ('Content-Type', 'application/pdf'),
                 ('Content-Disposition', content_disposition(filename)),
@@ -765,14 +787,16 @@ class ConederaCreditPortal(http.Controller):
 
         # Fusionar PDFs podría invalidar firmas electrónicas: ZIP conserva cada
         # archivo binariamente idéntico al cargado por el administrador.
-        if not (application.signed_application_available and
-                application.signed_verification_available):
+        if not all(signed_access.values()):
             raise NotFound()
         memory = io.BytesIO()
         with zipfile.ZipFile(memory, 'w', compression=zipfile.ZIP_STORED) as archive:
             for key in ('solicitud', 'verificacion'):
                 _available, data_field, filename = signed[key]
-                archive.writestr(filename, base64.b64decode(application[data_field]))
+                pdf_data = base64.b64decode(application[data_field])
+                if not pdf_data.startswith(b'%PDF-'):
+                    raise NotFound()
+                archive.writestr(filename, pdf_data)
         contents = memory.getvalue()
         return request.make_response(contents, headers=[
             ('Content-Type', 'application/zip'),
@@ -1127,7 +1151,10 @@ class ConederaCreditPortal(http.Controller):
         application = self._get_owned_application(application_id)
         history = application.history_ids.filtered(lambda row: row.visible_to_portal).sorted(key=lambda row: (row.date or fields.Datetime.now(), row.id))
         documents = application.document_ids[:1]
+        signed_access = self._signed_pdf_access(application)
         return request.render('custom_web_credito_conedera.portal_credit_detail', {
+            **signed_access,
+            'show_signed_pdf_download': any(signed_access.values()),
             'application': application,
             'history': history,
             'documents': documents,

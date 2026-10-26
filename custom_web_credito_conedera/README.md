@@ -307,3 +307,12 @@ un croquis fuera de la etapa de revisión habilitada, incluso con el permiso.
 - Si están disponibles ambos, se ofrecen juntos en **ZIP**, no en un PDF fusionado: modificar un PDF firmado electrónicamente invalidaría sus firmas.
 - Los reportes QWeb originales siguen disponibles para impresión en el backend; en el portal se descargan únicamente los PDF firmados guardados en la nueva pestaña.
 - El archivo queda vinculado a la solicitud y su empresa, sin compartir adjuntos entre expedientes.
+
+
+### Versión 18.0.1.8.22 — PDF firmados en el portal
+
+- En el historial no se muestra la columna «Documentos» ni el botón de PDF.
+- La pestaña **Documentos firmados** se mantiene inmediatamente después de **Verificación de ubicación (uso interno)**.
+- En el detalle de una solicitud aparece **Descargar PDF** solo si ya está aprobada y se cargó al menos uno de los PDF firmados.
+- El portal descarga exclusivamente los binarios originales de esa solicitud. Los dos PDF se entregan como ZIP sin fusionar, para conservar las firmas electrónicas.
+- Para solicitudes en la etapa «Documentación recibida», la descarga requiere una aprobación previa registrada en el historial.
