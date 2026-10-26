@@ -25,6 +25,61 @@ OTP_MAX_ATTEMPTS = 5
 MAX_FILE_SIZE = 12 * 1024 * 1024
 MAX_VEHICLES = 30
 MAX_REFERENCES = 30
+# Campos obligatorios de las pantallas 1 y 2 del portal.
+# Los del cónyuge, extranjeros, empleo y vehículos se comprueban según corresponda.
+PORTAL_REQUIRED_OWNER = (
+    ('application_date', 'Fecha de solicitud'),
+    ('application_place', 'Lugar de solicitud'),
+    ('applicant_type_id', 'Tipo de solicitante'),
+    ('identification_type', 'Tipo de documento'),
+    ('identification', 'Número de documento'),
+    ('applicant_name', 'Nombres y apellidos'),
+    ('applicant_email', 'Correo electrónico'),
+    ('phone_fixed', 'Teléfono fijo'),
+    ('mobile', 'Celular'),
+    ('profession', 'Profesión'),
+    ('marital_status_id', 'Estado civil'),
+    ('dependents_count', 'Número de cargas'),
+    ('home_address', 'Dirección domiciliaria'),
+    ('housing_type_id', 'Vivienda'),
+)
+PORTAL_REQUIRED_BUSINESS = (
+    ('business_name', 'Nombre o razón social'),
+    ('legal_representative', 'Nombre del representante legal'),
+    ('business_ruc', 'RUC del negocio'),
+    ('province', 'Provincia'),
+    ('canton', 'Cantón'),
+    ('city', 'Ciudad'),
+    ('business_address', 'Dirección de la empresa'),
+    ('business_phone', 'Teléfono de la empresa'),
+    ('representative_email', 'Correo del representante legal'),
+    ('activity_start_date', 'Fecha de inicio de actividades'),
+    ('business_local_type', 'Tipo de local'),
+    ('monthly_sales', 'Ventas mensuales'),
+    ('social_capital', 'Capital social'),
+    ('invoice_email', 'Correo para facturas'),
+    ('assets_amount', 'Activos'),
+    ('monthly_income', 'Ingresos mensuales'),
+    ('liabilities_amount', 'Pasivos'),
+    ('monthly_expenses', 'Gastos mensuales'),
+    ('business_latitude', 'Latitud del negocio'),
+    ('business_longitude', 'Longitud del negocio'),
+    ('authorized_buyer_name', 'Persona autorizada a comprar'),
+    ('authorized_buyer_identification', 'Documento de la persona autorizada a comprar'),
+    ('authorized_buyer_email', 'Correo de la persona autorizada a comprar'),
+    ('authorized_pickup_name', 'Persona autorizada a retirar mercadería'),
+    ('authorized_pickup_identification', 'Documento de la persona autorizada a retirar mercadería'),
+)
+PORTAL_EMPLOYMENT_FIELDS = (
+    ('employment_company', 'Nombre de la empresa (empleo)'),
+    ('employment_activity', 'Actividad de la empresa (empleo)'),
+    ('employment_address', 'Dirección de la empresa (empleo)'),
+    ('employment_phone', 'Teléfono de la empresa (empleo)'),
+    ('employment_start_date', 'Fecha de ingreso al empleo'),
+    ('employment_position', 'Cargo'),
+    ('employment_salary', 'Sueldo'),
+)
+
 LOCATION_CLIENT_FIELDS = (
     'verification_province', 'verification_city', 'verification_canton',
     'verification_parish', 'verification_neighborhood',
@@ -497,44 +552,87 @@ class ConederaCreditPortal(http.Controller):
         return self._render_application_form({'applicant_name': '', 'applicant_email': request.env.user.email or request.env.user.login})
 
     def _reference_commands(self, post, errors):
+        """Validación de filas completas, con mínimo 3 personales y bancarias.
+
+        Las comerciales requieren al menos una fila (la primera). Las otras
+        dos líneas iniciales pueden quedar vacías, pero cualquier fila usada
+        o añadida desde el botón debe completarse íntegramente.
+        """
         commands = []
+        specs = {
+            'commercial': (
+                ('provider', 'Proveedor'), ('since', 'Cliente desde'),
+                ('limit', 'Cupo'), ('term', 'Plazo'), ('phone', 'Teléfonos'),
+                ('contact', 'Contacto'),
+            ),
+            'personal': (
+                ('name', 'Nombres'), ('address', 'Dirección'),
+                ('phone', 'Teléfono domicilio'), ('relationship', 'Parentesco'),
+            ),
+            'bank': (
+                ('name', 'Banco / tarjeta de crédito'),
+                ('account', 'Número de cuenta'),
+                ('opening', 'Fecha de apertura'), ('type', 'Tipo de cuenta'),
+            ),
+        }
+        type_names = {'commercial': 'comercial', 'personal': 'personal', 'bank': 'bancaria'}
+        minimums = {'commercial': 1, 'personal': 3, 'bank': 3}
         for typ in ('commercial', 'personal', 'bank'):
             raw_count = _clean(post.get('%s_count' % typ))
             if not raw_count.isdecimal() or not 3 <= int(raw_count) <= MAX_REFERENCES:
-                errors.append(_('La cantidad de referencias %(tipo)s no es válida.') % {'tipo': typ})
+                errors.append(_('La cantidad de referencias %(tipo)s no es válida.') % {'tipo': type_names[typ]})
                 continue
+            complete = 0
             for number in range(1, int(raw_count) + 1):
+                raw_fields = {
+                    column: _clean(post.get('%s_%s_%s' % (typ, column, number)))
+                    for column, _label in specs[typ]
+                }
+                has_data = any(raw_fields.values())
+                required = (typ in ('personal', 'bank') or (typ == 'commercial' and (number == 1 or number > 3)))
+                if not (has_data or required):
+                    continue
+                for column, label in specs[typ]:
+                    if not raw_fields[column]:
+                        errors.append(_(
+                            'Referencia %(tipo)s %(numero)s: complete %(campo)s.'
+                        ) % {'tipo': type_names[typ], 'numero': number, 'campo': label})
                 if typ == 'commercial':
                     values = {
                         'reference_type': typ, 'sequence': number * 10,
-                        'provider': _clean(post.get('commercial_provider_%s' % number)),
-                        'customer_since': _clean(post.get('commercial_since_%s' % number)),
-                        'credit_limit': _parse_number(post.get('commercial_limit_%s' % number), _('Cupo de referencia comercial %s') % number, errors),
-                        'term': _clean(post.get('commercial_term_%s' % number)),
-                        'phone': _clean(post.get('commercial_phone_%s' % number)),
-                        'contact': _clean(post.get('commercial_contact_%s' % number)),
+                        'provider': raw_fields['provider'],
+                        'customer_since': raw_fields['since'],
+                        'credit_limit': _parse_number(raw_fields['limit'],
+                            _('Cupo de referencia comercial %s') % number, errors),
+                        'term': raw_fields['term'],
+                        'phone': raw_fields['phone'],
+                        'contact': raw_fields['contact'],
                     }
-                    relevant = ('provider', 'customer_since', 'credit_limit', 'term', 'phone', 'contact')
                 elif typ == 'personal':
                     values = {
                         'reference_type': typ, 'sequence': number * 10,
-                        'person_name': _clean(post.get('personal_name_%s' % number)),
-                        'address': _clean(post.get('personal_address_%s' % number)),
-                        'home_phone': _clean(post.get('personal_phone_%s' % number)),
-                        'relationship': _clean(post.get('personal_relationship_%s' % number)),
+                        'person_name': raw_fields['name'],
+                        'address': raw_fields['address'],
+                        'home_phone': raw_fields['phone'],
+                        'relationship': raw_fields['relationship'],
                     }
-                    relevant = ('person_name', 'address', 'home_phone', 'relationship')
                 else:
+                    if raw_fields['type'] and raw_fields['type'] not in ('current', 'savings'):
+                        errors.append(_('Referencia bancaria %s: seleccione un tipo de cuenta válido.') % number)
                     values = {
                         'reference_type': typ, 'sequence': number * 10,
-                        'bank_name': _clean(post.get('bank_name_%s' % number)),
-                        'account_number': _clean(post.get('bank_account_%s' % number)),
-                        'opening_date': _parse_date(post.get('bank_opening_%s' % number)),
-                        'account_type': _clean(post.get('bank_type_%s' % number)) or False,
+                        'bank_name': raw_fields['name'],
+                        'account_number': raw_fields['account'],
+                        'opening_date': _parse_date(raw_fields['opening']),
+                        'account_type': raw_fields['type'] or False,
                     }
-                    relevant = ('bank_name', 'account_number', 'opening_date', 'account_type')
-                if any(values[key] not in ('', 0, 0.0, False) for key in relevant):
+                if all(raw_fields.values()):
+                    complete += 1
                     commands.append((0, 0, values))
+            if complete < minimums[typ]:
+                errors.append(_(
+                    'Debe ingresar al menos %(cantidad)s referencia(s) %(tipo)s completas.'
+                ) % {'cantidad': minimums[typ], 'tipo': type_names[typ]})
         return commands
 
     def _vehicle_commands(self, post, errors):
@@ -555,8 +653,20 @@ class ConederaCreditPortal(http.Controller):
             }
             if values['value'] < 0:
                 errors.append(_('El avalúo del vehículo %s no puede ser negativo.') % number)
-            if any(values[key] for key in ('brand', 'model', 'year', 'value')):
-                commands.append((0, 0, values))
+            raw_vehicle = {
+                'brand': _clean(post.get('vehicle%s_brand' % number)),
+                'model': _clean(post.get('vehicle%s_model' % number)),
+                'year': _clean(post.get('vehicle%s_year' % number)),
+                'value': _clean(post.get('vehicle%s_value' % number)),
+            }
+            if any(raw_vehicle.values()):
+                for key, label in (('brand', 'Marca'), ('model', 'Modelo'),
+                                   ('year', 'Año'), ('value', 'Avalúo comercial')):
+                    if not raw_vehicle[key]:
+                        errors.append(_('Vehículo %(numero)s: complete %(campo)s.') %
+                                      {'numero': number, 'campo': label})
+                if all(raw_vehicle.values()):
+                    commands.append((0, 0, values))
         return commands
 
     @http.route('/my/credito/solicitud/enviar', type='http', auth='user', website=True, methods=['POST'], sitemap=False)
@@ -570,9 +680,14 @@ class ConederaCreditPortal(http.Controller):
             if name in DATE_FIELDS and field_value:
                 values[name] = str(field_value)
             elif name in FLOAT_FIELDS or name in INTEGER_FIELDS:
-                values[name] = str(field_value) if field_value else ''
+                values[name] = str(field_value) if field_value is not None and field_value is not False else ''
             else:
                 values[name] = field_value or ''
+        # No interpretar el sueldo histórico por defecto (0,0) como una relación
+        # laboral declarada: esa sección sigue siendo condicional.
+        if not any(values.get(field) for field, _label in PORTAL_EMPLOYMENT_FIELDS
+                   if field != 'employment_salary'):
+            values['employment_salary'] = ''
         values['applicant_type_id'] = str(application.applicant_type_id.id or '')
         values['marital_status_id'] = str(application.marital_status_id.id or '')
         values['housing_type_id'] = str(application.housing_type_id.id or '')
@@ -581,7 +696,8 @@ class ConederaCreditPortal(http.Controller):
         for number, vehicle in enumerate(vehicles, 1):
             for suffix, field_name in (('brand', 'brand'), ('model', 'model'), ('year', 'year'), ('value', 'value')):
                 value = vehicle[field_name]
-                values['vehicle%s_%s' % (number, suffix)] = str(value) if value else ''
+                values['vehicle%s_%s' % (number, suffix)] = (str(value) if
+                    (value or (suffix == 'value' and value == 0)) else '')
         for typ in ('commercial', 'personal', 'bank'):
             refs = application.reference_ids.filtered(lambda r: r.reference_type == typ).sorted(key=lambda r: (r.sequence, r.id))
             values['%s_count' % typ] = str(max(3, len(refs)))
@@ -593,7 +709,8 @@ class ConederaCreditPortal(http.Controller):
             for number, ref in enumerate(refs, 1):
                 for suffix, field_name in fields_map:
                     value = ref[field_name]
-                    values['%s_%s_%s' % (typ, suffix, number)] = str(value) if value else ''
+                    values['%s_%s_%s' % (typ, suffix, number)] = (str(value) if
+                        (value or (typ == 'commercial' and suffix == 'limit' and value == 0)) else '')
         for term in ('declaration_accepted', 'prior_commercial_relationship_accepted',
                      'electronic_service_accepted', 'credit_bureau_authorized',
                      'company_signature_stamp_acknowledged', 'additional_financial_documents_accepted'):
@@ -821,19 +938,35 @@ class ConederaCreditPortal(http.Controller):
             values[field_name] = post.get(field_name) in ('on', '1', 'true', 'yes')
         values['reference_ids'] = self._reference_commands(post, errors)
 
-        for field_name, label in [
-            ('applicant_type_id', _('tipo de solicitante')),
-            ('identification', _('documento del solicitante')),
-            ('identification_type', _('tipo de documento')),
-            ('applicant_name', _('nombres y apellidos')),
-            ('applicant_email', _('correo electrónico')),
-            ('mobile', _('celular')),
-            ('business_name', _('nombre o razón social')),
-            ('business_ruc', _('RUC del negocio')),
-            ('business_address', _('dirección de la empresa')),
-        ]:
-            if not values.get(field_name):
-                errors.append(_('El campo %(field)s es obligatorio.') % {'field': label})
+        # Reglas del formulario del portal. Comprobar el POST original para que
+        # un importe 0 válido no sea confundido con un campo sin completar.
+        invalid_field_steps = []
+        for step, requirements in ((1, PORTAL_REQUIRED_OWNER), (2, PORTAL_REQUIRED_BUSINESS)):
+            for field_name, label in requirements:
+                if not _clean(post.get(field_name)):
+                    errors.append(_('El campo %(field)s es obligatorio.') % {'field': label})
+                    invalid_field_steps.append(step)
+        if _clean(post.get('identification_type')) == 'foreign':
+            for name, label in (
+                ('foreign_residence_time', _('Tiempo de residencia (extranjero)')),
+                ('foreign_work_visa', _('Visa de trabajo (extranjero)')),
+            ):
+                if not _clean(post.get(name)):
+                    errors.append(_('El campo %(field)s es obligatorio para un solicitante extranjero.') % {'field': label})
+                    invalid_field_steps.append(1)
+        # La actividad como empleado no aplica a todos los solicitantes; si
+        # registra uno de sus campos debe completar toda la sección laboral.
+        if any(_clean(post.get(field)) for field, _label in PORTAL_EMPLOYMENT_FIELDS):
+            for field, label in PORTAL_EMPLOYMENT_FIELDS:
+                if not _clean(post.get(field)):
+                    errors.append(_('Actividad en relación de dependencia: complete %(field)s.') % {'field': label})
+                    invalid_field_steps.append(3)
+        for field in ('representative_email', 'invoice_email', 'authorized_buyer_email'):
+            email = _clean(post.get(field))
+            if email and not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+', email):
+                errors.append(_('El correo electrónico del campo %(field)s no es válido.') % {'field': field.replace('_', ' ')})
+                invalid_field_steps.append(2)
+
         if values.get('identification') and not valid_credit_identity(values['identification'], values.get('identification_type')):
             errors.append(_('El documento del solicitante no corresponde al tipo elegido: cédula ecuatoriana válida (10), RUC numérico (13) o cédula extranjera numérica (10).'))
         if values.get('spouse_identification') and not valid_ecuador_or_foreign_document(values['spouse_identification']):
@@ -860,13 +993,18 @@ class ConederaCreditPortal(http.Controller):
             if not values[field_name]:
                 errors.append(message)
         if errors:
-            required_person = ('applicant_type_id', 'identification', 'applicant_name', 'applicant_email', 'mobile')
-            required_business = ('business_name', 'business_ruc', 'business_address')
             invalid_terms = not values['declaration_accepted'] or any(not values[key] for key, _message in consent_fields)
-            step = (2 if any('croquis' in err.lower() for err in errors) else
-                    1 if any(not values.get(key) for key in required_person) else
-                    2 if any(not values.get(key) for key in required_business) else
-                    5 if invalid_terms else 1)
+            if invalid_field_steps:
+                step = min(invalid_field_steps)
+            elif any('referencia comercial' in err.lower() or 'referencias comerciales' in err.lower()
+                     or 'referencia(s) comercial' in err.lower() for err in errors):
+                step = 3
+            elif any('referencia personal' in err.lower() or 'referencia bancaria' in err.lower()
+                     or 'referencia(s) personal' in err.lower() or 'referencia(s) bancaria' in err.lower()
+                     for err in errors):
+                step = 4
+            else:
+                step = 5 if invalid_terms else 1
             return self._render_application_form(post, errors, start_step=step, application=application)
 
         try:

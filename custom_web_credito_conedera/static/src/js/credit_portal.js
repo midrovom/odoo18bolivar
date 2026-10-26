@@ -158,6 +158,45 @@
             adjustSpouse();
         }
 
+        // Mostrar los campos exclusivos para documento extranjero. Solo se exigen
+        // cuando el tipo de identificación del solicitante es extranjera.
+        if (identityType && creditForm) {
+            function adjustForeignFields() {
+                var needsForeign = identityType.value === 'foreign';
+                creditForm.querySelectorAll('.credit-foreign-field').forEach(function (wrap) {
+                    wrap.hidden = !needsForeign;
+                    wrap.querySelectorAll('input, select').forEach(function (field) {
+                        field.disabled = !needsForeign;
+                        field.required = needsForeign;
+                        if (!needsForeign) { field.setCustomValidity(''); }
+                    });
+                });
+            }
+            identityType.addEventListener('change', adjustForeignFields);
+            adjustForeignFields();
+        }
+
+        // Referencias: tres personales y bancarias completas. En comerciales
+        // la primera es obligatoria y las filas adicionales solo cuando se usan.
+        function refreshReferenceRequirements(body) {
+            var typ = body.dataset.creditReferenceBody;
+            body.querySelectorAll('.credit-reference-row').forEach(function (row, index) {
+                var fields = Array.from(row.querySelectorAll('input, select'));
+                var started = fields.some(function (field) { return field.value.trim() !== ''; });
+                var requireRow = (typ !== 'commercial') ||
+                                 (typ === 'commercial' && (index === 0 || index >= 3)) || started;
+                fields.forEach(function (field) { field.required = requireRow; });
+            });
+        }
+        if (creditForm) {
+            creditForm.querySelectorAll('[data-credit-reference-body]').forEach(function (body) {
+                ['input', 'change'].forEach(function (eventName) {
+                    body.addEventListener(eventName, function () { refreshReferenceRequirements(body); });
+                });
+                refreshReferenceRequirements(body);
+            });
+        }
+
         // Añadir referencias sin un límite fijo de tres (límite técnico 30 por sección).
         document.querySelectorAll('[data-credit-reference-body]').forEach(function (body) {
             var typ = body.dataset.creditReferenceBody;
@@ -175,6 +214,7 @@
                 });
                 countInput.value = String(rows.length);
                 add.disabled = rows.length >= maxRows;
+                refreshReferenceRequirements(body);
             }
             add.addEventListener('click', function () {
                 var rows = body.querySelectorAll('.credit-reference-row');
@@ -362,6 +402,42 @@
                 }
             });
             renumberVehicles();
+        }
+
+        // Si se informa cualquier dato de un vehículo, completar el resto.
+        function refreshVehicleRequirements() {
+            if (!vehiclesContainer) { return; }
+            vehiclesContainer.querySelectorAll('.credit-vehicle-row').forEach(function (row) {
+                var fields = Array.from(row.querySelectorAll('input'));
+                var started = fields.some(function (field) { return field.value.trim() !== ''; });
+                fields.forEach(function (field) { field.required = started; });
+            });
+        }
+        if (vehiclesContainer) {
+            ['input', 'change'].forEach(function (ev) {
+                vehiclesContainer.addEventListener(ev, refreshVehicleRequirements);
+            });
+            refreshVehicleRequirements();
+            if (addVehicleButton) {
+                addVehicleButton.addEventListener('click', refreshVehicleRequirements);
+            }
+        }
+
+        // Sección de empleo condicional: si hay datos, debe completarse.
+        if (creditForm) {
+            var employmentFields = Array.from(creditForm.querySelectorAll(
+                '[name="employment_company"], [name="employment_activity"], [name="employment_address"], '
+                + '[name="employment_phone"], [name="employment_start_date"], [name="employment_position"], '
+                + '[name="employment_salary"]'));
+            function refreshEmploymentRequirements() {
+                var started = employmentFields.some(function (field) { return field.value.trim() !== ''; });
+                employmentFields.forEach(function (field) { field.required = started; });
+            }
+            employmentFields.forEach(function (field) {
+                field.addEventListener('input', refreshEmploymentRequirements);
+                field.addEventListener('change', refreshEmploymentRequirements);
+            });
+            refreshEmploymentRequirements();
         }
 
         // Cinco pantallas de la solicitud. Los datos permanecen en el mismo form
