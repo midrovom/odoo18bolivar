@@ -161,18 +161,42 @@ body.modal-open { overflow: hidden; }
 .credit-foreign-residence[hidden], .credit-automatic-coordinates[hidden],
 .credit-manual-coordinates[hidden] { display: none !important; }
 
-/* Texto legal completo disponible sin invadir el ultimo paso del formulario. */
-.credit-legal-details {
-    border: 1px solid var(--credit-border);
-    border-radius: .55rem;
+/* Croquis: arrastrar y soltar o seleccionar, con vista previa adaptable. */
+.credit-sketch-dropzone {
+    padding: 1rem;
+    border: 2px dashed var(--credit-border);
+    border-radius: .85rem;
     background: #fff;
-    padding: .75rem 1rem;
+    transition: border-color .15s ease, background-color .15s ease;
 }
-.credit-legal-details summary {
-    color: var(--credit-heading);
+.credit-sketch-dropzone.is-dragover,
+.credit-sketch-dropzone:focus-within {
+    border-color: var(--credit-red);
+    background: var(--credit-red-soft);
+}
+.credit-sketch-drop-prompt {
     cursor: pointer;
-    font-weight: 600;
-    list-style-position: inside;
+    text-align: center;
+    color: var(--credit-heading);
+    padding: .85rem .5rem;
+    border-radius: .5rem;
 }
-.credit-legal-details[open] { background: #fdfcfc; }
-.credit-legal-details p { line-height: 1.6; overflow-wrap: break-word; }
+.credit-sketch-drop-prompt:focus-visible {
+    outline: 2px solid var(--credit-red);
+    outline-offset: 2px;
+}
+/* La introducción legal siempre es visible; el resto se abre con Ver más. */
+.credit-legal-text { line-height: 1.65; text-align: justify; overflow-wrap: break-word; }
+.credit-legal-details { display: inline; padding: 0; border: 0; background: transparent; }
+.credit-legal-details summary {
+    display: inline;
+    list-style: none;
+    cursor: pointer;
+    color: var(--credit-red);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.credit-legal-details summary::-webkit-details-marker { display: none; }
+.credit-legal-details summary::marker { content: ''; }
+.credit-legal-rest { display: block; margin-top: .65rem; text-align: justify; }

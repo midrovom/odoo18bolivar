@@ -247,13 +247,15 @@
             renumber();
         });
 
-        // Vista previa inmediata del croquis en el formulario del historial.
-        // El archivo se muestra localmente; solo se guarda al pulsar "Guardar croquis".
+        // Vista previa inmediata del croquis en el paso 3 del formulario.
+        // El archivo se muestra localmente; solo se guarda cuando se envía la solicitud.
         var historySketchFile = document.getElementById('credit-review-sketch-file');
         var historySketchPreview = document.getElementById('credit-review-sketch-preview');
         if (historySketchFile && historySketchPreview) {
             var activeObjectUrl = null;
             var maxSize = 12 * 1024 * 1024;
+            var dropzone = document.getElementById('credit-sketch-dropzone');
+            var dropPrompt = dropzone && dropzone.querySelector('.credit-sketch-drop-prompt');
             var showWarning = document.getElementById('credit-review-sketch-warning');
             var setWarning = function (message) {
                 if (showWarning) {
@@ -261,21 +263,24 @@
                     showWarning.hidden = !message;
                 }
             };
-            historySketchFile.addEventListener('change', function () {
-                if (activeObjectUrl) { URL.revokeObjectURL(activeObjectUrl); activeObjectUrl = null; }
-                historySketchPreview.replaceChildren();
-                var file = historySketchFile.files && historySketchFile.files[0];
-                if (!file) { return; }
+            var validateSketchFile = function (file) {
+                if (!file) { return false; }
                 var ext = file.name.split('.').pop().toLowerCase();
-                var isPdf = ext === 'pdf' && (file.type === 'application/pdf' || !file.type);
-                var isImage = ['png','jpg','jpeg','webp'].includes(ext) && (!file.type || file.type.startsWith('image/'));
-                if ((!isPdf && !isImage) || file.size > maxSize || !file.size) {
+                var pdf = ext === 'pdf' && (file.type === 'application/pdf' || !file.type);
+                var image = ['png', 'jpg', 'jpeg', 'webp'].includes(ext) && (!file.type || file.type.startsWith('image/'));
+                if ((!pdf && !image) || !file.size || file.size > maxSize) {
                     setWarning('Adjunte una imagen PNG, JPG, WEBP o un PDF de hasta 12 MB.');
-                    historySketchFile.value = '';
-                    return;
+                    return false;
                 }
                 setWarning('');
+                return true;
+            };
+            var renderSketchPreview = function (file) {
+                if (!validateSketchFile(file)) { return false; }
+                if (activeObjectUrl) { URL.revokeObjectURL(activeObjectUrl); }
                 activeObjectUrl = URL.createObjectURL(file);
+                historySketchPreview.replaceChildren();
+                var isPdf = file.name.toLowerCase().endsWith('.pdf');
                 var preview = document.createElement(isPdf ? 'iframe' : 'img');
                 preview.className = isPdf ? 'credit-sketch-review-pdf' : 'credit-sketch-review-image';
                 preview.title = 'Vista previa del croquis seleccionado';
@@ -286,7 +291,60 @@
                 description.className = 'd-block text-muted mt-2';
                 description.textContent = file.name + ' · ' + (file.size / 1024 / 1024).toFixed(2) + ' MB';
                 historySketchPreview.appendChild(description);
+                return true;
+            };
+            historySketchFile.addEventListener('change', function () {
+                var file = historySketchFile.files && historySketchFile.files[0];
+                if (file && !renderSketchPreview(file)) { historySketchFile.value = ''; }
             });
+            // Permite arrastrar el archivo al recuadro, además de seleccionarlo.
+            if (dropzone) {
+                var dragDepth = 0;
+                ['dragenter', 'dragover'].forEach(function (eventName) {
+                    dropzone.addEventListener(eventName, function (event) {
+                        if (!event.dataTransfer || !Array.from(event.dataTransfer.types || []).includes('Files')) { return; }
+                        event.preventDefault();
+                        if (eventName === 'dragenter') { dragDepth += 1; }
+                        if (event.dataTransfer) { event.dataTransfer.dropEffect = 'copy'; }
+                        dropzone.classList.add('is-dragover');
+                    });
+                });
+                dropzone.addEventListener('dragleave', function (event) {
+                    event.preventDefault();
+                    dragDepth = Math.max(0, dragDepth - 1);
+                    if (!dragDepth) { dropzone.classList.remove('is-dragover'); }
+                });
+                dropzone.addEventListener('drop', function (event) {
+                    event.preventDefault();
+                    dragDepth = 0;
+                    dropzone.classList.remove('is-dragover');
+                    var dropped = event.dataTransfer && event.dataTransfer.files;
+                    if (!dropped || !dropped.length) { return; }
+                    if (dropped.length !== 1) {
+                        setWarning('Seleccione un solo archivo para el croquis.');
+                        return;
+                    }
+                    var file = dropped[0];
+                    if (!validateSketchFile(file)) { return; }
+                    try {
+                        var transfer = new DataTransfer();
+                        transfer.items.add(file);
+                        historySketchFile.files = transfer.files;
+                        historySketchFile.dispatchEvent(new Event('change', { bubbles: true }));
+                    } catch (error) {
+                        setWarning('No se pudo adjuntar el archivo arrastrado. Utilice Seleccionar archivo.');
+                    }
+                });
+            }
+            if (dropPrompt) {
+                dropPrompt.addEventListener('click', function () { historySketchFile.click(); });
+                dropPrompt.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        historySketchFile.click();
+                    }
+                });
+            }
             window.addEventListener('pagehide', function () {
                 if (activeObjectUrl) { URL.revokeObjectURL(activeObjectUrl); }
             }, { once: true });
@@ -498,7 +556,7 @@
             var summary = details.querySelector('summary');
             if (!summary) { return; }
             var setLabel = function () {
-                summary.textContent = details.open ? 'Ver menos · Ocultar declaración' : 'Ver más · Leer declaración completa';
+                summary.textContent = details.open ? 'Ver menos' : '… Ver más';
             };
             details.addEventListener('toggle', setLabel);
             setLabel();
