@@ -523,7 +523,11 @@ class ConederaCreditPortal(http.Controller):
             return False
         # Como en postulaciones: primer ingreso tras la aprobación libre;
         # la corrección de documentos ya ingresados sí exige permiso de esa solicitud.
-        return not document or application.portal_can_update_documentation()
+        if not document or not document.document_line_ids.filtered(lambda line: bool(line.file)):
+            return True
+        if document.state == 'pending' and not document.is_complete:
+            return True
+        return application.portal_can_update_documentation()
 
     def _pending_application(self):
         return request.env['conedera.credit.application'].sudo()._blocking_application(request.env.user.id)
@@ -748,13 +752,40 @@ class ConederaCreditPortal(http.Controller):
         return request.redirect('/my/credito/historial')
 
     @staticmethod
-    def _signed_pdf_access(application):
-        """Estado aprobado + adjunto original presente en ESTA solicitud.
+    def _signed_pdf_files(application, kind):
+        """Entregar originales íntegros de una sola solicitud autorizada.
 
-        Los marcadores calculados del modelo sirven para listas, pero el portal
-        verifica directamente ambos archivos (evita enlaces a adjuntos vacíos).
-        Una etapa de documentación recibida solo cuenta si hubo aprobación.
+        Los adjuntos antiguos siguen descargables aun antes de ejecutar la migración.
         """
+        attachment_field = ('signed_application_attachment_ids' if kind == 'solicitud'
+                            else 'signed_verification_attachment_ids')
+        old_field = ('signed_application_pdf' if kind == 'solicitud' else 'signed_verification_pdf')
+        filename_field = ('signed_application_filename' if kind == 'solicitud' else 'signed_verification_filename')
+        fallback = ('Solicitud_Firmada.pdf' if kind == 'solicitud' else 'Verificacion_Firmada.pdf')
+        documents = []
+        for attachment in application[attachment_field].sorted('id'):
+            name = attachment.name or fallback
+            if not name.lower().endswith('.pdf') or attachment.file_size > 25 * 1024 * 1024:
+                continue
+            try:
+                data = base64.b64decode(attachment.datas or b'')
+            except (ValueError, TypeError):
+                continue
+            if data.startswith(b'%PDF-'):
+                documents.append((name, data))
+        # Compatibilidad si todavía no se han convertido los campos antiguos.
+        if not documents and application[old_field]:
+            try:
+                data = base64.b64decode(application[old_field])
+                if data.startswith(b'%PDF-'):
+                    documents.append((application[filename_field] or fallback, data))
+            except (ValueError, TypeError):
+                pass
+        return documents
+
+    @classmethod
+    def _signed_pdf_access(cls, application):
+        """La descarga solo se ofrece con expediente aprobado y archivos reales."""
         stage = application.stage_id
         approved = bool(stage and (
             stage.is_approved or (
@@ -763,68 +794,62 @@ class ConederaCreditPortal(http.Controller):
             )
         ))
         return {
-            'has_signed_application_pdf': approved and bool(application.signed_application_pdf),
-            'has_signed_verification_pdf': approved and bool(application.signed_verification_pdf),
+            'has_signed_application_pdf': approved and bool(cls._signed_pdf_files(application, 'solicitud')),
+            'has_signed_verification_pdf': approved and bool(cls._signed_pdf_files(application, 'verificacion')),
         }
 
     @http.route('/my/credito/<int:application_id>/pdf/<string:section>',
                 type='http', auth='user', website=False, methods=['GET'], sitemap=False)
     def credit_portal_download_pdf(self, application_id, section, **kw):
-        """Descarga controlada de los PDFs firmados originales de la solicitud.
-
-        Nunca renderizar el QWeb sin firmas en este acceso. Los PDFs firmados
-        se entregan intactos; si piden ambos, van en ZIP sin fusionarlos para
-        conservar las firmas digitales existentes.
-        """
+        """Descarga por grupo. Cuando hay varios PDFs ofrece ZIP sin alterarlos."""
         if section not in ('solicitud', 'verificacion', 'completo'):
             raise NotFound()
         application = self._get_owned_application(application_id)
-        signed_access = self._signed_pdf_access(application)
-        if not any(signed_access.values()):
-            raise NotFound()  # No aprobada o sin documentos firmados cargados.
+        available = self._signed_pdf_access(application)
+        if not any(available.values()):
+            raise NotFound()
         safe_number = re.sub(r'[^A-Za-z0-9_-]', '_', application.name or str(application.id))
         from odoo.http import content_disposition
-
-        signed = {
-            'solicitud': ('has_signed_application_pdf', 'signed_application_pdf',
-                          'Solicitud_Firmada_%s.pdf' % safe_number),
-            'verificacion': ('has_signed_verification_pdf', 'signed_verification_pdf',
-                             'Verificacion_Ubicacion_Firmada_%s.pdf' % safe_number),
-        }
-        if section in signed:
-            available_field, data_field, filename = signed[section]
-            if not signed_access[available_field]:
-                raise NotFound()  # No ofrecer archivos sin firma ni de otra solicitud.
-            payload = base64.b64decode(application[data_field])
-            if not payload.startswith(b'%PDF-'):
+        files = []
+        if section in ('solicitud', 'completo'):
+            if not available['has_signed_application_pdf']:
                 raise NotFound()
-            return request.make_response(payload, headers=[
-                ('Content-Type', 'application/pdf'),
-                ('Content-Disposition', content_disposition(filename)),
-                ('Content-Length', str(len(payload))),
-                ('Cache-Control', 'private, no-store'),
-                ('X-Content-Type-Options', 'nosniff'),
-            ])
-
-        # Fusionar PDFs podría invalidar firmas electrónicas: ZIP conserva cada
-        # archivo binariamente idéntico al cargado por el administrador.
-        if not all(signed_access.values()):
+            files.extend(('Solicitud', name, contents)
+                         for name, contents in self._signed_pdf_files(application, 'solicitud'))
+        if section in ('verificacion', 'completo'):
+            if not available['has_signed_verification_pdf']:
+                raise NotFound()
+            files.extend(('Verificacion', name, contents)
+                         for name, contents in self._signed_pdf_files(application, 'verificacion'))
+        if not files:
             raise NotFound()
-        memory = io.BytesIO()
-        with zipfile.ZipFile(memory, 'w', compression=zipfile.ZIP_STORED) as archive:
-            for key in ('solicitud', 'verificacion'):
-                _available, data_field, filename = signed[key]
-                pdf_data = base64.b64decode(application[data_field])
-                if not pdf_data.startswith(b'%PDF-'):
-                    raise NotFound()
-                archive.writestr(filename, pdf_data)
-        contents = memory.getvalue()
-        return request.make_response(contents, headers=[
+        headers = [('Cache-Control', 'private, no-store'),
+                   ('X-Content-Type-Options', 'nosniff')]
+        if len(files) == 1:
+            _kind, filename, contents = files[0]
+            return request.make_response(contents, headers=headers + [
+                ('Content-Type', 'application/pdf'),
+                ('Content-Disposition', content_disposition(secure_filename(filename) or 'Documento_firmado.pdf')),
+                ('Content-Length', str(len(contents))),
+            ])
+        # Los PDF firmados nunca deben fusionarse: altera firmas digitales.
+        archive_data = io.BytesIO()
+        names_used = set()
+        with zipfile.ZipFile(archive_data, 'w', compression=zipfile.ZIP_STORED) as archive:
+            for index, (kind, filename, contents) in enumerate(files, 1):
+                base_name = secure_filename(filename) or ('Documento_%s.pdf' % index)
+                if not base_name.lower().endswith('.pdf'):
+                    base_name += '.pdf'
+                name = '%s_%02d_%s' % (kind, index, base_name)
+                while name in names_used:
+                    name = '%s_%02d_%s' % (kind, index + len(names_used), base_name)
+                names_used.add(name)
+                archive.writestr(name, contents)
+        contents = archive_data.getvalue()
+        return request.make_response(contents, headers=headers + [
             ('Content-Type', 'application/zip'),
             ('Content-Disposition', content_disposition('Documentos_Firmados_%s.zip' % safe_number)),
             ('Content-Length', str(len(contents))),
-            ('Cache-Control', 'private, no-store'),
-            ('X-Content-Type-Options', 'nosniff'),
         ])
 
     @http.route('/my/credito/<int:application_id>/croquis', type='http', auth='user', website=False, methods=['GET'], sitemap=False)
@@ -1179,6 +1204,10 @@ class ConederaCreditPortal(http.Controller):
             'applications': self._portal_applications(),
             'can_correct_ids': self._portal_applications().filtered(lambda a: self._can_correct(a)).ids,
             'can_upload_sketch_ids': self._portal_applications().filtered(lambda a: self._can_edit_integrated_sketch(a)).ids,
+            'can_update_documents_ids': self._portal_applications().filtered(
+                lambda a: self._can_update_credit_documents(a, a.document_ids[:1])).ids,
+            'has_document_update_permission_ids': self._portal_applications().filtered(
+                lambda a: a.portal_can_update_documentation() and a.document_access_allowed).ids,
         })
 
     @http.route('/my/credito/<int:application_id>', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
@@ -1293,6 +1322,18 @@ class ConederaCreditPortal(http.Controller):
         missing = self._credit_document_errors(document)
         if not missing:
             document.action_mark_submitted()
-            return request.redirect('/my/credito/documentos?uploaded=1')
+            if uploads and application.portal_can_update_documentation():
+                # Permiso por solicitud: la corrección completa se usa una sola vez.
+                request.env.cr.execute(
+                    'SELECT id FROM conedera_credit_application WHERE id = %s FOR UPDATE',
+                    (application.id,))
+                application.invalidate_recordset(['portal_update_scope'])
+                if application.portal_can_update_documentation():
+                    application.sudo().write({
+                        'portal_update_scope': application.portal_scope_from_sections(
+                            application.portal_enabled_sections() - {'documentation'}),
+                    })
+                    application.message_post(body=_('El solicitante actualizó la documentación del crédito desde el portal. Se consumió el permiso de actualización documental.'))
+            return request.redirect('/my/credito/historial?documentos_guardados=1')
         return self._render_credit_documents_form(application, document,
             [_('Documentación guardada, pero aún faltan: %s.') % ', '.join(missing)])

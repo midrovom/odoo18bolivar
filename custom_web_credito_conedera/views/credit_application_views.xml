@@ -115,20 +115,22 @@
 </page>
                     <page string="Documentos firmados" groups="custom_web_credito_conedera.group_credit_manager">
                         <div class="alert alert-info mb-3" role="alert">
-                            Cargue aquí los dos archivos PDF ya firmados por los responsables.
-                            El cliente podrá descargar desde su portal únicamente los documentos cargados.
-                            La carga o sustitución de documentos firmados corresponde al Administrador de crédito.
+                            Arrastre varios PDF firmados a cada zona o utilice el selector de archivos.
+                            Los originales se conservan sin modificar sus firmas electrónicas.
+                            Solo el Administrador de crédito puede agregar o retirar archivos.
                         </div>
-                        <group string="Solicitud de crédito firmada" col="2">
-                            <field name="signed_application_pdf" filename="signed_application_filename"
-                                   readonly="not credit_is_admin" widget="binary"/>
-                            <field name="signed_application_filename" invisible="1"/>
+                        <group string="Solicitud de crédito firmada" col="1">
+                            <field name="signed_application_attachment_ids" widget="many2many_binary"
+                                   class="o_credit_signed_dropzone"
+                                   options="{'accepted_file_extensions': '.pdf,application/pdf'}"
+                                   readonly="not credit_is_admin" nolabel="1"/>
                             <field name="signed_application_available" readonly="1"/>
                         </group>
-                        <group string="Verificación ubicación del negocio firmada" col="2">
-                            <field name="signed_verification_pdf" filename="signed_verification_filename"
-                                   readonly="not credit_is_admin" widget="binary"/>
-                            <field name="signed_verification_filename" invisible="1"/>
+                        <group string="Verificación ubicación del negocio firmada" col="1">
+                            <field name="signed_verification_attachment_ids" widget="many2many_binary"
+                                   class="o_credit_signed_dropzone"
+                                   options="{'accepted_file_extensions': '.pdf,application/pdf'}"
+                                   readonly="not credit_is_admin" nolabel="1"/>
                             <field name="signed_verification_available" readonly="1"/>
                         </group>
                     </page>

@@ -159,16 +159,81 @@ class ConederaCreditApplication(models.Model):
         string='Verificación de ubicación firmada (PDF)', attachment=True, copy=False)
     signed_verification_filename = fields.Char(
         string='Nombre de la verificación firmada', copy=False)
+    # Archivos firmados múltiples, agrupados por tipo y vinculados al expediente.
+    # many2many_binary permite seleccionar/arrastrar varios PDFs en el backend.
+    signed_application_attachment_ids = fields.Many2many(
+        'ir.attachment', 'conedera_credit_signed_application_rel',
+        'application_id', 'attachment_id', string='Solicitudes firmadas (PDF)', copy=False)
+    signed_verification_attachment_ids = fields.Many2many(
+        'ir.attachment', 'conedera_credit_signed_verification_rel',
+        'application_id', 'attachment_id', string='Verificaciones firmadas (PDF)', copy=False)
     signed_application_available = fields.Boolean(
         string='Solicitud firmada disponible', compute='_compute_signed_pdf_available', store=True)
     signed_verification_available = fields.Boolean(
         string='Verificación firmada disponible', compute='_compute_signed_pdf_available', store=True)
 
-    @api.depends('signed_application_pdf', 'signed_verification_pdf')
+    @api.depends('signed_application_pdf', 'signed_verification_pdf',
+                 'signed_application_attachment_ids', 'signed_verification_attachment_ids')
     def _compute_signed_pdf_available(self):
         for application in self:
-            application.signed_application_available = bool(application.signed_application_pdf)
-            application.signed_verification_available = bool(application.signed_verification_pdf)
+            application.signed_application_available = bool(
+                application.signed_application_attachment_ids or application.signed_application_pdf)
+            application.signed_verification_available = bool(
+                application.signed_verification_attachment_ids or application.signed_verification_pdf)
+
+    @api.constrains('signed_application_attachment_ids', 'signed_verification_attachment_ids')
+    def _check_signed_pdf_attachments(self):
+        """Validación real en el servidor: formato, peso y asociación segura.
+
+        No confiar en accepted_file_extensions (solo afecta al selector web).
+        """
+        for application in self:
+            for category in ('signed_application_attachment_ids', 'signed_verification_attachment_ids'):
+                for attachment in application[category]:
+                    filename = (attachment.name or '').strip()
+                    if not filename.lower().endswith('.pdf') or attachment.type != 'binary':
+                        raise ValidationError(_('Los documentos firmados deben ser archivos PDF.'))
+                    if attachment.file_size > 25 * 1024 * 1024:
+                        raise ValidationError(_('El documento firmado "%s" supera 25 MB.') % filename)
+                    if attachment.res_model == self._name and attachment.res_id not in (False, application.id):
+                        raise ValidationError(_('El archivo "%s" ya está vinculado a otra solicitud.') % filename)
+                    try:
+                        pdf = base64.b64decode(attachment.datas or b'', validate=True)
+                    except (ValueError, TypeError, binascii.Error):
+                        raise ValidationError(_('No se pudo comprobar el PDF "%s".') % filename)
+                    if not pdf.startswith(b'%PDF-') or len(pdf) > 25 * 1024 * 1024:
+                        raise ValidationError(_('El documento "%s" no es un PDF válido de hasta 25 MB.') % filename)
+
+    @api.model
+    def _migrate_credit_signed_documents(self):
+        """Agregar los archivos firmados antiguos a la lista sin perder originales.
+
+        Se puede ejecutar varias veces con seguridad al actualizar el módulo.
+        """
+        Application = self.sudo().with_context(active_test=False)
+        Attachment = self.env['ir.attachment'].sudo()
+        for application in Application.search([]):
+            for old_data, old_name, relation, fallback in (
+                ('signed_application_pdf', 'signed_application_filename',
+                 'signed_application_attachment_ids', 'Solicitud_Firmada.pdf'),
+                ('signed_verification_pdf', 'signed_verification_filename',
+                 'signed_verification_attachment_ids', 'Verificacion_Firmada.pdf'),
+            ):
+                if not application[old_data]:
+                    continue
+                name = (application[old_name] or fallback).strip()
+                if not name.lower().endswith('.pdf'):
+                    name += '.pdf'
+                payload = application[old_data]
+                if not any(att.name == name and base64.b64decode(att.datas or b'') == base64.b64decode(payload)
+                           for att in application[relation]):
+                    attachment = Attachment.create({
+                        'name': name, 'type': 'binary', 'datas': payload,
+                        'mimetype': 'application/pdf', 'res_model': self._name,
+                        'res_id': application.id, 'public': False,
+                    })
+                    application.write({relation: [(4, attachment.id)]})
+        return True
 
     @api.constrains('signed_application_pdf', 'signed_application_filename',
                     'signed_verification_pdf', 'signed_verification_filename')
@@ -614,6 +679,13 @@ class ConederaCreditApplication(models.Model):
         if values.get('declaration_accepted'):
             values.setdefault('declaration_date', fields.Datetime.now())
         result = super().write(values)
+        if {'signed_application_attachment_ids', 'signed_verification_attachment_ids'}.intersection(values):
+            for application in self:
+                for att in (application.signed_application_attachment_ids |
+                            application.signed_verification_attachment_ids):
+                    if att.res_model != self._name or att.res_id != application.id or att.public:
+                        att.sudo().write({'res_model': self._name,
+                                          'res_id': application.id, 'public': False})
         if 'stage_id' in vals:
             for record in self:
                 old_stage = previous_stages.get(record.id)
