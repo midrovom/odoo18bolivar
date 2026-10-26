@@ -15,3 +15,5 @@ from . import res_users
 from . import credit_access_wizard
 from . import credit_theme_wizard
 from . import credit_print_wizard
+
+from . import credit_reference_policy

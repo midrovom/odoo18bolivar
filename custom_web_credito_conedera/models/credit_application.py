@@ -134,6 +134,8 @@ class ConederaCreditApplication(models.Model):
     maps_url = fields.Char(string='Enlace histórico de ubicación (en desuso)', readonly=True, copy=False)
 
 
+    employment_relationship = fields.Selection([('yes', 'Sí'), ('no', 'No')], string='¿Tiene relación de dependencia?')
+    employment_employer_type = fields.Selection([('private', 'Privado'), ('public', 'Público')], string='Tipo de empleador')
     employment_company = fields.Char(string='Empresa donde trabaja (relación de dependencia)')
     employment_activity = fields.Char(string='Actividad de la empresa')
     employment_address = fields.Char(string='Dirección de la empresa donde trabaja')

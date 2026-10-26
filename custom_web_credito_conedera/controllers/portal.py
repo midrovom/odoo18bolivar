@@ -97,7 +97,7 @@ APPLICATION_FIELDS = [
     'assets_amount', 'monthly_income', 'liabilities_amount', 'monthly_expenses',
     'authorized_buyer_name', 'authorized_buyer_identification', 'authorized_buyer_email',
     'authorized_pickup_name', 'authorized_pickup_identification',
-    'employment_company',
+    'employment_relationship', 'employment_employer_type', 'employment_company',
     'employment_activity', 'employment_address', 'employment_phone', 'employment_start_date',
     'employment_position', 'employment_salary',
 ]
@@ -527,10 +527,13 @@ class ConederaCreditPortal(http.Controller):
         defaults.update(form_values or {})
         count = _clean(defaults.get('vehicle_count'))
         vehicle_count = min(MAX_VEHICLES, max(1, int(count))) if count.isdecimal() else 1
+        company = application.company_id if application else (request.website.company_id or request.env.company)
+        reference_minimums = request.env['conedera.credit.reference.policy'].minimums_for_company(company)
         reference_rows = {}
         for typ in ('commercial', 'personal', 'bank'):
             raw = _clean(defaults.get('%s_count' % typ))
-            reference_rows[typ] = range(1, min(MAX_REFERENCES, max(3, int(raw))) + 1) if raw.isdecimal() else range(1, 4)
+            row_count = min(MAX_REFERENCES, max(reference_minimums[typ], int(raw))) if raw.isdecimal() else reference_minimums[typ]
+            reference_rows[typ] = range(1, row_count + 1)
         return request.render('custom_web_credito_conedera.portal_credit_application_form', {
             'form_values': defaults,
             'errors': errors or [],
@@ -541,6 +544,7 @@ class ConederaCreditPortal(http.Controller):
             'housing_types': request.env['conedera.credit.housing.type'].sudo().search([('active', '=', True)], order='sequence,name,id'),
             'vehicle_rows': range(1, vehicle_count + 1),
             'reference_rows': reference_rows,
+            'reference_minimums': reference_minimums,
             'local_types': [('own', 'Propio'), ('rented', 'Alquilado'), ('family', 'Familiar'), ('mortgaged', 'Hipotecado')],
             'applicant_types': request.env['conedera.credit.applicant.type'].sudo().search([('active', '=', True)], order='sequence, name, id'),
         })
@@ -552,13 +556,8 @@ class ConederaCreditPortal(http.Controller):
             return request.redirect('/my/credito/%s?pending=1' % existing.id)
         return self._render_application_form({'applicant_name': '', 'applicant_email': request.env.user.email or request.env.user.login})
 
-    def _reference_commands(self, post, errors):
-        """Validación de filas completas, con mínimo 3 personales y bancarias.
-
-        Las comerciales requieren al menos una fila (la primera). Las otras
-        dos líneas iniciales pueden quedar vacías, pero cualquier fila usada
-        o añadida desde el botón debe completarse íntegramente.
-        """
+    def _reference_commands(self, post, errors, minimums):
+        """Valida cada categoría con el mínimo configurado para la empresa."""
         commands = []
         specs = {
             'commercial': (
@@ -577,10 +576,9 @@ class ConederaCreditPortal(http.Controller):
             ),
         }
         type_names = {'commercial': 'comercial', 'personal': 'personal', 'bank': 'bancaria'}
-        minimums = {'commercial': 1, 'personal': 3, 'bank': 3}
         for typ in ('commercial', 'personal', 'bank'):
             raw_count = _clean(post.get('%s_count' % typ))
-            if not raw_count.isdecimal() or not 3 <= int(raw_count) <= MAX_REFERENCES:
+            if not raw_count.isdecimal() or not minimums[typ] <= int(raw_count) <= MAX_REFERENCES:
                 errors.append(_('La cantidad de referencias %(tipo)s no es válida.') % {'tipo': type_names[typ]})
                 continue
             complete = 0
@@ -590,7 +588,7 @@ class ConederaCreditPortal(http.Controller):
                     for column, _label in specs[typ]
                 }
                 has_data = any(raw_fields.values())
-                required = (typ in ('personal', 'bank') or (typ == 'commercial' and (number == 1 or number > 3)))
+                required = number <= minimums[typ]
                 if not (has_data or required):
                     continue
                 for column, label in specs[typ]:
@@ -703,7 +701,7 @@ class ConederaCreditPortal(http.Controller):
                     (value or (suffix == 'value' and value == 0)) else '')
         for typ in ('commercial', 'personal', 'bank'):
             refs = application.reference_ids.filtered(lambda r: r.reference_type == typ).sorted(key=lambda r: (r.sequence, r.id))
-            values['%s_count' % typ] = str(max(3, len(refs)))
+            values['%s_count' % typ] = str(max(1, len(refs)))
             fields_map = {
                 'commercial': [('provider', 'provider'), ('since', 'customer_since'), ('limit', 'credit_limit'), ('term', 'term'), ('phone', 'phone'), ('contact', 'contact')],
                 'personal': [('name', 'person_name'), ('address', 'address'), ('phone', 'home_phone'), ('relationship', 'relationship')],
@@ -1004,7 +1002,9 @@ class ConederaCreditPortal(http.Controller):
         ]
         for field_name, _message in consent_fields:
             values[field_name] = post.get(field_name) in ('on', '1', 'true', 'yes')
-        values['reference_ids'] = self._reference_commands(post, errors)
+        company = application.company_id if application else (request.website.company_id or request.env.company)
+        reference_minimums = request.env['conedera.credit.reference.policy'].minimums_for_company(company)
+        values['reference_ids'] = self._reference_commands(post, errors, reference_minimums)
 
         # Reglas del formulario del portal. Comprobar el POST original para que
         # un importe 0 válido no sea confundido con un campo sin completar.
@@ -1014,21 +1014,31 @@ class ConederaCreditPortal(http.Controller):
                 if not _clean(post.get(field_name)):
                     errors.append(_('El campo %(field)s es obligatorio.') % {'field': label})
                     invalid_field_steps.append(step)
-        if _clean(post.get('identification_type')) == 'foreign':
-            for name, label in (
-                ('foreign_residence_time', _('Tiempo de residencia (extranjero)')),
-                ('foreign_work_visa', _('Visa de trabajo (extranjero)')),
-            ):
-                if not _clean(post.get(name)):
-                    errors.append(_('El campo %(field)s es obligatorio para un solicitante extranjero.') % {'field': label})
-                    invalid_field_steps.append(1)
-        # La actividad como empleado no aplica a todos los solicitantes; si
-        # registra uno de sus campos debe completar toda la sección laboral.
-        if any(_clean(post.get(field)) for field, _label in PORTAL_EMPLOYMENT_FIELDS):
+        if _clean(post.get('identification_type')) == 'foreign' and not values.get('foreign_work_visa'):
+            errors.append(_('Indique si tiene visa de trabajo.'))
+            invalid_field_steps.append(1)
+        if values.get('foreign_work_visa') == 'yes' and not values.get('foreign_residence_time'):
+            errors.append(_('Indique el tiempo de residencia cuando la visa de trabajo es Sí.'))
+            invalid_field_steps.append(1)
+        if values.get('foreign_work_visa') != 'yes':
+            values['foreign_residence_time'] = False
+        relationship = _clean(post.get('employment_relationship'))
+        employer_type = _clean(post.get('employment_employer_type'))
+        if relationship not in ('yes', 'no'):
+            errors.append(_('Indique si tiene relación de dependencia (Sí / No).'))
+            invalid_field_steps.append(3)
+        if relationship == 'yes':
+            if employer_type not in ('private', 'public'):
+                errors.append(_('Seleccione si su empleador es privado o público.'))
+                invalid_field_steps.append(3)
             for field, label in PORTAL_EMPLOYMENT_FIELDS:
                 if not _clean(post.get(field)):
                     errors.append(_('Actividad en relación de dependencia: complete %(field)s.') % {'field': label})
                     invalid_field_steps.append(3)
+        else:
+            values['employment_employer_type'] = False
+            for field, _label in PORTAL_EMPLOYMENT_FIELDS:
+                values[field] = 0.0 if field == 'employment_salary' else False
         for field in ('representative_email', 'invoice_email', 'authorized_buyer_email'):
             email = _clean(post.get(field))
             if email and not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+', email):

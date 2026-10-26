@@ -158,33 +158,33 @@
             adjustSpouse();
         }
 
-        // Mostrar los campos exclusivos para documento extranjero. Solo se exigen
-        // cuando el tipo de identificación del solicitante es extranjera.
-        if (identityType && creditForm) {
+        // La visa permanece visible. El tiempo de residencia solo aparece si
+        // se contesta Sí a la visa de trabajo.
+        if (creditForm) {
+            var visa = creditForm.querySelector('[name="foreign_work_visa"]');
+            var residence = creditForm.querySelector('[name="foreign_residence_time"]');
+            var residenceWrap = creditForm.querySelector('.credit-foreign-residence');
             function adjustForeignFields() {
-                var needsForeign = identityType.value === 'foreign';
-                creditForm.querySelectorAll('.credit-foreign-field').forEach(function (wrap) {
-                    wrap.hidden = false;
-                    wrap.querySelectorAll('input, select').forEach(function (field) {
-                        field.disabled = false;
-                        field.required = needsForeign;
-                        if (!needsForeign) { field.setCustomValidity(''); }
-                    });
-                });
+                var visaYes = visa && visa.value === 'yes';
+                if (residenceWrap) { residenceWrap.hidden = !visaYes; }
+                if (residence) {
+                    residence.required = visaYes;
+                    residence.disabled = !visaYes;
+                }
+                if (visa) { visa.required = Boolean(identityType && identityType.value === 'foreign'); }
             }
-            identityType.addEventListener('change', adjustForeignFields);
+            if (visa) { visa.addEventListener('change', adjustForeignFields); }
+            if (identityType) { identityType.addEventListener('change', adjustForeignFields); }
             adjustForeignFields();
         }
 
-        // Referencias: tres personales y bancarias completas. En comerciales
-        // la primera es obligatoria y las filas adicionales solo cuando se usan.
+        // Mínimo definido por empresa en Configuración > Mínimos de referencias.
         function refreshReferenceRequirements(body) {
-            var typ = body.dataset.creditReferenceBody;
+            var min = Number(body.dataset.minReferences || 1);
             body.querySelectorAll('.credit-reference-row').forEach(function (row, index) {
                 var fields = Array.from(row.querySelectorAll('input, select'));
                 var started = fields.some(function (field) { return field.value.trim() !== ''; });
-                var requireRow = (typ !== 'commercial') ||
-                                 (typ === 'commercial' && (index === 0 || index >= 3)) || started;
+                var requireRow = index < min || started;
                 fields.forEach(function (field) { field.required = requireRow; });
             });
         }
@@ -239,7 +239,7 @@
             });
             body.addEventListener('click', function (event) {
                 var remove = event.target.closest('[data-credit-remove-reference]');
-                if (remove && body.querySelectorAll('.credit-reference-row').length > 3) {
+                if (remove && body.querySelectorAll('.credit-reference-row').length > Number(body.dataset.minReferences || 1)) {
                     remove.closest('.credit-reference-row').remove();
                     renumber();
                 }
@@ -302,9 +302,11 @@
         var locationMethod = document.getElementById('credit-location-method');
         var locationStatus = document.getElementById('credit-location-status');
         var manualContainers = document.querySelectorAll('.credit-manual-coordinates');
+        var automaticContainers = document.querySelectorAll('.credit-automatic-coordinates');
         if (latitudeInput && longitudeInput && locationMethod && capturedInput) {
             function showManualCoordinates(clearAutomatic) {
                 manualContainers.forEach(function (el) { el.hidden = false; });
+                automaticContainers.forEach(function (el) { el.hidden = true; });
                 if (clearAutomatic) {
                     locationMethod.value = 'manual';
                     capturedInput.value = '';
@@ -318,6 +320,7 @@
                 locationMethod.value = 'automatic';
                 capturedInput.value = latitudeInput.value + ', ' + longitudeInput.value;
                 manualContainers.forEach(function (el) { el.hidden = true; });
+                automaticContainers.forEach(function (el) { el.hidden = false; });
                 latitudeInput.required = true;
                 longitudeInput.required = true;
                 latitudeInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -327,6 +330,7 @@
             // Mantener la modalidad con que se guardó una solicitud al volver a editarla.
             if (locationMethod.value === 'automatic' && capturedInput.value && latitudeInput.value && longitudeInput.value) {
                 manualContainers.forEach(function (el) { el.hidden = true; });
+                automaticContainers.forEach(function (el) { el.hidden = false; });
             } else {
                 // En el primer ingreso se ofrecen ambos botones; los campos solo
                 // aparecen cuando el usuario escoge el modo manual.
@@ -342,6 +346,10 @@
             }
             if (locateButton) {
                 locateButton.addEventListener('click', function () {
+                    // Mientras se solicita la geolocalización, mostrar solo el bloque automático.
+                    manualContainers.forEach(function (el) { el.hidden = true; });
+                    automaticContainers.forEach(function (el) { el.hidden = false; });
+                    if (locationStatus) { locationStatus.textContent = 'Buscando la ubicación actual...'; }
                     function fallback(message) {
                         showManualCoordinates(true);
                         if (locationStatus) { locationStatus.textContent = message; }
@@ -461,20 +469,27 @@
             }
         }
 
-        // Sección de empleo condicional: si hay datos, debe completarse.
+        // Actividad laboral: primero Sí/No, luego Privado/Público y campos.
         if (creditForm) {
+            var employmentSelect = creditForm.querySelector('[name="employment_relationship"]');
+            var employerSelect = creditForm.querySelector('[name="employment_employer_type"]');
+            var employerChoice = creditForm.querySelector('.credit-employer-choice');
+            var employmentWrap = creditForm.querySelector('.credit-employment-fields');
             var employmentFields = Array.from(creditForm.querySelectorAll(
                 '[name="employment_company"], [name="employment_activity"], [name="employment_address"], '
                 + '[name="employment_phone"], [name="employment_start_date"], [name="employment_position"], '
                 + '[name="employment_salary"]'));
             function refreshEmploymentRequirements() {
-                var started = employmentFields.some(function (field) { return field.value.trim() !== ''; });
-                employmentFields.forEach(function (field) { field.required = started; });
+                var working = employmentSelect && employmentSelect.value === 'yes';
+                if (employerChoice) { employerChoice.hidden = !working; }
+                if (employmentWrap) { employmentWrap.hidden = !working; }
+                if (employerSelect) { employerSelect.required = working; employerSelect.disabled = !working; }
+                employmentFields.forEach(function (field) {
+                    field.required = working;
+                    field.disabled = !working;
+                });
             }
-            employmentFields.forEach(function (field) {
-                field.addEventListener('input', refreshEmploymentRequirements);
-                field.addEventListener('change', refreshEmploymentRequirements);
-            });
+            if (employmentSelect) { employmentSelect.addEventListener('change', refreshEmploymentRequirements); }
             refreshEmploymentRequirements();
         }
 
