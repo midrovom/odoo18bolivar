@@ -145,6 +145,20 @@ class ConederaCreditApplication(models.Model):
     employment_salary = fields.Monetary(string='Sueldo', currency_field='currency_id')
 
     reference_ids = fields.One2many('conedera.credit.reference', 'application_id', string='Referencias')
+    # Las tres vistas administrativas se filtran por tipo; el campo general se
+    # conserva para el portal, los reportes y las solicitudes ya existentes.
+    commercial_reference_ids = fields.One2many(
+        'conedera.credit.reference', 'application_id',
+        string='Referencias comerciales', domain=[('reference_type', '=', 'commercial')],
+    )
+    personal_reference_ids = fields.One2many(
+        'conedera.credit.reference', 'application_id',
+        string='Referencias personales', domain=[('reference_type', '=', 'personal')],
+    )
+    bank_reference_ids = fields.One2many(
+        'conedera.credit.reference', 'application_id',
+        string='Referencias bancarias', domain=[('reference_type', '=', 'bank')],
+    )
     history_ids = fields.One2many('conedera.credit.stage.history', 'application_id', string='Historial de etapas', readonly=True)
     document_ids = fields.One2many('conedera.credit.documents', 'application_id', string='Documentos solicitados', copy=False)
     document_complete = fields.Boolean(string='Documentación completa', compute='_compute_document_complete')
