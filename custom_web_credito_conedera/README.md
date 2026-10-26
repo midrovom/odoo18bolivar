@@ -322,3 +322,12 @@ un croquis fuera de la etapa de revisión habilitada, incluso con el permiso.
 - El primer paso ya no muestra ni obliga a introducir Lugar. El campo histórico del modelo se conserva para expedientes anteriores y no se borra al actualizar una solicitud.
 - Tipo de solicitante, Fecha y Tipo de documento comparten una fila de tres columnas en escritorio. En móvil se apilan para evitar recortes.
 - Se conservan las validaciones y todos los demás campos del formulario.
+
+
+## Versión 18.0.1.8.25 — seis pasos y catálogos bancarios
+- Paso 3: datos de ubicación y croquis del cliente (PNG/JPG/WEBP/PDF, 12 MB); se guardan en la misma solicitud.
+- Los pasos de actividad y referencias pasan a 4 y 5 y términos a 6.
+- El croquis deja de tener formulario independiente. Los enlaces anteriores redirigen al formulario integrado y sus POST antiguos se bloquean.
+- Para solicitudes históricas sin croquis, la carga pendiente sigue disponible desde el formulario integrado durante la revisión; las correcciones autorizadas siguen siendo de un solo uso.
+- Configuración > Tipos de cuenta bancaria: Corriente, Ahorros y nuevas opciones. Migración de registros existentes y reporte PDF con las nuevas denominaciones.
+- La declaración general conserva su contenido con Ver más/Ver menos. Los PDF de Solicitud y Verificación siguen separados o combinables desde el backend.

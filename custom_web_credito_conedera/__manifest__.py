@@ -1,6 +1,6 @@
 {
     'name': 'Portal de Solicitudes de Crédito CONEDERA',
-    'version': '18.0.1.8.24',
+    'version': '18.0.1.8.25',
     'summary': 'Registro verificado, solicitudes de crédito, etapas e ingreso documental para CONEDERA S.A.',
     'description': '''
 Portal de solicitudes de crédito CONEDERA S.A. para Odoo 18.
@@ -9,7 +9,7 @@ Portal de solicitudes de crédito CONEDERA S.A. para Odoo 18.
 - Historial del solicitante y línea de tiempo de etapas.
 - Flujo kanban interno de gestión.
 - Ingreso de documentos habilitado al aprobar la solicitud y con documentos configurables por tipo de solicitante.
-- Ubicación y croquis en formulario independiente del historial durante revisión; CONEDERA puede habilitar correcciones de croquis por solicitud desde el botón de permisos del portal.
+- Ubicación y croquis integrados como paso 3 de seis; expedientes y PDF de ubicación permanecen independientes del PDF de solicitud.
 ''',
     'author': 'OpenAI',
     'license': 'LGPL-3',
@@ -25,6 +25,7 @@ Portal de solicitudes de crédito CONEDERA S.A. para Odoo 18.
         'data/credit_marital_statuses.xml',
         'data/credit_housing_types.xml',
         'data/credit_verification_catalogs.xml',
+        'data/credit_bank_account_types.xml',
         'data/website_menu.xml',
         'views/credit_stage_views.xml',
         'views/credit_application_views.xml',
@@ -38,6 +39,7 @@ Portal de solicitudes de crédito CONEDERA S.A. para Odoo 18.
         'views/credit_housing_type_views.xml',
         'views/credit_verification_catalog_views.xml',
         'views/credit_reference_policy_views.xml',
+        'views/credit_bank_account_type_views.xml',
         'views/credit_documents_views.xml',
         'views/ir_mail_server_view.xml',
         'views/portal_templates.xml',

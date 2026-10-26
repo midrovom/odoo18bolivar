@@ -493,18 +493,55 @@
             refreshEmploymentRequirements();
         }
 
-        // Cinco pantallas de la solicitud. Los datos permanecen en el mismo form
-        // mientras se avanza o retrocede. El servidor valida todas las aceptaciones.
+        // Acceso compacto a la declaración sin alterar su contenido legal.
+        document.querySelectorAll('.credit-legal-details').forEach(function (details) {
+            var summary = details.querySelector('summary');
+            if (!summary) { return; }
+            var setLabel = function () {
+                summary.textContent = details.open ? 'Ver menos · Ocultar declaración' : 'Ver más · Leer declaración completa';
+            };
+            details.addEventListener('toggle', setLabel);
+            setLabel();
+        });
+
+        // Datos identificativos del paso 3: se reutilizan los del paso 1.
+        if (creditForm) {
+            [['[name="identification"]', 'credit-sketch-identification'],
+             ['[name="applicant_name"]', 'credit-sketch-name']].forEach(function (pair) {
+                var origin = creditForm.querySelector(pair[0]);
+                var target = document.getElementById(pair[1]);
+                if (origin && target) {
+                    var sync = function () { target.value = origin.value; };
+                    origin.addEventListener('input', sync);
+                    origin.addEventListener('change', sync);
+                    sync();
+                }
+            });
+        }
+
+        // Seis pasos: croquis integrado como paso 3.
+        // El permiso exclusivo de croquis muestra ese MISMO paso del formulario,
+        // y el servidor no permite editar otros apartados con ese permiso.
         var wizard = document.querySelector('form.credit-form[data-credit-wizard="1"]');
         if (wizard && !wizard.dataset.creditWizardInitialized) {
             wizard.dataset.creditWizardInitialized = '1';
+            var sketchOnly = wizard.dataset.creditSketchOnly === '1';
             var panels = Array.from(wizard.querySelectorAll('.credit-step-panel[data-credit-step]'));
             var indicators = Array.from(wizard.querySelectorAll('[data-credit-step-indicator]'));
+            if (sketchOnly) {
+                panels = panels.filter(function (panel) { return panel.dataset.creditStep === '3'; });
+                indicators = indicators.filter(function (indicator) { return indicator.dataset.creditStepIndicator === '3'; });
+                wizard.querySelectorAll('[data-credit-step-indicator]').forEach(function (indicator) {
+                    if (indicator.dataset.creditStepIndicator !== '3') { indicator.style.display = 'none'; }
+                });
+                var progressText = wizard.querySelector('.credit-wizard-progress p');
+                if (progressText) { progressText.textContent = 'Corrección autorizada: complete únicamente ubicación y croquis.'; }
+            }
             var backButton = wizard.querySelector('[data-credit-prev]');
             var nextButton = wizard.querySelector('[data-credit-next]');
             var submitButton = wizard.querySelector('[data-credit-submit]');
             var progress = wizard.querySelector('.credit-wizard-progress');
-            var currentStep = Math.min(5, Math.max(1, parseInt(wizard.dataset.startStep || '1', 10) || 1));
+            var currentStep = sketchOnly ? 1 : Math.min(panels.length, Math.max(1, parseInt(wizard.dataset.startStep || '1', 10) || 1));
 
             function showStep(step, fromClick) {
                 currentStep = Math.min(panels.length, Math.max(1, step));

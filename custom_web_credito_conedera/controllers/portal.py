@@ -492,6 +492,14 @@ class ConederaCreditPortal(http.Controller):
             not application.stage_id.is_rejected and
             not application.stage_id.is_documents_received)
 
+    def _can_edit_integrated_sketch(self, application):
+        initial_croquis_pending = not (application.verification_sketch and application.verification_address)
+        return bool(application.portal_user_id.id == request.env.user.id
+                    and (initial_croquis_pending or application.portal_can_update_sketch())
+                    and application.stage_id.portal_sketch_enabled
+                    and not (application.stage_id.is_approved or application.stage_id.is_rejected
+                             or application.stage_id.is_documents_received))
+
     def _can_upload_sketch(self, application):
         """Croquis inicial durante revisión, o nueva corrección autorizada.
 
@@ -520,7 +528,7 @@ class ConederaCreditPortal(http.Controller):
     def _pending_application(self):
         return request.env['conedera.credit.application'].sudo()._blocking_application(request.env.user.id)
 
-    def _render_application_form(self, form_values=None, errors=None, start_step=1, application=None):
+    def _render_application_form(self, form_values=None, errors=None, start_step=1, application=None, sketch_only=False):
         defaults = {'application_date': fields.Date.context_today(request.env.user).strftime('%Y-%m-%d'),
                     'applicant_name': '', 'identification_type': 'cedula',
                     'applicant_email': request.env.user.email or request.env.user.login}
@@ -539,8 +547,11 @@ class ConederaCreditPortal(http.Controller):
             'errors': errors or [],
             'application': application,
             'existing_sketch': bool(application and application.verification_sketch),
+            'sketch_is_pdf': bool(application and (application.verification_sketch_filename or '').lower().endswith('.pdf')),
+            'sketch_only': bool(sketch_only),
+            'bank_account_types': request.env['conedera.credit.bank.account.type'].sudo().search([('active', '=', True)], order='sequence,name,id'),
             'marital_statuses': request.env['conedera.credit.marital.status'].sudo().search([('active', '=', True)], order='sequence,name,id'),
-            'start_step': max(1, min(5, int(start_step or 1))),
+            'start_step': max(1, min(6, int(start_step or 1))),
             'housing_types': request.env['conedera.credit.housing.type'].sudo().search([('active', '=', True)], order='sequence,name,id'),
             'vehicle_rows': range(1, vehicle_count + 1),
             'reference_rows': reference_rows,
@@ -616,14 +627,22 @@ class ConederaCreditPortal(http.Controller):
                         'relationship': raw_fields['relationship'],
                     }
                 else:
-                    if raw_fields['type'] and raw_fields['type'] not in ('current', 'savings'):
-                        errors.append(_('Referencia bancaria %s: seleccione un tipo de cuenta válido.') % number)
+                    bank_catalog = request.env['conedera.credit.bank.account.type'].sudo()
+                    type_value = raw_fields['type']
+                    selected_type = bank_catalog.browse(int(type_value)).exists() if type_value.isdecimal() else bank_catalog.browse()
+                    if selected_type and not selected_type.active:
+                        # Conservar selecciones archivadas en referencias ya existentes.
+                        selected_type = bank_catalog.browse()
+                    if type_value and not selected_type:
+                        errors.append(_('Referencia bancaria %s: seleccione un tipo de cuenta configurado.') % number)
                     values = {
                         'reference_type': typ, 'sequence': number * 10,
                         'bank_name': raw_fields['name'],
                         'account_number': raw_fields['account'],
                         'opening_date': _parse_date(raw_fields['opening']),
-                        'account_type': raw_fields['type'] or False,
+                        'account_type_id': selected_type.id if selected_type else False,
+                        # Compatibilidad con el campo antiguo, no se usa para nuevas opciones.
+                        'account_type': selected_type.code if selected_type and selected_type.code in ('current', 'savings') else False,
                     }
                 if all(raw_fields.values()):
                     complete += 1
@@ -687,6 +706,8 @@ class ConederaCreditPortal(http.Controller):
         if not any(values.get(field) for field, _label in PORTAL_EMPLOYMENT_FIELDS
                    if field != 'employment_salary'):
             values['employment_salary'] = ''
+        for field_name in LOCATION_CLIENT_FIELDS:
+            values[field_name] = application[field_name] or ''
         values['business_location_method'] = application.business_location_method or 'manual'
         values['business_location_captured'] = application.business_location_captured or ''
         values['applicant_type_id'] = str(application.applicant_type_id.id or '')
@@ -705,12 +726,15 @@ class ConederaCreditPortal(http.Controller):
             fields_map = {
                 'commercial': [('provider', 'provider'), ('since', 'customer_since'), ('limit', 'credit_limit'), ('term', 'term'), ('phone', 'phone'), ('contact', 'contact')],
                 'personal': [('name', 'person_name'), ('address', 'address'), ('phone', 'home_phone'), ('relationship', 'relationship')],
-                'bank': [('name', 'bank_name'), ('account', 'account_number'), ('opening', 'opening_date'), ('type', 'account_type')],
+                'bank': [('name', 'bank_name'), ('account', 'account_number'), ('opening', 'opening_date'), ('type', 'account_type_id')],
             }[typ]
             for number, ref in enumerate(refs, 1):
                 for suffix, field_name in fields_map:
                     value = ref[field_name]
-                    values['%s_%s_%s' % (typ, suffix, number)] = (str(value) if
+                    if typ == 'bank' and suffix == 'type' and not value and ref.account_type:
+                        value = request.env['conedera.credit.bank.account.type'].sudo().search(
+                            [('code', '=', ref.account_type)], limit=1)
+                    values['%s_%s_%s' % (typ, suffix, number)] = (str(value.id) if typ == 'bank' and suffix == 'type' and value else str(value) if
                         (value or (typ == 'commercial' and suffix == 'limit' and value == 0)) else '')
         for term in ('declaration_accepted', 'prior_commercial_relationship_accepted',
                      'electronic_service_accepted', 'credit_bureau_authorized',
@@ -823,97 +847,82 @@ class ConederaCreditPortal(http.Controller):
             ('X-Content-Type-Options', 'nosniff'),
         ])
 
-    def _render_client_sketch(self, application, values=None, errors=None):
-        form_values = {name: application[name] or '' for name in LOCATION_CLIENT_FIELDS}
-        form_values.update(values or {})
-        return request.render('custom_web_credito_conedera.portal_credit_sketch_form', {
-            'application': application,
-            'form_values': form_values,
-            'errors': errors or [],
-            'sketch_is_pdf': (application.verification_sketch_filename or '').lower().endswith('.pdf'),
-        })
-
     @http.route('/my/credito/<int:application_id>/subir-croquis', type='http',
                 auth='user', website=True, methods=['GET'], sitemap=False)
-    def credit_sketch_upload_form(self, application_id, **kwargs):
+    def credit_sketch_legacy_redirect(self, application_id, **kwargs):
         application = self._get_owned_application(application_id)
-        if not self._can_upload_sketch(application):
-            raise Forbidden(_('El croquis solo puede cargarse mientras la solicitud está en revisión.'))
-        return self._render_client_sketch(application)
+        if self._can_correct(application) or self._can_edit_integrated_sketch(application):
+            return request.redirect('/my/credito/%s/editar' % application.id)
+        return request.redirect('/my/credito/%s' % application.id)
 
     @http.route('/my/credito/<int:application_id>/subir-croquis', type='http',
                 auth='user', website=True, methods=['POST'], csrf=True, sitemap=False)
-    def credit_sketch_upload_save(self, application_id, **post):
-        application = self._get_owned_application(application_id)
-        if not self._can_upload_sketch(application):
-            raise Forbidden(_('La solicitud ya no se encuentra en revisión.'))
-        errors = []
-        values = {}
-        for name in LOCATION_CLIENT_FIELDS:
-            value = _clean(post.get(name))
-            if len(value) > (500 if name == 'verification_reference' else 280):
-                errors.append(_('El texto de ubicación es demasiado largo: %s.') % application._fields[name].string)
-            values[name] = value or False
-        for required_name in (
-            'verification_province', 'verification_city', 'verification_canton',
-            'verification_parish', 'verification_neighborhood', 'verification_address',
-            'verification_reference',
-        ):
-            if not values.get(required_name):
-                errors.append(_('Complete el campo %s del formulario de ubicación.') % application._fields[required_name].string)
-        sketch, filename = _sketch_content(post, errors)
-        if not sketch:
-            if not errors:
-                errors.append(_('Seleccione el archivo del croquis (PNG, JPG, WEBP o PDF).'))
-        else:
-            values['verification_sketch'] = sketch
-            values['verification_sketch_filename'] = filename
-        if errors:
-            return self._render_client_sketch(application, values, errors)
+    def credit_sketch_legacy_write_disabled(self, application_id, **post):
+        self._get_owned_application(application_id)
+        raise Forbidden(_('El croquis ahora se guarda desde el formulario de solicitud de crédito.'))
 
-        # Revalidar estado dentro del bloqueo para evitar escritura tras aprobar
-        # desde otra sesión, sin consumir el permiso especial del historial.
+    def _process_integrated_sketch_correction(self, post, application):
+        """Permiso exclusivo de croquis: no permite editar el resto de la solicitud."""
+        errors, values = [], {}
+        for field_name in LOCATION_CLIENT_FIELDS:
+            value = _clean(post.get(field_name))
+            if len(value) > (500 if field_name == 'verification_reference' else 280):
+                errors.append(_('El texto de ubicación es demasiado largo: %s.') % application._fields[field_name].string)
+            values[field_name] = value or False
+        for required in ('verification_province', 'verification_city', 'verification_canton',
+                         'verification_parish', 'verification_neighborhood',
+                         'verification_address', 'verification_reference'):
+            if not values.get(required):
+                errors.append(_('Complete el campo %s.') % application._fields[required].string)
+        sketch, filename = _sketch_content(post, errors)
+        if sketch:
+            values.update({'verification_sketch': sketch,
+                           'verification_sketch_filename': filename})
+        elif not application.verification_sketch:
+            errors.append(_('Debe adjuntar un croquis PNG, JPG, WEBP o PDF.'))
+        if errors:
+            form_values = self._application_to_form(application)
+            form_values.update({name: post.get(name, '') for name in LOCATION_CLIENT_FIELDS})
+            return self._render_application_form(form_values, errors, start_step=3,
+                                                 application=application, sketch_only=True)
         try:
             with request.env.cr.savepoint():
-                request.env.cr.execute(
-                    'SELECT id FROM conedera_credit_application WHERE id = %s FOR UPDATE',
-                    (application.id,))
-                application.invalidate_recordset([
-                    'stage_id', 'verification_sketch_filename', 'verification_address',
-                    'portal_update_scope',
-                ])
-                if not self._can_upload_sketch(application):
-                    raise Forbidden(_('La solicitud dejó de estar en revisión o el permiso del croquis ya fue utilizado.'))
-                permitted_reupload = application.portal_can_update_sketch()
+                request.env.cr.execute('SELECT id FROM conedera_credit_application WHERE id = %s FOR UPDATE', (application.id,))
+                application.invalidate_recordset(['stage_id', 'portal_update_scope',
+                                                  'verification_sketch', 'verification_address'])
+                if not self._can_edit_integrated_sketch(application):
+                    raise Forbidden(_('El permiso de corrección del croquis ya fue utilizado.'))
                 application.sudo().write(values)
-                if permitted_reupload:
-                    # Una corrección por autorización. Mantener sin cambios
-                    # los permisos de formulario y de documentos.
+                if application.portal_can_update_sketch():
                     remaining = application.portal_enabled_sections() - {'sketch'}
                     application.sudo().write({
                         'portal_update_scope': application.portal_scope_from_sections(remaining),
                         'portal_sketch_consumed_at': fields.Datetime.now(),
                     })
-                application.sudo().message_post(body=_('El solicitante actualizó su ubicación y adjuntó el croquis desde el historial del portal.'))
+                application.sudo().message_post(body=_('El solicitante actualizó la ubicación y el croquis desde el formulario integrado.'))
         except (ValidationError, ValueError) as exc:
-            return self._render_client_sketch(application, values, [str(exc)])
-        # El croquis es un formulario independiente: tras su primer guardado
-        # finalizado ya no se ofrece «Subir croquis»; vuelve el historial.
-        return request.redirect('/my/credito/historial?croquis_guardado=1')
+            return self._render_application_form(self._application_to_form(application), [str(exc)],
+                                                 start_step=3, application=application, sketch_only=True)
+        return request.redirect('/my/credito/%s?updated=1' % application.id)
 
     @http.route('/my/credito/<int:application_id>/editar', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
     def edit_credit_application(self, application_id, **kw):
         application = self._get_owned_application(application_id)
-        if not self._can_correct(application):
-            raise Forbidden(_('No tiene permiso para modificar esta solicitud o ya tiene una decisión registrada.'))
-        return self._render_application_form(self._application_to_form(application), application=application)
+        if self._can_correct(application):
+            return self._render_application_form(self._application_to_form(application), application=application)
+        if self._can_edit_integrated_sketch(application):
+            return self._render_application_form(self._application_to_form(application),
+                                                 start_step=3, application=application, sketch_only=True)
+        raise Forbidden(_('No tiene permiso para modificar esta solicitud o ya tiene una decisión registrada.'))
 
     @http.route('/my/credito/<int:application_id>/actualizar', type='http', auth='user', website=True, methods=['POST'], sitemap=False)
     def update_credit_application(self, application_id, **post):
         application = self._get_owned_application(application_id)
-        if not self._can_correct(application):
-            raise Forbidden(_('No tiene permiso para modificar esta solicitud o ya tiene una decisión registrada.'))
-        return self._process_application(post, application=application)
+        if self._can_correct(application):
+            return self._process_application(post, application=application)
+        if self._can_edit_integrated_sketch(application):
+            return self._process_integrated_sketch_correction(post, application)
+        raise Forbidden(_('No tiene permiso para modificar esta solicitud o ya tiene una decisión registrada.'))
 
     def _process_application(self, post, application=None):
         if not application:
@@ -988,9 +997,24 @@ class ConederaCreditPortal(http.Controller):
         if housing_code and not housing_record:
             errors.append(_('Seleccione un tipo de vivienda válido.'))
         values['housing_type_id'] = housing_record.id or False
-        # Ubicación y croquis NO forman parte de esta solicitud inicial o de sus
-        # correcciones: solo se modifican en /my/credito/<id>/subir-croquis.
-        # Esto evita que la edición de datos generales borre el croquis existente.
+        # Paso 3: ubicación y croquis integrados, persistidos en la misma solicitud.
+        for field_name in LOCATION_CLIENT_FIELDS:
+            value = _clean(post.get(field_name))
+            if len(value) > (500 if field_name == 'verification_reference' else 280):
+                errors.append(_('El campo de ubicación %s es demasiado largo.') % field_name)
+            values[field_name] = value or False
+        for required in ('verification_province', 'verification_city', 'verification_canton',
+                         'verification_parish', 'verification_neighborhood',
+                         'verification_address', 'verification_reference'):
+            if not values[required]:
+                errors.append(_('Complete el campo de ubicación %(field)s.') %
+                              {'field': required.replace('verification_', '').replace('_', ' ')})
+        sketch, sketch_filename = _sketch_content(post, errors)
+        if sketch:
+            values['verification_sketch'] = sketch
+            values['verification_sketch_filename'] = sketch_filename
+        elif not (application and application.verification_sketch):
+            errors.append(_('Adjunte el croquis del cliente en el paso 3 (PNG, JPG, WEBP o PDF).'))
         values['vehicle_ids'] = self._vehicle_commands(post, errors)
         values['declaration_accepted'] = post.get('declaration_accepted') in ('on', '1', 'true', 'yes')
         consent_fields = [
@@ -1026,15 +1050,15 @@ class ConederaCreditPortal(http.Controller):
         employer_type = _clean(post.get('employment_employer_type'))
         if relationship not in ('yes', 'no'):
             errors.append(_('Indique si tiene relación de dependencia (Sí / No).'))
-            invalid_field_steps.append(3)
+            invalid_field_steps.append(4)
         if relationship == 'yes':
             if employer_type not in ('private', 'public'):
                 errors.append(_('Seleccione si su empleador es privado o público.'))
-                invalid_field_steps.append(3)
+                invalid_field_steps.append(4)
             for field, label in PORTAL_EMPLOYMENT_FIELDS:
                 if not _clean(post.get(field)):
                     errors.append(_('Actividad en relación de dependencia: complete %(field)s.') % {'field': label})
-                    invalid_field_steps.append(3)
+                    invalid_field_steps.append(4)
         else:
             values['employment_employer_type'] = False
             for field, _label in PORTAL_EMPLOYMENT_FIELDS:
@@ -1074,15 +1098,17 @@ class ConederaCreditPortal(http.Controller):
             invalid_terms = not values['declaration_accepted'] or any(not values[key] for key, _message in consent_fields)
             if invalid_field_steps:
                 step = min(invalid_field_steps)
+            elif any('croquis' in err.lower() or 'ubicación ' in err.lower() for err in errors):
+                step = 3
             elif any('referencia comercial' in err.lower() or 'referencias comerciales' in err.lower()
                      or 'referencia(s) comercial' in err.lower() for err in errors):
-                step = 3
+                step = 5
             elif any('referencia personal' in err.lower() or 'referencia bancaria' in err.lower()
                      or 'referencia(s) personal' in err.lower() or 'referencia(s) bancaria' in err.lower()
                      for err in errors):
-                step = 4
+                step = 5
             else:
-                step = 5 if invalid_terms else 1
+                step = 6 if invalid_terms else 1
             return self._render_application_form(post, errors, start_step=step, application=application)
 
         try:
@@ -1152,7 +1178,7 @@ class ConederaCreditPortal(http.Controller):
         return request.render('custom_web_credito_conedera.portal_credit_history', {
             'applications': self._portal_applications(),
             'can_correct_ids': self._portal_applications().filtered(lambda a: self._can_correct(a)).ids,
-            'can_upload_sketch_ids': self._portal_applications().filtered(lambda a: self._can_upload_sketch(a)).ids,
+            'can_upload_sketch_ids': self._portal_applications().filtered(lambda a: self._can_edit_integrated_sketch(a)).ids,
         })
 
     @http.route('/my/credito/<int:application_id>', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
@@ -1169,7 +1195,7 @@ class ConederaCreditPortal(http.Controller):
             'documents': documents,
             'verification_label': dict(application._fields['verification_status']._description_selection(request.env)).get(application.verification_status, '-'),
             'can_correct': self._can_correct(application),
-            'can_upload_sketch': self._can_upload_sketch(application),
+            'can_upload_sketch': self._can_edit_integrated_sketch(application),
         })
 
     @http.route('/my/credito/documentos', type='http', auth='user', website=True, methods=['GET'], sitemap=False)

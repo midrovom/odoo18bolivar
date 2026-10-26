@@ -36,7 +36,9 @@ class ConederaCreditReference(models.Model):
     bank_name = fields.Char(string='Banco / tarjeta de crédito')
     account_number = fields.Char(string='Número de cuenta')
     opening_date = fields.Date(string='Fecha de apertura')
-    account_type = fields.Selection([('current', 'Cuenta corriente'), ('savings', 'Ahorros')], string='Tipo de cuenta')
+    # Se conserva para solicitudes historicas; las nuevas referencias utilizan el catálogo.
+    account_type = fields.Selection([('current', 'Cuenta corriente'), ('savings', 'Ahorros')], string='Tipo de cuenta histórico', readonly=True, copy=False)
+    account_type_id = fields.Many2one('conedera.credit.bank.account.type', string='Cuenta corriente o ahorros', ondelete='restrict', index=True)
     currency_id = fields.Many2one('res.currency', string='Moneda', default=lambda self: self.env.company.currency_id, required=True)
 
 
