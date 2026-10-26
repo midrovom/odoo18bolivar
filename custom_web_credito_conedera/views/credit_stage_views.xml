@@ -8,5 +8,5 @@
         <field name="name">conedera.credit.stage.form</field><field name="model">conedera.credit.stage</field>
         <field name="arch" type="xml"><form string="Etapa de crédito"><sheet><div class="oe_title"><label for="name"/><h1><field name="name"/></h1></div><group><group><field name="sequence"/><field name="active"/><field name="fold"/></group><group><field name="is_initial"/><field name="is_approved"/><field name="is_documents_received"/><field name="is_rejected"/><field name="portal_sketch_enabled"/></group></group><field name="description" placeholder="Uso de la etapa dentro del flujo de crédito..."/></sheet></form></field>
     </record>
-    <record id="action_conedera_credit_stages" model="ir.actions.act_window"><field name="name">Etapas del flujo</field><field name="res_model">conedera.credit.stage</field><field name="view_mode">list,form</field></record>
+    <record id="action_conedera_credit_stages" model="ir.actions.act_window"><field name="name">Etapas del solicitante</field><field name="res_model">conedera.credit.stage</field><field name="view_mode">list,form</field></record>
 </odoo>

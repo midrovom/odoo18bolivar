@@ -26,5 +26,5 @@
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
-    <menuitem id="menu_conedera_credit_theme" name="Colores del portal" parent="menu_conedera_credit_root" action="action_credit_theme_wizard" sequence="90" groups="custom_web_credito_conedera.group_credit_administrator"/>
+    <menuitem id="menu_conedera_credit_theme" name="Colores del portal" parent="menu_conedera_credit_configuration" action="action_credit_theme_wizard" sequence="70" groups="custom_web_credito_conedera.group_credit_administrator"/>
 </odoo>

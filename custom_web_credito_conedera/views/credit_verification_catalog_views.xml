@@ -23,8 +23,8 @@
         <field name="res_model">conedera.credit.verification.zone</field>
         <field name="view_mode">list,form</field>
     </record>
-    <menuitem id="menu_conedera_credit_verification_zones" name="Zonas de verificación"
-        parent="menu_conedera_credit_root" sequence="38"
+    <menuitem id="menu_conedera_credit_verification_zones" name="Zona de verificación"
+        parent="menu_conedera_credit_configuration" sequence="50"
         action="action_conedera_credit_verification_zones"
         groups="custom_web_credito_conedera.group_credit_administrator"/>
 
@@ -51,8 +51,8 @@
         <field name="res_model">conedera.credit.local.condition</field>
         <field name="view_mode">list,form</field>
     </record>
-    <menuitem id="menu_conedera_credit_local_conditions" name="Estados del local"
-        parent="menu_conedera_credit_root" sequence="39"
+    <menuitem id="menu_conedera_credit_local_conditions" name="Estado del local"
+        parent="menu_conedera_credit_configuration" sequence="60"
         action="action_conedera_credit_local_conditions"
         groups="custom_web_credito_conedera.group_credit_administrator"/>
 </odoo>
