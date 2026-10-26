@@ -97,8 +97,6 @@
     <group string="Verificación del negocio (personal CONEDERA)" col="2" class="o_credit_verification_section">
         <field name="verification_zone_id"/>
         <field name="verification_local_state_id"/>
-        <separator string="Persona entrevistada" colspan="2"/>
-        <field name="interviewed_person" colspan="2"/>
         <field name="interviewed_relationship" colspan="2"/>
         <field name="interviewed_name" colspan="2"/>
     </group>

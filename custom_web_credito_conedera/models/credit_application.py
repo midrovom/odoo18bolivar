@@ -172,7 +172,8 @@ class ConederaCreditApplication(models.Model):
         'conedera.credit.verification.zone', string='Zona', index=True, ondelete='restrict')
     verification_local_state_id = fields.Many2one(
         'conedera.credit.local.condition', string='Estado del local', index=True, ondelete='restrict')
-    interviewed_person = fields.Char(string='Persona entrevistada')
+    # Campo legado conservado exclusivamente por compatibilidad con registros históricos; no se expone.
+    interviewed_person = fields.Char(string='Persona entrevistada (histórico)', readonly=True, copy=False)
     interviewed_relationship = fields.Char(string='Relación / parentesco')
     interviewed_name = fields.Char(string='Nombre')
     inspection_done = fields.Selection([('yes', 'Sí'), ('no', 'No')], string='Se realizó la inspección')
@@ -272,7 +273,7 @@ class ConederaCreditApplication(models.Model):
     _credit_reviewer_writable = frozenset({
         'stage_id', 'verification_status', 'verification_completed_at',
         'verification_zone_id', 'verification_local_state_id',
-        'interviewed_person', 'interviewed_relationship', 'interviewed_name',
+        'interviewed_relationship', 'interviewed_name',
         'inspection_done', 'address_found', 'client_lives_there',
         'sketch_needed', 'verifier_name', 'verifier_signature',
         'verifier_signature_filename',
