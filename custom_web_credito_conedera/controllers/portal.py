@@ -41,9 +41,7 @@ APPLICATION_FIELDS = [
     'assets_amount', 'monthly_income', 'liabilities_amount', 'monthly_expenses',
     'authorized_buyer_name', 'authorized_buyer_identification', 'authorized_buyer_email',
     'authorized_pickup_name', 'authorized_pickup_identification',
-    'verification_province', 'verification_city', 'verification_canton', 'verification_parish',
-    'verification_neighborhood', 'verification_address', 'verification_house_number',
-    'verification_reference', 'employment_company',
+    'employment_company',
     'employment_activity', 'employment_address', 'employment_phone', 'employment_start_date',
     'employment_position', 'employment_salary',
 ]
@@ -450,6 +448,9 @@ class ConederaCreditPortal(http.Controller):
             and not application.stage_id.is_approved
             and not application.stage_id.is_rejected
             and not application.stage_id.is_documents_received
+            # Una vez entregado el formulario de croquis, Historial regresa a «Ver detalle».
+            # También reconoce croquis de versiones anteriores, sin pedir una nueva carga.
+            and not (application.verification_sketch_filename and application.verification_address)
         )
 
     def _can_update_credit_documents(self, application, document=None):
@@ -654,8 +655,13 @@ class ConederaCreditPortal(http.Controller):
             if len(value) > (500 if name == 'verification_reference' else 280):
                 errors.append(_('El texto de ubicación es demasiado largo: %s.') % application._fields[name].string)
             values[name] = value or False
-        if not values.get('verification_address'):
-            errors.append(_('Ingrese la dirección del negocio para la verificación.'))
+        for required_name in (
+            'verification_province', 'verification_city', 'verification_canton',
+            'verification_parish', 'verification_neighborhood', 'verification_address',
+            'verification_reference',
+        ):
+            if not values.get(required_name):
+                errors.append(_('Complete el campo %s del formulario de ubicación.') % application._fields[required_name].string)
         sketch, filename = _sketch_content(post, errors)
         if not sketch:
             if not errors:
@@ -673,14 +679,16 @@ class ConederaCreditPortal(http.Controller):
                 request.env.cr.execute(
                     'SELECT id FROM conedera_credit_application WHERE id = %s FOR UPDATE',
                     (application.id,))
-                application.invalidate_recordset(['stage_id'])
+                application.invalidate_recordset(['stage_id', 'verification_sketch_filename', 'verification_address'])
                 if not self._can_upload_sketch(application):
                     raise Forbidden(_('La solicitud dejó de estar en revisión; no se guardó el croquis.'))
                 application.sudo().write(values)
                 application.sudo().message_post(body=_('El solicitante actualizó su ubicación y adjuntó el croquis desde el historial del portal.'))
         except (ValidationError, ValueError) as exc:
             return self._render_client_sketch(application, values, [str(exc)])
-        return request.redirect('/my/credito/%s/subir-croquis?guardado=1' % application.id)
+        # El croquis es un formulario independiente: tras su primer guardado
+        # finalizado ya no se ofrece «Subir croquis»; vuelve el historial.
+        return request.redirect('/my/credito/historial?croquis_guardado=1')
 
     @http.route('/my/credito/<int:application_id>/editar', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
     def edit_credit_application(self, application_id, **kw):
@@ -753,15 +761,9 @@ class ConederaCreditPortal(http.Controller):
         if housing_code and not housing_record:
             errors.append(_('Seleccione un tipo de vivienda válido.'))
         values['housing_type_id'] = housing_record.id or False
-        # El usuario del portal carga el croquis (imagen/PDF) o lo dibuja.
-        # Su expediente puede tener un croquis previo que debe conservarse si
-        # no se seleccionó otro archivo ni se realizó un dibujo nuevo.
-        sketch_data, sketch_filename = _sketch_content(post, errors)
-        if sketch_data is not None:
-            values['verification_sketch'] = sketch_data
-            values['verification_sketch_filename'] = sketch_filename
-        # El croquis puede entregarse después mediante Historial > Subir croquis,
-        # exclusivamente mientras la solicitud esté en revisión.
+        # Ubicación y croquis NO forman parte de esta solicitud inicial o de sus
+        # correcciones: solo se modifican en /my/credito/<id>/subir-croquis.
+        # Esto evita que la edición de datos generales borre el croquis existente.
         values['vehicle_ids'] = self._vehicle_commands(post, errors)
         values['declaration_accepted'] = post.get('declaration_accepted') in ('on', '1', 'true', 'yes')
         consent_fields = [
@@ -785,7 +787,6 @@ class ConederaCreditPortal(http.Controller):
             ('business_name', _('nombre o razón social')),
             ('business_ruc', _('RUC del negocio')),
             ('business_address', _('dirección de la empresa')),
-            ('verification_address', _('dirección para verificar la ubicación del negocio')), 
         ]:
             if not values.get(field_name):
                 errors.append(_('El campo %(field)s es obligatorio.') % {'field': label})
@@ -816,7 +817,7 @@ class ConederaCreditPortal(http.Controller):
                 errors.append(message)
         if errors:
             required_person = ('applicant_type_id', 'identification', 'applicant_name', 'applicant_email', 'mobile')
-            required_business = ('business_name', 'business_ruc', 'business_address', 'verification_address')
+            required_business = ('business_name', 'business_ruc', 'business_address')
             invalid_terms = not values['declaration_accepted'] or any(not values[key] for key, _message in consent_fields)
             step = (2 if any('croquis' in err.lower() for err in errors) else
                     1 if any(not values.get(key) for key in required_person) else

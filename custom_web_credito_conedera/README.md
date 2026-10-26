@@ -15,7 +15,7 @@ Módulo nuevo e independiente de los módulos de Recursos Humanos utilizados com
 - Kanban interno por etapas para arrastrar solicitudes y avanzar el proceso. Los cambios se registran en la línea de tiempo y generan intento de notificación por correo al solicitante.
 - La etapa **Aprobada** habilita la carga documental. El tipo de solicitante configurado en Odoo determina los documentos y sus requisitos obligatorios.
 - Gestión de la documentación recibida y controles para aceptar el expediente o pedir correcciones.
-- En el paso 2 del portal, el cliente registra provincia, ciudad, cantón, parroquia, barrio, dirección, número y referencia para la verificación de ubicación y dibuja el croquis o adjunta un archivo. Los resultados de inspección permanecen en Odoo para el personal CONEDERA.
+- El croquis y los datos de verificación de ubicación NO se piden al crear la solicitud ni al corregir el formulario de cinco pasos. Cuando una solicitud llega a En revisión y todavía no tiene el croquis con dirección, el historial muestra solamente **Subir croquis**. Se abre un formulario independiente con ubicación y archivo (imagen/PDF con vista previa). Al guardar los datos dentro del expediente existente, el botón regresa a **Ver detalle**. La inspección y sus resultados permanecen en Odoo para el personal CONEDERA.
 - Se notifica a `cobranzas@viteltek.com` la latitud y longitud ingresadas del negocio, sin generar ni almacenar enlaces de Google Maps.
 
 ## Documentos posteriores a la aprobación
