@@ -25,6 +25,11 @@ OTP_MAX_ATTEMPTS = 5
 MAX_FILE_SIZE = 12 * 1024 * 1024
 MAX_VEHICLES = 30
 MAX_REFERENCES = 30
+LOCATION_CLIENT_FIELDS = (
+    'verification_province', 'verification_city', 'verification_canton',
+    'verification_parish', 'verification_neighborhood',
+    'verification_address', 'verification_house_number', 'verification_reference',
+)
 
 APPLICATION_FIELDS = [
     'identification', 'identification_type', 'business_latitude', 'business_longitude', 'application_place', 'application_date', 'applicant_name', 'applicant_email',
@@ -433,6 +438,20 @@ class ConederaCreditPortal(http.Controller):
             not application.stage_id.is_rejected and
             not application.stage_id.is_documents_received)
 
+    def _can_upload_sketch(self, application):
+        """Únicamente su expediente, durante una etapa habilitada de revisión.
+
+        El croquis es aportado por el cliente y NO forma parte de los
+        documentos posteriores a la aprobación ni del permiso de corrección.
+        """
+        return bool(
+            application.portal_user_id.id == request.env.user.id
+            and application.stage_id.portal_sketch_enabled
+            and not application.stage_id.is_approved
+            and not application.stage_id.is_rejected
+            and not application.stage_id.is_documents_received
+        )
+
     def _can_update_credit_documents(self, application, document=None):
         if not application.document_access_allowed or application.portal_user_id.id != request.env.user.id:
             return False
@@ -604,6 +623,65 @@ class ConederaCreditPortal(http.Controller):
             ('X-Content-Type-Options', 'nosniff'),
         ])
 
+    def _render_client_sketch(self, application, values=None, errors=None):
+        form_values = {name: application[name] or '' for name in LOCATION_CLIENT_FIELDS}
+        form_values.update(values or {})
+        return request.render('custom_web_credito_conedera.portal_credit_sketch_form', {
+            'application': application,
+            'form_values': form_values,
+            'errors': errors or [],
+            'sketch_is_pdf': (application.verification_sketch_filename or '').lower().endswith('.pdf'),
+        })
+
+    @http.route('/my/credito/<int:application_id>/subir-croquis', type='http',
+                auth='user', website=True, methods=['GET'], sitemap=False)
+    def credit_sketch_upload_form(self, application_id, **kwargs):
+        application = self._get_owned_application(application_id)
+        if not self._can_upload_sketch(application):
+            raise Forbidden(_('El croquis solo puede cargarse mientras la solicitud está en revisión.'))
+        return self._render_client_sketch(application)
+
+    @http.route('/my/credito/<int:application_id>/subir-croquis', type='http',
+                auth='user', website=True, methods=['POST'], csrf=True, sitemap=False)
+    def credit_sketch_upload_save(self, application_id, **post):
+        application = self._get_owned_application(application_id)
+        if not self._can_upload_sketch(application):
+            raise Forbidden(_('La solicitud ya no se encuentra en revisión.'))
+        errors = []
+        values = {}
+        for name in LOCATION_CLIENT_FIELDS:
+            value = _clean(post.get(name))
+            if len(value) > (500 if name == 'verification_reference' else 280):
+                errors.append(_('El texto de ubicación es demasiado largo: %s.') % application._fields[name].string)
+            values[name] = value or False
+        if not values.get('verification_address'):
+            errors.append(_('Ingrese la dirección del negocio para la verificación.'))
+        sketch, filename = _sketch_content(post, errors)
+        if not sketch:
+            if not errors:
+                errors.append(_('Seleccione el archivo del croquis (PNG, JPG, WEBP o PDF).'))
+        else:
+            values['verification_sketch'] = sketch
+            values['verification_sketch_filename'] = filename
+        if errors:
+            return self._render_client_sketch(application, values, errors)
+
+        # Revalidar estado dentro del bloqueo para evitar escritura tras aprobar
+        # desde otra sesión, sin consumir el permiso especial del historial.
+        try:
+            with request.env.cr.savepoint():
+                request.env.cr.execute(
+                    'SELECT id FROM conedera_credit_application WHERE id = %s FOR UPDATE',
+                    (application.id,))
+                application.invalidate_recordset(['stage_id'])
+                if not self._can_upload_sketch(application):
+                    raise Forbidden(_('La solicitud dejó de estar en revisión; no se guardó el croquis.'))
+                application.sudo().write(values)
+                application.sudo().message_post(body=_('El solicitante actualizó su ubicación y adjuntó el croquis desde el historial del portal.'))
+        except (ValidationError, ValueError) as exc:
+            return self._render_client_sketch(application, values, [str(exc)])
+        return request.redirect('/my/credito/%s/subir-croquis?guardado=1' % application.id)
+
     @http.route('/my/credito/<int:application_id>/editar', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
     def edit_credit_application(self, application_id, **kw):
         application = self._get_owned_application(application_id)
@@ -682,8 +760,8 @@ class ConederaCreditPortal(http.Controller):
         if sketch_data is not None:
             values['verification_sketch'] = sketch_data
             values['verification_sketch_filename'] = sketch_filename
-        if not sketch_data and not (application and application.verification_sketch):
-            errors.append(_('Debe dibujar o adjuntar el croquis de ubicación del negocio.'))
+        # El croquis puede entregarse después mediante Historial > Subir croquis,
+        # exclusivamente mientras la solicitud esté en revisión.
         values['vehicle_ids'] = self._vehicle_commands(post, errors)
         values['declaration_accepted'] = post.get('declaration_accepted') in ('on', '1', 'true', 'yes')
         consent_fields = [
@@ -812,6 +890,7 @@ class ConederaCreditPortal(http.Controller):
         return request.render('custom_web_credito_conedera.portal_credit_history', {
             'applications': self._portal_applications(),
             'can_correct_ids': self._portal_applications().filtered(lambda a: self._can_correct(a)).ids,
+            'can_upload_sketch_ids': self._portal_applications().filtered(lambda a: self._can_upload_sketch(a)).ids,
         })
 
     @http.route('/my/credito/<int:application_id>', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
@@ -825,6 +904,7 @@ class ConederaCreditPortal(http.Controller):
             'documents': documents,
             'verification_label': dict(application._fields['verification_status']._description_selection(request.env)).get(application.verification_status, '-'),
             'can_correct': self._can_correct(application),
+            'can_upload_sketch': self._can_upload_sketch(application),
         })
 
     @http.route('/my/credito/documentos', type='http', auth='user', website=True, methods=['GET'], sitemap=False)

@@ -244,3 +244,11 @@ El botón «Usar mi ubicación actual» distingue entre sitio sin HTTPS, permiso
 - Los croquis existentes son accesibles desde el historial de la solicitud mediante una URL que valida la propiedad del expediente. No son archivos públicos.
 - En el backend se separan las pestañas **Ubicación y croquis (cliente)** (solo lectura para usuario de crédito; editable para administrador) y **Verificación de ubicación (uso interno)**, donde el personal autorizado completa zona, estado del local, persona entrevistada, resultados, verificador y firma.
 - El PDF continúa mostrando el croquis y la información de verificación con sus respectivos datos guardados. Los datos previos no se eliminan en la actualización.
+
+
+## 18.0.1.8.8 · Croquis separado desde el historial
+- Etapa En revisión (o etapa configurada con «Permitir subir croquis en el portal»): muestra el botón **Subir croquis** en el historial y en el detalle.
+- El formulario independiente muestra datos del cliente y ubicación editable, permite adjuntar PNG/JPG/WEBP/PDF (máximo 12 MB) y ofrece previsualización adaptable antes de guardar.
+- El croquis es opcional al enviar la solicitud inicial, para entregarlo después durante la revisión. No reemplaza ni desbloquea los documentos posteriores a la aprobación.
+- El acceso se valida por propietario, etapa y servidor. El permiso especial de actualización del formulario sigue independiente y no se consume al cargar el croquis.
+- El administrador puede habilitar/deshabilitar el botón por etapa desde «Etapas del flujo». Una migración idempotente configura la etapa de revisión previamente instalada.

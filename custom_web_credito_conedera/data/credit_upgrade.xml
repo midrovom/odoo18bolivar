@@ -2,4 +2,6 @@
 <odoo>
     <!-- Idempotente: durante la actualización convierte tipos y archivos de solicitudes anteriores. -->
     <function model="conedera.credit.application" name="_migrate_credit_configuration"/>
+    <!-- La etapa preexistente está en noupdate: activar la opción en revisión sin restablecer otros catálogos. -->
+    <function model="conedera.credit.stage" name="_ensure_portal_sketch_stage"/>
 </odoo>

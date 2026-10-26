@@ -1,6 +1,6 @@
 {
     'name': 'Portal de Solicitudes de Crédito CONEDERA',
-    'version': '18.0.1.8.7',
+    'version': '18.0.1.8.8',
     'summary': 'Registro verificado, solicitudes de crédito, etapas e ingreso documental para CONEDERA S.A.',
     'description': '''
 Portal de solicitudes de crédito CONEDERA S.A. para Odoo 18.
@@ -9,7 +9,7 @@ Portal de solicitudes de crédito CONEDERA S.A. para Odoo 18.
 - Historial del solicitante y línea de tiempo de etapas.
 - Flujo kanban interno de gestión.
 - Ingreso de documentos habilitado al aprobar la solicitud y con documentos configurables por tipo de solicitante.
-- Ubicación y croquis cargados o dibujados por el cliente en el portal; inspección y resultados exclusivos del personal interno.
+- Ubicación y croquis aportados por el cliente; formulario separado para subir croquis desde el historial durante revisión; inspección y resultados exclusivos del personal interno.
 ''',
     'author': 'OpenAI',
     'license': 'LGPL-3',

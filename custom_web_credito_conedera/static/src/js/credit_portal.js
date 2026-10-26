@@ -274,8 +274,9 @@
                 });
             }
             function validateSketch() {
-                var valid = hasExisting || hasInk || Boolean(sketchFile.files && sketchFile.files.length);
-                sketchFile.setCustomValidity(valid ? '' : 'Dibuje o adjunte el croquis de ubicación del negocio.');
+                // Es opcional al registrar la solicitud: podrá adjuntarse desde
+                // el Historial cuando el expediente pase a En revisión.
+                sketchFile.setCustomValidity('');
             }
             sketchFile.addEventListener('change', function () {
                 if (sketchFile.files && sketchFile.files.length) {
@@ -297,6 +298,51 @@
                 });
             }
             validateSketch();
+        }
+
+        // Vista previa inmediata del croquis en el formulario del historial.
+        // El archivo se muestra localmente; solo se guarda al pulsar "Guardar croquis".
+        var historySketchFile = document.getElementById('credit-review-sketch-file');
+        var historySketchPreview = document.getElementById('credit-review-sketch-preview');
+        if (historySketchFile && historySketchPreview) {
+            var activeObjectUrl = null;
+            var maxSize = 12 * 1024 * 1024;
+            var showWarning = document.getElementById('credit-review-sketch-warning');
+            var setWarning = function (message) {
+                if (showWarning) {
+                    showWarning.textContent = message || '';
+                    showWarning.hidden = !message;
+                }
+            };
+            historySketchFile.addEventListener('change', function () {
+                if (activeObjectUrl) { URL.revokeObjectURL(activeObjectUrl); activeObjectUrl = null; }
+                historySketchPreview.replaceChildren();
+                var file = historySketchFile.files && historySketchFile.files[0];
+                if (!file) { return; }
+                var ext = file.name.split('.').pop().toLowerCase();
+                var isPdf = ext === 'pdf' && (file.type === 'application/pdf' || !file.type);
+                var isImage = ['png','jpg','jpeg','webp'].includes(ext) && (!file.type || file.type.startsWith('image/'));
+                if ((!isPdf && !isImage) || file.size > maxSize || !file.size) {
+                    setWarning('Adjunte una imagen PNG, JPG, WEBP o un PDF de hasta 12 MB.');
+                    historySketchFile.value = '';
+                    return;
+                }
+                setWarning('');
+                activeObjectUrl = URL.createObjectURL(file);
+                var preview = document.createElement(isPdf ? 'iframe' : 'img');
+                preview.className = isPdf ? 'credit-sketch-review-pdf' : 'credit-sketch-review-image';
+                preview.title = 'Vista previa del croquis seleccionado';
+                if (!isPdf) { preview.alt = 'Croquis seleccionado para adjuntar'; }
+                preview.src = activeObjectUrl;
+                historySketchPreview.appendChild(preview);
+                var description = document.createElement('small');
+                description.className = 'd-block text-muted mt-2';
+                description.textContent = file.name + ' · ' + (file.size / 1024 / 1024).toFixed(2) + ' MB';
+                historySketchPreview.appendChild(description);
+            });
+            window.addEventListener('pagehide', function () {
+                if (activeObjectUrl) { URL.revokeObjectURL(activeObjectUrl); }
+            }, { once: true });
         }
 
         // Geolocalización del navegador: exige HTTPS (salvo localhost) y permiso del usuario.
