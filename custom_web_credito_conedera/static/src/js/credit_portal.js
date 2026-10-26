@@ -332,7 +332,7 @@
                         historySketchFile.files = transfer.files;
                         historySketchFile.dispatchEvent(new Event('change', { bubbles: true }));
                     } catch (error) {
-                        setWarning('No se pudo adjuntar el archivo arrastrado. Utilice Seleccionar archivo.');
+                        setWarning('No se pudo adjuntar el archivo arrastrado. Haga clic en el recuadro para seleccionarlo.');
                     }
                 });
             }
@@ -551,16 +551,25 @@
             refreshEmploymentRequirements();
         }
 
-        // Acceso compacto a la declaración sin alterar su contenido legal.
-        document.querySelectorAll('.credit-legal-details').forEach(function (details) {
-            var summary = details.querySelector('summary');
-            if (!summary) { return; }
-            var setLabel = function () {
-                summary.textContent = details.open ? 'Ver menos' : '… Ver más';
-            };
-            details.addEventListener('toggle', setLabel);
-            setLabel();
-        });
+        // Ver más permanece junto al texto inicial; Ver menos se sitúa después
+        // de la última frase y devuelve al usuario al punto de expansión.
+        var legalMore = document.getElementById('credit-legal-more');
+        var legalLess = document.getElementById('credit-legal-less');
+        var legalRest = document.getElementById('credit-legal-rest');
+        if (legalMore && legalLess && legalRest) {
+            legalMore.addEventListener('click', function () {
+                legalRest.hidden = false;
+                legalMore.hidden = true;
+                legalMore.setAttribute('aria-expanded', 'true');
+            });
+            legalLess.addEventListener('click', function () {
+                legalRest.hidden = true;
+                legalMore.hidden = false;
+                legalMore.setAttribute('aria-expanded', 'false');
+                legalMore.focus({ preventScroll: true });
+                legalMore.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        }
 
         // Datos identificativos del paso 3: se reutilizan los del paso 1.
         if (creditForm) {
@@ -645,8 +654,16 @@
                     var field = fields[i];
                     if (!field.disabled && !field.checkValidity()) {
                         showStep(step, true);
-                        field.reportValidity();
-                        field.focus();
+                        // El input del croquis no se dibuja: el recuadro es
+                        // su control visible de selección y carga.
+                        if (field === historySketchFile && dropPrompt) {
+                            setWarning('Adjunte el croquis: arrastre una imagen o PDF, o haga clic en el recuadro para seleccionarlo.');
+                            dropPrompt.focus();
+                            dropPrompt.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        } else {
+                            field.reportValidity();
+                            field.focus();
+                        }
                         return false;
                     }
                 }
