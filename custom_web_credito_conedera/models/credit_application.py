@@ -376,7 +376,7 @@ class ConederaCreditApplication(models.Model):
             )
 
     _sql_constraints = [
-        ('conedera_credit_application_name_uniq', 'unique(name)', 'El número de solicitud debe ser único.'),
+        ('conedera_credit_application_company_name_uniq', 'unique(company_id, name)', 'El número de solicitud debe ser único dentro de la misma empresa.'),
     ]
 
     def _credit_report_sketch_image(self):
@@ -626,6 +626,55 @@ class ConederaCreditApplication(models.Model):
             if record.stage_id.is_rejected and record.verification_status not in ('verified', 'failed'):
                 raise ValidationError(_('Antes de rechazar complete todos los resultados y el responsable de la verificación.'))
 
+    @api.model
+    def _get_company_credit_sequence(self, company_id):
+        """Obtiene una secuencia exclusiva por empresa, sin reiniciar expedientes históricos.
+
+        La numeración de las empresas que ya tenían solicitudes continúa desde
+        el número máximo propio. Las empresas nuevas empiezan en 00001.
+        """
+        company = self.env['res.company'].sudo().browse(int(company_id)).exists()
+        if not company:
+            raise ValidationError(_('Seleccione una empresa válida para generar la solicitud.'))
+
+        # Protege la creación inicial de la secuencia si llegan dos solicitudes
+        # simultáneas desde el mismo dominio.
+        self.env.cr.execute('SELECT pg_advisory_xact_lock(%s, %s)', (184141, company.id))
+        Sequence = self.env['ir.sequence'].sudo().with_company(company)
+        sequences = Sequence.search([
+            ('code', '=', 'conedera.credit.application'),
+            ('company_id', '=', company.id),
+        ], order='id', limit=1)
+        if sequences:
+            return sequences
+
+        # Los nombres existentes son definitivos. Nunca se renumeran ni se
+        # mezclan contadores de compañías distintas durante la actualización.
+        self.env.cr.execute("""
+            SELECT COALESCE(MAX(substring(name from '^CRED/[0-9]{4}/([0-9]+)$')::integer), 0)
+              FROM conedera_credit_application
+             WHERE company_id = %s
+               AND name ~ '^CRED/[0-9]{4}/[0-9]+$'
+        """, (company.id,))
+        maximum_existing = self.env.cr.fetchone()[0] or 0
+        return Sequence.create({
+            'name': _('Solicitudes de crédito - %s') % company.name,
+            'code': 'conedera.credit.application',
+            'company_id': company.id,
+            'prefix': 'CRED/%(year)s/',
+            'padding': 5,
+            'number_increment': 1,
+            'number_next': maximum_existing + 1,
+            'implementation': 'standard',
+        })
+
+    @api.model
+    def _ensure_company_credit_sequences(self):
+        """Provisiona compañías actuales durante la actualización del módulo."""
+        for company in self.env['res.company'].sudo().search([]):
+            self._get_company_credit_sequence(company.id)
+        return True
+
     @api.model_create_multi
     def create(self, vals_list):
         Stage = self.env['conedera.credit.stage']
@@ -657,7 +706,9 @@ class ConederaCreditApplication(models.Model):
             if not vals.get('applicant_type_id'):
                 raise ValidationError(_('Seleccione un tipo de solicitante configurado.'))
             if vals.get('name', 'Nuevo') == 'Nuevo':
-                vals['name'] = self.env['ir.sequence'].next_by_code('conedera.credit.application') or _('Nuevo')
+                company_id = vals.get('company_id') or self.env.company.id
+                sequence = self._get_company_credit_sequence(company_id)
+                vals['name'] = sequence.next_by_id() or _('Nuevo')
             if not vals.get('stage_id'):
                 initial = Stage.search([('is_initial', '=', True), ('active', '=', True)], order='sequence,id', limit=1)
                 if not initial:

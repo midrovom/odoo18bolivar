@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <record id="module_category_conedera_credit" model="ir.module.category">
-        <field name="name">Crédito CONEDERA</field>
+        <field name="name">Solicitud de crédito</field>
         <field name="description">Administración de solicitudes de crédito y verificación documental.</field>
         <field name="sequence">65</field>
     </record>

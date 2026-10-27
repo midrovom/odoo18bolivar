@@ -14,11 +14,11 @@
     </record>
     <record id="view_conedera_credit_application_form" model="ir.ui.view">
         <field name="name">conedera.credit.application.form</field><field name="model">conedera.credit.application</field>
-        <field name="arch" type="xml"><form string="Solicitud de crédito CONEDERA">
+        <field name="arch" type="xml"><form string="Solicitud de crédito">
             <header><field name="credit_verification_final_required" invisible="1"/><button name="action_print_credit_application" type="object" string="Descargar PDF" icon="fa-file-pdf-o" class="btn-secondary" groups="custom_web_credito_conedera.group_credit_manager"/><field name="document_complete" invisible="1" readonly="not credit_is_admin"/><field name="document_access_allowed" invisible="1" readonly="not credit_is_admin"/><field name="credit_access_button_visible" invisible="1" readonly="not credit_is_admin"/><button name="action_open_portal_update_wizard" type="object" string="Habilitar permiso del portal" class="btn-primary" groups="custom_web_credito_conedera.group_credit_portal_update_manager" invisible="not credit_access_button_visible"/><field name="stage_id" widget="statusbar" options="{'clickable': 1}"/></header>
             <sheet>
                 <field name="credit_is_admin" invisible="1"/><div class="oe_button_box" name="button_box"><button name="action_open_portal_update_wizard" type="object" class="oe_stat_button" icon="fa-key" groups="custom_web_credito_conedera.group_credit_portal_update_manager" invisible="not credit_access_button_visible"><div class="o_stat_info"><span class="o_stat_text">Permiso portal</span></div></button></div>
-                <div class="oe_title"><label for="name"/><h1><field name="name" readonly="not credit_is_admin"/></h1><div class="text-muted">Solicitud enviada desde el portal CONEDERA</div></div>
+                <div class="oe_title"><label for="name"/><h1><field name="name" readonly="not credit_is_admin"/></h1><div class="text-muted">Solicitud enviada desde el portal</div></div>
                 <group><group><field name="application_date" readonly="not credit_is_admin"/><field name="application_place" readonly="not credit_is_admin"/><field name="company_id" readonly="not credit_is_admin" options="{'no_create': True}"/><field name="website_id" readonly="1" options="{'no_create': True}"/><field name="portal_user_id" readonly="not credit_is_admin"/><field name="portal_update_scope" readonly="1"/><field name="portal_update_allowed_at" readonly="1"/><field name="portal_update_allowed_by" readonly="1"/><field name="portal_history_consumed_at" readonly="1"/><field name="portal_sketch_consumed_at" readonly="1"/><field name="applicant_type_id" readonly="not credit_is_admin"/><field name="identification_type" readonly="not credit_is_admin"/><field name="identification" readonly="not credit_is_admin"/><field name="declaration_accepted" readonly="not credit_is_admin"/><field name="prior_commercial_relationship_accepted" readonly="not credit_is_admin"/><field name="electronic_service_accepted" readonly="not credit_is_admin"/><field name="credit_bureau_authorized" readonly="not credit_is_admin"/><field name="company_signature_stamp_acknowledged" readonly="not credit_is_admin"/><field name="additional_financial_documents_accepted" readonly="not credit_is_admin"/><field name="declaration_date" readonly="not credit_is_admin"/></group><group><field name="applicant_name" readonly="not credit_is_admin"/><field name="applicant_email" readonly="not credit_is_admin"/><field name="mobile" readonly="not credit_is_admin"/><field name="phone_fixed" readonly="not credit_is_admin"/><field name="document_access_allowed" readonly="not credit_is_admin"/><field name="currency_id" groups="base.group_system" readonly="not credit_is_admin"/></group></group>
                 <notebook>
                     <page string="Propietario o representante">
@@ -159,14 +159,14 @@
         favorable y la ubicación proporcionada por el cliente.
     </div>
 
-    <group string="Verificación del negocio (personal CONEDERA)" col="2" class="o_credit_verification_section">
+    <group string="Verificación del negocio (personal de la empresa)" col="2" class="o_credit_verification_section">
         <field name="verification_zone_id"/>
         <field name="verification_local_state_id"/>
         <field name="interviewed_relationship" colspan="2"/>
         <field name="interviewed_name" colspan="2"/>
     </group>
 
-    <group string="Resultados de la verificación (personal CONEDERA)" col="2" class="o_credit_verification_section">
+    <group string="Resultados de la verificación (personal de la empresa)" col="2" class="o_credit_verification_section">
         <field name="inspection_done" required="credit_verification_final_required"/>
         <field name="address_found" required="credit_verification_final_required"/>
         <field name="client_lives_there" required="credit_verification_final_required"/>
@@ -199,7 +199,7 @@
         </form></field>
     </record>
     <record id="action_conedera_credit_applications" model="ir.actions.act_window"><field name="name">Solicitudes de crédito</field><field name="res_model">conedera.credit.application</field><field name="view_mode">kanban,list,form</field><field name="search_view_id" ref="view_conedera_credit_application_search"/><field name="context">{'search_default_group_stage': 1}</field></record>
-    <menuitem id="menu_conedera_credit_root" name="Crédito CONEDERA" sequence="45" groups="custom_web_credito_conedera.group_credit_manager"/>
+    <menuitem id="menu_conedera_credit_root" web_icon="custom_web_credito_conedera,static/description/icon.png" name="Solicitud de crédito" sequence="45" groups="custom_web_credito_conedera.group_credit_manager"/>
     <menuitem id="menu_conedera_credit_applications" name="Solicitudes" parent="menu_conedera_credit_root" action="action_conedera_credit_applications" sequence="10" groups="custom_web_credito_conedera.group_credit_manager"/>
     <!-- Centralización de catálogos: disponible para administradores de crédito. -->
     <menuitem id="menu_conedera_credit_configuration" name="Configuración" parent="menu_conedera_credit_root" sequence="90" groups="custom_web_credito_conedera.group_credit_administrator"/>

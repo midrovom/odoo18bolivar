@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="base.view_users_form"/>
         <field name="arch" type="xml">
             <xpath expr="//sheet" position="inside">
-                <group string="Administración de permisos - Crédito CONEDERA" groups="base.group_system">
+                <group string="Administración de permisos - Solicitud de crédito" groups="base.group_system">
                     <field name="credit_portal_permission_manager_enabled"/>
                     <div class="text-muted">El responsable habilita cada solicitud desde su botón Permiso portal; no necesita asignar un grupo al solicitante.</div>
                 </group>
