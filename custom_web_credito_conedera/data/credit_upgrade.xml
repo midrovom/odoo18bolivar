@@ -8,5 +8,5 @@
     <!-- La etapa preexistente está en noupdate: activar la opción en revisión sin restablecer otros catálogos. -->
     <function model="conedera.credit.stage" name="_ensure_portal_sketch_stage"/>
     <function model="conedera.credit.applicant.type" name="_ensure_standard_document_requirements"/>
-    <function model="conedera.credit.applicant.type" name="_ensure_multiple_document_requirements"/>
+    <function model="conedera.credit.document.requirement" name="_ensure_multiple_document_requirements"/>
 </odoo>
