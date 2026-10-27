@@ -10,7 +10,7 @@
         <field name="name">Aprobada</field><field name="sequence">30</field><field name="is_approved">True</field><field name="description">Al entrar en esta etapa se habilita el ingreso de documentos solicitados.</field>
     </record>
     <record id="stage_credit_documents_received" model="conedera.credit.stage">
-        <field name="name">Documentación recibida</field><field name="sequence">40</field><field name="description">Documentos cargados por el solicitante, pendientes de revisión.</field>
+        <field name="name">Documentación recibida</field><field name="sequence">40</field><field name="description">Documentos obligatorios recibidos y guardados desde el portal.</field>
     </record>
     <record id="stage_credit_verification" model="conedera.credit.stage">
         <field name="name">Verificación</field><field name="sequence">50</field><field name="description">Verificación interna de los datos y ubicación del negocio.</field>

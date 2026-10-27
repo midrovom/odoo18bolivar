@@ -778,20 +778,6 @@ class ConederaCreditApplication(models.Model):
         except Exception:
             _logger.exception('No se pudo notificar por correo la etapa de solicitud %s', self.name)
 
-    def action_mark_documentation_received(self):
-        if not self.env.su and not self.env.user.has_group('custom_web_credito_conedera.group_credit_administrator'):
-            raise AccessError(_('Solo el administrador de crédito puede marcar la documentación como recibida.'))
-        for record in self:
-            if not record.document_access_allowed or not record.document_complete:
-                raise UserError(_('La solicitud debe estar aprobada y tener completa la documentación antes de registrarla como recibida.'))
-        stage = self.env['conedera.credit.stage'].search([
-            ('is_documents_received', '=', True), ('active', '=', True),
-        ], order='sequence, id', limit=1)
-        if not stage:
-            raise ValidationError(_('Configure una etapa marcada como «Documentación recibida» antes de continuar.'))
-        for record in self:
-            record.stage_id = stage
-
     def action_open_portal_update_wizard(self):
         """Botón inteligente y de cabecera, igual al permiso de postulaciones."""
         self.ensure_one()

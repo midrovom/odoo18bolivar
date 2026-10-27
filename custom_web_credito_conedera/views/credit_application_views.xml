@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version='1.0' encoding='UTF-8'?>
 <odoo>
     <record id="view_conedera_credit_application_search" model="ir.ui.view">
         <field name="name">conedera.credit.application.search</field><field name="model">conedera.credit.application</field>
@@ -15,7 +15,7 @@
     <record id="view_conedera_credit_application_form" model="ir.ui.view">
         <field name="name">conedera.credit.application.form</field><field name="model">conedera.credit.application</field>
         <field name="arch" type="xml"><form string="Solicitud de crédito CONEDERA">
-            <header><field name="credit_verification_final_required" invisible="1"/><button name="action_print_credit_application" type="object" string="Descargar PDF" icon="fa-file-pdf-o" class="btn-secondary" groups="custom_web_credito_conedera.group_credit_manager"/><field name="document_complete" invisible="1" readonly="not credit_is_admin"/><field name="document_access_allowed" invisible="1" readonly="not credit_is_admin"/><field name="credit_access_button_visible" invisible="1" readonly="not credit_is_admin"/><button name="action_open_portal_update_wizard" type="object" string="Habilitar permiso del portal" class="btn-primary" groups="custom_web_credito_conedera.group_credit_portal_update_manager" invisible="not credit_access_button_visible"/><field name="stage_id" widget="statusbar" options="{'clickable': 1}"/><button name="action_mark_documentation_received" type="object" string="Marcar documentación recibida" class="btn-primary" invisible="not document_access_allowed or document_complete == False" groups="custom_web_credito_conedera.group_credit_administrator"/></header>
+            <header><field name="credit_verification_final_required" invisible="1"/><button name="action_print_credit_application" type="object" string="Descargar PDF" icon="fa-file-pdf-o" class="btn-secondary" groups="custom_web_credito_conedera.group_credit_manager"/><field name="document_complete" invisible="1" readonly="not credit_is_admin"/><field name="document_access_allowed" invisible="1" readonly="not credit_is_admin"/><field name="credit_access_button_visible" invisible="1" readonly="not credit_is_admin"/><button name="action_open_portal_update_wizard" type="object" string="Habilitar permiso del portal" class="btn-primary" groups="custom_web_credito_conedera.group_credit_portal_update_manager" invisible="not credit_access_button_visible"/><field name="stage_id" widget="statusbar" options="{'clickable': 1}"/></header>
             <sheet>
                 <field name="credit_is_admin" invisible="1"/><div class="oe_button_box" name="button_box"><button name="action_open_portal_update_wizard" type="object" class="oe_stat_button" icon="fa-key" groups="custom_web_credito_conedera.group_credit_portal_update_manager" invisible="not credit_access_button_visible"><div class="o_stat_info"><span class="o_stat_text">Permiso portal</span></div></button></div>
                 <div class="oe_title"><label for="name"/><h1><field name="name" readonly="not credit_is_admin"/></h1><div class="text-muted">Solicitud enviada desde el portal CONEDERA</div></div>
@@ -110,23 +110,15 @@
                         </field>
                     </page>
                     <page string="Ingreso de documentos" invisible="not document_access_allowed">
-                        <field name="document_ids" context="{'default_application_id': id}" readonly="not credit_is_admin">
-                            <list create="0" delete="0"><field name="state"/><field name="required_document_uploaded"/><field name="required_document_total"/><field name="required_document_missing"/><field name="is_complete"/></list>
+                        <field name="document_ids" context="{'default_application_id': id}" readonly="1">
+                            <list create="0" delete="0"><field name="required_document_uploaded"/><field name="required_document_total"/><field name="required_document_missing"/><field name="is_complete"/></list>
                             <form string="Expediente de crédito">
-                                <header>
-                                    <button name="action_mark_submitted" type="object" string="Enviar a revisión" class="btn-primary" invisible="state == 'submitted' or state == 'accepted'" groups="custom_web_credito_conedera.group_credit_administrator"/>
-                                    <button name="action_mark_accepted" type="object" string="Aceptar documentación" class="btn-primary" invisible="state == 'accepted'" groups="custom_web_credito_conedera.group_credit_administrator"/>
-                                    <button name="action_request_correction" type="object" string="Solicitar correcciones" invisible="state == 'correction'" groups="custom_web_credito_conedera.group_credit_administrator"/>
-                                    <field name="state" widget="statusbar" statusbar_visible="pending,submitted,accepted,correction"/>
-                                </header>
                                 <sheet>
-                                    <group><field name="applicant_type_id"/><field name="required_document_total"/><field name="required_document_uploaded"/><field name="required_document_missing"/><field name="is_complete"/><field name="review_notes"/></group>
-                                    <field name="document_line_ids" context="{'default_document_id': id}">
-                                        <list editable="bottom">
-                                            <field name="requirement_id" domain="[('applicant_type_id', '=', parent.applicant_type_id)]"/>
-                                            <field name="file" filename="filename"/>
-                                            <field name="filename"/>
-                                            <field name="uploaded_at" readonly="1"/>
+                                    <group><field name="applicant_type_id"/><field name="required_document_total"/><field name="required_document_uploaded"/><field name="required_document_missing"/><field name="is_complete"/></group>
+                                    <field name="document_line_ids" context="{'default_document_id': id}" readonly="1">
+                                        <list editable="bottom" create="0" edit="0" delete="0">
+                                            <field name="requirement_id" string="Documento solicitado"/>
+                                            <field name="filename" string="Archivo enviado"/><field name="uploaded_at"/><field name="uploaded_at" readonly="1"/>
                                         </list>
                                     </field>
                                 </sheet>
@@ -193,17 +185,11 @@
                             Solo el Administrador de crédito puede agregar o retirar archivos.
                         </div>
                         <group string="Solicitud de crédito firmada" col="1">
-                            <field name="signed_application_attachment_ids" widget="many2many_binary"
-                                   class="o_credit_signed_dropzone"
-                                   options="{'accepted_file_extensions': '.pdf,application/pdf'}"
-                                   readonly="not credit_is_admin" nolabel="1"/>
+                            <field name="signed_application_attachment_ids" widget="many2many_binary" class="o_credit_signed_dropzone" options="{'accepted_file_extensions': '.pdf,application/pdf'}" readonly="not credit_is_admin" nolabel="1"/>
                             <field name="signed_application_available" readonly="1"/>
                         </group>
                         <group string="Verificación ubicación del negocio firmada" col="1">
-                            <field name="signed_verification_attachment_ids" widget="many2many_binary"
-                                   class="o_credit_signed_dropzone"
-                                   options="{'accepted_file_extensions': '.pdf,application/pdf'}"
-                                   readonly="not credit_is_admin" nolabel="1"/>
+                            <field name="signed_verification_attachment_ids" widget="many2many_binary" class="o_credit_signed_dropzone" options="{'accepted_file_extensions': '.pdf,application/pdf'}" readonly="not credit_is_admin" nolabel="1"/>
                             <field name="signed_verification_available" readonly="1"/>
                         </group>
                     </page>

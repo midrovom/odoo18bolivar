@@ -12,6 +12,7 @@ class ConederaCreditDocumentLine(models.Model):
 
     document_id = fields.Many2one('conedera.credit.documents', string='Expediente', required=True, ondelete='cascade', index=True)
     application_id = fields.Many2one(related='document_id.application_id', store=True, readonly=True, string='Solicitud')
+    applicant_type_id = fields.Many2one(related='document_id.applicant_type_id', string='Tipo de solicitante', store=True, readonly=True, index=True)
     requirement_id = fields.Many2one('conedera.credit.document.requirement', string='Documento requerido', required=True, ondelete='restrict', index=True)
     name = fields.Char(related='requirement_id.name', string='Documento', readonly=True)
     file = fields.Binary(string='Archivo', attachment=True)

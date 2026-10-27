@@ -1357,7 +1357,7 @@ class ConederaCreditPortal(http.Controller):
                 missing = self._credit_document_errors(document)
                 if missing:
                     raise ValidationError(_('Faltan documentos: %s') % '; '.join(missing))
-                document.write({'last_portal_upload': fields.Datetime.now(), 'state': 'submitted'})
+                document.write({'last_portal_upload': fields.Datetime.now()})
                 # Al terminar todos los requisitos, cambiar automáticamente a la
                 # etapa marcada como «Documentación recibida».
                 if application.stage_id.is_approved:

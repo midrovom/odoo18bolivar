@@ -19,7 +19,7 @@ class ConederaCreditDocuments(models.Model):
     )
     # Compatibilidad con el campo histórico de versión 1.0.9.
     person_type = fields.Selection(related='application_id.person_type', string='Tipo anterior', store=True, readonly=True)
-    applicant_type_id = fields.Many2one(related='application_id.applicant_type_id', string='Tipo de solicitante', readonly=True)
+    applicant_type_id = fields.Many2one(related='application_id.applicant_type_id', string='Tipo de solicitante', store=True, readonly=True, index=True)
     document_line_ids = fields.One2many('conedera.credit.document.line', 'document_id', string='Archivos por requisito')
     applicant_name = fields.Char(related='application_id.applicant_name', string='Solicitante', store=True, readonly=True)
     state = fields.Selection([
@@ -27,8 +27,8 @@ class ConederaCreditDocuments(models.Model):
         ('submitted', 'En revisión'),
         ('accepted', 'Aceptada'),
         ('correction', 'Requiere correcciones'),
-    ], string='Estado documental', default='pending', required=True, tracking=True)
-    review_notes = fields.Text(string='Observaciones de revisión')
+    ], string='Estado documental (histórico)', default='pending', required=True, readonly=True)
+    review_notes = fields.Text(string='Observaciones de revisión (histórico)', readonly=True)
 
     application_signed = fields.Binary(string='Solicitud de crédito preparada y firmada', attachment=True)
     application_signed_filename = fields.Char(string='Archivo - solicitud firmada')
@@ -150,20 +150,3 @@ class ConederaCreditDocuments(models.Model):
     def write(self, vals):
         self._check_files(vals)
         return super().write(vals)
-
-    def action_mark_submitted(self):
-        for record in self:
-            record.state = 'submitted'
-            record.message_post(body=_('El solicitante cargó documentación para revisión.'))
-
-    def action_mark_accepted(self):
-        for record in self:
-            if not record.is_complete:
-                raise ValidationError(_('No se puede aceptar un expediente con documentos pendientes.'))
-            record.state = 'accepted'
-            record.message_post(body=_('La documentación fue marcada como aceptada.'))
-
-    def action_request_correction(self):
-        for record in self:
-            record.state = 'correction'
-            record.message_post(body=_('Se solicitaron correcciones en la documentación.'))
