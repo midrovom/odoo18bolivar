@@ -89,7 +89,42 @@ class ConederaCreditDocumentRequirement(models.Model):
     required = fields.Boolean(string='Obligatorio', default=True)
     only_if_spouse = fields.Boolean(string='Solo cuando se declara cónyuge', help='Mostrar y exigir el documento únicamente si la solicitud indica cónyuge.')
     image_only = fields.Boolean(string='Solo fotografía (JPG/PNG)', default=False)
+    pdf_only = fields.Boolean(string='Solo PDF', default=False)
+    allow_multiple_files = fields.Boolean(string='Permitir varios archivos', default=False)
+    minimum_files = fields.Integer(string='Archivos mínimos', default=1, required=True)
     description = fields.Text(string='Instrucciones para cargar el archivo')
     legacy_field = fields.Char(string='Campo anterior (migración)', readonly=True, copy=False,
         help='Se utiliza para conservar archivos cargados en versiones anteriores.')
 
+
+    @api.constrains('minimum_files', 'allow_multiple_files', 'pdf_only', 'image_only')
+    def _check_file_policy(self):
+        for requirement in self:
+            if requirement.minimum_files < 1 or requirement.minimum_files > 30:
+                raise ValidationError(_('El mínimo de archivos debe estar entre 1 y 30.'))
+            if not requirement.allow_multiple_files and requirement.minimum_files > 1:
+                raise ValidationError(_('Para exigir más de un archivo debe activar «Permitir varios archivos».'))
+            if requirement.pdf_only and requirement.image_only:
+                raise ValidationError(_('Un requisito no puede ser «Solo PDF» y «Solo fotografía» al mismo tiempo.'))
+
+    @api.model
+    def _ensure_multiple_document_requirements(self):
+        """Configura una sola vez los requisitos consolidados de ambos tipos estándar."""
+        params = self.env['ir.config_parameter'].sudo()
+        key = 'custom_web_credito_conedera.multiple_document_requirements_v1833'
+        if params.get_param(key) == '1':
+            return True
+        for xmlid in ('credit_requirement_natural_utility_business',
+                      'credit_requirement_juridical_utility_business'):
+            req = self.env.ref('custom_web_credito_conedera.' + xmlid, raise_if_not_found=False)
+            if req:
+                req.sudo().write({'allow_multiple_files': True, 'minimum_files': 2,
+                                  'pdf_only': True, 'image_only': False, 'required': True})
+        for xmlid in ('credit_requirement_natural_local_photo_inside',
+                      'credit_requirement_juridical_local_photo_inside'):
+            req = self.env.ref('custom_web_credito_conedera.' + xmlid, raise_if_not_found=False)
+            if req:
+                req.sudo().write({'allow_multiple_files': True, 'minimum_files': 2,
+                                  'pdf_only': False, 'image_only': True, 'required': True})
+        params.set_param(key, '1')
+        return True

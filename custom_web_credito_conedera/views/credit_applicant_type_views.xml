@@ -30,6 +30,9 @@
                                 <field name="required"/>
                                 <field name="only_if_spouse"/>
                                 <field name="image_only"/>
+                                <field name="pdf_only"/>
+                                <field name="allow_multiple_files"/>
+                                <field name="minimum_files"/>
                                 <field name="active"/>
                             </list>
                             <form><sheet><group>
@@ -38,6 +41,9 @@
                                 <field name="required"/>
                                 <field name="only_if_spouse"/>
                                 <field name="image_only"/>
+                                <field name="pdf_only"/>
+                                <field name="allow_multiple_files"/>
+                                <field name="minimum_files"/>
                                 <field name="active"/>
                                 <field name="sequence"/>
                                 <field name="description"/>

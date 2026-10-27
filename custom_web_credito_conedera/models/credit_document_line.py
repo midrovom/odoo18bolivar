@@ -18,9 +18,13 @@ class ConederaCreditDocumentLine(models.Model):
     filename = fields.Char(string='Nombre de archivo')
     uploaded_at = fields.Datetime(string='Fecha de carga', readonly=True)
 
-    _sql_constraints = [
-        ('credit_document_line_unique', 'unique(document_id,requirement_id)', 'Este requisito ya tiene un archivo en el expediente.'),
-    ]
+    @api.model
+    def init(self):
+        # La versión previa solo permitía un archivo por requisito. No eliminar filas.
+        self.env.cr.execute("""
+            ALTER TABLE IF EXISTS conedera_credit_document_line
+            DROP CONSTRAINT IF EXISTS conedera_credit_document_line_credit_document_line_unique
+        """)
 
     @api.constrains('requirement_id', 'document_id')
     def _check_requirement_type(self):
@@ -33,7 +37,7 @@ class ConederaCreditDocumentLine(models.Model):
         if not filename or not content:
             return
         filename = filename.lower().strip()
-        allowed = ('.jpg', '.jpeg', '.png') if requirement.image_only else ('.pdf', '.jpg', '.jpeg', '.png')
+        allowed = ('.pdf',) if requirement.pdf_only else (('.jpg', '.jpeg', '.png') if requirement.image_only else ('.pdf', '.jpg', '.jpeg', '.png'))
         if not filename.endswith(allowed):
             raise ValidationError(_('Formato no permitido para "%s". Permitidos: %s.') % (requirement.name, ', '.join(allowed)))
         try:

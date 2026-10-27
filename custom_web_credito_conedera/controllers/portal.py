@@ -524,7 +524,8 @@ class ConederaCreditPortal(http.Controller):
         # la corrección de documentos ya ingresados sí exige permiso de esa solicitud.
         if not document or not document.document_line_ids.filtered(lambda line: bool(line.file)):
             return True
-        if document.state == 'pending' and not document.is_complete:
+        if application.stage_id.is_approved and not document.is_complete:
+            # Permitir completar requisitos aún pendientes sin pedir un permiso extra.
             return True
         return application.portal_can_update_documentation()
 
@@ -1242,12 +1243,16 @@ class ConederaCreditPortal(http.Controller):
         return request.redirect('/my/credito/historial')
 
     def _credit_document_errors(self, doc):
+        if not doc:
+            return []
+        counts = {}
+        for line in doc.document_line_ids.filtered(lambda line: bool(line.file)):
+            counts[line.requirement_id.id] = counts.get(line.requirement_id.id, 0) + 1
         missing = []
-        if doc:
-            uploaded = set(doc.document_line_ids.filtered(lambda line: bool(line.file)).mapped('requirement_id').ids)
-            for requirement in doc._required_fields():
-                if requirement.id not in uploaded:
-                    missing.append(requirement.name)
+        for requirement in doc._required_fields():
+            if counts.get(requirement.id, 0) < requirement.minimum_files:
+                missing.append('%s (%s de %s archivos)' % (
+                    requirement.name, counts.get(requirement.id, 0), requirement.minimum_files))
         return missing
 
     def _render_credit_documents_form(self, application, document=None, errors=None):
@@ -1257,7 +1262,8 @@ class ConederaCreditPortal(http.Controller):
         requirements = requirements.sorted(key=lambda r: (r.sequence, r.id))
         files_by_requirement = {}
         if document:
-            files_by_requirement = {line.requirement_id.id: line for line in document.document_line_ids if line.file}
+            for line in document.document_line_ids.filtered(lambda row: bool(row.file)):
+                files_by_requirement.setdefault(line.requirement_id.id, []).append(line)
         return request.render('custom_web_credito_conedera.portal_credit_documents_form', {
             'application': application,
             'document': document,
@@ -1284,64 +1290,98 @@ class ConederaCreditPortal(http.Controller):
         requirements = application.applicant_type_id.requirement_ids.filtered('active')
         if not application.spouse_name:
             requirements = requirements.filtered(lambda r: not r.only_if_spouse)
+        requirements = requirements.sorted(key=lambda r: (r.sequence, r.id))
         Line = request.env['conedera.credit.document.line'].sudo()
+        old_counts = {}
+        if document:
+            for line in document.document_line_ids.filtered(lambda row: bool(row.file)):
+                old_counts[line.requirement_id.id] = old_counts.get(line.requirement_id.id, 0) + 1
+        # Validar TODA la entrega antes de escribir cualquier archivo o etapa.
+        incoming_counts = {}
         for requirement in requirements:
-            file_obj = request.httprequest.files.get('doc_req_%s' % requirement.id)
-            if not file_obj or not file_obj.filename:
+            field_name = 'doc_req_%s' % requirement.id
+            selected_files = [f for f in request.httprequest.files.getlist(field_name) if f and f.filename]
+            if not requirement.allow_multiple_files and len(selected_files) > 1:
+                errors.append(_('Solo se permite un archivo para «%s».') % requirement.name)
                 continue
-            filename = secure_filename(file_obj.filename) or 'documento'
-            content = file_obj.read(MAX_FILE_SIZE + 1)
-            if not content:
-                continue
-            if len(content) > MAX_FILE_SIZE:
-                errors.append(_('El archivo "%s" supera el límite de 12 MB.') % requirement.name)
-                continue
-            encoded = base64.b64encode(content).decode('ascii')
-            try:
-                Line._validate_file(requirement, filename, encoded)
-            except ValidationError as exc:
-                errors.append(str(exc))
-                continue
-            uploads.append((requirement, filename, encoded))
+            for file_obj in selected_files:
+                filename = secure_filename(file_obj.filename) or 'documento'
+                content = file_obj.read(MAX_FILE_SIZE + 1)
+                if not content or len(content) > MAX_FILE_SIZE:
+                    errors.append(_('El archivo «%s» está vacío o supera 12 MB.') % filename)
+                    continue
+                encoded = base64.b64encode(content).decode('ascii')
+                try:
+                    Line._validate_file(requirement, filename, encoded)
+                except ValidationError as exc:
+                    errors.append(str(exc))
+                    continue
+                uploads.append((requirement, filename, encoded))
+                incoming_counts[requirement.id] = incoming_counts.get(requirement.id, 0) + 1
 
         if not requirements:
             errors.append(_('No hay documentos configurados para este tipo de solicitante. Contacte a CONEDERA.'))
+        for requirement in requirements.filtered('required'):
+            # En correcciones, los archivos nuevos de los requisitos de un solo
+            # archivo sustituyen al anterior; los múltiples se acumulan.
+            count = incoming_counts.get(requirement.id, 0)
+            if requirement.allow_multiple_files:
+                count += old_counts.get(requirement.id, 0)
+            elif count == 0:
+                count = old_counts.get(requirement.id, 0)
+            if count < requirement.minimum_files:
+                errors.append(_('%s: faltan archivos obligatorios (mínimo %s, disponibles %s).') % (
+                    requirement.name, requirement.minimum_files, count))
+        if not uploads and not (document and document.is_complete):
+            errors.append(_('Debe adjuntar todos los documentos obligatorios antes de guardar.'))
         if errors:
             return self._render_credit_documents_form(application, document, errors)
+
         try:
             with request.env.cr.savepoint():
                 if not document:
                     document = Documents.create({'application_id': application.id})
                 for requirement, filename, content in uploads:
                     vals = {'filename': filename, 'file': content}
-                    existing = Line.search([('document_id', '=', document.id), ('requirement_id', '=', requirement.id)], limit=1)
-                    if existing:
-                        existing.write(vals)
-                    else:
+                    if requirement.allow_multiple_files:
                         Line.create(dict(vals, document_id=document.id, requirement_id=requirement.id))
-                if uploads:
-                    document.write({'last_portal_upload': fields.Datetime.now(), 'state': 'pending'})
+                    else:
+                        existing = Line.search([
+                            ('document_id', '=', document.id),
+                            ('requirement_id', '=', requirement.id)], limit=1)
+                        if existing:
+                            existing.write(vals)
+                        else:
+                            Line.create(dict(vals, document_id=document.id, requirement_id=requirement.id))
+                # Ningún guardado parcial: error revierte el conjunto de archivos.
+                missing = self._credit_document_errors(document)
+                if missing:
+                    raise ValidationError(_('Faltan documentos: %s') % '; '.join(missing))
+                document.write({'last_portal_upload': fields.Datetime.now(), 'state': 'submitted'})
+                # Al terminar todos los requisitos, cambiar automáticamente a la
+                # etapa marcada como «Documentación recibida».
+                if application.stage_id.is_approved:
+                    stage = request.env['conedera.credit.stage'].sudo().search([
+                        ('is_documents_received', '=', True), ('active', '=', True),
+                    ], order='sequence,id', limit=1)
+                    if not stage:
+                        raise ValidationError(_('Configure una etapa marcada como «Documentación recibida».'))
+                    application.sudo().write({'stage_id': stage.id})
+                if application.portal_can_update_documentation():
+                    request.env.cr.execute(
+                        'SELECT id FROM conedera_credit_application WHERE id = %s FOR UPDATE',
+                        (application.id,))
+                    application.invalidate_recordset(['portal_update_scope'])
+                    if application.portal_can_update_documentation():
+                        application.sudo().write({
+                            'portal_update_scope': application.portal_scope_from_sections(
+                                application.portal_enabled_sections() - {'documentation'}),
+                        })
+                application.message_post(body=_('El cliente entregó la documentación obligatoria completa desde el portal.'))
         except (ValidationError, ValueError) as exc:
             return self._render_credit_documents_form(application, document, [str(exc)])
         except Exception:
-            _logger.exception('Error al cargar documentos en solicitud %s', application.name)
-            return self._render_credit_documents_form(application, document, [_('No se pudo guardar la documentación. Inténtelo nuevamente.')])
-
-        missing = self._credit_document_errors(document)
-        if not missing:
-            document.action_mark_submitted()
-            if uploads and application.portal_can_update_documentation():
-                # Permiso por solicitud: la corrección completa se usa una sola vez.
-                request.env.cr.execute(
-                    'SELECT id FROM conedera_credit_application WHERE id = %s FOR UPDATE',
-                    (application.id,))
-                application.invalidate_recordset(['portal_update_scope'])
-                if application.portal_can_update_documentation():
-                    application.sudo().write({
-                        'portal_update_scope': application.portal_scope_from_sections(
-                            application.portal_enabled_sections() - {'documentation'}),
-                    })
-                    application.message_post(body=_('El solicitante actualizó la documentación del crédito desde el portal. Se consumió el permiso de actualización documental.'))
-            return request.redirect('/my/credito/historial?documentos_guardados=1')
-        return self._render_credit_documents_form(application, document,
-            [_('Documentación guardada, pero aún faltan: %s.') % ', '.join(missing)])
+            _logger.exception('Error al guardar documentos de solicitud %s', application.name)
+            return self._render_credit_documents_form(application, document,
+                [_('No se pudo guardar la documentación. Inténtelo nuevamente.')])
+        return request.redirect('/my/credito/historial?documentos_guardados=1')

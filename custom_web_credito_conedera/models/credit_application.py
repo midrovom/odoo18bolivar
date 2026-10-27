@@ -663,6 +663,8 @@ class ConederaCreditApplication(models.Model):
                     'visible_to_portal': True,
                 })
             record.message_post(body=_('Solicitud registrada. Etapa inicial: %s') % escape(record.stage_id.name or ''))
+            if record.stage_id.is_initial:
+                record._send_stage_notification(False, record.stage_id)
         return records
 
     def write(self, vals):
@@ -739,12 +741,15 @@ class ConederaCreditApplication(models.Model):
                     'visible_to_portal': True,
                 })
                 record.message_post(body=_('La solicitud cambió de etapa: <b>%s</b> → <b>%s</b>.') % (escape(old_stage.name or '-'), escape(record.stage_id.name or '-')))
-                record._send_stage_notification(old_stage, record.stage_id)
+                if record.stage_id.is_initial or record.stage_id.is_approved:
+                    record._send_stage_notification(old_stage, record.stage_id)
         return result
 
     def _send_stage_notification(self, old_stage, new_stage):
         self.ensure_one()
-        email = self.portal_user_id.email or self.portal_user_id.login
+        if not (new_stage.is_initial or new_stage.is_approved):
+            return
+        email = self.applicant_email or self.portal_user_id.email or self.portal_user_id.login
         if not email:
             return
         try:
@@ -756,7 +761,7 @@ class ConederaCreditApplication(models.Model):
             ) % {
                 'name': escape(self.applicant_name or self.portal_user_id.name or ''),
                 'number': escape(self.name or ''),
-                'old': escape(old_stage.name or '-'),
+                'old': escape(old_stage.name if old_stage else '-'),
                 'new': escape(new_stage.name or '-'),
             }
             # Usar el SMTP independiente del módulo de crédito y su smtp_user

@@ -89,6 +89,7 @@ class ConederaCreditDocuments(models.Model):
         return self._visible_requirements().filtered('required')
 
     @api.depends('document_line_ids.file', 'document_line_ids.requirement_id',
+                 'application_id.applicant_type_id.requirement_ids.minimum_files',
                  'application_id.applicant_type_id', 'application_id.spouse_name',
                  'application_id.applicant_type_id.requirement_ids.active',
                  'application_id.applicant_type_id.requirement_ids.required',
@@ -96,9 +97,11 @@ class ConederaCreditDocuments(models.Model):
     def _compute_summary(self):
         for record in self:
             required = record._required_fields()
-            uploaded = set(record.document_line_ids.filtered(lambda line: bool(line.file)).mapped('requirement_id').ids)
+            counts = {}
+            for line in record.document_line_ids.filtered(lambda row: bool(row.file)):
+                counts[line.requirement_id.id] = counts.get(line.requirement_id.id, 0) + 1
             total = len(required)
-            completed = sum(1 for requirement in required if requirement.id in uploaded)
+            completed = sum(1 for requirement in required if counts.get(requirement.id, 0) >= requirement.minimum_files)
             record.required_document_total = total
             record.required_document_uploaded = completed
             record.required_document_missing = total - completed
