@@ -364,3 +364,31 @@ body.modal-open { overflow: hidden; }
     .credit-document-dropzone { min-height: 126px; padding: .85rem; }
     .credit-document-pending-item { align-items: flex-start; }
 }
+
+/* 18.0.1.8.40: casillas de Términos y condiciones con espaciado homogéneo.
+   La hoja de estilos del tema del sitio no debe dejar huecos entre
+   la primera autorización y las siguientes. */
+.credit-form .credit-terms-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: .65rem;
+    margin: 0;
+    padding: 0;
+}
+.credit-form .credit-terms-checkboxes > .credit-terms-check {
+    display: block;
+    flex: 0 0 auto;
+    min-height: 0;
+    height: auto;
+    margin: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+.credit-form .credit-terms-checkboxes > .credit-terms-check .form-check-label {
+    display: inline;
+    margin: 0 !important;
+    line-height: 1.45;
+}
+@media (max-width: 575.98px) {
+    .credit-form .credit-terms-checkboxes { gap: .55rem; }
+}
