@@ -304,9 +304,38 @@
                                             <span t-if="requirement.required" class="text-danger"> *</span>
                                             <span t-else="" class="text-muted small">(opcional)</span>
                                         </label>
-                                        <input class="form-control" type="file" t-att-id="'doc_req_%s' % requirement.id" t-att-name="'doc_req_%s' % requirement.id" t-att-accept="'.pdf,application/pdf' if requirement.pdf_only else ('image/jpeg,image/png' if requirement.image_only else '.pdf,.jpg,.jpeg,.png')" t-att-multiple="'multiple' if requirement.allow_multiple_files else None" t-att-required="'required' if requirement.required and not files_by_requirement.get(requirement.id) else None"/>
+                                        <!-- La entrada real queda oculta: toda la carga se hace desde la zona de arrastre.
+                                             Se conserva name para request.httprequest.files.getlist(...) en Odoo. -->
+                                        <div class="credit-document-dropzone"
+                                             role="button" tabindex="0"
+                                             data-credit-document-dropzone="1"
+                                             t-att-data-required="'1' if requirement.required else '0'"
+                                             t-att-data-minimum="requirement.minimum_files if requirement.required else 0"
+                                             t-att-data-saved-count="len(uploaded_line or [])"
+                                             t-att-data-allow-multiple="'1' if requirement.allow_multiple_files else '0'"
+                                             t-att-aria-label="'Arrastrar o seleccionar archivos para %s' % requirement.name">
+                                            <input class="credit-document-file-input" type="file"
+                                                   t-att-id="'doc_req_%s' % requirement.id"
+                                                   t-att-name="'doc_req_%s' % requirement.id"
+                                                   t-att-accept="'.pdf,application/pdf' if requirement.pdf_only else ('image/jpeg,image/png' if requirement.image_only else '.pdf,.jpg,.jpeg,.png')"
+                                                   t-att-multiple="'multiple' if requirement.allow_multiple_files else None"/>
+                                            <span class="credit-document-dropzone-icon" aria-hidden="true">⇧</span>
+                                            <span class="credit-document-dropzone-title">Arrastre aquí los archivos o haga clic para seleccionarlos</span>
+                                            <span class="credit-document-dropzone-hint">
+                                                <t t-if="requirement.pdf_only">PDF</t>
+                                                <t t-elif="requirement.image_only">JPG o PNG</t>
+                                                <t t-else="">PDF, JPG o PNG</t>
+                                                · máximo 12 MB por archivo
+                                                <t t-if="requirement.allow_multiple_files">· puede agregar archivos en varias cargas</t>
+                                            </span>
+                                        </div>
+                                        <div class="credit-document-pending mt-2" aria-live="polite">
+                                            <div class="small fw-semibold credit-document-pending-title">Archivos nuevos: <span data-credit-document-count="1">0</span></div>
+                                            <ul class="credit-document-pending-list" data-credit-document-list="1"></ul>
+                                            <div class="credit-document-pending-error small text-danger d-none" role="alert" data-credit-document-error="1"></div>
+                                        </div>
                                         <div t-if="requirement.description" class="form-text" t-esc="requirement.description"/>
-                                        <div t-if="requirement.allow_multiple_files" class="form-text">Puede seleccionar varios archivos. Mínimo obligatorio: <strong t-esc="requirement.minimum_files"/>. Se permite añadir más archivos.</div>
+                                        <div t-if="requirement.allow_multiple_files" class="form-text">Puede adjuntar varios archivos a este requisito. Mínimo obligatorio: <strong t-esc="requirement.minimum_files"/>. Los archivos nuevos se agregan sin reemplazar los anteriores.</div>
                                         <div t-if="uploaded_line" class="small text-success mt-2">
                                             <span class="fw-semibold">Archivos cargados:</span>
                                             <ul class="ps-4 mb-1"><li t-foreach="uploaded_line" t-as="saved_file" t-esc="saved_file.filename"/></ul>

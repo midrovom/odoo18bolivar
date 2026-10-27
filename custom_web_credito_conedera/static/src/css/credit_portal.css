@@ -323,3 +323,42 @@ body.modal-open { overflow: hidden; }
     .credit-section-card > .card-header { padding: .8rem; }
     .credit-wizard-nav > div { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Portal: carga documental por arrastrar o hacer clic, con múltiples lotes. */
+.credit-document-dropzone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    text-align: center;
+    min-height: 145px;
+    padding: 1.2rem;
+    border: 2px dashed var(--credit-red);
+    border-radius: .9rem;
+    background: var(--credit-red-soft);
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease;
+}
+.credit-document-dropzone:hover,
+.credit-document-dropzone:focus-visible,
+.credit-document-dropzone.is-dragover {
+    background: #f0dada;
+    border-color: var(--credit-red-dark);
+    outline: none;
+}
+.credit-document-dropzone.is-invalid { border-color: #b02a37; }
+.credit-document-file-input { display: none !important; }
+.credit-document-dropzone-icon { font-size: 1.8rem; color: var(--credit-red); line-height: 1; }
+.credit-document-dropzone-title { font-size: .9rem; font-weight: 700; color: var(--credit-heading); }
+.credit-document-dropzone-hint { font-size: .78rem; color: #5c5755; }
+.credit-document-pending-list { list-style: none; padding: 0; margin: .35rem 0; }
+.credit-document-pending-item { display: flex; align-items: center; gap: .5rem; justify-content: space-between; padding: .35rem 0; border-bottom: 1px solid var(--credit-border); }
+.credit-document-pending-name { overflow-wrap: anywhere; min-width: 0; font-size: .84rem; }
+.credit-document-remove-file { background: transparent; color: var(--credit-red); font-weight: 700; border: 1px solid var(--credit-red); border-radius: 999px; padding: .2rem .65rem; flex: 0 0 auto; }
+.credit-document-remove-file:hover { background: var(--credit-red); color: #fff; }
+@media (max-width: 575.98px) {
+    .credit-document-dropzone { min-height: 126px; padding: .85rem; }
+    .credit-document-pending-item { align-items: flex-start; }
+}

@@ -727,6 +727,167 @@
             });
         }
 
+        // Documentos solicitados: en cada requisito se permite arrastrar y agregar
+        // varios lotes de archivos sin reemplazar selecciones previas. El input
+        // conserva el FileList acumulado para que Odoo reciba todos con getlist().
+        document.querySelectorAll('[data-credit-document-dropzone="1"]').forEach(function (zone) {
+            var input = zone.querySelector('input[type="file"]');
+            var pendingBox = zone.nextElementSibling;
+            var fileList = pendingBox && pendingBox.querySelector('[data-credit-document-list="1"]');
+            var countSpan = pendingBox && pendingBox.querySelector('[data-credit-document-count="1"]');
+            var errorBox = pendingBox && pendingBox.querySelector('[data-credit-document-error="1"]');
+            if (!input || !fileList || !countSpan || !errorBox) { return; }
+
+            var allowMultiple = zone.dataset.allowMultiple === '1';
+            var savedCount = Number(zone.dataset.savedCount || 0);
+            var minimum = Number(zone.dataset.minimum || 0);
+            var required = zone.dataset.required === '1';
+            var pending = [];
+            var maxFileBytes = 12 * 1024 * 1024;
+            var dragDepth = 0;
+
+            function showError(message) {
+                errorBox.textContent = message || '';
+                errorBox.classList.toggle('d-none', !message);
+                zone.classList.toggle('is-invalid', Boolean(message));
+            }
+            function checkFile(file) {
+                if (!file || !file.name || !file.size || file.size > maxFileBytes) {
+                    return 'Cada archivo debe tener contenido y un tamaño máximo de 12 MB.';
+                }
+                var extension = '.' + file.name.split('.').pop().toLowerCase();
+                var allowed = input.accept.split(',').map(function (value) { return value.trim().toLowerCase(); });
+                var accepted = allowed.some(function (part) {
+                    return part === extension || (part.indexOf('/') !== -1 && part === String(file.type || '').toLowerCase());
+                });
+                if (!accepted) {
+                    return 'Formato no permitido para este requisito: ' + file.name;
+                }
+                return null;
+            }
+            function syncInput() {
+                // Un FileList no permite .push(); DataTransfer crea uno acumulativo.
+                // Esto evita el reemplazo cuando el usuario selecciona archivos de nuevo.
+                var transfer = new DataTransfer();
+                pending.forEach(function (file) { transfer.items.add(file); });
+                input.files = transfer.files;
+            }
+            function renderFiles() {
+                fileList.textContent = '';
+                pending.forEach(function (file, index) {
+                    var item = document.createElement('li');
+                    item.className = 'credit-document-pending-item';
+                    var fileName = document.createElement('span');
+                    fileName.className = 'credit-document-pending-name';
+                    fileName.textContent = file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
+                    var remove = document.createElement('button');
+                    remove.type = 'button';
+                    remove.className = 'credit-document-remove-file';
+                    remove.textContent = 'Quitar';
+                    remove.setAttribute('aria-label', 'Quitar ' + file.name);
+                    remove.addEventListener('click', function (event) {
+                        event.stopPropagation();
+                        pending.splice(index, 1);
+                        syncInput();
+                        renderFiles();
+                        showError('');
+                    });
+                    item.appendChild(fileName);
+                    item.appendChild(remove);
+                    fileList.appendChild(item);
+                });
+                countSpan.textContent = String(pending.length);
+            }
+            function addFiles(files) {
+                var incoming = Array.from(files || []);
+                if (!incoming.length) { return; }
+                var problems = [];
+                incoming.forEach(function (file) {
+                    var error = checkFile(file);
+                    if (error) { problems.push(error); return; }
+                    var exists = pending.some(function (existing) {
+                        return existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified;
+                    });
+                    if (exists) { return; }
+                    if (!allowMultiple) { pending = []; }
+                    pending.push(file);
+                });
+                syncInput();
+                renderFiles();
+                showError(problems.join(' '));
+            }
+
+            input.addEventListener('change', function () {
+                // Leer el lote recién elegido antes de reescribir input.files.
+                addFiles(input.files);
+            });
+            zone.addEventListener('click', function (event) {
+                if (event.target === input || event.target.closest('button')) { return; }
+                input.click();
+            });
+            zone.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    input.click();
+                }
+            });
+            ['dragenter', 'dragover'].forEach(function (name) {
+                zone.addEventListener(name, function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (name === 'dragenter') { dragDepth += 1; }
+                    if (event.dataTransfer) { event.dataTransfer.dropEffect = 'copy'; }
+                    zone.classList.add('is-dragover');
+                });
+            });
+            zone.addEventListener('dragleave', function (event) {
+                event.preventDefault();
+                dragDepth = Math.max(0, dragDepth - 1);
+                if (!dragDepth) { zone.classList.remove('is-dragover'); }
+            });
+            zone.addEventListener('drop', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                dragDepth = 0;
+                zone.classList.remove('is-dragover');
+                if (event.dataTransfer) { addFiles(event.dataTransfer.files); }
+            });
+            // Para los requisitos obligatorios validar el acumulado nuevo + guardado.
+            var form = zone.closest('form');
+            if (form && !form.dataset.creditDocumentValidationBound) {
+                form.dataset.creditDocumentValidationBound = '1';
+                form.addEventListener('submit', function (event) {
+                    var firstInvalid = null;
+                    form.querySelectorAll('[data-credit-document-dropzone="1"]').forEach(function (item) {
+                        var itemInput = item.querySelector('input[type="file"]');
+                        var itemRequired = item.dataset.required === '1';
+                        var itemSaved = Number(item.dataset.savedCount || 0);
+                        var itemMinimum = Number(item.dataset.minimum || 0);
+                        var itemMultiple = item.dataset.allowMultiple === '1';
+                        var itemNew = (itemInput && itemInput.files) ? itemInput.files.length : 0;
+                        var total = itemMultiple ? itemSaved + itemNew : (itemNew || itemSaved);
+                        var itemError = item.nextElementSibling.querySelector('[data-credit-document-error="1"]');
+                        var missing = itemRequired && total < itemMinimum;
+                        if (missing) {
+                            itemError.textContent = 'Debe adjuntar al menos ' + itemMinimum + ' archivo(s). Disponibles: ' + total + '.';
+                            itemError.classList.remove('d-none');
+                            item.classList.add('is-invalid');
+                            if (!firstInvalid) { firstInvalid = item; }
+                        }
+                    });
+                    if (firstInvalid) {
+                        event.preventDefault();
+                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstInvalid.focus();
+                    }
+                });
+            }
+            // Evita la validación nativa del input invisible; el backend verifica
+            // todos los requisitos otra vez antes de escribir archivos.
+            input.required = false;
+            renderFiles();
+        });
+
         document.querySelectorAll('.credit-form input[type="file"]').forEach(function (input) {
             input.addEventListener('change', function () {
                 if (input.files && input.files.length && input.files[0].size > 12 * 1024 * 1024) {
