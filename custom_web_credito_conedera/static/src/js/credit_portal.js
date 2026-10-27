@@ -266,10 +266,9 @@
             var validateSketchFile = function (file) {
                 if (!file) { return false; }
                 var ext = file.name.split('.').pop().toLowerCase();
-                var pdf = ext === 'pdf' && (file.type === 'application/pdf' || !file.type);
                 var image = ['png', 'jpg', 'jpeg', 'webp'].includes(ext) && (!file.type || file.type.startsWith('image/'));
-                if ((!pdf && !image) || !file.size || file.size > maxSize) {
-                    setWarning('Adjunte una imagen PNG, JPG, WEBP o un PDF de hasta 12 MB.');
+                if (!image || !file.size || file.size > maxSize) {
+                    setWarning('Adjunte una imagen PNG, JPG o WEBP de hasta 12 MB.');
                     return false;
                 }
                 setWarning('');
@@ -657,7 +656,7 @@
                         // El input del croquis no se dibuja: el recuadro es
                         // su control visible de selección y carga.
                         if (field === historySketchFile && dropPrompt) {
-                            setWarning('Adjunte el croquis: arrastre una imagen o PDF, o haga clic en el recuadro para seleccionarlo.');
+                            setWarning('Adjunte el croquis: arrastre una imagen o haga clic en el recuadro para seleccionarla.');
                             dropPrompt.focus();
                             dropPrompt.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         } else {

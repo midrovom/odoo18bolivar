@@ -28,18 +28,6 @@
                     </div>
                 </a>
             </div>
-            <t t-set="credit_documents_ready" t-value="request.env['conedera.credit.application'].sudo().search([('portal_user_id', '=', request.env.user.id), ('documents_unlocked', '=', True)]).filtered('document_access_allowed')[:1]"/>
-            <t t-if="credit_documents_ready and credit_documents_ready.document_access_allowed">
-                <div class="o_portal_index_card col-md-6 order-4">
-                    <a href="/my/credito/documentos" title="Ingreso de documentos solicitados para el crédito" class="d-flex gap-2 gap-md-3 py-3 pe-2 px-md-3 h-100 rounded text-decoration-none bg-100">
-                        <div class="o_portal_icon d-flex align-items-center justify-content-center align-self-start credit-portal-icon"><i class="fa fa-folder-open fa-2x" aria-hidden="true"/></div>
-                        <div>
-                            <div class="mt-0 mb-1 fs-5 fw-normal lh-1">Ingreso de documentos solicitados para el crédito</div>
-                            <div class="opacity-75">Cargue los requisitos habilitados tras la aprobación.</div>
-                        </div>
-                    </a>
-                </div>
-            </t>
 
         </xpath>
     </template>
@@ -186,14 +174,14 @@
                       <section class="card credit-section-card mb-4">
                         <div class="card-header">Croquis cliente</div>
                         <div class="card-body">
-                          <p class="text-muted small">Adjunte un croquis que muestre al menos dos calles principales. Se acepta PNG, JPG, WEBP o PDF (máximo 12 MB).</p>
+                          <p class="text-muted small">Adjunte un croquis que muestre al menos dos calles principales. Se aceptan imágenes PNG, JPG o WEBP (máximo 12 MB).</p>
                           <div id="credit-sketch-dropzone" class="credit-sketch-dropzone">
                             <div class="credit-sketch-drop-prompt" role="button" tabindex="0" aria-label="Arrastrar croquis aquí o seleccionar un archivo" aria-controls="credit-review-sketch-file">
                               <i class="fa fa-cloud-upload fa-2x mb-2" aria-hidden="true"/>
-                              <strong class="d-block">Arrastre aquí la imagen o el PDF del croquis</strong>
+                              <strong class="d-block">Arrastre aquí la imagen del croquis</strong>
                               <span class="d-block small">O haga clic aquí para seleccionar un archivo</span>
                             </div>
-                            <input class="credit-sketch-file-input" id="credit-review-sketch-file" type="file" name="verification_sketch_file" accept=".png,.jpg,.jpeg,.webp,.pdf,image/png,image/jpeg,image/webp,application/pdf" t-att-required="not existing_sketch and 'required' or None"/>
+                            <input class="credit-sketch-file-input" id="credit-review-sketch-file" type="file" name="verification_sketch_file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" t-att-required="not existing_sketch and 'required' or None"/>
                             <div id="credit-review-sketch-warning" class="alert alert-danger mt-3 mb-0" role="alert" hidden="hidden"/>
                             <div id="credit-review-sketch-preview" class="credit-sketch-review-frame mt-3" aria-live="polite">
                             <t t-if="existing_sketch">
@@ -201,7 +189,7 @@
                               <t t-else=""><img class="credit-sketch-review-image" alt="Croquis existente" t-att-src="'/my/credito/%s/croquis' % application.id"/></t>
                               <small class="d-block text-muted mt-2">El croquis guardado se conservará si no adjunta otro.</small>
                             </t>
-                            <t t-else=""><div class="credit-sketch-review-placeholder"><i class="fa fa-file-image-o fa-3x mb-2" aria-hidden="true"/><p class="mb-0">Arrastre un archivo al recuadro o selecciónelo para ver su vista previa antes de enviar la solicitud.</p></div></t>
+                            <t t-else=""><div class="credit-sketch-review-placeholder"><i class="fa fa-file-image-o fa-3x mb-2" aria-hidden="true"/><p class="mb-0">Arrastre una imagen al recuadro o haga clic para seleccionarla y ver su vista previa.</p></div></t>
                             </div>
                           </div>
                         </div>
@@ -239,7 +227,7 @@
                         <div class="form-check mb-3"><input class="form-check-input" type="checkbox" id="credit_bureau_authorized" name="credit_bureau_authorized" required="required" t-att-checked="form_values.get('credit_bureau_authorized') in ('on','1','true','yes')"/><label class="form-check-label" for="credit_bureau_authorized">Autorizo expresa y separadamente a <t t-esc="application.company_id.name if application else request.website.company_id.name"/> a consultar mi score e historial crediticio mediante cualquier plataforma o buró de crédito autorizado, sin limitarse a una empresa específica. *</label></div>
                         <div class="form-check mb-3"><input class="form-check-input" type="checkbox" id="company_signature_stamp_acknowledged" name="company_signature_stamp_acknowledged" required="required" t-att-checked="form_values.get('company_signature_stamp_acknowledged') in ('on','1','true','yes')"/><label class="form-check-label" for="company_signature_stamp_acknowledged">Declaro conocer que el documento final de la solicitud deberá contemplar la firma y sello del representante legal de <t t-esc="application.company_id.name if application else request.website.company_id.name"/> o de quien haga sus veces. *</label></div>
                         <div class="form-check mb-1"><input class="form-check-input" type="checkbox" id="additional_financial_documents_accepted" name="additional_financial_documents_accepted" required="required" t-att-checked="form_values.get('additional_financial_documents_accepted') in ('on','1','true','yes')"/><label class="form-check-label" for="additional_financial_documents_accepted">Me comprometo a entregar, cuando se habilite la etapa documental, las últimas seis declaraciones del IVA, la declaración del Impuesto a la Renta del año anterior y un certificado bancario correspondiente a los últimos seis meses. *</label></div>
-                    </section></div></section></div><div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-5 credit-wizard-nav"><button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-credit-prev="1" hidden="hidden">← Anterior</button><div class="d-flex flex-wrap justify-content-end gap-2 ms-auto"><a href="/my/credito/historial" class="btn btn-outline-secondary rounded-pill px-4">Cancelar</a><button type="button" class="btn btn-credit-primary px-5" data-credit-next="1" hidden="hidden">Siguiente →</button><button class="btn btn-credit-primary px-5" type="submit" data-credit-submit="1"><t t-esc="'Guardar croquis' if sketch_only else ('Guardar correcciones' if application else 'Enviar solicitud de crédito')"/></button></div></div></form>
+                    </section></div></section></div><div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-5 credit-wizard-nav"><button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-credit-prev="1" hidden="hidden">← Anterior</button><div class="d-flex flex-wrap justify-content-end gap-2 ms-auto"><a href="/my/credito/historial" class="btn btn-outline-secondary rounded-pill px-4">Cancelar</a><button type="button" class="btn btn-credit-primary px-5" data-credit-next="1" hidden="hidden">Siguiente →</button><button class="btn btn-credit-primary px-5" type="submit" data-credit-submit="1"><t t-esc="'Guardar' if application else 'Enviar solicitud de crédito'"/></button></div></div></form>
             </div>
         </t>
     </template>
@@ -261,11 +249,11 @@
             <div t-if="application.portal_update_allowed" class="mb-3 d-flex gap-2 flex-wrap">
                 <a t-if="can_correct" class="btn btn-credit-primary" t-att-href="'/my/credito/%s/editar' % application.id">Actualizar solicitud</a>
             </div>
-            <div class="card credit-section-card mb-4"><div class="card-header">Estado de la solicitud</div><div class="card-body"><div class="d-flex flex-wrap justify-content-between gap-3 align-items-center"><div><div class="text-muted small">Etapa actual</div><div class="h4 mb-0" t-esc="application.stage_id.name or 'Sin etapa'"/></div><span t-attf-class="badge rounded-pill px-3 py-2 #{'text-bg-success' if application.stage_id.is_approved else ('text-bg-danger' if application.stage_id.is_rejected else 'text-bg-secondary')}" t-esc="'Aprobada' if application.stage_id.is_approved else ('No aprobada' if application.stage_id.is_rejected else 'En proceso')"/></div><p class="mt-3 mb-1"><strong>Verificación del negocio:</strong> <span t-esc="verification_label"/></p><p class="text-muted mt-3 mb-0">Cuando la solicitud alcance la etapa de aprobación, se habilitará el apartado para cargar los documentos solicitados.</p><t t-if="application.document_access_allowed"><a t-att-href="'/my/credito/%s/documentos' % application.id" class="btn btn-credit-primary rounded-pill mt-3">Ingresar documentos solicitados para el crédito</a></t><t t-if="can_upload_sketch"><a t-att-href="'/my/credito/%s/editar' % application.id" class="btn btn-outline-primary rounded-pill mt-3 ms-2">Actualizar croquis</a></t></div></div>
+            <div class="card credit-section-card mb-4"><div class="card-header">Estado de la solicitud</div><div class="card-body"><div class="d-flex flex-wrap justify-content-between gap-3 align-items-center"><div><div class="text-muted small">Etapa actual</div><div class="h4 mb-0" t-esc="application.stage_id.name or 'Sin etapa'"/></div><span t-attf-class="badge rounded-pill px-3 py-2 #{'text-bg-success' if application.stage_id.is_approved else ('text-bg-danger' if application.stage_id.is_rejected else 'text-bg-secondary')}" t-esc="'Aprobada' if application.stage_id.is_approved else ('No aprobada' if application.stage_id.is_rejected else 'En proceso')"/></div><p class="mt-3 mb-1"><strong>Verificación del negocio:</strong> <span t-esc="verification_label"/></p><p class="text-muted mt-3 mb-0">Cuando la solicitud alcance la etapa de aprobación, se habilitará el apartado para cargar los documentos solicitados.</p><t t-if="can_upload_sketch"><a t-att-href="'/my/credito/%s/editar' % application.id" class="btn btn-outline-primary rounded-pill mt-3 ms-2">Actualizar croquis</a></t></div></div>
             <div class="row g-4"><div class="col-12 col-lg-7"><div class="card credit-section-card h-100"><div class="card-header">Resumen de la solicitud</div><div class="card-body"><dl class="row mb-0"><dt class="col-sm-5">Tipo de solicitante</dt><dd class="col-sm-7" t-esc="application.applicant_type_id.name or 'No definido'"/><dt class="col-sm-5">Cédula / RUC solicitante</dt><dd class="col-sm-7" t-esc="application.identification or '-'"/><dt class="col-sm-5">Nombre del solicitante</dt><dd class="col-sm-7" t-esc="application.applicant_name or '-'"/><dt class="col-sm-5">Correo</dt><dd class="col-sm-7" t-esc="application.applicant_email or '-'"/><dt class="col-sm-5">Negocio / razón social</dt><dd class="col-sm-7" t-esc="application.business_name or '-'"/><dt class="col-sm-5">RUC del negocio</dt><dd class="col-sm-7" t-esc="application.business_ruc or '-'"/><dt class="col-sm-5">Dirección del negocio</dt><dd class="col-sm-7" t-esc="application.business_address or '-'"/><dt class="col-sm-5">Celular</dt><dd class="col-sm-7" t-esc="application.mobile or '-'"/><dt class="col-sm-5">Latitud del negocio</dt><dd class="col-sm-7" t-esc="'%.7f' % application.business_latitude if application.business_latitude else '-'"/><dt class="col-sm-5">Longitud del negocio</dt><dd class="col-sm-7" t-esc="'%.7f' % application.business_longitude if application.business_longitude else '-'"/><dt class="col-sm-5">Ubicación para inspección</dt><dd class="col-sm-7" t-esc="application.verification_address or '-'"/><dt class="col-sm-5">Barrio / parroquia</dt><dd class="col-sm-7" t-esc="', '.join(v for v in (application.verification_neighborhood, application.verification_parish) if v) or '-'"/><dt class="col-sm-5">Croquis de ubicación</dt><dd class="col-sm-7"><t t-if="application.verification_sketch"><a t-att-href="'/my/credito/%s/croquis' % application.id" target="_blank" rel="noopener">Ver croquis registrado</a></t><t t-else="">Pendiente</t></dd></dl></div></div></div>
                 <div class="col-12 col-lg-5"><div class="card credit-section-card h-100"><div class="card-header">Seguimiento por etapas</div><div class="card-body"><t t-if="not history"><p class="text-muted mb-0">No existen novedades registradas.</p></t><ol class="credit-timeline"><t t-foreach="history" t-as="item"><li><div class="credit-timeline-title" t-esc="item.stage_id.name"/><div class="small text-muted" t-esc="item.date.strftime('%d/%m/%Y %H:%M') if item.date else ''"/><div class="small" t-if="item.notes" t-esc="item.notes"/></li></t></ol></div></div></div>
             </div>
-            <t t-if="documents and application.document_access_allowed"><div class="card credit-section-card mt-4"><div class="card-header">Documentación posterior a la aprobación</div><div class="card-body"><div class="d-flex flex-wrap align-items-center justify-content-between gap-3"><div><strong t-esc="'%s de %s documentos requeridos cargados' % (documents.required_document_uploaded, documents.required_document_total)"/><div class="small text-muted" t-esc="'Expediente completo' if documents.is_complete else 'Expediente con documentos pendientes'"/></div><a t-if="application.document_access_allowed" t-att-href="'/my/credito/%s/documentos' % application.id" class="btn btn-outline-primary rounded-pill">Ver / actualizar documentos</a></div></div></div></t>
+
         </div></t>
     </template>
 
@@ -290,7 +278,7 @@
                         <h1 class="h2 mb-1">Documentos solicitados para el crédito</h1>
                         <p class="text-muted mb-0">Solicitud <strong t-esc="application.name"/> · <t t-esc="application.business_name"/></p>
                     </div>
-                    <a t-att-href="'/my/credito/%s' % application.id" class="btn btn-outline-secondary rounded-pill">Volver al detalle</a>
+                    <a href="/my/credito/historial" class="btn btn-outline-secondary rounded-pill">Volver al historial</a>
                 </div>
                 <div class="alert alert-info rounded-3">
                     <strong>Tipo de solicitante:</strong> <span t-esc="application.applicant_type_id.name"/>.

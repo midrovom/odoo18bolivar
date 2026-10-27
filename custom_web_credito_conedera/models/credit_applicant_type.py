@@ -36,6 +36,42 @@ class ConederaCreditApplicantType(models.Model):
             raise ValidationError(_('El ID único del tipo de solicitante es permanente y no puede modificarse.'))
         return super().write(vals)
 
+    @api.model
+    def _ensure_standard_document_requirements(self):
+        """One-off upgrade to the exact 7/8 documents requested for the two built-in types.
+
+        Keep historical requirement rows and their uploaded files, but archive
+        previously split prompts so they do not appear again in the portal.
+        Other applicant types are not touched.
+        """
+        parameters = self.env['ir.config_parameter'].sudo()
+        key = 'custom_web_credito_conedera.documents_exact_v1831'
+        if parameters.get_param(key):
+            return True
+        mappings = {'natural': [('credit_requirement_natural_application_signed', 'Solicitud de crédito preparada y firmada por el solicitante', 10, False), ('credit_requirement_natural_ruc_updated', 'Copia del ruc actualizado.', 20, False), ('credit_requirement_natural_id_client', 'Copia a color de la cédula de ciudadanía del cliente y cónyuge.', 30, False), ('credit_requirement_natural_voting_certificate', 'Copia a color del certificado de votación vigente', 40, False), ('credit_requirement_natural_utility_business', 'Planilla de un servicio básico (luz, agua, teléfono, internet) del local y del lugar de residencia.', 50, False), ('credit_requirement_natural_local_photo_inside', 'Foto del local (parte interna y externa)', 60, False), ('credit_requirement_natural_applicant_signing_photo', 'Foto del solicitante firmando la solicitud de crédito, que se refleje el rostro con claridad.', 70, True)], 'juridical': [('credit_requirement_juridical_application_signed', 'Solicitud de crédito preparada y firmada por el representante legal', 10, False), ('credit_requirement_juridical_ruc_updated', 'Copia del ruc actualizado.', 20, False), ('credit_requirement_juridical_id_legal_representative', 'Copia a color de la cédula de ciudadanía del representante legal.', 30, False), ('credit_requirement_juridical_voting_legal_representative', 'Copia a color del certificado de votación vigente del representante legal.', 40, False), ('credit_requirement_juridical_utility_business', 'Planilla de un servicio básico (luz, agua, teléfono, internet) del local y del lugar de residencia.', 50, False), ('credit_requirement_juridical_legal_appointment', 'Nombramiento del representante legal', 60, False), ('credit_requirement_juridical_local_photo_inside', 'Foto del local (parte interna y externa)', 70, False), ('credit_requirement_juridical_applicant_signing_photo', 'Foto del solicitante firmando la solicitud de crédito, que se refleje el rostro con claridad.', 80, True)]}
+        Requirement = self.env['conedera.credit.document.requirement'].sudo().with_context(active_test=False)
+        for code, specifications in mappings.items():
+            applicant_type = self.sudo().with_context(active_test=False).search([('code', '=', code)], limit=1)
+            if not applicant_type:
+                continue
+            preserved = Requirement.browse()
+            for xmlid, name, sequence, image_only in specifications:
+                requirement = self.env.ref('custom_web_credito_conedera.' + xmlid, raise_if_not_found=False)
+                if not requirement or requirement.applicant_type_id.id != applicant_type.id:
+                    continue
+                preserved |= requirement
+                requirement.sudo().write({
+                    'name': name, 'sequence': sequence, 'active': True,
+                    'required': True, 'only_if_spouse': False,
+                    'image_only': image_only, 'description': False,
+                })
+            extras = Requirement.search([('applicant_type_id', '=', applicant_type.id)]) - preserved
+            if extras:
+                # Never delete legacy requirements: previous uploads still reference them.
+                extras.write({'active': False, 'required': False})
+        parameters.set_param(key, '1')
+        return True
+
     def _compute_application_count(self):
         for rec in self:
             rec.application_count = self.env['conedera.credit.application'].search_count([('applicant_type_id', '=', rec.id)])

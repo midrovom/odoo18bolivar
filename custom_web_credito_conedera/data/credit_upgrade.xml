@@ -6,4 +6,5 @@
     <function model="conedera.credit.application" name="_migrate_credit_signed_documents"/>
     <!-- La etapa preexistente está en noupdate: activar la opción en revisión sin restablecer otros catálogos. -->
     <function model="conedera.credit.stage" name="_ensure_portal_sketch_stage"/>
+    <function model="conedera.credit.applicant.type" name="_ensure_standard_document_requirements"/>
 </odoo>

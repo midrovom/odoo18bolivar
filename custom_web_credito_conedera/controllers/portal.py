@@ -132,7 +132,7 @@ def _parse_number(value, label, errors, integer=False):
 
 
 def _sketch_content(post, errors):
-    """Aceptar croquis PNG/JPEG/WEBP/PDF, o el dibujo hecho en el navegador.
+    """Aceptar croquis PNG/JPEG/WEBP, o el dibujo hecho en el navegador.
 
     El resultado es (contenido_base64, nombre_archivo) o (None, None).
     La ausencia de un nuevo croquis NO borra el que ya existe en una solicitud.
@@ -141,8 +141,8 @@ def _sketch_content(post, errors):
     if uploaded and uploaded.filename:
         filename = secure_filename(uploaded.filename) or 'croquis'
         extension = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
-        if extension not in ('png', 'jpg', 'jpeg', 'webp', 'pdf'):
-            errors.append(_('El croquis debe ser PNG, JPG, WEBP o PDF.'))
+        if extension not in ('png', 'jpg', 'jpeg', 'webp'):
+            errors.append(_('El croquis debe ser una imagen PNG, JPG o WEBP.'))
             return None, None
         content = uploaded.read(MAX_FILE_SIZE + 1)
         if not content or len(content) > MAX_FILE_SIZE:
@@ -153,7 +153,6 @@ def _sketch_content(post, errors):
             'jpg': content.startswith(b'\xff\xd8\xff'),
             'jpeg': content.startswith(b'\xff\xd8\xff'),
             'webp': content.startswith(b'RIFF') and content[8:12] == b'WEBP',
-            'pdf': content.startswith(b'%PDF-'),
         }
         if not signatures.get(extension):
             errors.append(_('El contenido del croquis no corresponde al formato del archivo.'))
@@ -904,7 +903,7 @@ class ConederaCreditPortal(http.Controller):
             values.update({'verification_sketch': sketch,
                            'verification_sketch_filename': filename})
         elif not application.verification_sketch:
-            errors.append(_('Debe adjuntar un croquis PNG, JPG, WEBP o PDF.'))
+            errors.append(_('Debe adjuntar una imagen del croquis PNG, JPG o WEBP.'))
         if errors:
             form_values = self._application_to_form(application)
             form_values.update({name: post.get(name, '') for name in LOCATION_CLIENT_FIELDS})
@@ -1039,7 +1038,7 @@ class ConederaCreditPortal(http.Controller):
             values['verification_sketch'] = sketch
             values['verification_sketch_filename'] = sketch_filename
         elif not (application and application.verification_sketch):
-            errors.append(_('Adjunte el croquis del cliente en el paso 3 (PNG, JPG, WEBP o PDF).'))
+            errors.append(_('Adjunte una imagen del croquis en el paso 3 (PNG, JPG o WEBP).'))
         values['vehicle_ids'] = self._vehicle_commands(post, errors)
         values['declaration_accepted'] = post.get('declaration_accepted') in ('on', '1', 'true', 'yes')
         consent_fields = [
@@ -1229,9 +1228,7 @@ class ConederaCreditPortal(http.Controller):
 
     @http.route('/my/credito/documentos', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
     def credit_documents_index(self, **kwargs):
-        applications = self._portal_applications([('documents_unlocked', '=', True)])
-        applications = applications.filtered(lambda app: app.document_access_allowed)
-        return request.render('custom_web_credito_conedera.portal_credit_documents_index', {'applications': applications})
+        return request.redirect('/my/credito/historial')
 
     def _credit_document_errors(self, doc):
         missing = []

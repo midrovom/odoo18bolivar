@@ -305,6 +305,29 @@ class ConederaCreditApplication(models.Model):
     verification_reference = fields.Char(string='Referencia de ubicación')
     verification_sketch = fields.Binary(string='Croquis del cliente', attachment=True)
     verification_sketch_filename = fields.Char(string='Archivo del croquis')
+    @api.constrains('verification_sketch', 'verification_sketch_filename')
+    def _check_sketch_is_image(self):
+        """New croquis uploads must be valid images; historical PDFs remain readable."""
+        for record in self:
+            if not record.verification_sketch:
+                continue
+            filename = (record.verification_sketch_filename or '').lower().strip()
+            ext = filename.rsplit('.', 1)[-1] if '.' in filename else ''
+            if ext not in ('png', 'jpg', 'jpeg', 'webp'):
+                raise ValidationError(_('El croquis solo admite imágenes PNG, JPG o WEBP.'))
+            try:
+                raw = base64.b64decode(record.verification_sketch, validate=True)
+            except (ValueError, binascii.Error, TypeError):
+                raise ValidationError(_('El archivo del croquis no es una imagen válida.'))
+            signatures = {
+                'png': raw.startswith(b'\x89PNG\r\n\x1a\n'),
+                'jpg': raw.startswith(b'\xff\xd8\xff'),
+                'jpeg': raw.startswith(b'\xff\xd8\xff'),
+                'webp': raw.startswith(b'RIFF') and raw[8:12] == b'WEBP',
+            }
+            if not signatures.get(ext) or not raw or len(raw) > 12 * 1024 * 1024:
+                raise ValidationError(_('El croquis debe ser una imagen PNG, JPG o WEBP de hasta 12 MB.'))
+
     # Conservados solo para migrar la información antigua. Ya no se usan en las vistas.
     verification_zone = fields.Selection([
         ('urban', 'Urbana'), ('peripheral', 'Periférica'), ('rural', 'Rural'),
