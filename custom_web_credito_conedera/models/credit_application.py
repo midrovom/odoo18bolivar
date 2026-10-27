@@ -3,6 +3,7 @@ import binascii
 import logging
 from markupsafe import escape
 
+import re
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError, AccessError, UserError
 
@@ -31,10 +32,19 @@ class ConederaCreditApplication(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'create_date desc, id desc'
 
+    website_id = fields.Many2one('website', string='Sitio web de origen', readonly=True, copy=False, index=True,
+        help='Dominio donde se registró la solicitud. La empresa sigue siendo company_id.')
     company_id = fields.Many2one(
         'res.company', string='Empresa', required=True, index=True, tracking=True,
         default=lambda self: self.env.company,
         help='Empresa propietaria de la solicitud. Controla el acceso y los datos impresos en PDF.')
+    @api.constrains('website_id', 'company_id')
+    def _check_website_company_consistency(self):
+        for application in self:
+            if (application.website_id and application.website_id.company_id and
+                    application.website_id.company_id != application.company_id):
+                raise ValidationError(_('La empresa de la solicitud debe coincidir con la del sitio web de origen.'))
+
     @api.constrains('company_id')
     def _check_company_assignment(self):
         # Users with internal access may only associate records with an
@@ -553,10 +563,12 @@ class ConederaCreditApplication(models.Model):
             )
 
     @api.model
-    def _blocking_application(self, user_id, exclude_id=False):
+    def _blocking_application(self, user_id, exclude_id=False, company_id=None):
         domain = [('portal_user_id', '=', user_id),
                   ('stage_id.is_approved', '=', False), ('stage_id.is_rejected', '=', False),
                   ('documents_unlocked', '=', False)]
+        if company_id:
+            domain.append(('company_id', '=', company_id))
         if exclude_id:
             domain.append(('id', '!=', exclude_id))
         return self.with_context(active_test=False).sudo().search(domain, limit=1)
@@ -622,17 +634,24 @@ class ConederaCreditApplication(models.Model):
             'electronic_service_accepted', 'credit_bureau_authorized',
             'company_signature_stamp_acknowledged', 'additional_financial_documents_accepted',
         )
-        # Serializar por usuario para evitar dos solicitudes simultáneas desde dos pestañas.
-        for user_id in sorted({v.get('portal_user_id') for v in vals_list if v.get('portal_user_id')}):
+        # Bloqueo por usuario, comprobación por pareja (usuario, empresa).
+        # Un cliente puede solicitar crédito en dos empresas distintas, pero
+        # solo tener una solicitud pendiente en cada empresa.
+        user_ids = sorted({v.get('portal_user_id') for v in vals_list if v.get('portal_user_id')})
+        for user_id in user_ids:
             self.env.cr.execute('SELECT id FROM res_users WHERE id = %s FOR UPDATE', (user_id,))
-            if self._blocking_application(user_id):
-                raise ValidationError(_('Ya tiene una solicitud en trámite. Solo podrá registrar otra cuando la anterior esté aprobada o rechazada.'))
+        for user_id, company_id in sorted({
+                (v.get('portal_user_id'), v.get('company_id') or self.env.company.id)
+                for v in vals_list if v.get('portal_user_id')}):
+            if self._blocking_application(user_id, company_id=company_id):
+                raise ValidationError(_('Ya tiene una solicitud en trámite para esta empresa. Solo podrá registrar otra cuando la anterior esté aprobada o rechazada.'))
         seen_users = set()
         for vals in vals_list:
             user_id = vals.get('portal_user_id')
-            if user_id in seen_users:
+            user_company = (user_id, vals.get('company_id') or self.env.company.id)
+            if user_company in seen_users:
                 raise ValidationError(_('Solo puede crear una solicitud en trámite por usuario.'))
-            seen_users.add(user_id)
+            seen_users.add(user_company)
             if not all(vals.get(field) for field in required_consents):
                 raise ValidationError(_('Para guardar una nueva solicitud debe aceptar la declaración general y todas las condiciones adicionales.'))
             if not vals.get('applicant_type_id'):
@@ -763,6 +782,7 @@ class ConederaCreditApplication(models.Model):
                 'number': escape(self.name or ''),
                 'old': escape(old_stage.name if old_stage else '-'),
                 'new': escape(new_stage.name or '-'),
+                'company': escape(self.company_id.name or ''),
             }
             # Usar el SMTP independiente del módulo de crédito y su smtp_user
             # como remitente. No reutilizar ni alterar la configuración de RR. HH.
@@ -808,6 +828,18 @@ class ConederaCreditApplication(models.Model):
             'url': '/my/credito/%s' % self.id,
             'target': 'new',
         }
+
+    @api.constrains('phone_fixed', 'business_phone', 'employment_phone')
+    def _check_numeric_phones(self):
+        for record in self:
+            for field_name, label in (
+                ('phone_fixed', _('Teléfono fijo')),
+                ('business_phone', _('Teléfono de la empresa')),
+                ('employment_phone', _('Teléfono del empleador')),
+            ):
+                phone = record[field_name] or ''
+                if phone and not re.fullmatch(r'[0-9]+', phone):
+                    raise ValidationError(_('%s debe contener únicamente dígitos numéricos.') % label)
 
     @api.constrains('identification', 'identification_type', 'spouse_identification', 'authorized_buyer_identification', 'authorized_pickup_identification', 'mobile', 'business_ruc', 'marital_status_id', 'spouse_name', 'spouse_profession', 'business_latitude', 'business_longitude')
     def _check_ecuador_contact_fields(self):

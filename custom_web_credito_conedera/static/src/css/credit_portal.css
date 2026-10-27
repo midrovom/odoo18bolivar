@@ -1,9 +1,11 @@
 :root {
-    --credit-red: #8f2f2f;
-    --credit-red-dark: #702121;
-    --credit-red-soft: #f8eded;
-    --credit-border: #e7e1df;
-    --credit-heading: #702121;
+    /* Usar los colores del sitio web asociado al dominio; el asistente de
+       Configuración puede sobrescribirlos solo para ese sitio. */
+    --credit-red: var(--o-color-1, var(--primary, #8f2f2f));
+    --credit-red-dark: var(--o-color-2, var(--o-color-1, #702121));
+    --credit-red-soft: var(--o-color-3, #f8eded);
+    --credit-border: var(--o-color-3, #e7e1df);
+    --credit-heading: var(--o-color-5, #702121);
 }
 .credit-portal-icon { color: var(--credit-red); min-width: 42px; }
 .credit-auth-container { max-width: 1100px; }

@@ -184,15 +184,17 @@ def _send_otp_email(email, code):
     # "Correo de crédito". No usa ni modifica el servidor marcado para RR. HH.
     mail_server = request.env['ir.mail_server'].sudo().get_conedera_credit_mail_server()
     email_from = (mail_server.smtp_user or '').strip()
+    website = getattr(request, 'website', None) or request.env['website'].sudo().get_current_website()
+    company_name = website.company_id.name if website and website.company_id else 'Portal de crédito'
     values = {
-        'subject': _('Código de verificación para el portal de crédito CONEDERA'),
+        'subject': _('Código de verificación para el portal de crédito de %s') % company_name,
         'body_html': (
             '<div style=\"font-family:Arial,sans-serif;max-width:560px;margin:auto\">'
-            '<h2 style=\"color:#8f2f2f\">Verificación de correo CONEDERA</h2>'
+            '<h2 style=\"color:#8f2f2f\">Verificación de correo %s</h2>'
             '<p>Use el siguiente código para verificar su correo y activar su cuenta:</p>'
             '<p style=\"font-size:30px;font-weight:bold;letter-spacing:6px\">%s</p>'
             '<p>El código vence en 3 minutos. Si no lo ingresa a tiempo, podrá solicitar uno nuevo desde el portal. Si usted no inició este registro, puede ignorar el mensaje.</p>'
-            '</div>' % code
+            '</div>' % (escape(company_name), escape(code))
         ),
         'email_to': email,
         'email_from': email_from,
@@ -469,15 +471,30 @@ class ConederaCreditPortal(http.Controller):
 
         return self._render_verify()
 
+    def _credit_website(self):
+        # Se resuelve mediante el dominio HTTP por Odoo Website; no por la
+        # compañía activa del usuario, que puede pertenecer a otra empresa.
+        website = getattr(request, 'website', None)
+        if not website:
+            website = request.env['website'].sudo().get_current_website()
+        if not website or not website.company_id:
+            raise ValidationError(_('Configure la Empresa del sitio web en Sitio web > Configuración > Ajustes.'))
+        return website
+
+    def _credit_website_company(self):
+        return self._credit_website().company_id
+
     def _get_owned_application(self, application_id):
         application = request.env['conedera.credit.application'].sudo().browse(application_id).exists()
-        if not application or application.portal_user_id.id != request.env.user.id:
+        if (not application or application.portal_user_id.id != request.env.user.id
+                or application.company_id.id != self._credit_website_company().id):
             raise NotFound()
         return application
 
     def _portal_applications(self, domain=None):
         domain = list(domain or [])
-        domain.append(('portal_user_id', '=', request.env.user.id))
+        domain.extend([('portal_user_id', '=', request.env.user.id),
+                       ('company_id', '=', self._credit_website_company().id)])
         return request.env['conedera.credit.application'].sudo().search(domain, order='create_date desc, id desc')
 
     def _has_portal_update_scope(self):
@@ -532,7 +549,8 @@ class ConederaCreditPortal(http.Controller):
         return application.portal_can_update_documentation()
 
     def _pending_application(self):
-        return request.env['conedera.credit.application'].sudo()._blocking_application(request.env.user.id)
+        return request.env['conedera.credit.application'].sudo()._blocking_application(
+            request.env.user.id, company_id=self._credit_website_company().id)
 
     def _render_application_form(self, form_values=None, errors=None, start_step=1, application=None, sketch_only=False):
         defaults = {'application_date': fields.Date.context_today(request.env.user).strftime('%Y-%m-%d'),
@@ -541,7 +559,7 @@ class ConederaCreditPortal(http.Controller):
         defaults.update(form_values or {})
         count = _clean(defaults.get('vehicle_count'))
         vehicle_count = min(MAX_VEHICLES, max(1, int(count))) if count.isdecimal() else 1
-        company = application.company_id if application else (request.website.company_id or request.env.company)
+        company = application.company_id if application else self._credit_website_company()
         reference_minimums = request.env['conedera.credit.reference.policy'].minimums_for_company(company)
         reference_rows = {}
         for typ in ('commercial', 'personal', 'bank'):
@@ -607,6 +625,9 @@ class ConederaCreditPortal(http.Controller):
                     column: _clean(post.get('%s_%s_%s' % (typ, column, number)))
                     for column, _label in specs[typ]
                 }
+                if typ in ('commercial', 'personal') and raw_fields.get('phone') and not re.fullmatch(r'[0-9]+', raw_fields['phone']):
+                    errors.append(_('Referencia %(tipo)s %(numero)s: el teléfono solo admite números.') % {
+                        'tipo': type_names[typ], 'numero': number})
                 has_data = any(raw_fields.values())
                 required = number <= minimums[typ]
                 if not (has_data or required):
@@ -805,7 +826,7 @@ class ConederaCreditPortal(http.Controller):
         }
 
     @http.route('/my/credito/<int:application_id>/pdf/<string:section>',
-                type='http', auth='user', website=False, methods=['GET'], sitemap=False)
+                type='http', auth='user', website=True, methods=['GET'], sitemap=False)
     def credit_portal_download_pdf(self, application_id, section, **kw):
         """Descarga por grupo. Cuando hay varios PDFs ofrece ZIP sin alterarlos."""
         if section not in ('solicitud', 'verificacion', 'completo'):
@@ -858,7 +879,7 @@ class ConederaCreditPortal(http.Controller):
             ('Content-Length', str(len(contents))),
         ])
 
-    @http.route('/my/credito/<int:application_id>/croquis', type='http', auth='user', website=False, methods=['GET'], sitemap=False)
+    @http.route('/my/credito/<int:application_id>/croquis', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
     def credit_customer_sketch(self, application_id, **kw):
         application = self._get_owned_application(application_id)
         if not application.verification_sketch:
@@ -999,7 +1020,9 @@ class ConederaCreditPortal(http.Controller):
         values['portal_user_id'] = request.env.user.id
         # La empresa viene del sitio web actual, nunca de los datos enviados por el navegador.
         if not post.get('credit_edit_mode'):
-            values['company_id'] = (request.website.company_id or request.env.company).id
+            website = self._credit_website()
+            values['company_id'] = website.company_id.id
+            values['website_id'] = website.id
         selected_type = _clean(post.get('applicant_type_id'))
         applicant_type = request.env['conedera.credit.applicant.type'].sudo()
         if selected_type.isdecimal():
@@ -1057,7 +1080,7 @@ class ConederaCreditPortal(http.Controller):
         ]
         for field_name, _message in consent_fields:
             values[field_name] = post.get(field_name) in ('on', '1', 'true', 'yes')
-        company = application.company_id if application else (request.website.company_id or request.env.company)
+        company = application.company_id if application else self._credit_website_company()
         reference_minimums = request.env['conedera.credit.reference.policy'].minimums_for_company(company)
         values['reference_ids'] = self._reference_commands(post, errors, reference_minimums)
 
@@ -1123,6 +1146,14 @@ class ConederaCreditPortal(http.Controller):
                 ) % {'person': label})
         if values.get('business_ruc') and not valid_ruc_length(values['business_ruc']):
             errors.append(_('El RUC del negocio debe tener exactamente 13 dígitos numéricos.'))
+        for phone_name, label in (
+            ('phone_fixed', _('Teléfono fijo')),
+            ('business_phone', _('Teléfono de la empresa')),
+            ('employment_phone', _('Teléfono del empleador')),
+        ):
+            number = _clean(values.get(phone_name))
+            if number and not re.fullmatch(r'[0-9]+', number):
+                errors.append(_('%s: ingrese únicamente números.') % label)
         if values.get('mobile') and not valid_ecuador_mobile(values['mobile']):
             errors.append(_('El celular debe contener exactamente 10 dígitos numéricos.'))
         if values.get('applicant_email') and not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', values['applicant_email']):
@@ -1177,7 +1208,8 @@ class ConederaCreditPortal(http.Controller):
                     })
                     application.message_post(body=_('El solicitante actualizó sus datos mediante el permiso especial del portal. La autorización de edición del formulario fue consumida.'))
                 else:
-                    application = request.env['conedera.credit.application'].sudo().create(values)
+                    application = request.env['conedera.credit.application'].sudo().with_company(
+                        self._credit_website_company()).create(values)
         except (ValidationError, ValueError) as exc:
             return self._render_application_form(post, [str(exc)], application=application)
         except Exception:
@@ -1186,29 +1218,30 @@ class ConederaCreditPortal(http.Controller):
 
         # Conservar el aviso a cobranzas, pero incluir únicamente las coordenadas
         # declaradas por el solicitante, sin generar ni almacenar enlaces externos.
-        if latitude_raw and longitude_raw and not post.get('credit_edit_mode'):
+        if latitude_raw and longitude_raw and not post.get('credit_edit_mode') and application.company_id.email:
             try:
                 credit_mail_server = request.env['ir.mail_server'].sudo().get_conedera_credit_mail_server()
                 email_from = (credit_mail_server.smtp_user or '').strip()
                 mail_vals = {
                     'subject': _('Ubicación de negocio - Solicitud de crédito %s') % application.name,
                     'body_html': (
-                        '<p>Se registró una solicitud de crédito CONEDERA.</p>'
+                        '<p>Se registró una solicitud de crédito de %s.</p>'
                         '<p><b>Solicitud:</b> %s<br/><b>Solicitante:</b> %s<br/>'
                         '<b>Negocio:</b> %s<br/><b>Identificación:</b> %s</p>'
                         '<p><b>Latitud del negocio:</b> %s<br/><b>Longitud del negocio:</b> %s</p>'
                     ) % tuple(escape(str(value or '')) for value in (
+                        application.company_id.name,
                         application.name, application.applicant_name,
                         application.business_name, application.identification,
                         latitude_raw, longitude_raw,
                     )),
-                    'email_to': 'cobranzas@viteltek.com',
+                    'email_to': application.company_id.email,
                     'email_from': email_from,
                     'mail_server_id': credit_mail_server.id,
                 }
                 request.env['mail.mail'].sudo().create(mail_vals).send()
             except Exception:
-                _logger.exception('No se pudo enviar la ubicación del negocio al buzón de cobranzas CONEDERA')
+                _logger.exception('No se pudo enviar la ubicación del negocio al correo de la empresa %s', application.company_id.name)
         return request.redirect('/my/credito/%s?%s=1' % (application.id, 'updated' if post.get('credit_edit_mode') else 'sent'))
 
     @http.route('/my/credito/manifest.webmanifest', type='http', auth='public', website=True,
@@ -1227,7 +1260,9 @@ class ConederaCreditPortal(http.Controller):
             'scope': '/my/credito/',
             'display': 'standalone',
             'background_color': '#ffffff',
-            'theme_color': '#8f2f2f',
+            'theme_color': (request.env['ir.config_parameter'].sudo().get_param(
+                'custom_web_credito_conedera.website_%s.theme_color_primary' % request.website.id,
+                '#8f2f2f') or '#8f2f2f'),
             'icons': [
                 {'src': '/custom_web_credito_conedera/static/pwa/icon-192.png', 'sizes': '192x192', 'type': 'image/png', 'purpose': 'any'},
                 {'src': '/custom_web_credito_conedera/static/pwa/icon-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'any maskable'},

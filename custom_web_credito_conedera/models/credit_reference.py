@@ -1,3 +1,4 @@
+import re
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
@@ -47,3 +48,11 @@ class ConederaCreditReference(models.Model):
         for record in self:
             if record.credit_limit < 0:
                 raise ValidationError(_('El cupo de la referencia comercial no puede ser negativo.'))
+
+    @api.constrains('phone', 'home_phone')
+    def _check_numeric_reference_phones(self):
+        for record in self:
+            for field_name in ('phone', 'home_phone'):
+                value = record[field_name] or ''
+                if value and not re.fullmatch(r'[0-9]+', value):
+                    raise ValidationError(_('Los teléfonos de las referencias solo admiten números.'))

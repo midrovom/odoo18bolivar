@@ -6,7 +6,8 @@
         <field name="arch" type="xml">
             <form string="Colores del portal de crédito">
                 <group>
-                    <div class="alert alert-info" role="alert">Configure los colores con códigos hexadecimales de seis dígitos, por ejemplo #8F2F2F. Los cambios se aplican al recargar el portal, sin modificar archivos CSS.</div>
+                    <div class="alert alert-info" role="alert">Elija el sitio web de la empresa. Deje un color vacío para usar automáticamente la paleta configurada en el editor de ese sitio web. Si desea un color distinto solo para crédito, escríbalo en hexadecimal (#8F2F2F).</div>
+                    <field name="website_id" options="{'no_create': True, 'no_open': True}"/>
                     <field name="color_primary" placeholder="#8F2F2F"/>
                     <field name="color_hover" placeholder="#702121"/>
                     <field name="color_soft" placeholder="#F8EDED"/>

@@ -139,6 +139,23 @@
             });
         }
 
+        // Los teléfonos siempre son dígitos ASCII. Delegado para referencias
+        // añadidas dinámicamente (incluye pegar, arrastrar texto y móviles).
+        function enforcePhoneDigits(input) {
+            var previous = input.value;
+            var max = input.name === 'mobile' ? 10 : Infinity;
+            var cleaned = previous.replace(/[^0-9]/g, '').slice(0, max);
+            if (previous !== cleaned) {
+                input.value = cleaned;
+            }
+        }
+        document.addEventListener('input', function (ev) {
+            if (ev.target && ev.target.matches('[data-credit-phone="1"]')) {
+                enforcePhoneDigits(ev.target);
+            }
+        }, true);
+        document.querySelectorAll('[data-credit-phone="1"]').forEach(enforcePhoneDigits);
+
         // Estado civil configurable: decidir por código estable, nunca por el texto.
         var maritalSelect = creditForm && creditForm.querySelector('[name="marital_status_id"]');
         if (maritalSelect) {
