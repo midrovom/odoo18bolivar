@@ -1,4 +1,6 @@
 import base64
+import json
+import os
 import io
 import zipfile
 import hmac
@@ -1208,6 +1210,48 @@ class ConederaCreditPortal(http.Controller):
             except Exception:
                 _logger.exception('No se pudo enviar la ubicación del negocio al buzón de cobranzas CONEDERA')
         return request.redirect('/my/credito/%s?%s=1' % (application.id, 'updated' if post.get('credit_edit_mode') else 'sent'))
+
+    @http.route('/my/credito/manifest.webmanifest', type='http', auth='public', website=True,
+                methods=['GET'], sitemap=False)
+    def credit_pwa_manifest(self, **kwargs):
+        # Cada sitio/empresa mantiene su propio nombre. No almacenar datos privados.
+        company = request.website.company_id
+        name = 'Crédito - %s' % (company.name or 'Portal')
+        data = {
+            'id': '/my/credito/',
+            'name': name,
+            'short_name': 'Crédito',
+            'description': 'Consulta y seguimiento de solicitudes de crédito.',
+            'lang': 'es-EC',
+            'start_url': '/my/credito/historial?origen=pwa',
+            'scope': '/my/credito/',
+            'display': 'standalone',
+            'background_color': '#ffffff',
+            'theme_color': '#8f2f2f',
+            'icons': [
+                {'src': '/custom_web_credito_conedera/static/pwa/icon-192.png', 'sizes': '192x192', 'type': 'image/png', 'purpose': 'any'},
+                {'src': '/custom_web_credito_conedera/static/pwa/icon-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'any maskable'},
+            ],
+        }
+        return request.make_response(json.dumps(data, ensure_ascii=False), headers=[
+            ('Content-Type', 'application/manifest+json; charset=utf-8'),
+            ('Cache-Control', 'no-cache, private'),
+            ('X-Content-Type-Options', 'nosniff'),
+        ])
+
+    @http.route('/my/credito/sw.js', type='http', auth='public', website=False,
+                methods=['GET'], sitemap=False)
+    def credit_pwa_service_worker(self, **kwargs):
+        # El SW tiene scope limitado a /my/credito; jamás guarda respuestas privadas.
+        script_path = os.path.join(os.path.dirname(__file__), '..', 'static', 'pwa', 'credit-sw.js')
+        with open(script_path, encoding='utf-8') as script_file:
+            script = script_file.read()
+        return request.make_response(script, headers=[
+            ('Content-Type', 'application/javascript; charset=utf-8'),
+            ('Cache-Control', 'no-cache'),
+            ('Service-Worker-Allowed', '/my/credito/'),
+            ('X-Content-Type-Options', 'nosniff'),
+        ])
 
     @http.route('/my/credito/historial', type='http', auth='user', website=True, methods=['GET'], sitemap=False)
     def credit_history(self, **kwargs):

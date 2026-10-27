@@ -234,7 +234,7 @@
             <div t-if="request.params.get('documentos_guardados')" class="alert alert-success rounded-3">Los documentos se guardaron correctamente. Puede consultar su solicitud desde «Ver detalle».</div>
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4"><div><span class="credit-kicker" t-esc="request.website.company_id.name"/><h1 class="h2 mb-1">Historial de solicitudes</h1><p class="text-muted mb-0">Consulte el estado actual y las novedades de cada solicitud enviada.</p></div><a href="/my/credito/nueva" class="btn btn-credit-primary rounded-pill">Nueva solicitud</a></div>
             <t t-if="not applications"><div class="alert alert-info rounded-3">Todavía no registra solicitudes de crédito. Puede iniciar una con el botón “Nueva solicitud”.</div></t>
-            <t t-else=""><div class="table-responsive"><table class="table table-hover align-middle credit-history-table"><thead><tr><th>Número</th><th>Solicitante</th><th>Fecha</th><th>Tipo</th><th>Estado actual</th><th/></tr></thead><tbody><t t-foreach="applications" t-as="application"><tr><td class="fw-semibold" t-esc="application.name"/><td><div t-esc="application.applicant_name"/></td><td t-esc="application.application_date.strftime('%d/%m/%Y') if application.application_date else '-'"/><td t-esc="application.applicant_type_id.name or 'No definido'"/><td><span class="badge rounded-pill credit-stage-badge" t-esc="application.stage_id.name or 'Sin etapa'"/></td><td class="text-end"><a t-if="application.id in can_correct_ids" t-att-href="'/my/credito/%s/editar' % application.id" class="btn btn-sm btn-credit-primary rounded-pill">Actualizar</a><a t-elif="application.id in can_upload_sketch_ids" t-att-href="'/my/credito/%s/editar' % application.id" class="btn btn-sm btn-credit-primary rounded-pill">Actualizar croquis</a><a t-elif="application.id in can_update_documents_ids" t-att-href="'/my/credito/%s/documentos' % application.id" class="btn btn-sm btn-credit-primary rounded-pill"><t t-esc="'Actualizar documentos' if application.id in has_document_update_permission_ids else 'Ingresar documentos'"/></a><a t-else="" t-att-href="'/my/credito/%s' % application.id" class="btn btn-sm btn-outline-primary rounded-pill">Ver detalle</a></td></tr></t></tbody></table></div></t>
+            <t t-else=""><div class="table-responsive credit-history-responsive"><table class="table table-hover align-middle credit-history-table"><thead><tr><th>Número</th><th>Solicitante</th><th>Fecha</th><th>Tipo</th><th>Estado actual</th><th>Acciones</th></tr></thead><tbody><t t-foreach="applications" t-as="application"><tr><td data-label="Número" class="fw-semibold" t-esc="application.name"/><td data-label="Solicitante"><div t-esc="application.applicant_name"/></td><td data-label="Fecha" t-esc="application.application_date.strftime('%d/%m/%Y') if application.application_date else '-'"/><td data-label="Tipo" t-esc="application.applicant_type_id.name or 'No definido'"/><td data-label="Estado actual"><span class="badge rounded-pill credit-stage-badge" t-esc="application.stage_id.name or 'Sin etapa'"/></td><td data-label="Acciones" class="credit-history-actions text-end"><a t-if="application.id in can_correct_ids" t-att-href="'/my/credito/%s/editar' % application.id" class="btn btn-sm btn-credit-primary rounded-pill">Actualizar</a><a t-elif="application.id in can_upload_sketch_ids" t-att-href="'/my/credito/%s/editar' % application.id" class="btn btn-sm btn-credit-primary rounded-pill">Actualizar croquis</a><a t-elif="application.id in can_update_documents_ids" t-att-href="'/my/credito/%s/documentos' % application.id" class="btn btn-sm btn-credit-primary rounded-pill"><t t-esc="'Actualizar documentos' if application.id in has_document_update_permission_ids else 'Ingresar documentos'"/></a><a t-else="" t-att-href="'/my/credito/%s' % application.id" class="btn btn-sm btn-outline-primary rounded-pill credit-detail-button">Ver detalle</a></td></tr></t></tbody></table></div></t>
         </div></t>
     </template>
 
@@ -416,4 +416,36 @@
             </p>
         </xpath>
     </template>
+
+    <!-- PWA propia del portal de crédito: no modifica la PWA general de Odoo. -->
+    <template id="portal_credit_pwa_layout" inherit_id="website.layout" name="Crédito: instalación PWA en móvil">
+        <xpath expr="//head" position="inside">
+            <t t-if="request.httprequest.path.startswith('/my/credito/')">
+                <link rel="manifest" href="/my/credito/manifest.webmanifest"/>
+                <meta name="theme-color" content="#8f2f2f"/>
+                <meta name="apple-mobile-web-app-capable" content="yes"/>
+                <meta name="apple-mobile-web-app-title" content="Crédito"/>
+                <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+                <link rel="apple-touch-icon" href="/custom_web_credito_conedera/static/pwa/icon-180.png"/>
+            </t>
+        </xpath>
+        <xpath expr="//body" position="inside">
+            <t t-if="request.httprequest.path.startswith('/my/credito/')">
+                <aside id="credit-pwa-install" class="credit-pwa-install" hidden="hidden" role="region" aria-label="Instalar portal de crédito">
+                    <div class="credit-pwa-install-content">
+                        <img src="/custom_web_credito_conedera/static/pwa/icon-192.png" alt="" width="48" height="48"/>
+                        <div class="credit-pwa-install-copy">
+                            <strong>Crédito en tu teléfono</strong>
+                            <p id="credit-pwa-install-message" class="mb-0">Instala el portal para acceder fácilmente a tus solicitudes.</p>
+                        </div>
+                    </div>
+                    <div class="credit-pwa-install-actions">
+                        <button id="credit-pwa-install-button" class="btn btn-credit-primary btn-sm" type="button" hidden="hidden">Instalar aplicación</button>
+                        <button id="credit-pwa-dismiss-button" class="btn btn-outline-secondary btn-sm" type="button" aria-label="Cerrar sugerencia de instalación">Ahora no</button>
+                    </div>
+                </aside>
+            </t>
+        </xpath>
+    </template>
+
 </odoo>
