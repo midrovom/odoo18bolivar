@@ -19,3 +19,5 @@ from . import credit_print_wizard
 from . import credit_reference_policy
 
 from . import credit_bank_account_type
+
+from . import credit_employer_type

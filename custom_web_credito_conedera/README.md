@@ -331,3 +331,9 @@ un croquis fuera de la etapa de revisión habilitada, incluso con el permiso.
 - Para solicitudes históricas sin croquis, la carga pendiente sigue disponible desde el formulario integrado durante la revisión; las correcciones autorizadas siguen siendo de un solo uso.
 - Configuración > Tipos de cuenta bancaria: Corriente, Ahorros y nuevas opciones. Migración de registros existentes y reporte PDF con las nuevas denominaciones.
 - La declaración general conserva su contenido con Ver más/Ver menos. Los PDF de Solicitud y Verificación siguen separados o combinables desde el backend.
+
+### 18.0.1.8.32 — Catálogo de empleadores y ajustes responsivos
+- En **Crédito CONEDERA > Configuración > Tipos de empleador**, el administrador puede crear, archivar y reordenar opciones. Privado y Público son registros iniciales, no un Selection fijo.
+- Las solicitudes existentes conservan el valor anterior mediante el nuevo campo `employment_employer_type_id` y la rutina de migración idempotente.
+- Eliminadas las dos ayudas textuales indicadas del portal; Anterior usa el color primario y Cancelar un color de alto contraste.
+- Ajustes de diseño responsive para formularios, controles, navegación y tablas de referencias en móviles y tablets.

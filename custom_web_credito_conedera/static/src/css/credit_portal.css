@@ -218,3 +218,108 @@ body.modal-open { overflow: hidden; }
 .credit-legal-toggle[hidden], .credit-legal-rest[hidden] { display: none !important; }
 .credit-legal-rest { display: block; margin-top: .65rem; text-align: justify; }
 .credit-legal-less { margin-left: .2rem; }
+
+
+/* 18.0.1.8.32: diseño flexible en tabletas, teléfonos y pantallas estrechas. */
+.credit-application-container,
+.credit-application-container .row > *,
+.credit-step-panel,
+.credit-section-card,
+.credit-section-card .card-body { min-width: 0; }
+.credit-application-container { max-width: 1180px; }
+.credit-form .form-control,
+.credit-form .form-select,
+.credit-form textarea,
+.credit-form .credit-repeat-card { max-width: 100%; }
+.credit-section-card .card-header,
+.credit-form .form-label,
+.credit-application-container h1,
+.credit-wizard-label { overflow-wrap: anywhere; }
+.credit-sketch-dropzone,
+.credit-sketch-review-frame { width: 100%; max-width: 100%; }
+.credit-sketch-dropzone img,
+.credit-sketch-review-frame img { max-width: 100%; height: auto; }
+.credit-wizard-nav { row-gap: .75rem; }
+.credit-wizard-nav .btn { min-height: 42px; }
+/* Anterior usa el color de Siguiente. Cancelar contrasta con el fondo blanco. */
+.btn-credit-cancel {
+    background-color: #464646 !important;
+    border: 1px solid #464646 !important;
+    color: #fff !important;
+    border-radius: 999px;
+    font-weight: 600;
+}
+.btn-credit-cancel:hover, .btn-credit-cancel:focus-visible {
+    background-color: #252525 !important;
+    border-color: #252525 !important;
+    color: #fff !important;
+}
+@media (max-width: 991.98px) {
+    .credit-application-container { padding-left: 1rem; padding-right: 1rem; }
+    .credit-wizard-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .credit-wizard-steps li { min-width: 0; flex-basis: auto; }
+}
+@media (max-width: 767.98px) {
+    .credit-wizard-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .credit-section-card > .card-body { padding: .85rem; }
+    .credit-wizard-nav { display: grid !important; grid-template-columns: minmax(0, 1fr); }
+    .credit-wizard-nav > .btn,
+    .credit-wizard-nav > div,
+    .credit-wizard-nav > div .btn { width: 100%; max-width: 100%; }
+    .credit-wizard-nav > div { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-left: 0 !important; }
+    .credit-wizard-nav .btn { min-width: 0; padding-inline: .5rem !important; }
+    /* Referencias como tarjetas de campos etiquetados, sin scroll lateral obligatorio. */
+    .credit-reference-table { min-width: 0 !important; width: 100%; border-collapse: separate; }
+    .credit-reference-table thead { display: none; }
+    .credit-reference-table tbody { display: block; counter-reset: credit-ref; width: 100%; }
+    .credit-reference-table tbody tr.credit-reference-row {
+        display: block;
+        width: 100%;
+        border: 1px solid var(--credit-border);
+        border-radius: .85rem;
+        background: #fff;
+        padding: .75rem;
+        margin-bottom: 1rem;
+        counter-increment: credit-ref;
+    }
+    .credit-reference-table tbody tr.credit-reference-row::before {
+        content: "Referencia " counter(credit-ref);
+        display: block;
+        padding: .1rem .25rem .65rem;
+        font-weight: 700;
+        color: var(--credit-heading);
+    }
+    .credit-reference-table tbody td {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr);
+        border: 0 !important;
+        padding: .35rem .15rem !important;
+        min-width: 0 !important;
+        white-space: normal !important;
+        width: 100%;
+    }
+    .credit-reference-table tbody td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: .8rem;
+        font-weight: 600;
+        color: var(--credit-heading);
+        margin-bottom: .3rem;
+    }
+    .credit-reference-table tbody td > .form-control,
+    .credit-reference-table tbody td > .form-select {
+        width: 100%;
+        min-width: 0 !important;
+        box-sizing: border-box;
+    }
+    .credit-reference-table tbody td:last-child .btn { width: 100%; }
+    .credit-application-container .table-responsive { overflow-x: visible; }
+}
+@media (max-width: 420px) {
+    .credit-application-container { padding-inline: .65rem; }
+    .credit-wizard-steps { gap: .4rem; }
+    .credit-wizard-steps li { gap: .4rem; padding: .45rem; font-size: .73rem; }
+    .credit-wizard-number { width: 1.45rem; height: 1.45rem; font-size: .75rem; }
+    .credit-section-card > .card-header { padding: .8rem; }
+    .credit-wizard-nav > div { grid-template-columns: minmax(0, 1fr); }
+}

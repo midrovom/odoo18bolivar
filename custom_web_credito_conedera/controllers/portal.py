@@ -97,7 +97,7 @@ APPLICATION_FIELDS = [
     'assets_amount', 'monthly_income', 'liabilities_amount', 'monthly_expenses',
     'authorized_buyer_name', 'authorized_buyer_identification', 'authorized_buyer_email',
     'authorized_pickup_name', 'authorized_pickup_identification',
-    'employment_relationship', 'employment_employer_type', 'employment_company',
+    'employment_relationship', 'employment_company',
     'employment_activity', 'employment_address', 'employment_phone', 'employment_start_date',
     'employment_position', 'employment_salary',
 ]
@@ -553,6 +553,9 @@ class ConederaCreditPortal(http.Controller):
             'sketch_is_pdf': bool(application and (application.verification_sketch_filename or '').lower().endswith('.pdf')),
             'sketch_only': bool(sketch_only),
             'bank_account_types': request.env['conedera.credit.bank.account.type'].sudo().search([('active', '=', True)], order='sequence,name,id'),
+            'employer_types': request.env['conedera.credit.employer.type'].sudo().search(
+                ['|', ('active', '=', True), ('id', '=', application.employment_employer_type_id.id if application else 0)],
+                order='sequence,name,id'),
             'marital_statuses': request.env['conedera.credit.marital.status'].sudo().search([('active', '=', True)], order='sequence,name,id'),
             'start_step': max(1, min(6, int(start_step or 1))),
             'housing_types': request.env['conedera.credit.housing.type'].sudo().search([('active', '=', True)], order='sequence,name,id'),
@@ -716,6 +719,7 @@ class ConederaCreditPortal(http.Controller):
         values['applicant_type_id'] = str(application.applicant_type_id.id or '')
         values['marital_status_id'] = str(application.marital_status_id.id or '')
         values['housing_type_id'] = str(application.housing_type_id.id or '')
+        values['employment_employer_type_id'] = str(application.employment_employer_type_id.id or '')
         vehicles = application.vehicle_ids.sorted(key=lambda v: (v.sequence, v.id))
         values['vehicle_count'] = str(max(1, len(vehicles)))
         for number, vehicle in enumerate(vehicles, 1):
@@ -1071,20 +1075,27 @@ class ConederaCreditPortal(http.Controller):
         if values.get('foreign_work_visa') != 'yes':
             values['foreign_residence_time'] = False
         relationship = _clean(post.get('employment_relationship'))
-        employer_type = _clean(post.get('employment_employer_type'))
+        employer_type = _clean(post.get('employment_employer_type_id'))
+        employer_record = request.env['conedera.credit.employer.type'].sudo()
+        if employer_type.isdecimal():
+            employer_record = employer_record.search([
+                ('id', '=', int(employer_type)), '|', ('active', '=', True),
+                ('id', '=', application.employment_employer_type_id.id if application else 0),
+            ], limit=1)
         if relationship not in ('yes', 'no'):
             errors.append(_('Indique si tiene relación de dependencia (Sí / No).'))
             invalid_field_steps.append(4)
         if relationship == 'yes':
-            if employer_type not in ('private', 'public'):
-                errors.append(_('Seleccione si su empleador es privado o público.'))
+            if not employer_record:
+                errors.append(_('Seleccione un tipo de empleador válido.'))
                 invalid_field_steps.append(4)
+            values['employment_employer_type_id'] = employer_record.id or False
             for field, label in PORTAL_EMPLOYMENT_FIELDS:
                 if not _clean(post.get(field)):
                     errors.append(_('Actividad en relación de dependencia: complete %(field)s.') % {'field': label})
                     invalid_field_steps.append(4)
         else:
-            values['employment_employer_type'] = False
+            values['employment_employer_type_id'] = False
             for field, _label in PORTAL_EMPLOYMENT_FIELDS:
                 values[field] = 0.0 if field == 'employment_salary' else False
         for field in ('representative_email', 'invoice_email', 'authorized_buyer_email'):

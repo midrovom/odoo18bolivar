@@ -247,6 +247,29 @@
             renumber();
         });
 
+        // Columnas legibles en celular: cada referencia se convierte en tarjeta
+        // con la etiqueta de su cabecera, incluidas las filas añadidas con Agregar.
+        if (creditForm) {
+            creditForm.querySelectorAll('.credit-reference-table').forEach(function (table) {
+                var labels = Array.from(table.querySelectorAll('thead th')).map(function (th) {
+                    return th.textContent.trim();
+                });
+                var body = table.querySelector('tbody[data-credit-reference-body]');
+                if (!body) { return; }
+                function assignReferenceLabels() {
+                    body.querySelectorAll('tr.credit-reference-row').forEach(function (row) {
+                        row.querySelectorAll('td').forEach(function (cell, index) {
+                            cell.setAttribute('data-label', labels[index] || 'Dato');
+                        });
+                    });
+                }
+                assignReferenceLabels();
+                // MutationObserver solo actualiza etiquetas; no modifica el formulario.
+                var observer = new MutationObserver(assignReferenceLabels);
+                observer.observe(body, { childList: true });
+            });
+        }
+
         // Vista previa inmediata del croquis en el paso 3 del formulario.
         // El archivo se muestra localmente; solo se guarda cuando se envía la solicitud.
         var historySketchFile = document.getElementById('credit-review-sketch-file');
@@ -529,7 +552,7 @@
         // Actividad laboral: primero Sí/No, luego Privado/Público y campos.
         if (creditForm) {
             var employmentSelect = creditForm.querySelector('[name="employment_relationship"]');
-            var employerSelect = creditForm.querySelector('[name="employment_employer_type"]');
+            var employerSelect = creditForm.querySelector('[name="employment_employer_type_id"]');
             var employerChoice = creditForm.querySelector('.credit-employer-choice');
             var employmentWrap = creditForm.querySelector('.credit-employment-fields');
             var employmentFields = Array.from(creditForm.querySelectorAll(

@@ -135,7 +135,10 @@ class ConederaCreditApplication(models.Model):
 
 
     employment_relationship = fields.Selection([('yes', 'Sí'), ('no', 'No')], string='¿Tiene relación de dependencia?')
-    employment_employer_type = fields.Selection([('private', 'Privado'), ('public', 'Público')], string='Tipo de empleador')
+    employment_employer_type = fields.Selection([('private', 'Privado'), ('public', 'Público')], string='Tipo de empleador (histórico)', readonly=True, copy=False)
+    employment_employer_type_id = fields.Many2one(
+        'conedera.credit.employer.type', string='Tipo de empleador', ondelete='restrict', index=True,
+        help='Opción configurable desde Crédito CONEDERA > Configuración > Tipos de empleador.')
     employment_company = fields.Char(string='Empresa donde trabaja (relación de dependencia)')
     employment_activity = fields.Char(string='Actividad de la empresa')
     employment_address = fields.Char(string='Dirección de la empresa donde trabaja')
@@ -1038,3 +1041,18 @@ class ConederaCreditApplication(models.Model):
                     )
         self.invalidate_model(['verification_zone_id', 'verification_local_state_id'])
         return True
+
+    @api.model
+    def _migrate_credit_employer_types(self):
+        """Conservar las selecciones de empleador de expedientes antiguos."""
+        catalog = self.env['conedera.credit.employer.type'].sudo().with_context(active_test=False)
+        for code in ('private', 'public'):
+            employer = catalog.search([('code', '=', code)], limit=1)
+            if employer:
+                self.env.cr.execute('''
+                    UPDATE conedera_credit_application
+                       SET employment_employer_type_id = %s
+                     WHERE employment_employer_type_id IS NULL
+                       AND employment_employer_type = %s
+                ''', (employer.id, code))
+        self.invalidate_model(['employment_employer_type_id'])
