@@ -674,6 +674,8 @@
                 }
             }
 
+            window.creditWizardGoto = function (step) { showStep(step, false); };
+
             function validateStep(step) {
                 var panel = panels[step - 1];
                 if (!panel) { return true; }
@@ -914,6 +916,8 @@
             });
         });
     }
+
+    window.creditInitPortal = initCreditPortal;
 
     // Odoo can load frontend assets after DOMContentLoaded in some navigation flows.
     // Initialize in either case so the countdown never relies on a missed event.

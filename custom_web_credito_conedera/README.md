@@ -337,3 +337,16 @@ un croquis fuera de la etapa de revisión habilitada, incluso con el permiso.
 - Las solicitudes existentes conservan el valor anterior mediante el nuevo campo `employment_employer_type_id` y la rutina de migración idempotente.
 - Eliminadas las dos ayudas textuales indicadas del portal; Anterior usa el color primario y Cancelar un color de alto contraste.
 - Ajustes de diseño responsive para formularios, controles, navegación y tablas de referencias en móviles y tablets.
+
+## PWA y formulario sin conexión (18.0.1.8.42)
+
+- El portal conserva una interfaz estilo aplicación también al abrir el dominio desde el navegador móvil (sin instalar la PWA).
+- Para usar el formulario sin conexión, el usuario debe entrar con sesión iniciada y abrir `/my/credito/nueva` al menos una vez con conexión HTTPS en ese dispositivo.
+- La plantilla **vacía** del formulario y los recursos estáticos se guardan localmente. Los datos que ingresa el usuario, sus referencias, consentimientos y el archivo del croquis se almacenan en **IndexedDB** del dispositivo, no en la caché de páginas autenticadas. No usar dispositivos compartidos para información crediticia.
+- Al enviar sin conexión o con red inestable, el formulario pasa a "Pendiente de envío". El cliente intenta sincronizarlo al volver la conexión (si el navegador permite Background Sync, también puede reintentarlo sin la pestaña abierta). El usuario puede consultar el estado local o eliminar el borrador.
+- La sincronización utiliza un CSRF nuevo obtenido tras comprobar sesión, empresa y sitio web. Las validaciones originales del servidor siguen siendo obligatorias; un borrador incompleto no genera una solicitud.
+- Cada borrador tiene un UUID de envío que se almacena en el expediente. Los reintentos con ese UUID devuelven la solicitud previamente registrada para evitar duplicados.
+- Los documentos firmados y expedientes ya existentes NO se guardan offline. El usuario debe estar conectado para iniciar sesión, consultar el historial y descargar archivos.
+- La disponibilidad de sincronización en segundo plano depende del navegador. En navegadores sin Background Sync, el reintento se produce al volver internet con la página abierta, o al reabrirla con sesión válida.
+- El almacenamiento local puede borrarse automáticamente por políticas del navegador o al limpiar sus datos. No sustituye la confirmación de envío proporcionada por Odoo.
+- Requisito: dominio de cada empresa configurado con HTTPS, sitio web y compañía correctamente asociados.

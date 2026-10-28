@@ -375,7 +375,10 @@ class ConederaCreditApplication(models.Model):
                 or record.verification_status in ('verified', 'failed')
             )
 
+    client_submission_uuid = fields.Char(string='Identificador de envío del portal', copy=False, readonly=True, index=True)
+
     _sql_constraints = [
+        ('conedera_credit_client_submission_uuid_uniq', 'unique(client_submission_uuid)', 'Esta solicitud ya fue enviada desde este dispositivo.'),
         ('conedera_credit_application_company_name_uniq', 'unique(company_id, name)', 'El número de solicitud debe ser único dentro de la misma empresa.'),
     ]
 

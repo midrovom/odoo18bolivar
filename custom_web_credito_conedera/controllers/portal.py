@@ -12,6 +12,7 @@ import time
 from urllib.parse import quote
 
 from markupsafe import escape
+from lxml import html as lxml_html
 
 from odoo import http, fields, _
 from odoo.addons.custom_web_hr_datos_candidatos.controllers.portal_signup import AuthSignupHomeOTP
@@ -584,6 +585,9 @@ class ConederaCreditPortal(http.Controller):
             'reference_rows': reference_rows,
             'reference_minimums': reference_minimums,
             'local_types': [('own', 'Propio'), ('rented', 'Alquilado'), ('family', 'Familiar'), ('mortgaged', 'Hipotecado')],
+            'offline_user_id': request.env.user.id,
+            'offline_website_id': request.website.id,
+            'offline_company_id': company.id,
             'applicant_types': request.env['conedera.credit.applicant.type'].sudo().search([('active', '=', True)], order='sequence, name, id'),
         })
 
@@ -720,6 +724,49 @@ class ConederaCreditPortal(http.Controller):
     @http.route('/my/credito/solicitud/enviar', type='http', auth='user', website=True, methods=['POST'], sitemap=False)
     def submit_credit_application(self, **post):
         return self._process_application(post)
+
+    @http.route('/my/credito/offline/context', type='http', auth='user', website=True,
+                methods=['GET'], sitemap=False)
+    def credit_offline_context(self, **kw):
+        # Token CSRF renovado; requerido para sincronizar después de varias horas.
+        company = self._credit_website_company()
+        response = request.make_response(json.dumps({
+            'user_id': request.env.user.id,
+            'company_id': company.id,
+            'website_id': request.website.id,
+            'csrf_token': request.csrf_token(),
+        }), headers=[('Content-Type', 'application/json; charset=utf-8'),
+                     ('Cache-Control', 'no-store, private'), ('X-Content-Type-Options', 'nosniff')])
+        return response
+
+    @http.route('/my/credito/offline/submit', type='http', auth='user', website=True,
+                methods=['POST'], sitemap=False)
+    def credit_offline_submit(self, **post):
+        # Conserva la validación y todas las reglas de _process_application.
+        # Solo una redirección a ?sent=1 implica guardado confirmado.
+        if post.get('credit_edit_mode'):
+            raise Forbidden(_('No se puede enviar una corrección desde un borrador offline.'))
+        response = self._process_application(post)
+        location = response.headers.get('Location', '')
+        matched = re.search(r'/my/credito/(\d+)\?sent=1(?:&|$)', location)
+        if matched:
+            payload = {'status': 'sent', 'application_id': int(matched.group(1))}
+        elif 'pending=1' in location:
+            payload = {'status': 'blocked', 'message': 'Ya tiene una solicitud en trámite para esta empresa.'}
+        else:
+            errors = []
+            try:
+                document = lxml_html.fromstring(response.get_data())
+                errors = [item.strip() for item in document.xpath(
+                    '//div[contains(concat(" ", normalize-space(@class), " "), " alert-danger ")]//li/text()')
+                    if item.strip()][:12]
+            except Exception:
+                _logger.debug('No se pudo extraer el mensaje de validación del formulario offline')
+            payload = {'status': 'review', 'message': 'Revise los campos del formulario. No se envió la solicitud.',
+                       'errors': errors}
+        return request.make_response(json.dumps(payload), headers=[
+            ('Content-Type', 'application/json; charset=utf-8'),
+            ('Cache-Control', 'no-store, private'), ('X-Content-Type-Options', 'nosniff')])
 
     def _application_to_form(self, application):
         values = {}
@@ -978,6 +1025,17 @@ class ConederaCreditPortal(http.Controller):
 
     def _process_application(self, post, application=None):
         if not application:
+            # Identificador estable del borrador: reintentos de la PWA nunca crean
+            # una segunda solicitud aunque la respuesta anterior se haya perdido.
+            submission_id = _clean(post.get('credit_submission_uuid'))
+            if submission_id and re.fullmatch(r'[0-9a-fA-F-]{36}', submission_id):
+                saved = request.env['conedera.credit.application'].sudo().search([
+                    ('client_submission_uuid', '=', submission_id),
+                    ('company_id', '=', self._credit_website_company().id),
+                    ('portal_user_id', '=', request.env.user.id),
+                ], limit=1)
+                if saved:
+                    return request.redirect('/my/credito/%s?sent=1' % saved.id)
             existing = self._pending_application()
             if existing:
                 return request.redirect('/my/credito/%s?pending=1' % existing.id)
@@ -1020,6 +1078,11 @@ class ConederaCreditPortal(http.Controller):
         values['portal_user_id'] = request.env.user.id
         # La empresa viene del sitio web actual, nunca de los datos enviados por el navegador.
         if not post.get('credit_edit_mode'):
+            submission_id = _clean(post.get('credit_submission_uuid'))
+            # No confiar en valores arbitrarios, pero permitir formularios online
+            # antiguos que todavía no incluyan UUID.
+            if submission_id and re.fullmatch(r'[0-9a-fA-F-]{36}', submission_id):
+                values['client_submission_uuid'] = submission_id.lower()
             website = self._credit_website()
             values['company_id'] = website.company_id.id
             values['website_id'] = website.id
