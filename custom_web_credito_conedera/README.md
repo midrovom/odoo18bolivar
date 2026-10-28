@@ -350,3 +350,15 @@ un croquis fuera de la etapa de revisión habilitada, incluso con el permiso.
 - La disponibilidad de sincronización en segundo plano depende del navegador. En navegadores sin Background Sync, el reintento se produce al volver internet con la página abierta, o al reabrirla con sesión válida.
 - El almacenamiento local puede borrarse automáticamente por políticas del navegador o al limpiar sus datos. No sustituye la confirmación de envío proporcionada por Odoo.
 - Requisito: dominio de cada empresa configurado con HTTPS, sitio web y compañía correctamente asociados.
+
+## 18.0.1.8.43: Guardado offline de todas las operaciones del portal
+
+- Nueva solicitud: se conserva la cola e identificador único introducidos en 18.0.1.8.42.
+- Actualización de solicitud y croquis integrado: al pulsar **Guardar**, el formulario y su archivo se conservan localmente (IndexedDB) antes de intentar enviarse.
+- Documentos solicitados: los archivos nuevos de cada requisito (incluidos varios en planillas y fotografías) permanecen en el borrador local hasta confirmar su recepción en Odoo.
+- Si se recupera internet con el portal abierto, se reintenta. En navegadores compatibles se solicita sincronización de fondo; en los demás se reintenta al reabrir el portal con sesión válida.
+- El endpoint `/my/credito/offline/dispatch` aplica las mismas validaciones y permisos del formulario original, más un token idempotente por operación para evitar aplicar dos veces una corrección cuando se pierde la respuesta de red.
+- Los borradores son exclusivos del origen, sitio web, empresa y usuario; **no** son documentos enviados ni se considera que Odoo los recibió hasta confirmar éxito.
+- Los archivos y datos personales quedan en el dispositivo. No utilizar esta función en equipos compartidos; limpiar los borradores locales cuando deje de necesitarlos. El almacenamiento del navegador puede ser eliminado por el usuario o por políticas del dispositivo.
+- Para abrir un formulario sin conexión desde cero, el usuario debe haberlo abierto previamente con internet en ese mismo navegador. Las solicitudes ya aprobadas y los permisos de un solo uso se comprueban nuevamente al sincronizar.
+- El primer acceso, la autenticación y las descargas requieren red; la PWA requiere HTTPS para el funcionamiento del service worker.

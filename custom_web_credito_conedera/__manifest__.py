@@ -1,6 +1,6 @@
 {
     'name': 'Portal de Solicitudes de Crédito CONEDERA',
-    'version': '18.0.1.8.42',
+    'version': '18.0.1.8.43',
     'summary': 'Registro verificado, solicitudes de crédito, etapas e ingreso documental para CONEDERA S.A.',
     'description': '''
 Portal de solicitudes de crédito CONEDERA S.A. para Odoo 18.
@@ -63,6 +63,7 @@ Portal de solicitudes de crédito CONEDERA S.A. para Odoo 18.
             'custom_web_credito_conedera/static/src/js/credit_pwa.js',
             'custom_web_credito_conedera/static/src/js/credit_portal.js',
             'custom_web_credito_conedera/static/src/js/credit_offline.js',
+            'custom_web_credito_conedera/static/src/js/credit_offline_operations.js',
         ],
     },
     'installable': True,

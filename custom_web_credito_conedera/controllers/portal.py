@@ -8,6 +8,7 @@ import logging
 import math
 import re
 import secrets
+import uuid
 import time
 from urllib.parse import quote
 
@@ -767,6 +768,88 @@ class ConederaCreditPortal(http.Controller):
         return request.make_response(json.dumps(payload), headers=[
             ('Content-Type', 'application/json; charset=utf-8'),
             ('Cache-Control', 'no-store, private'), ('X-Content-Type-Options', 'nosniff')])
+
+    @http.route('/my/credito/offline/dispatch', type='http', auth='user', website=True,
+                methods=['POST'], sitemap=False)
+    def credit_offline_dispatch(self, **post):
+        """Envía una operación previamente guardada en IndexedDB.
+
+        Se aplican las mismas reglas del portal original, incluido el permiso de una
+        sola corrección, la aprobación documental y la empresa vinculada al dominio.
+        Una confirmación persistente permite reintentos sin aplicar cambios dos veces.
+        """
+        def result(status, message='', application_id=0, errors=None):
+            payload = {'status': status, 'message': message,
+                       'application_id': application_id, 'errors': errors or []}
+            return request.make_response(json.dumps(payload), headers=[
+                ('Content-Type', 'application/json; charset=utf-8'),
+                ('Cache-Control', 'no-store, private'),
+                ('X-Content-Type-Options', 'nosniff'),
+            ])
+
+        operation = _clean(post.get('offline_operation'))
+        raw_uuid = _clean(post.get('offline_operation_uuid'))
+        try:
+            token = str(uuid.UUID(raw_uuid))
+            application_id = int(post.get('offline_application_id') or 0)
+            website_id = int(post.get('offline_website_id') or 0)
+            company_id = int(post.get('offline_company_id') or 0)
+        except (ValueError, TypeError, AttributeError):
+            return result('review', _('Identificador del envío offline inválido.'))
+        if operation not in ('update', 'documents') or application_id <= 0:
+            return result('review', _('Operación offline no admitida.'))
+        company = self._credit_website_company()
+        if website_id != request.website.id or company_id != company.id:
+            return result('blocked', _('Este envío pertenece a otro sitio web o empresa.'))
+        # _get_owned_application exige el propietario y la empresa del sitio.
+        try:
+            application = self._get_owned_application(application_id)
+        except (Forbidden, NotFound):
+            return result('blocked', _('No tiene acceso a esta solicitud.'))
+        Log = request.env['conedera.credit.offline.operation'].sudo()
+        try:
+            with request.env.cr.savepoint():
+                # Serializar reintentos simultáneos del mismo identificador.
+                request.env.cr.execute('SELECT pg_advisory_xact_lock(hashtext(%s))', (token,))
+                previous = Log.search([('token', '=', token)], limit=1)
+                if previous:
+                    if (previous.user_id.id == request.env.user.id
+                            and previous.website_id.id == website_id
+                            and previous.company_id.id == company_id
+                            and previous.application_id.id == application_id
+                            and previous.operation == operation):
+                        return result('sent', application_id=application_id)
+                    return result('blocked', _('El identificador de envío ya pertenece a otra operación.'))
+                if operation == 'update':
+                    response = self.update_credit_application(application_id, **post)
+                    success = ('updated=1' in response.headers.get('Location', ''))
+                else:
+                    response = self.credit_documents_form(application_id, **post)
+                    success = ('documentos_guardados=1' in response.headers.get('Location', ''))
+                if success:
+                    Log.create({'token': token, 'user_id': request.env.user.id,
+                                'website_id': website_id, 'company_id': company_id,
+                                'application_id': application.id, 'operation': operation})
+                    return result('sent', application_id=application_id)
+                errors = []
+                try:
+                    document = lxml_html.fromstring(response.get_data())
+                    for node in document.xpath(
+                        '//div[contains(@class,"alert-danger") or contains(@class,"alert-warning")]//li'):
+                        message = node.text_content().strip()
+                        if message:
+                            errors.append(message)
+                except Exception:
+                    _logger.debug('Respuesta sin mensajes de formulario para sincronización offline')
+                return result('review', _('Revise el formulario antes de volver a enviarlo.'),
+                              application_id, errors[:20])
+        except (Forbidden, NotFound):
+            return result('blocked', _('El permiso ha caducado o la solicitud ya no admite cambios.'))
+        except (ValidationError, ValueError) as exc:
+            return result('review', str(exc), application_id)
+        except Exception:
+            _logger.exception('Error sincronizando %s de la solicitud %s', operation, application_id)
+            return result('retry', _('Error temporal del servidor. Se conserva el envío pendiente.'), application_id)
 
     def _application_to_form(self, application):
         values = {}

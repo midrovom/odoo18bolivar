@@ -3,12 +3,13 @@
  * Las solicitudes se identifican por UUID y siempre se validan en Odoo.
  */
 'use strict';
-const CACHE = 'credit-safe-static-v1842';
+const CACHE = 'credit-safe-static-v1843';
 const BASE = '/custom_web_credito_conedera/static/';
 const STATIC = [
     BASE + 'pwa/offline-shell.html',
     BASE + 'src/js/credit_portal.js',
     BASE + 'src/js/credit_offline.js',
+    BASE + 'src/js/credit_offline_operations.js',
     BASE + 'src/css/credit_offline.css',
     BASE + 'src/css/credit_pwa.css',
     BASE + 'src/css/credit_portal.css',
@@ -86,20 +87,44 @@ async function syncPending() {
             var contextResponse = await fetch('/my/credito/offline/context', {credentials:'same-origin',cache:'no-store'});
             if (!contextResponse.ok || !(contextResponse.headers.get('content-type') || '').includes('application/json')) { continue; }
             var context = await contextResponse.json();
-            if ([self.location.origin,context.website_id,context.company_id,context.user_id].join('|') !== draft.key) { continue; }
+            var expectedKey = [self.location.origin,context.website_id,context.company_id,context.user_id].join('|');
+            if ((draft.mode === 'update' || draft.mode === 'documents') ?
+                !(draft.key.startsWith(expectedKey + '|') &&
+                  draft.identity.user_id === context.user_id &&
+                  draft.identity.company_id === context.company_id &&
+                  draft.identity.website_id === context.website_id) : expectedKey !== draft.key) { continue; }
             var data = new FormData();
             draft.entries.forEach(function (entry) {
                 if (entry.value instanceof Blob) { data.append(entry.name,entry.value,entry.filename || entry.value.name || 'imagen'); }
                 else { data.append(entry.name,entry.value); }
             });
             data.set('csrf_token',context.csrf_token);
-            var response = await fetch('/my/credito/offline/submit',{method:'POST',body:data,credentials:'same-origin',cache:'no-store'});
+            if (draft.mode === 'update' || draft.mode === 'documents') {
+                data.set('offline_operation', draft.mode);
+                data.set('offline_application_id', String(draft.applicationId));
+                data.set('offline_operation_uuid', draft.operation_uuid);
+                data.set('offline_website_id', String(draft.identity.website_id));
+                data.set('offline_company_id', String(draft.identity.company_id));
+            }
+            var endpoint = (draft.mode === 'update' || draft.mode === 'documents') ? 'dispatch' : 'submit';
+            var response = await fetch('/my/credito/offline/' + endpoint,
+                {method:'POST',body:data,credentials:'same-origin',cache:'no-store'});
             if (!response.ok || !(response.headers.get('content-type')||'').includes('application/json')) { continue; }
             var result = await response.json();
             if (result.status === 'sent') {
                 await dbOperation('readwrite',function (store) {return store.delete(draft.key);});
                 var clients = await self.clients.matchAll({type:'window',includeUncontrolled:true});
-                clients.forEach(function (client) { client.postMessage({type:'CREDIT_SENT',application_id:result.application_id}); });
+                clients.forEach(function (client) {
+                    if (draft.mode === 'update' || draft.mode === 'documents') {
+                        client.postMessage({type:'CREDIT_OPERATION_SENT',application_id:result.application_id,key:draft.key});
+                    } else {
+                        client.postMessage({type:'CREDIT_SENT',application_id:result.application_id});
+                    }
+                });
+            } else if (draft.mode && (result.status === 'review' || result.status === 'blocked')) {
+                // Retener archivos pero no repetir infinitamente una operación rechazada.
+                draft.status = 'draft';
+                await dbOperation('readwrite',function (store) {return store.put(draft);});
             }
         } catch (error) { /* Mantener el borrador para otro intento seguro. */ }
     }

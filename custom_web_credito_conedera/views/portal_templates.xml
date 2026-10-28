@@ -40,7 +40,7 @@
                     <a class="btn btn-outline-secondary rounded-pill" href="/my/credito/historial">Ver historial</a>
                 </div>
                 <t t-if="errors"><div class="alert alert-danger rounded-3"><strong>Revise la información:</strong><ul class="mb-0 mt-2"><t t-foreach="errors" t-as="error"><li t-esc="error"/></t></ul></div></t>
-                <form t-att-action="'/my/credito/%s/actualizar' % application.id if application else '/my/credito/solicitud/enviar'" method="post" enctype="multipart/form-data" class="credit-form" data-credit-wizard="1" data-start-step="1" t-att-data-credit-user="offline_user_id" t-att-data-credit-company="offline_company_id" t-att-data-credit-website="offline_website_id" t-att-data-start-step="start_step" t-att-data-credit-sketch-only="'1' if sketch_only else '0'" novalidate="novalidate">
+                <form t-att-action="'/my/credito/%s/actualizar' % application.id if application else '/my/credito/solicitud/enviar'" method="post" enctype="multipart/form-data" class="credit-form" data-credit-wizard="1" data-start-step="1" t-att-data-credit-user="offline_user_id" t-att-data-credit-company="offline_company_id" t-att-data-credit-website="offline_website_id" t-att-data-start-step="start_step" t-att-data-credit-sketch-only="'1' if sketch_only else '0'" t-att-data-credit-offline-operation="'update' if application else None" novalidate="novalidate">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <input t-if="not application" type="hidden" name="credit_submission_uuid" value=""/>
                     <input t-if="application" type="hidden" name="credit_edit_mode" value="1"/>
@@ -292,7 +292,7 @@
                 <div t-if="not can_update_documents" class="alert alert-warning rounded-3" role="alert">
                     Ya se ingresaron documentos para esta solicitud. Para corregirlos, CONEDERA debe habilitar el permiso de <strong>Ingreso de documentos</strong> desde la solicitud en Odoo.
                 </div>
-                <form t-if="can_update_documents" method="post" enctype="multipart/form-data" t-attf-action="/my/credito/#{application.id}/documentos" class="credit-form">
+                <form t-if="can_update_documents" method="post" enctype="multipart/form-data" t-attf-action="/my/credito/#{application.id}/documentos" class="credit-form" data-credit-offline-operation="documents" t-att-data-credit-user="request.env.user.id" t-att-data-credit-website="request.website.id" t-att-data-credit-company="application.company_id.id">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <div class="card credit-section-card mb-4">
                         <div class="card-header">Requisitos · <t t-esc="application.applicant_type_id.name"/></div>

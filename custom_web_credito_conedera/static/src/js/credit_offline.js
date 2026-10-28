@@ -274,6 +274,7 @@
     async function initialize() {
         addAppChrome();
         var offlineRoot = document.getElementById('credit-offline-root');
+        if (offlineRoot && location.pathname !== '/my/credito/nueva') { return; }
         if (offlineRoot) {
             // Sin conexión se reconstruye SOLO una plantilla vacía preparada online.
             var records = await store('templates', 'readonly', function (s) { return s.getAll(); });
