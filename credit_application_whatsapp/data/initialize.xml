@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <function model="credit.whatsapp.configuration" name="_initialize_companies"/>
+</odoo>

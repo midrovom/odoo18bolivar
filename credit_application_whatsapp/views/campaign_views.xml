@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="view_credit_wa_campaign_list" model="ir.ui.view">
+    <field name="name">credit.whatsapp.campaign.list</field><field name="model">credit.whatsapp.campaign</field>
+    <field name="arch" type="xml"><list><field name="name"/><field name="company_id"/><field name="event"/>
+      <field name="template_id"/><field name="target_count"/><field name="total_count"/><field name="sent_count"/>
+      <field name="failed_count"/><field name="status" widget="badge"/></list></field>
+  </record>
+  <record id="view_credit_wa_campaign_form" model="ir.ui.view">
+    <field name="name">credit.whatsapp.campaign.form</field><field name="model">credit.whatsapp.campaign</field>
+    <field name="arch" type="xml"><form string="Campaña WhatsApp">
+      <header><button name="action_queue" type="object" string="Programar campaña" class="btn-primary"
+                      invisible="status != 'draft'"/>
+        <button name="action_cancel" type="object" string="Cancelar campaña" invisible="status != 'queued'"/>
+        <field name="status" widget="statusbar"/></header>
+      <sheet><div class="alert alert-warning" role="alert">Programar campaña genera mensajes para todas las solicitudes de la empresa y etapa seleccionadas. Solo use esta acción con autorización de los destinatarios.</div>
+        <group><field name="name"/><field name="company_id" readonly="status != 'draft'"/>
+        <field name="event" readonly="status != 'draft'"/><field name="template_id" readonly="status != 'draft'"/>
+        <field name="max_recipients" readonly="status != 'draft'"/><field name="target_count" readonly="1"/>
+        <field name="total_count" readonly="1"/><field name="sent_count" readonly="1"/>
+        <field name="failed_count" readonly="1"/></group>
+        <notebook><page string="Mensajes"><field name="log_ids" readonly="1">
+          <list create="0" edit="0" delete="0"><field name="application_id"/><field name="recipient"/>
+          <field name="status"/><field name="attempts"/></list></field></page></notebook>
+      </sheet></form></field>
+  </record>
+  <record id="action_credit_wa_campaign" model="ir.actions.act_window">
+    <field name="name">Campañas WhatsApp</field><field name="res_model">credit.whatsapp.campaign</field>
+    <field name="view_mode">list,form</field>
+  </record>
+  <menuitem id="menu_credit_wa_campaign" name="Campañas y recordatorios" parent="menu_credit_wa_root"
+            action="action_credit_wa_campaign" sequence="40" groups="custom_web_credito_conedera.group_credit_administrator"/>
+</odoo>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="view_credit_wa_configuration_list" model="ir.ui.view">
+    <field name="name">credit.whatsapp.configuration.list</field>
+    <field name="model">credit.whatsapp.configuration</field>
+    <field name="arch" type="xml"><list create="0" delete="0">
+      <field name="company_id"/><field name="enabled" widget="boolean_toggle"/>
+      <field name="api_url"/><field name="channel_id"/><field name="notify_received"/>
+      <field name="notify_approved"/><field name="notify_rejected"/>
+    </list></field>
+  </record>
+  <record id="view_credit_wa_configuration_form" model="ir.ui.view">
+    <field name="name">credit.whatsapp.configuration.form</field>
+    <field name="model">credit.whatsapp.configuration</field>
+    <field name="arch" type="xml">
+      <form string="WhatsApp por empresa" create="0" delete="0">
+        <sheet>
+          <div class="oe_title"><h1>WhatsApp — <field name="company_id" readonly="1" options="{'no_open': True}"/></h1></div>
+          <div class="alert alert-info" role="alert">El envío está desactivado hasta configurar la API Key y activar esta empresa. Solo se automatizan Recibida, Aprobada y Rechazada.</div>
+          <group string="Conexión con CallPhone Ecuador" col="2">
+            <field name="enabled"/><field name="api_url"/>
+            <field name="api_key" password="True"/><field name="channel_id"/>
+            <field name="country_code"/><field name="text_key"/>
+          </group>
+          <group string="Medio opcional" col="2">
+            <field name="include_media"/><field name="media_url" invisible="not include_media" placeholder="https://.../imagen.png"/>
+            <field name="media_type" invisible="not include_media"/>
+            <field name="filename" invisible="not include_media"/>
+          </group>
+          <group string="Notificar automáticamente" col="3">
+            <field name="notify_received"/><field name="notify_approved"/><field name="notify_rejected"/>
+          </group>
+          <group string="Cola y reintentos" col="2">
+            <field name="timeout"/><field name="max_attempts"/>
+            <field name="retry_minutes"/><field name="batch_size"/>
+          </group>
+          <button name="action_view_templates" type="object" string="Ver plantillas de esta empresa" class="btn-secondary"/>
+        </sheet>
+      </form>
+    </field>
+  </record>
+  <record id="action_credit_wa_configuration" model="ir.actions.act_window">
+    <field name="name">Configuración WhatsApp por empresa</field>
+    <field name="res_model">credit.whatsapp.configuration</field><field name="view_mode">list,form</field>
+  </record>
+  <menuitem id="menu_credit_wa_root" name="WhatsApp" parent="custom_web_credito_conedera.menu_conedera_credit_root"
+            sequence="70" groups="custom_web_credito_conedera.group_credit_manager"/>
+  <menuitem id="menu_credit_wa_configuration" name="Conexión por empresa" parent="menu_credit_wa_root"
+            action="action_credit_wa_configuration" sequence="10"
+            groups="custom_web_credito_conedera.group_credit_administrator"/>
+</odoo>

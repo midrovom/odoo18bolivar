@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="rule_credit_wa_log_company" model="ir.rule">
+        <field name="name">WhatsApp: historial por empresas autorizadas</field>
+        <field name="model_id" ref="model_credit_whatsapp_log"/>
+        <field name="groups" eval="[(4, ref('custom_web_credito_conedera.group_credit_manager'))]"/>
+        <field name="domain_force">[('company_id','in',company_ids)]</field>
+    </record>
+    <record id="rule_credit_wa_template_company" model="ir.rule">
+        <field name="name">WhatsApp: plantillas por empresas autorizadas</field>
+        <field name="model_id" ref="model_credit_whatsapp_template"/>
+        <field name="groups" eval="[(4, ref('custom_web_credito_conedera.group_credit_manager'))]"/>
+        <field name="domain_force">[('company_id','in',company_ids)]</field>
+    </record>
+    <record id="rule_credit_wa_conf_company" model="ir.rule">
+        <field name="name">WhatsApp: configuración por empresas autorizadas</field>
+        <field name="model_id" ref="model_credit_whatsapp_configuration"/>
+        <field name="groups" eval="[(4, ref('custom_web_credito_conedera.group_credit_administrator'))]"/>
+        <field name="domain_force">[('company_id','in',company_ids)]</field>
+    </record>
+    <record id="rule_credit_wa_campaign_company" model="ir.rule">
+        <field name="name">WhatsApp: campañas por empresas autorizadas</field>
+        <field name="model_id" ref="model_credit_whatsapp_campaign"/>
+        <field name="groups" eval="[(4, ref('custom_web_credito_conedera.group_credit_manager'))]"/>
+        <field name="domain_force">[('company_id','in',company_ids)]</field>
+    </record>
+</odoo>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="view_credit_application_whatsapp_form" model="ir.ui.view">
+    <field name="name">conedera.credit.application.whatsapp.form</field>
+    <field name="model">conedera.credit.application</field>
+    <field name="inherit_id" ref="custom_web_credito_conedera.view_conedera_credit_application_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//div[@name='button_box']" position="inside">
+        <button name="action_view_whatsapp_logs" type="object" class="oe_stat_button" icon="fa-comment"
+                groups="custom_web_credito_conedera.group_credit_manager">
+          <field name="whatsapp_log_count" widget="statinfo" string="WhatsApp"/>
+        </button>
+      </xpath>
+      <xpath expr="//header" position="inside">
+        <button name="action_open_whatsapp_wizard" string="Enviar WhatsApp" type="object"
+          class="btn-secondary" groups="custom_web_credito_conedera.group_credit_administrator"
+          invisible="not stage_id"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

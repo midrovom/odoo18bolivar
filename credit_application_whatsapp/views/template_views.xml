@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="view_credit_wa_template_list" model="ir.ui.view">
+    <field name="name">credit.whatsapp.template.list</field><field name="model">credit.whatsapp.template</field>
+    <field name="arch" type="xml"><list><field name="company_id"/><field name="name"/>
+      <field name="event"/><field name="automatic"/><field name="active"/><field name="sequence" optional="hide"/>
+    </list></field>
+  </record>
+  <record id="view_credit_wa_template_form" model="ir.ui.view">
+    <field name="name">credit.whatsapp.template.form</field><field name="model">credit.whatsapp.template</field>
+    <field name="arch" type="xml"><form string="Plantilla WhatsApp">
+      <sheet><group><field name="name"/><field name="company_id"/>
+        <field name="event"/><field name="active"/><field name="automatic"/><field name="sequence"/></group>
+        <group string="Mensaje"><field name="body" nolabel="1" placeholder="Hola, {first_name}..."/></group>
+        <div class="text-muted">Variables: {first_name}, {full_name}, {code}, {state}, {company}, {consult_url}, {date}.</div>
+        <group><field name="notes"/></group>
+      </sheet></form></field>
+  </record>
+  <record id="action_credit_wa_template" model="ir.actions.act_window">
+    <field name="name">Plantillas WhatsApp</field><field name="res_model">credit.whatsapp.template</field>
+    <field name="view_mode">list,form</field>
+  </record>
+  <menuitem id="menu_credit_wa_templates" name="Plantillas de mensajes" parent="menu_credit_wa_root"
+            action="action_credit_wa_template" sequence="20"
+            groups="custom_web_credito_conedera.group_credit_administrator"/>
+</odoo>

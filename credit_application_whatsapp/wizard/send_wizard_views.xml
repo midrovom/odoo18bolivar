@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="view_credit_wa_send_wizard" model="ir.ui.view">
+    <field name="name">credit.whatsapp.send.wizard.form</field><field name="model">credit.whatsapp.send.wizard</field>
+    <field name="arch" type="xml"><form string="Enviar WhatsApp">
+      <group><field name="application_id"/><field name="company_id" invisible="1"/>
+      <field name="event" readonly="1"/><field name="template_id" options="{'no_create':True}"/>
+      <field name="preview" readonly="1" nolabel="1"/></group>
+      <footer><button name="action_send" string="Agregar a cola" type="object" class="btn-primary"/>
+      <button string="Cancelar" special="cancel" class="btn-secondary"/></footer>
+    </form></field>
+  </record>
+</odoo>
