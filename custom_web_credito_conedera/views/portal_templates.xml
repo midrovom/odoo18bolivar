@@ -59,7 +59,7 @@
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label" for="credit-application-date">Fecha *</label>
-                            <input id="credit-application-date" class="form-control form-control-sm" type="date" name="application_date" t-att-value="form_values.get('application_date') or ''" required="required"/>
+                            <input id="credit-application-date" class="form-control form-control-sm" type="date" name="application_date" t-att-value="form_values.get('application_date') or ''" required="required" readonly="readonly" aria-readonly="true" title="Fecha asignada automáticamente por el sistema"/>
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label" for="credit-identification-type">Tipo de documento *</label>

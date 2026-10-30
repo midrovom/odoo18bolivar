@@ -373,3 +373,23 @@ un croquis fuera de la etapa de revisión habilitada, incluso con el permiso.
 - Caché de PWA actualizado a `credit-safe-static-v1844` para renovar los scripts del portal.
 
 **Nota**: la sincronización confirmada continúa dependiendo de una sesión vigente, de los permisos y de las validaciones de Odoo. El guardado local no equivale a un guardado en la base de datos.
+
+
+### v18.0.1.8.45 — Login obligatorio antes de abrir la ficha
+- La ficha `/my/credito/nueva` sigue protegida con `auth='user'`; sin una cuenta y sesión iniciada no se puede consultar ni enviar.
+- Las entradas públicas `/credito`, `/credito/solicitar`, `/my/credito` y `/credito/registro` conducen al login nativo `/web/login?redirect=%2Fmy%2Fcredito%2Fnueva` para visitantes anónimos. Las personas ya autenticadas llegan directamente a su ficha.
+- **Entrada por el dominio principal del sitio**: si el sitio actual se llama exactamente **Solicitud de Crédito**, **Solicitud de Crédito CONEDERA** o **Crédito CONEDERA**, entrar a su URL base `/` redirige al login (o a la ficha si ya inició sesión). Los otros sitios web de la base se mantienen sin cambios.
+- Para un sitio con otro nombre, ir a **Sitio web > Configuración > Sitios web**, editar ese sitio y activar **Abrir login al entrar a este sitio web**. La compañía sigue siendo la que tenga asignada ese sitio.
+- El registro de cuenta `/web/signup` y la verificación OTP continúan habilitados para personas que aún no tienen una cuenta; registrarse **no equivale** a poder utilizar la ficha sin autenticación.
+- El menú *Solicitar crédito* apunta a `/credito`, que decide entre el login y la ficha según la sesión.
+- La redirección raíz utiliza `302` y `Cache-Control: no-store`; no altera el `/` de otros sitios web ni el inicio del backend.
+
+**Pruebas sugeridas en Odoo:** (1) abrir el dominio del sitio de crédito en incógnito y confirmar que aparece el login; (2) iniciar sesión como cliente portal y confirmar que se abre la ficha; (3) abrir `/my/credito/nueva` sin sesión y confirmar que Odoo exige login; (4) abrir el dominio de otro sitio de la misma base y confirmar que conserva su portada; (5) registrar cuenta nueva con OTP y confirmar que después requiere iniciar sesión.
+
+
+### 18.0.1.8.46 — Registro y documento de la ficha
+
+- Una vez verificado el OTP, el usuario se crea por `auth_signup`, se autentica en Odoo 18 y se dirige a `/my/credito/nueva` sin pasar nuevamente por `/web/login`. Si la autenticación automática falla, la cuenta queda creada y se ofrece el login usual.
+- La fecha del paso 1 es de solo lectura y se asigna exclusivamente desde el servidor en nuevos envíos; en correcciones se conserva la fecha original. Un POST manipulado no puede alterarla.
+- Para el tipo estándar `juridical`, el documento es RUC y se valida como 13 dígitos. Para persona natural están disponibles cédula, cédula extranjera y RUC.
+- Los borradores recuperados sin conexión respetan la fecha actual y sincronizan automáticamente el tipo de documento.

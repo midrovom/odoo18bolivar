@@ -177,6 +177,7 @@
             const fileMap={};
             const radios={};
             record.entries.forEach(e=>{
+                if(e.name==='application_date'){return;}
                 const node=form.elements.namedItem(e.name);
                 if (!node){return;}
                 if(e.value instanceof Blob){(fileMap[e.name]||(fileMap[e.name]=[])).push(e);return;}
@@ -196,6 +197,7 @@
                     node.dispatchEvent(new Event('change',{bubbles:true}));
                 } catch(error){banner('No se pudieron restaurar todos los archivos. Vuelva a seleccionarlos.','error');}
             });
+            document.getElementById('credit-applicant-type')?.dispatchEvent(new Event('change',{bubbles:true}));
             ['credit-identification-type','credit-employment-relationship','credit-employer-type'].forEach(id=>{
                 document.getElementById(id)?.dispatchEvent(new Event('change',{bubbles:true}));
             });

@@ -96,7 +96,24 @@
         }
 
         var identityType = document.getElementById('credit-identification-type');
+        var applicantType = document.getElementById('credit-applicant-type');
         var creditForm = document.querySelector('form.credit-form[data-credit-wizard="1"]');
+        function updateApplicantDocumentType() {
+            if (!identityType || !applicantType || !creditForm) { return; }
+            var chosen = applicantType.options[applicantType.selectedIndex];
+            var juridical = Boolean(chosen && chosen.dataset.typeCode === 'juridical');
+            if (juridical) { identityType.value = 'ruc'; }
+            // Mantener habilitado el select para que HTML/FormData envíe el RUC.
+            // Solo RUC es seleccionable en persona jurídica; persona natural
+            // conserva las tres opciones de documento.
+            Array.from(identityType.options).forEach(function (opt) {
+                opt.disabled = juridical && opt.value !== 'ruc';
+            });
+            identityType.setAttribute('aria-readonly', juridical ? 'true' : 'false');
+            identityType.classList.toggle('credit-document-locked', juridical);
+            var input = creditForm.querySelector('[data-credit-id="applicant"]');
+            if (input) { identityValidation(input); }
+        }
         function identityValidation(input) {
             var value = input.value.trim();
             var kind = input.dataset.creditId;
@@ -134,9 +151,15 @@
         });
         if (identityType && creditForm) {
             identityType.addEventListener('change', function () {
+                var chosen = applicantType && applicantType.options[applicantType.selectedIndex];
+                if (chosen && chosen.dataset.typeCode === 'juridical') { identityType.value = 'ruc'; }
                 var input = creditForm.querySelector('[data-credit-id="applicant"]');
                 if (input) { identityValidation(input); }
             });
+        }
+        if (applicantType && creditForm) {
+            applicantType.addEventListener('change', updateApplicantDocumentType);
+            updateApplicantDocumentType();
         }
 
         // Los teléfonos siempre son dígitos ASCII. Delegado para referencias

@@ -16,6 +16,7 @@ from markupsafe import escape
 from lxml import html as lxml_html
 
 from odoo import http, fields, _
+from odoo.addons.website.controllers.main import Website as WebsiteController
 from odoo.addons.custom_web_hr_datos_candidatos.controllers.portal_signup import AuthSignupHomeOTP
 from odoo.exceptions import ValidationError
 from ..models.credit_identity import (
@@ -209,6 +210,26 @@ def _send_otp_email(email, code):
         raise RuntimeError(_('No se pudo enviar el correo de verificación. Revise el servidor saliente de correo de Odoo.'))
 
 
+class CreditWebsiteEntry(WebsiteController):
+    """Solo el sitio de crédito usa el login como página de entrada.
+
+    El controlador original de Odoo se conserva intacto para todas las demás
+    webs de esta base, incluso cuando comparten el mismo módulo de crédito.
+    """
+
+    @http.route()
+    def index(self, **kw):
+        website = request.website
+        if website and website.sudo()._is_conedera_credit_login_home():
+            if request.env.user._is_public():
+                response = request.redirect('/web/login?redirect=%2Fmy%2Fcredito%2Fnueva')
+            else:
+                response = request.redirect('/my/credito/nueva')
+            response.headers['Cache-Control'] = 'no-store'
+            return response
+        return super().index(**kw)
+
+
 class CreditPortalLogin(AuthSignupHomeOTP):
     def _render_native_signup(self, values=None):
         context = self.get_auth_signup_qcontext()
@@ -358,6 +379,17 @@ class ConederaCreditPortal(http.Controller):
             'message': False,
         }
 
+    @http.route(['/credito', '/credito/solicitar', '/my/credito'],
+                type='http', auth='public', website=True, methods=['GET'], sitemap=False)
+    def credit_entry(self, **kw):
+        """Entrada pública: nunca mostrar la ficha a una sesión anónima."""
+        if request.env.user._is_public():
+            response = request.redirect('/web/login?redirect=%2Fmy%2Fcredito%2Fnueva')
+        else:
+            response = request.redirect('/my/credito/nueva')
+        response.headers['Cache-Control'] = 'no-store'
+        return response
+
     @http.route('/credito/registro', type='http', auth='public', website=True, methods=['GET', 'POST'], sitemap=False)
     def credit_signup(self, **post):
         # Compatibilidad con enlaces antiguos: la entrada de Solicitar crédito debe ir primero al login.
@@ -461,15 +493,29 @@ class ConederaCreditPortal(http.Controller):
                         'email': signup['email'],
                         'password': signup['password'],
                     }
-                    request.env['res.users'].sudo().signup(
+                    login, password = request.env['res.users'].sudo().signup(
                         signup_values,
                         token=signup_token,
                     )
-                request.session.pop('conedera_credit_signup', None)
-                return request.redirect('/web/login?account_created=1&redirect=%s' % quote('/my/credito/nueva', safe=''))
+                # Odoo 18 autentica con otro cursor. Hacer commit del usuario
+                # verificado antes de iniciar la sesión, como auth_signup nativo.
+                request.env.cr.commit()
             except Exception:
                 _logger.exception('No se pudo crear la cuenta nativa del portal de crédito CONEDERA')
                 return self._render_verify(_('El código se validó, pero no fue posible crear su cuenta. Inténtelo nuevamente o comuníquese con soporte.'))
+
+            request.session.pop('conedera_credit_signup', None)
+            try:
+                credentials = {'login': login, 'password': password, 'type': 'password'}
+                auth_info = request.session.authenticate(request.db, credentials)
+                if not auth_info or not auth_info.get('uid'):
+                    raise ValueError('Odoo no devolvió un usuario autenticado tras el registro OTP')
+            except Exception:
+                # La cuenta ya está creada: evitar reintentos de signup con el mismo
+                # correo y permitir que el usuario entre mediante el login habitual.
+                _logger.exception('Cuenta verificada creada, pero falló el inicio automático de sesión CONEDERA')
+                return request.redirect('/web/login?account_created=1&redirect=%s' % quote('/my/credito/nueva', safe=''))
+            return request.redirect('/my/credito/nueva')
 
         return self._render_verify()
 
@@ -559,6 +605,10 @@ class ConederaCreditPortal(http.Controller):
                     'applicant_name': '', 'identification_type': 'cedula',
                     'applicant_email': request.env.user.email or request.env.user.login}
         defaults.update(form_values or {})
+        # La fecha es informativa: ignorar borradores, errores y parámetros
+        # reenviados por el navegador. Las correcciones conservan la fecha original.
+        defaults['application_date'] = fields.Date.to_string(
+            application.application_date if application else fields.Date.context_today(request.env.user))
         count = _clean(defaults.get('vehicle_count'))
         vehicle_count = min(MAX_VEHICLES, max(1, int(count))) if count.isdecimal() else 1
         company = application.company_id if application else self._credit_website_company()
@@ -1157,7 +1207,10 @@ class ConederaCreditPortal(http.Controller):
             if values['business_location_method'] == 'automatic' and latitude_raw and longitude_raw
             else False
         )
-        values['application_date'] = values.get('application_date') or fields.Date.context_today(request.env.user).strftime('%Y-%m-%d')
+        # Fecha del servidor, no del POST. En actualización mantener la fecha
+        # histórica, aunque se envíe otra mediante herramientas de navegador.
+        values['application_date'] = fields.Date.to_string(
+            application.application_date if application else fields.Date.context_today(request.env.user))
         values['portal_user_id'] = request.env.user.id
         # La empresa viene del sitio web actual, nunca de los datos enviados por el navegador.
         if not post.get('credit_edit_mode'):
@@ -1174,6 +1227,10 @@ class ConederaCreditPortal(http.Controller):
         if selected_type.isdecimal():
             applicant_type = applicant_type.search([('id', '=', int(selected_type)), ('active', '=', True)], limit=1)
         values['applicant_type_id'] = applicant_type.id or False
+        # Una persona jurídica utiliza exclusivamente RUC. Aplicar en el
+        # servidor aunque el navegador modifique el select o envíe otro valor.
+        if applicant_type and applicant_type.code == 'juridical':
+            values['identification_type'] = 'ruc'
         marital_code = _clean(post.get('marital_status_id'))
         marital_record = request.env['conedera.credit.marital.status'].sudo()
         if marital_code.isdecimal():
@@ -1235,10 +1292,11 @@ class ConederaCreditPortal(http.Controller):
         invalid_field_steps = []
         for step, requirements in ((1, PORTAL_REQUIRED_OWNER), (2, PORTAL_REQUIRED_BUSINESS)):
             for field_name, label in requirements:
-                if not _clean(post.get(field_name)):
+                if not (values.get(field_name) if field_name == 'application_date'
+                        else _clean(post.get(field_name))):
                     errors.append(_('El campo %(field)s es obligatorio.') % {'field': label})
                     invalid_field_steps.append(step)
-        if _clean(post.get('identification_type')) == 'foreign' and not values.get('foreign_work_visa'):
+        if values.get('identification_type') == 'foreign' and not values.get('foreign_work_visa'):
             errors.append(_('Indique si tiene visa de trabajo.'))
             invalid_field_steps.append(1)
         if values.get('foreign_work_visa') == 'yes' and not values.get('foreign_residence_time'):

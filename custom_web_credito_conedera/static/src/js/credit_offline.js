@@ -169,6 +169,8 @@
             });
             var fileGroups = {};
             record.entries.forEach(function (entry) {
+                // La fecha de solicitud siempre es la asignada por el servidor.
+                if (entry.name === 'application_date') { return; }
                 var field = form.elements.namedItem(entry.name);
                 if (!field) { return; }
                 if (entry.value instanceof Blob) {
@@ -192,6 +194,7 @@
                     input.dispatchEvent(new Event('change', {bubbles: true}));
                 } catch (error) { show('No se pudieron restaurar todos los archivos. Vuelva a seleccionarlos.', 'error'); }
             });
+            document.getElementById('credit-applicant-type')?.dispatchEvent(new Event('change', {bubbles:true}));
             ['credit-identification-type','credit-employment-relationship','credit-employer-type'].forEach(function (id) {
                 var f = document.getElementById(id); if (f) { f.dispatchEvent(new Event('change', {bubbles:true})); }
             });
