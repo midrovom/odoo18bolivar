@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_conedera_credit_home" model="ir.ui.view">
+        <field name="name">res.config.settings.conedera.credit.home</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="CONEDERA - Home de crédito" name="conedera_credit_home" groups="base.group_system">
+                    <block title="Enlaces al portal de solicitud de crédito">
+                        <setting string="Solicitar crédito" help="Ruta pública existente del formulario, por ejemplo /ruta-real-del-portal. Vacío: se busca el menú del portal y se utiliza /my como alternativa.">
+                            <field name="conedera_home_apply_url" placeholder="/ruta-de-solicitud"/>
+                        </setting>
+                        <setting string="Historial de solicitudes" help="Ruta real de historial creada por el módulo de crédito. Si está vacía, se busca en el menú del sitio.">
+                            <field name="conedera_home_history_url" placeholder="/ruta-de-historial"/>
+                        </setting>
+                        <setting string="Ingreso de documentos" help="Ruta de carga de documentos del portal de crédito. Vacío: ruta alternativa del portal /my.">
+                            <field name="conedera_home_documents_url" placeholder="/ruta-de-documentos"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

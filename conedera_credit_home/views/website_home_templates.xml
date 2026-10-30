@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="conedera_home_page" name="CONEDERA - Home comercial de crédito">
+    <t t-call="website.layout">
+      <t t-set="pageName" t-value="'conedera_home'"/>
+      <t t-set="no_header" t-value="True"/>
+      <t t-set="no_footer" t-value="True"/>
+      <t t-set="additional_title">Crédito para tu negocio | CONEDERA</t>
+      <t t-set="meta_description">Solicita crédito CONEDERA en línea. Conoce nuestro proceso, presenta tu solicitud y consulta su seguimiento desde el portal.</t>
+      <div id="wrap" class="oe_structure ch-home">
+        <header class="ch-header">
+          <div class="ch-container ch-nav">
+            <a class="ch-brand" href="/credito-conedera" aria-label="CONEDERA, inicio">
+              <img src="/conedera_credit_home/static/src/img/logo_conedera_transparente.png" alt="CONEDERA S.A. - Distribuidor Mayorista" width="242" height="68"/>
+            </a>
+            <nav class="ch-navlinks" aria-label="Navegación principal">
+              <a href="#inicio">Inicio</a><a href="#beneficios">Nuestros servicios</a><a href="#proceso">Cómo funciona</a><a href="#preguntas">Preguntas frecuentes</a>
+            </nav>
+            <a class="ch-btn ch-btn-small ch-btn-primary ch-desktop-cta" t-att-href="apply_url">Solicitar crédito <span aria-hidden="true">↗</span></a>
+            <details class="ch-menu-mobile"><summary aria-label="Abrir menú"><span></span><span></span><span></span></summary>
+              <nav aria-label="Navegación móvil"><a href="#inicio">Inicio</a><a href="#beneficios">Nuestros servicios</a><a href="#proceso">Cómo funciona</a><a href="#preguntas">Preguntas</a><a t-att-href="apply_url">Solicitar crédito</a></nav>
+            </details>
+          </div>
+        </header>
+
+        <div class="ch-main">
+          <section class="ch-hero" id="inicio">
+            <div class="ch-container ch-hero-grid">
+              <div class="ch-hero-copy">
+                <div class="ch-pill"><span class="ch-dot"></span> SOLICITUD DE CRÉDITO EN LÍNEA</div>
+                <h1>Crecer juntos es <span>nuestro mejor negocio.</span></h1>
+                <p class="ch-lead">En CONEDERA creemos en quienes hacen avanzar su negocio cada día. Conoce nuestro proceso de crédito comercial y presenta tu solicitud desde donde estés.</p>
+                <div class="ch-hero-actions">
+                  <a class="ch-btn ch-btn-primary" t-att-href="apply_url">Solicitar mi crédito <span aria-hidden="true">→</span></a>
+                  <a class="ch-btn ch-btn-outline" t-att-href="history_url">Consultar mi solicitud <span aria-hidden="true">↗</span></a>
+                </div>
+                <div class="ch-trust"><img src="/conedera_credit_home/static/src/img/icon_escudo.svg" alt="" width="26" height="26"/><span>Proceso digital · Información sujeta a revisión y aprobación</span></div>
+              </div>
+              <div class="ch-hero-art"><div class="ch-art-blob"></div>
+                <img class="ch-illustration" src="/conedera_credit_home/static/src/img/hero_negocio.svg" alt="Ilustración de una solicitud digital y un negocio" width="590" height="480" fetchpriority="high"/>
+                <div class="ch-float-chip"><span class="ch-chip-icon">✓</span><span>Tu negocio, nuestro compromiso</span></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="ch-benefits" id="beneficios">
+            <div class="ch-container">
+              <div class="ch-section-heading"><div><span class="ch-eyebrow">CERCA DE TU NEGOCIO</span><h2>Todo comienza con una <span>oportunidad.</span></h2></div><p>Un espacio para gestionar tu solicitud de crédito y acceder a la información que necesitas durante el proceso.</p></div>
+              <div class="ch-card-grid">
+                <article class="ch-service-card"><div class="ch-icon-bg"><img src="/conedera_credit_home/static/src/img/icon_solicitud.svg" alt="" width="46" height="46" loading="lazy"/></div><h3>Solicitud en línea</h3><p>Completa tus datos personales, los de tu negocio y tus referencias a través del formulario digital.</p><a t-att-href="apply_url">Iniciar solicitud <span aria-hidden="true">→</span></a></article>
+                <article class="ch-service-card"><div class="ch-icon-bg"><img src="/conedera_credit_home/static/src/img/icon_seguimiento.svg" alt="" width="46" height="46" loading="lazy"/></div><h3>Seguimiento</h3><p>Accede al historial de tus solicitudes y consulta la información disponible sobre su estado.</p><a t-att-href="history_url">Ver solicitudes <span aria-hidden="true">→</span></a></article>
+                <article class="ch-service-card"><div class="ch-icon-bg"><img src="/conedera_credit_home/static/src/img/icon_documentos.svg" alt="" width="46" height="46" loading="lazy"/></div><h3>Documentación digital</h3><p>Cuando tu solicitud sea aprobada, podrás ingresar los documentos requeridos desde el portal.</p><a t-att-href="documents_url">Ir a documentos <span aria-hidden="true">→</span></a></article>
+              </div>
+            </div>
+          </section>
+
+          <section class="ch-process" id="proceso">
+            <div class="ch-container ch-process-layout">
+              <div class="ch-process-intro"><span class="ch-eyebrow">SIMPLE Y CLARO</span><h2>Así funciona tu solicitud.</h2><p>Desde el primer formulario hasta la respuesta, conoce las etapas generales del proceso de evaluación de crédito.</p><a class="ch-btn ch-btn-dark" t-att-href="apply_url">Empezar ahora <span aria-hidden="true">→</span></a></div>
+              <div class="ch-steps">
+                <div class="ch-step"><div class="ch-step-number">01</div><div class="ch-step-content"><h3>Completa el formulario</h3><p>Ingresa los datos del solicitante, negocio, referencias y ubicación.</p></div><img src="/conedera_credit_home/static/src/img/icon_solicitud.svg" alt="" width="42" height="42" loading="lazy"/></div>
+                <div class="ch-step"><div class="ch-step-number">02</div><div class="ch-step-content"><h3>Revisión y verificación</h3><p>El equipo CONEDERA revisa la información y realiza las validaciones correspondientes.</p></div><img src="/conedera_credit_home/static/src/img/icon_verificacion.svg" alt="" width="42" height="42" loading="lazy"/></div>
+                <div class="ch-step"><div class="ch-step-number">03</div><div class="ch-step-content"><h3>Respuesta a tu solicitud</h3><p>Podrás consultar el avance. La aprobación depende de la evaluación crediticia.</p></div><img src="/conedera_credit_home/static/src/img/icon_respuesta.svg" alt="" width="42" height="42" loading="lazy"/></div>
+                <div class="ch-step"><div class="ch-step-number">04</div><div class="ch-step-content"><h3>Envía tus documentos</h3><p>Si tu solicitud es aprobada, adjunta los documentos adicionales que se soliciten.</p></div><img src="/conedera_credit_home/static/src/img/icon_documentos.svg" alt="" width="42" height="42" loading="lazy"/></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="ch-info-banner"><div class="ch-container ch-banner-grid"><div class="ch-banner-symbol"><img src="/conedera_credit_home/static/src/img/isotipo_conedera.png" alt="" width="148" height="148" loading="lazy"/></div><div><span class="ch-eyebrow ch-eyebrow-light">CONEDERA S.A.</span><h2>Impulsamos relaciones comerciales que perduran.</h2><p>Somos distribuidores mayoristas. Acompañamos a nuestros clientes con procesos de atención y gestión de crédito comercial.</p></div><a class="ch-btn ch-btn-white" t-att-href="apply_url">Conoce nuestro crédito <span aria-hidden="true">→</span></a></div></section>
+
+          <section class="ch-faq" id="preguntas"><div class="ch-container ch-faq-grid"><div><span class="ch-eyebrow">TE AYUDAMOS</span><h2>Preguntas frecuentes</h2><p>Información básica para comenzar tu proceso con CONEDERA.</p></div><div class="ch-accordions">
+            <details><summary>¿Cómo solicito un crédito? <span>+</span></summary><p>Selecciona «Solicitar mi crédito» y completa el formulario digital con la información y referencias solicitadas.</p></details>
+            <details><summary>¿La solicitud asegura la aprobación? <span>+</span></summary><p>No. Toda solicitud está sujeta a revisión, verificación de información y evaluación crediticia por parte de CONEDERA.</p></details>
+            <details><summary>¿Cómo consulto el estado de mi solicitud? <span>+</span></summary><p>Ingresa al historial de solicitudes desde este sitio y accede con las credenciales requeridas por el portal.</p></details>
+            <details><summary>¿Cuándo debo adjuntar documentos? <span>+</span></summary><p>Una vez aprobada tu solicitud, el portal habilita el ingreso de los documentos correspondientes según el tipo de solicitante.</p></details>
+          </div></div></section>
+
+          <section class="ch-final-cta"><div class="ch-container ch-final-cta-inner"><div><span class="ch-eyebrow">TU SIGUIENTE PASO</span><h2>¿Listo para comenzar?</h2><p>Da el primer paso hacia una relación comercial con CONEDERA.</p></div><a class="ch-btn ch-btn-primary" t-att-href="apply_url">Solicitar crédito <span aria-hidden="true">→</span></a></div></section>
+        </div>
+
+        <footer class="ch-footer"><div class="ch-container ch-footer-top"><div class="ch-footer-brand"><img src="/conedera_credit_home/static/src/img/logo_conedera_transparente.png" alt="CONEDERA S.A." width="229" height="63" loading="lazy"/><p>Distribuidor Mayorista</p></div><nav aria-label="Enlaces de pie de página"><a href="#inicio">Inicio</a><a href="#beneficios">Servicios</a><a href="#proceso">Proceso de crédito</a><a t-att-href="history_url">Mis solicitudes</a></nav><div class="ch-footer-contact"><strong>Contáctanos</strong><a t-if="company.email" t-att-href="'mailto:%s' % company.email"><t t-esc="company.email"/></a><span t-else="">CONEDERA S.A.</span></div></div><div class="ch-container ch-footer-bottom"><span>© CONEDERA S.A. · Todos los derechos reservados.</span><span>La solicitud de crédito está sujeta a evaluación y aprobación.</span></div></footer>
+      </div>
+    </t>
+  </template>
+</odoo>
