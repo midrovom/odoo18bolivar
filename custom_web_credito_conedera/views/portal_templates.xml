@@ -68,6 +68,9 @@
                                 <option value="ruc" t-att-selected="form_values.get('identification_type') == 'ruc'">RUC</option>
                                 <option value="foreign" t-att-selected="form_values.get('identification_type') == 'foreign'">Cédula extranjera</option>
                             </select>
+                            <!-- Se activa por JavaScript solo en persona jurídica:
+                                 el selector visible queda bloqueado en RUC. -->
+                            <input type="hidden" id="credit-identification-type-locked" value="ruc"/>
                         </div>
                     </div>
                     <section class="card credit-section-card mb-4"><div class="card-header">Datos del propietario o representante</div><div class="card-body"><div class="row g-3">

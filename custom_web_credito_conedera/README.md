@@ -393,3 +393,9 @@ un croquis fuera de la etapa de revisión habilitada, incluso con el permiso.
 - La fecha del paso 1 es de solo lectura y se asigna exclusivamente desde el servidor en nuevos envíos; en correcciones se conserva la fecha original. Un POST manipulado no puede alterarla.
 - Para el tipo estándar `juridical`, el documento es RUC y se valida como 13 dígitos. Para persona natural están disponibles cédula, cédula extranjera y RUC.
 - Los borradores recuperados sin conexión respetan la fecha actual y sincronizan automáticamente el tipo de documento.
+
+
+### v18.0.1.8.47: tipo de documento fijo en persona jurídica
+- Persona jurídica: el selector del paso 1 muestra exclusivamente **RUC** y queda bloqueado. El formulario envía RUC mediante un input oculto mientras el select está deshabilitado.
+- Persona natural: se restauran las opciones cédula ecuatoriana, cédula extranjera y RUC; el selector se puede cambiar libremente.
+- Se conserva la normalización en el controlador del servidor a RUC para persona jurídica, y la recuperación de borradores sin duplicar campos en persona natural.

@@ -97,22 +97,52 @@
 
         var identityType = document.getElementById('credit-identification-type');
         var applicantType = document.getElementById('credit-applicant-type');
+        var lockedIdentityType = document.getElementById('credit-identification-type-locked');
         var creditForm = document.querySelector('form.credit-form[data-credit-wizard="1"]');
+        // Conservar las opciones originales para recuperarlas cuando se seleccione
+        // Persona natural. Una persona jurídica solo debe VER RUC, no opciones
+        // de cédula deshabilitadas dentro de la lista desplegable.
+        var documentTypeOptions = identityType
+            ? Array.from(identityType.options).map(function (option) { return option.cloneNode(true); })
+            : [];
         function updateApplicantDocumentType() {
             if (!identityType || !applicantType || !creditForm) { return; }
             var chosen = applicantType.options[applicantType.selectedIndex];
             var juridical = Boolean(chosen && chosen.dataset.typeCode === 'juridical');
-            if (juridical) { identityType.value = 'ruc'; }
-            // Mantener habilitado el select para que HTML/FormData envíe el RUC.
-            // Solo RUC es seleccionable en persona jurídica; persona natural
-            // conserva las tres opciones de documento.
-            Array.from(identityType.options).forEach(function (opt) {
-                opt.disabled = juridical && opt.value !== 'ruc';
-            });
-            identityType.setAttribute('aria-readonly', juridical ? 'true' : 'false');
+            var selectedBefore = identityType.value;
+            if (juridical) {
+                // Eliminar físicamente las demás opciones del select, no solo
+                // deshabilitarlas. Bloquear también el campo completo.
+                var rucOption = documentTypeOptions.find(function (option) { return option.value === 'ruc'; });
+                if (rucOption) {
+                    identityType.replaceChildren(rucOption.cloneNode(true));
+                }
+                identityType.value = 'ruc';
+                identityType.disabled = true;
+                // Un SELECT deshabilitado no se envía con FormData ni con POST;
+                // enviar RUC mediante un campo oculto mientras está bloqueado.
+                if (lockedIdentityType) {
+                    lockedIdentityType.name = 'identification_type';
+                    lockedIdentityType.value = 'ruc';
+                }
+            } else {
+                // Persona natural: cédula ecuatoriana, cédula extranjera y RUC.
+                // Quitar primero el nombre del oculto para que FormData y los
+                // borradores offline encuentren un único campo por nombre.
+                if (lockedIdentityType) { lockedIdentityType.removeAttribute('name'); }
+                identityType.replaceChildren.apply(identityType, documentTypeOptions.map(function (option) {
+                    return option.cloneNode(true);
+                }));
+                identityType.disabled = false;
+                identityType.value = documentTypeOptions.some(function (option) {
+                    return option.value === selectedBefore;
+                }) ? selectedBefore : 'cedula';
+            }
             identityType.classList.toggle('credit-document-locked', juridical);
-            var input = creditForm.querySelector('[data-credit-id="applicant"]');
-            if (input) { identityValidation(input); }
+            identityType.setAttribute('aria-readonly', juridical ? 'true' : 'false');
+            identityType.setAttribute('aria-disabled', juridical ? 'true' : 'false');
+            // Sincronizar validaciones del documento y campos condicionales.
+            identityType.dispatchEvent(new Event('change', {bubbles: true}));
         }
         function identityValidation(input) {
             var value = input.value.trim();

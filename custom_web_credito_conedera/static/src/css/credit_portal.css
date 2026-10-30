@@ -392,3 +392,11 @@ body.modal-open { overflow: hidden; }
 @media (max-width: 575.98px) {
     .credit-form .credit-terms-checkboxes { gap: .55rem; }
 }
+
+/* Persona jurídica: tipo de documento fijo en RUC y sin otras opciones. */
+.credit-form #credit-identification-type.credit-document-locked:disabled {
+    background-color: #f3f5f8;
+    color: #344054;
+    opacity: 1;
+    cursor: not-allowed;
+}
