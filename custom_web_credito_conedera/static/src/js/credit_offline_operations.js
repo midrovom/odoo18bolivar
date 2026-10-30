@@ -129,7 +129,7 @@
             (navigator.serviceWorker.controller||reg.active)?.postMessage({type:'CREDIT_CACHE_ASSETS',urls:css});
         }).catch(()=>{});
     }
-    function save(pending) {
+    function save(pending, quiet = false) {
         // Serializar escrituras: un autoguardado anterior nunca puede sobrescribir
         // un envío ya marcado como pendiente en IndexedDB.
         const task = async () => {
@@ -138,13 +138,15 @@
                 const entries = snapshot();
                 const token = (current && current.status === 'pending') ? current.operation_uuid : uuid();
                 const record = {key,mode,applicationId,identity,operation_uuid:token,
-                    updatedAt:Date.now(),status:pending?'pending':'draft',entries};
+                    updatedAt:Date.now(),status:(pending || (current && current.status === 'pending'))?'pending':'draft',entries};
                 await put('drafts',record);
                 current=record;
                 removeButton.hidden=false;
-                banner(pending ? 'Guardado en este dispositivo. Pendiente de sincronización con Odoo.' :
-                    'Cambios guardados temporalmente en este dispositivo' + (navigator.onLine ? '.' : ' · Sin conexión.'),
-                    pending?'pending':'info');
+                if (!quiet) {
+                    banner(pending ? 'Sin conexión. Guardado local pendiente de sincronización.' :
+                        'Cambios guardados temporalmente en este dispositivo' + (navigator.onLine ? '.' : ' · Sin conexión.'),
+                        pending?'pending':'info');
+                }
                 return record;
             } catch(error) {
                 banner('No se pudo guardar: '+error.message+' Compruebe el espacio disponible del navegador.','error');
@@ -203,17 +205,35 @@
             removeButton.hidden=false;
         }finally{restoring=false;}
     }
-    async function send(record, silent = false) {
-        if(!record || record.status!=='pending'||!navigator.onLine||sending){return;}
+    async function fetchWithTimeout(url, options, timeoutMs) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
+        try { return await fetch(url, Object.assign({}, options, {signal: controller.signal})); }
+        catch (error) {
+            if (error && (error.name === 'TypeError' || error.name === 'AbortError')) {
+                error.creditNetworkFailure = true;
+            }
+            throw error;
+        }
+        finally { clearTimeout(timeout); }
+    }
+    function isConnectivityFailure(error) {
+        return Boolean(error && error.creditNetworkFailure === true);
+    }
+    async function send(record, silent = false, force = false) {
+        if (!record || (!force && record.status !== 'pending') || sending) { return; }
         sending=true;
-        banner('Comprobando sesión y sincronizando los cambios…','pending');
+        banner('Guardando los cambios en Odoo…','info');
         try {
-            const response=await fetch(rootPath+'offline/context',{credentials:'same-origin',cache:'no-store'});
-            if(!response.ok||!(response.headers.get('content-type')||'').includes('application/json')){
-                throw new Error('Inicie sesión para completar la sincronización.');
+            const response=await fetchWithTimeout(rootPath+'offline/context',{credentials:'same-origin',cache:'no-store'},20000);
+            if(!response.ok){throw new Error('No se verificó la sesión (HTTP '+response.status+'). Inicie sesión de nuevo.');}
+            if(!(response.headers.get('content-type')||'').includes('application/json')){
+                throw new Error('Odoo devolvió una página en lugar de la sesión. Vuelva a iniciar sesión.');
             }
             const context=await response.json();
-            if(identityKey(context)!==baseKey){throw new Error('La sesión actual no corresponde a la empresa y usuario del borrador.');}
+            if(identityKey(context)!==identityKey(record.identity)){
+                throw new Error('La sesión actual no corresponde a la empresa y usuario del borrador.');
+            }
             const body=new FormData();
             record.entries.forEach(e=>{
                 if(e.value instanceof Blob){body.append(e.name,e.value,e.filename||e.value.name||'archivo');}
@@ -225,29 +245,35 @@
             body.set('offline_operation_uuid',record.operation_uuid);
             body.set('offline_website_id',String(record.identity.website_id));
             body.set('offline_company_id',String(record.identity.company_id));
-            const posted=await fetch(rootPath+'offline/dispatch',{method:'POST',credentials:'same-origin',cache:'no-store',body});
-            if(!posted.ok||!(posted.headers.get('content-type')||'').includes('application/json')){
-                throw new Error('No se confirmó el guardado. La operación permanece pendiente.');
+            const posted=await fetchWithTimeout(rootPath+'offline/dispatch',{method:'POST',credentials:'same-origin',cache:'no-store',body},180000);
+            if(!posted.ok){throw new Error('Odoo rechazó el envío (HTTP '+posted.status+'). Revise la sesión o el servidor.');}
+            if(!(posted.headers.get('content-type')||'').includes('application/json')){
+                throw new Error('Odoo devolvió una respuesta inesperada. Vuelva a iniciar sesión si corresponde.');
             }
             const answer=await posted.json();
             if(answer.status==='sent'){
                 await remove('drafts',record.key);
                 if(current && current.operation_uuid===record.operation_uuid){current=null;}
                 banner('Los cambios se guardaron correctamente en Odoo.','success');
-                if (!silent) {
+                if(!silent){
                     location.assign(record.mode==='documents'?rootPath+'historial?documentos_guardados=1':
                         rootPath+record.applicationId+'?updated=1');
                 }
                 return;
             }
-            if(answer.status==='review'||answer.status==='blocked'){
+            // Una respuesta de Odoo, incluso 'retry', no es una desconexión.
+            record.status='draft';await put('drafts',record);current=record;
+            banner((answer.message||'Odoo no pudo guardar la operación.')+' '+(answer.errors||[]).join(' · '),'error');
+        }catch(error){
+            if(isConnectivityFailure(error)){
+                record.status='pending';await put('drafts',record);current=record;
+                banner('No hubo respuesta de red. Cambios guardados localmente, pendientes de sincronización.','pending');
+                askBackgroundSync();
+            }else{
                 record.status='draft';await put('drafts',record);current=record;
-                banner((answer.message||'Debe revisar la operación.') + ' '+(answer.errors||[]).join(' · '),'error');
-                return;
+                banner('Odoo no guardó la operación: '+error.message+' Puede volver a pulsar Guardar.','error');
             }
-            throw new Error(answer.message||'El servidor no pudo confirmar el guardado.');
-        }catch(error){banner('Guardado local pendiente: '+error.message,'pending');}
-        finally{sending=false;}
+        }finally{sending=false;}
     }
     async function syncAll() {
         if(!navigator.onLine||!baseKey){return;}
@@ -337,10 +363,19 @@
         // un error de red durante la navegación normal del navegador.
         form.addEventListener('submit',event=>{
             event.preventDefault();event.stopImmediatePropagation();
+            if(sending){return;}
             clearTimeout(saveTimer);
-            save(true).then(record=>{if(record){askBackgroundSync();if(navigator.onLine){send(record);}}});
             const btn=form.querySelector('[type="submit"]');
-            if(btn){btn.disabled=false;}
+            (async()=>{
+                // Capturar primero el formulario como borrador; solo ponerlo en cola
+                // si realmente falla la comunicación con Odoo.
+                const record=await save(false,true);
+                if(!record){return;}
+                // El indicador navigator.onLine puede equivocarse. Siempre intentar
+                // entregar a Odoo; pasar a pendiente solo tras un fallo de transporte.
+                await send(record,false,true);
+            })().catch(error=>banner('No se pudo preparar el envío: '+error.message,'error'))
+                .finally(()=>{if(btn){btn.disabled=false;}});
         },true);
         const onChange=()=>{
             if(restoring){return;}

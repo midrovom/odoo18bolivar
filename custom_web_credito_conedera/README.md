@@ -362,3 +362,14 @@ un croquis fuera de la etapa de revisión habilitada, incluso con el permiso.
 - Los archivos y datos personales quedan en el dispositivo. No utilizar esta función en equipos compartidos; limpiar los borradores locales cuando deje de necesitarlos. El almacenamiento del navegador puede ser eliminado por el usuario o por políticas del dispositivo.
 - Para abrir un formulario sin conexión desde cero, el usuario debe haberlo abierto previamente con internet en ese mismo navegador. Las solicitudes ya aprobadas y los permisos de un solo uso se comprueban nuevamente al sincronizar.
 - El primer acceso, la autenticación y las descargas requieren red; la PWA requiere HTTPS para el funcionamiento del service worker.
+
+## 18.0.1.8.44 — Envío online prioritario / cola únicamente sin conexión
+
+- Al pulsar **Enviar** o **Guardar** con conexión, el navegador realiza primero la solicitud a Odoo y espera una confirmación JSON `sent`. No marca una operación como pendiente antes de intentar enviarla.
+- Cuando falla realmente la comunicación (fallo de transporte o solicitud sin respuesta dentro del tiempo máximo), conserva el formulario y sus archivos en IndexedDB como **Pendiente de sincronización** y permite reintentos automáticos.
+- Un error HTTP, una sesión caducada, la respuesta de validación `review/blocked` o un error de servidor `retry` no se interpreta como falta de red. En estos casos conserva el **borrador** y muestra el motivo para permitir volver a intentar tras corregirlo.
+- El autoguardado no puede convertir en envío confirmado un borrador; solo un clic en Guardar/Enviar o una cola previamente confirmada autoriza la sincronización automática.
+- Mantiene el UUID de la solicitud u operación al reintentar después de una caída de red para no duplicar registros.
+- Caché de PWA actualizado a `credit-safe-static-v1844` para renovar los scripts del portal.
+
+**Nota**: la sincronización confirmada continúa dependiendo de una sesión vigente, de los permisos y de las validaciones de Odoo. El guardado local no equivale a un guardado en la base de datos.

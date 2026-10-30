@@ -3,7 +3,7 @@
  * Las solicitudes se identifican por UUID y siempre se validan en Odoo.
  */
 'use strict';
-const CACHE = 'credit-safe-static-v1843';
+const CACHE = 'credit-safe-static-v1844';
 const BASE = '/custom_web_credito_conedera/static/';
 const STATIC = [
     BASE + 'pwa/offline-shell.html',

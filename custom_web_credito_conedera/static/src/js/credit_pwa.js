@@ -65,7 +65,7 @@
         if (!message || !installButton || !dismissButton) { return; }
 
         if ('serviceWorker' in navigator && window.isSecureContext) {
-            navigator.serviceWorker.register('/my/credito/sw.js', {scope: '/my/credito/'})
+            navigator.serviceWorker.register('/my/credito/sw.js', {scope: '/my/credito/', updateViaCache: 'none'})
                 .catch(function (error) { console.warn('PWA de crédito no disponible:', error); });
         }
         installButton.addEventListener('click', async function () {

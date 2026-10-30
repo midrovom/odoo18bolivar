@@ -11,7 +11,7 @@
     var ASSET_BASE = '/custom_web_credito_conedera/static/';
     var form = null, key = null, userInfo = null, timer = null, saving = false;
     var restoring = false;
-    var currentRecord = null;
+    var currentRecord = null, sendingRequest = false;
     var maxBytes = 15 * 1024 * 1024;
 
     function openDB() {
@@ -122,7 +122,7 @@
             }).catch(function () {});
         }
     }
-    async function saveDraft(queue) {
+    async function saveDraft(queue, quiet) {
         if (restoring || !form || !key) { return; }
         while (saving) { await new Promise(function (resolve) { setTimeout(resolve, 35); }); }
         saving = true;
@@ -130,12 +130,14 @@
             ensureUUID();
             // Una modificación posterior a Enviar crea un borrador que necesita nueva confirmación.
             var record = {key: key, identity: userInfo, updatedAt: Date.now(),
-                entries: gather(), status: queue ? 'pending' : 'draft'};
+                entries: gather(), status: (queue || (currentRecord && currentRecord.status === 'pending')) ? 'pending' : 'draft'};
             await put('drafts', record);
             currentRecord = record;
-            show(queue ? 'Solicitud guardada en este dispositivo. Pendiente de envío cuando vuelva internet.' :
-                'Borrador guardado en este dispositivo' + (navigator.onLine ? '.' : ' · Sin conexión.'),
-                queue ? 'pending' : 'info');
+            if (!quiet) {
+                show(queue ? 'Sin conexión: solicitud guardada en este dispositivo, pendiente de sincronización.' :
+                    'Borrador guardado en este dispositivo' + (navigator.onLine ? '.' : ' · Sin conexión.'),
+                    queue ? 'pending' : 'info');
+            }
             var clear = document.getElementById('credit-clear-offline');
             if (clear) { clear.hidden = false; }
             return record;
@@ -145,7 +147,7 @@
         } finally { saving = false; }
     }
     function scheduleSave() {
-        if (restoring) { return; }
+        if (restoring || sendingRequest) { return; }
         window.clearTimeout(timer);
         timer = window.setTimeout(function () { saveDraft(false).catch(function () {}); }, 650);
     }
@@ -200,43 +202,86 @@
             var clear = document.getElementById('credit-clear-offline'); if (clear) { clear.hidden = false; }
         } finally { restoring = false; }
     }
-    async function sendQueued() {
-        var record = key ? await get('drafts', key) : null;
-        if (!record || record.status !== 'pending' || !navigator.onLine) { return; }
-        show('Conexión recuperada. Comprobando sesión y enviando la solicitud…', 'pending');
+    async function fetchWithTimeout(url, options, timeoutMs) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
+        try { return await fetch(url, Object.assign({}, options, {signal: controller.signal})); }
+        catch (error) {
+            if (error && (error.name === 'TypeError' || error.name === 'AbortError')) {
+                error.creditNetworkFailure = true;
+            }
+            throw error;
+        }
+        finally { clearTimeout(timeout); }
+    }
+    function isConnectivityFailure(error) {
+        // HTTP 4xx/5xx, HTML de login y JSON de validación NO son pérdida de red.
+        return Boolean(error && error.creditNetworkFailure === true);
+    }
+    async function sendQueued(force = false) {
+        if (sendingRequest || !key) { return; }
+        var record = await get('drafts', key);
+        if (!record || (record.status !== 'pending' && !(force && record.status === 'draft'))) { return; }
+        sendingRequest = true;
+        show('Enviando la solicitud a Odoo…', 'info');
         try {
-            var check = await fetch(PREFIX + 'offline/context', {credentials:'same-origin', cache:'no-store'});
-            if (!check.ok || !(check.headers.get('Content-Type') || '').includes('application/json')) { throw new Error('Ingrese a su cuenta para sincronizar la solicitud.'); }
+            var check = await fetchWithTimeout(PREFIX + 'offline/context', {credentials:'same-origin', cache:'no-store'}, 20000);
+            if (!check.ok) { throw new Error('No se verificó la sesión (HTTP ' + check.status + '). Inicie sesión de nuevo.'); }
+            if (!(check.headers.get('Content-Type') || '').includes('application/json')) {
+                throw new Error('Odoo devolvió una página en lugar de los datos de sesión. Vuelva a iniciar sesión.');
+            }
             var context = await check.json();
-            if (userKey(context) !== record.key) { throw new Error('La sesión no corresponde a la empresa y usuario del borrador.'); }
+            if (userKey(context) !== record.key) {
+                throw new Error('La sesión no corresponde a la empresa y usuario de este borrador.');
+            }
             var data = new FormData();
             record.entries.forEach(function (e) {
                 if (e.value instanceof Blob) { data.append(e.name, e.value, e.filename || e.value.name || 'archivo'); }
                 else { data.append(e.name, e.value); }
             });
             data.set('csrf_token', context.csrf_token);
-            var result = await fetch(PREFIX + 'offline/submit', {method:'POST', credentials:'same-origin', body:data, cache:'no-store'});
-            if (!result.ok || !(result.headers.get('Content-Type') || '').includes('application/json')) { throw new Error('No se pudo verificar el envío. Quedó pendiente.'); }
-            var answer = await result.json();
+            var response = await fetchWithTimeout(PREFIX + 'offline/submit', {
+                method:'POST', credentials:'same-origin', body:data, cache:'no-store'
+            }, 120000);
+            if (!response.ok) { throw new Error('Odoo rechazó el envío (HTTP ' + response.status + '). Compruebe la sesión o el registro del servidor.'); }
+            if (!(response.headers.get('Content-Type') || '').includes('application/json')) {
+                throw new Error('Respuesta inesperada de Odoo. Compruebe la sesión y vuelva a intentar.');
+            }
+            var answer = await response.json();
             if (answer.status === 'sent') {
                 await del('drafts', record.key);
                 currentRecord = null;
-                show('Solicitud enviada correctamente. Número de expediente disponible en el historial.', 'success');
+                show('Solicitud registrada correctamente en Odoo.', 'success');
                 if (form && !document.getElementById('credit-offline-root')) {
                     location.assign(PREFIX + answer.application_id + '?sent=1');
                 } else {
-                    window.setTimeout(function () { location.assign(PREFIX + 'historial'); }, 1200);
+                    location.assign(PREFIX + 'historial');
                 }
+                return;
+            }
+            // La API respondió: NO hay motivo para dejar la operación esperando internet.
+            record.status = 'draft';
+            await put('drafts', record);
+            currentRecord = record;
+            var explanation = answer.message || 'La solicitud no se guardó. Revise los datos.';
+            if (Array.isArray(answer.errors) && answer.errors.length) {
+                explanation += ' ' + answer.errors.join(' • ');
+            }
+            show(explanation, 'error');
+        } catch (error) {
+            if (isConnectivityFailure(error)) {
+                record.status = 'pending';
+                await put('drafts', record);
+                currentRecord = record;
+                show('No hubo respuesta de red. Solicitud guardada localmente, pendiente de sincronización.', 'pending');
+                askSync();
             } else {
-                // No reintentar indefinidamente solicitudes con errores de validación.
                 record.status = 'draft';
                 await put('drafts', record);
                 currentRecord = record;
-                var explanation = answer.message || 'La solicitud requiere revisión antes de enviarse.';
-                if (Array.isArray(answer.errors) && answer.errors.length) { explanation += ' ' + answer.errors.join(' • '); }
-                show(explanation, 'error');
+                show('La solicitud no se guardó en Odoo: ' + error.message + ' Los datos permanecen en este dispositivo para reintentar.', 'error');
             }
-        } catch (error) { show('Envío pendiente: ' + error.message, 'pending'); }
+        } finally { sendingRequest = false; }
     }
     function askSync() {
         if (navigator.serviceWorker && navigator.serviceWorker.ready) {
@@ -318,16 +363,25 @@
         form.addEventListener('input', scheduleSave);
         form.addEventListener('change', scheduleSave);
         form.addEventListener('submit', function (event) {
-            // La validación de los seis pasos se ejecuta en credit_portal.js;
-            // evitar el envío normal para que una caída de red NO pierda la solicitud.
+            // Si falló la validación de los seis pasos, no enviar ni crear un pendiente.
             if (event.defaultPrevented) { return; }
             event.preventDefault();
-            saveDraft(true).then(function () {
-                askSync();
-                if (navigator.onLine) { sendQueued(); }
-            }).catch(function () {});
+            if (sendingRequest) { return; }
+            window.clearTimeout(timer);
             var button = form.querySelector('[data-credit-submit]');
-            if (button) { button.disabled = false; button.textContent = 'Guardar y enviar'; }
+            (async function () {
+                // Guardado de seguridad; NO marcar pendiente estando online.
+                var draft = await saveDraft(false, true);
+                if (!draft) { return; }
+                // Intentar el servidor incluso si navigator.onLine indica desconexión:
+                // ese indicador no demuestra que Odoo sea inalcanzable.
+                // Solo una petición fallida deja un pendiente offline.
+                await sendQueued(true);
+            })().catch(function (error) {
+                show('No se pudo preparar el envío: ' + error.message, 'error');
+            }).finally(function () {
+                if (button) { button.disabled = false; button.textContent = 'Enviar solicitud de crédito'; }
+            });
         });
         var clearButton = document.getElementById('credit-clear-offline');
         if (clearButton) {
@@ -346,7 +400,7 @@
                 }
             });
         }
-        window.addEventListener('online', sendQueued);
+        window.addEventListener('online', function () { sendQueued(); });
         document.addEventListener('visibilitychange', function () { if (!document.hidden && navigator.onLine) { sendQueued(); } });
         window.addEventListener('offline', function () { show('Sin conexión. Los cambios se guardan en este dispositivo.', 'pending'); });
         if (record && record.status === 'pending') { askSync(); await sendQueued(); }
