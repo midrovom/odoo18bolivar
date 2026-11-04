@@ -4,10 +4,10 @@ from odoo import api, fields, models
 class ResUsers(models.Model):
     _inherit = 'res.users'
     credit_portal_permission_manager_enabled = fields.Boolean(
-        string='Puede habilitar permisos del portal de crédito',
+        string='Permiso adicional: habilitar correcciones del portal',
         compute='_compute_credit_portal_permission_manager_enabled',
         inverse='_inverse_credit_portal_permission_manager_enabled',
-        help='Solo para usuarios internos que autorizan actualizaciones POR SOLICITUD.'
+        help='Permiso adicional para el revisor. Los administradores de crédito ya disponen de acceso completo.'
     )
 
 

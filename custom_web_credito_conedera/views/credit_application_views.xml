@@ -15,9 +15,9 @@
     <record id="view_conedera_credit_application_form" model="ir.ui.view">
         <field name="name">conedera.credit.application.form</field><field name="model">conedera.credit.application</field>
         <field name="arch" type="xml"><form string="Solicitud de crédito">
-            <header><field name="credit_verification_final_required" invisible="1"/><button name="action_print_credit_application" type="object" string="Descargar PDF" icon="fa-file-pdf-o" class="btn-secondary" groups="custom_web_credito_conedera.group_credit_manager"/><field name="document_complete" invisible="1" readonly="not credit_is_admin"/><field name="document_access_allowed" invisible="1" readonly="not credit_is_admin"/><field name="credit_access_button_visible" invisible="1" readonly="not credit_is_admin"/><button name="action_open_portal_update_wizard" type="object" string="Habilitar permiso del portal" class="btn-primary" groups="custom_web_credito_conedera.group_credit_portal_update_manager" invisible="not credit_access_button_visible"/><field name="stage_id" widget="statusbar" options="{'clickable': 1}"/></header>
+            <header><field name="credit_verification_final_required" invisible="1"/><button name="action_print_credit_application" type="object" string="Descargar PDF" icon="fa-file-pdf-o" class="btn-secondary" groups="custom_web_credito_conedera.group_credit_manager,custom_web_credito_conedera.group_credit_administrator"/><field name="document_complete" invisible="1" readonly="not credit_is_admin"/><field name="document_access_allowed" invisible="1" readonly="not credit_is_admin"/><field name="credit_access_button_visible" invisible="1" readonly="not credit_is_admin"/><button name="action_open_portal_update_wizard" type="object" string="Habilitar permiso del portal" class="btn-primary" groups="custom_web_credito_conedera.group_credit_portal_update_manager,custom_web_credito_conedera.group_credit_administrator" invisible="not credit_access_button_visible"/><field name="stage_id" widget="statusbar" options="{'clickable': 1}"/></header>
             <sheet>
-                <field name="credit_is_admin" invisible="1"/><div class="oe_button_box" name="button_box"><button name="action_open_portal_update_wizard" type="object" class="oe_stat_button" icon="fa-key" groups="custom_web_credito_conedera.group_credit_portal_update_manager" invisible="not credit_access_button_visible"><div class="o_stat_info"><span class="o_stat_text">Permiso portal</span></div></button></div>
+                <field name="credit_is_admin" invisible="1"/><div class="oe_button_box" name="button_box"><button name="action_open_portal_update_wizard" type="object" class="oe_stat_button" icon="fa-key" groups="custom_web_credito_conedera.group_credit_portal_update_manager,custom_web_credito_conedera.group_credit_administrator" invisible="not credit_access_button_visible"><div class="o_stat_info"><span class="o_stat_text">Permiso portal</span></div></button></div>
                 <div class="oe_title"><label for="name"/><h1><field name="name" readonly="not credit_is_admin"/></h1><div class="text-muted">Expediente de crédito vinculado a Contactos</div></div>
                 <group><group><field name="application_date" readonly="not credit_is_admin"/><field name="application_place" readonly="not credit_is_admin"/><field name="company_id" readonly="not credit_is_admin" options="{'no_create': True}"/><field name="website_id" readonly="1" options="{'no_create': True}"/><field name="partner_id" invisible="1"/>
                     <field name="credit_origin" readonly="1"/>
@@ -128,7 +128,7 @@
                             </form>
                         </field>
                     </page>
-                    <page string="Ubicación y croquis (cliente)" groups="custom_web_credito_conedera.group_credit_manager" class="o_credit_verification_page">
+                    <page string="Ubicación y croquis (cliente)" groups="custom_web_credito_conedera.group_credit_manager,custom_web_credito_conedera.group_credit_administrator" class="o_credit_verification_page">
     <div class="alert alert-info mb-3" role="alert">Estos datos y el croquis los completa el cliente desde el portal. El personal de revisión solo puede consultarlos; el administrador conserva la edición completa.</div>
     <group string="Identificación del solicitante" col="2" class="o_credit_verification_section">
         <field name="identification" readonly="1"/>
@@ -153,7 +153,7 @@
     </group>
 
 </page>
-                    <page string="Verificación de ubicación (uso interno)" groups="custom_web_credito_conedera.group_credit_manager" class="o_credit_verification_page">
+                    <page string="Verificación de ubicación (uso interno)" groups="custom_web_credito_conedera.group_credit_manager,custom_web_credito_conedera.group_credit_administrator" class="o_credit_verification_page">
     <div class="alert alert-info mb-3" role="alert">
         La revisión del crédito y la verificación del negocio se realizan en paralelo.
         Para aprobar o rechazar debe completar todas las respuestas de Resultados y el
@@ -181,7 +181,7 @@
         <field name="verification_completed_at" readonly="1"/>
     </group>
 </page>
-                    <page string="Documentos firmados" groups="custom_web_credito_conedera.group_credit_manager">
+                    <page string="Documentos firmados" groups="custom_web_credito_conedera.group_credit_manager,custom_web_credito_conedera.group_credit_administrator">
                         <div class="alert alert-info mb-3" role="alert">
                             Arrastre varios PDF firmados a cada zona o utilice el selector de archivos.
                             Los originales se conservan sin modificar sus firmas electrónicas.
@@ -202,8 +202,8 @@
         </form></field>
     </record>
     <record id="action_conedera_credit_applications" model="ir.actions.act_window"><field name="name">Solicitudes de crédito</field><field name="res_model">conedera.credit.application</field><field name="view_mode">kanban,list,form</field><field name="search_view_id" ref="view_conedera_credit_application_search"/><field name="context">{'search_default_group_stage': 1}</field></record>
-    <menuitem id="menu_conedera_credit_root" web_icon="custom_web_credito_conedera,static/description/icon.png" name="Solicitud de crédito" sequence="45" groups="custom_web_credito_conedera.group_credit_manager"/>
-    <menuitem id="menu_conedera_credit_applications" name="Solicitudes" parent="menu_conedera_credit_root" action="action_conedera_credit_applications" sequence="10" groups="custom_web_credito_conedera.group_credit_manager"/>
+    <menuitem id="menu_conedera_credit_root" web_icon="custom_web_credito_conedera,static/description/icon.png" name="Solicitud de crédito" sequence="45" groups="custom_web_credito_conedera.group_credit_manager,custom_web_credito_conedera.group_credit_administrator"/>
+    <menuitem id="menu_conedera_credit_applications" name="Solicitudes" parent="menu_conedera_credit_root" action="action_conedera_credit_applications" sequence="10" groups="custom_web_credito_conedera.group_credit_manager,custom_web_credito_conedera.group_credit_administrator"/>
     <!-- Centralización de catálogos: disponible para administradores de crédito. -->
     <menuitem id="menu_conedera_credit_configuration" name="Configuración" parent="menu_conedera_credit_root" sequence="90" groups="custom_web_credito_conedera.group_credit_administrator"/>
     <menuitem id="menu_conedera_credit_stages" name="Etapas del solicitante" parent="menu_conedera_credit_configuration" action="action_conedera_credit_stages" sequence="10" groups="custom_web_credito_conedera.group_credit_administrator"/>

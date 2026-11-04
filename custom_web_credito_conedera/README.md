@@ -422,3 +422,12 @@ un croquis fuera de la etapa de revisión habilitada, incluso con el permiso.
 - Si falta vinculación de un expediente antiguo se intenta enlazar mediante el procedimiento existente por documento, RUC y empresa, sin fusionar contactos ambiguos.
 - Se mantiene `partner_id` para compatibilidad con la ficha de Contactos y con instalaciones v18.0.1.8.48.
 **Actualizar el módulo instalado** (no desinstalarlo), tras realizar una copia de seguridad de la base y el filestore.
+
+
+### 18.0.1.8.50 — Permisos independientes
+
+- Administrador de crédito y Usuario de crédito son roles independientes; asignar uno no activa automáticamente el otro.
+- El permiso adicional para habilitar correcciones del portal tampoco obliga a marcar Usuario.
+- Administrador conserva acceso a menús, fichas, verificación, PDFs, documentos y autorización de correcciones del portal gracias a ACL, reglas y vistas propias.
+- Las reglas de multiempresa ahora incluyen ambos roles de forma explícita.
+- En la actualización, se elimina la asignación heredada del grupo Usuario para cuentas que también tienen Administrador; quienes necesiten ambos pueden marcar Usuario de nuevo. No se cambian usuarios solo revisores.

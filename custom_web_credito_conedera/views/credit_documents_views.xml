@@ -123,5 +123,5 @@
         <field name="res_model">conedera.credit.document.line</field>
         <field name="view_mode">list,form</field>
     <field name="view_id" ref="view_conedera_credit_document_line_uploaded_list"/><field name="search_view_id" ref="view_conedera_credit_documents_uploaded_search"/><field name="context">{'search_default_group_applicant_type': 1, 'search_default_group_requirement': 1}</field></record>
-    <menuitem id="menu_conedera_credit_documents" name="Documentación recibida" parent="menu_conedera_credit_root" action="action_conedera_credit_documents" sequence="20" groups="custom_web_credito_conedera.group_credit_manager"/>
+    <menuitem id="menu_conedera_credit_documents" name="Documentación recibida" parent="menu_conedera_credit_root" action="action_conedera_credit_documents" sequence="20" groups="custom_web_credito_conedera.group_credit_manager,custom_web_credito_conedera.group_credit_administrator"/>
 </odoo>

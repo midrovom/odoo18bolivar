@@ -574,8 +574,13 @@ class ConederaCreditApplication(models.Model):
     @api.depends('portal_user_id')
     @api.depends_context('uid')
     def _compute_credit_access_button_visible(self):
-        authorized = self.env.user.has_group(
-            'custom_web_credito_conedera.group_credit_portal_update_manager')
+        authorized = (
+            (
+                self.env.user.has_group('custom_web_credito_conedera.group_credit_portal_update_manager')
+                and self.env.user.has_group('custom_web_credito_conedera.group_credit_manager')
+            )
+            or self.env.user.has_group('custom_web_credito_conedera.group_credit_administrator')
+        )
         for record in self:
             record.credit_access_button_visible = bool(authorized and record.portal_user_id)
 
@@ -1126,8 +1131,13 @@ class ConederaCreditApplication(models.Model):
     def action_open_portal_update_wizard(self):
         """Botón inteligente y de cabecera, igual al permiso de postulaciones."""
         self.ensure_one()
-        if not self.env.user.has_group(
-                'custom_web_credito_conedera.group_credit_portal_update_manager'):
+        if not (
+            (
+                self.env.user.has_group('custom_web_credito_conedera.group_credit_portal_update_manager')
+                and self.env.user.has_group('custom_web_credito_conedera.group_credit_manager')
+            )
+            or self.env.user.has_group('custom_web_credito_conedera.group_credit_administrator')
+        ):
             raise AccessError(_('No puede gestionar permisos de actualización del portal de crédito.'))
         if not self.portal_user_id:
             raise UserError(_('Esta solicitud no tiene un usuario de portal asociado.'))
