@@ -399,3 +399,15 @@ un croquis fuera de la etapa de revisión habilitada, incluso con el permiso.
 - Persona jurídica: el selector del paso 1 muestra exclusivamente **RUC** y queda bloqueado. El formulario envía RUC mediante un input oculto mientras el select está deshabilitado.
 - Persona natural: se restauran las opciones cédula ecuatoriana, cédula extranjera y RUC; el selector se puede cambiar libremente.
 - Se conserva la normalización en el controlador del servidor a RUC para persona jurídica, y la recuperación de borradores sin duplicar campos en persona natural.
+
+
+## v18.0.1.8.48 — Contactos Odoo vinculados a solicitudes
+
+- `partner_id` vincula el expediente con `res.partner`. Las solicitudes web reutilizan el contacto existente por documento e identidad del usuario o crean uno si no existe. Para persona jurídica se vincula la empresa (RUC) sin reemplazar el contacto del representante que creó la cuenta.
+- Al crear solicitudes en backend, el administrador selecciona **Contacto solicitante**. Un `onchange` copia a la solicitud los datos disponibles del contacto; los valores faltantes (incluido RUC del negocio, si es necesario) se completan en la ficha. No crea una cuenta de portal automáticamente.
+- `portal_user_id` es opcional en backend; solo los expedientes con usuario asociado se muestran en ese portal.
+- Las aceptaciones legales del portal **no se inventan** para una solicitud ingresada manualmente: quedan sin marcar hasta que exista evidencia legítima.
+- La actualización ejecuta `_migrate_credit_partner_links()` para enlazar expedientes antiguos sin alterar sus etapas ni sus datos originales.
+- La relación admite contactos compartidos o de la empresa de la solicitud. No se modifican los datos de contactos comerciales existentes.
+
+- La ficha del Contacto muestra el botón inteligente **Solicitudes de crédito**, con el historial de expedientes vinculados y acceso a crear uno nuevo desde ese contacto (según permisos).

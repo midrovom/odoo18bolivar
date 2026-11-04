@@ -24,3 +24,5 @@ from . import credit_employer_type
 
 from . import credit_offline_operation
 from . import website
+
+from . import res_partner

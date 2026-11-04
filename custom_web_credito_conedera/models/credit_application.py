@@ -4,6 +4,7 @@ import logging
 from markupsafe import escape
 
 import re
+import zlib
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError, AccessError, UserError
 
@@ -57,7 +58,18 @@ class ConederaCreditApplication(models.Model):
 
     name = fields.Char(string='Número de solicitud', required=True, copy=False, readonly=True, default='Nuevo', tracking=True, index=True)
     active = fields.Boolean(default=True)
-    portal_user_id = fields.Many2one('res.users', string='Usuario del portal', required=True, readonly=True, index=True, ondelete='restrict')
+    # Puede existir una solicitud creada desde el backend sin usuario de portal.
+    # Los accesos web siguen autorizándose SOLO por portal_user_id.
+    portal_user_id = fields.Many2one('res.users', string='Usuario del portal', readonly=True, index=True, ondelete='restrict')
+    partner_id = fields.Many2one(
+        'res.partner', string='Contacto solicitante', index=True, tracking=True, ondelete='restrict',
+        help='Contacto comercial al cual pertenece este expediente de crédito. '
+             'En solicitudes del portal se identifica o crea automáticamente. '
+             'En solicitudes internas se selecciona desde Contactos.')
+    credit_origin = fields.Selection(
+        [('portal', 'Portal web'), ('backend', 'Registro interno')],
+        string='Origen', default='backend', required=True, readonly=True, copy=False, index=True)
+
     # Campo antiguo conservado exclusivamente para migrar solicitudes históricas.
     # No participa en las nuevas solicitudes ni condiciona los documentos.
     person_type = fields.Selection([
@@ -678,6 +690,180 @@ class ConederaCreditApplication(models.Model):
             self._get_company_credit_sequence(company.id)
         return True
 
+    @api.constrains('partner_id', 'company_id')
+    def _check_credit_partner_company(self):
+        for application in self:
+            if (application.partner_id.company_id and
+                    application.partner_id.company_id != application.company_id):
+                raise ValidationError(_(
+                    'El contacto solicitante debe ser compartido o pertenecer a la misma empresa que la solicitud.'))
+
+    @api.onchange('partner_id')
+    def _onchange_credit_partner_id(self):
+        """Usar los datos del contacto como punto de partida de una solicitud manual.
+
+        Es una copia inicial: los datos del expediente no modifican la ficha del
+        contacto al editarla desde el backend.
+        """
+        for application in self:
+            partner = application.partner_id
+            if not partner:
+                continue
+            is_company = bool(partner.is_company)
+            kind = 'juridical' if is_company else 'natural'
+            applicant_type = self.env['conedera.credit.applicant.type'].sudo().search(
+                [('code', '=', kind), ('active', '=', True)], limit=1)
+            if applicant_type:
+                application.applicant_type_id = applicant_type
+            vat = (partner.vat or '').strip()
+            document_type = ('ruc' if is_company or len(vat) == 13 else
+                             'cedula' if valid_credit_identity(vat, 'cedula') else 'foreign')
+            if vat:
+                application.identification = vat
+                application.identification_type = document_type
+            elif is_company:
+                application.identification_type = 'ruc'
+            application.applicant_name = partner.name or False
+            application.applicant_email = partner.email or False
+            application.mobile = partner.mobile or partner.phone or False
+            application.phone_fixed = partner.phone or False
+            application.home_address = partner.street or False
+            application.business_name = partner.commercial_partner_id.name or partner.name or False
+            application.business_ruc = vat if len(vat) == 13 else False
+            application.business_address = partner.street or partner.contact_address or False
+            application.business_phone = partner.phone or partner.mobile or False
+            application.city = partner.city or False
+            if partner.email:
+                application.representative_email = partner.email
+
+    @api.model
+    def _credit_partner_record(self, vals, company_id=None, portal_user_id=None):
+        """Buscar por documento y reutilizar contacto; crear solamente si no existe.
+
+        Distingue el representante (res.users.partner_id) del negocio jurídico.
+        Nunca sobreescribe automáticamente un cliente comercial existente.
+        """
+        company = self.env['res.company'].sudo().browse(
+            company_id or vals.get('company_id') or self.env.company.id).exists()
+        if not company:
+            raise ValidationError(_('Seleccione una empresa válida para la solicitud.'))
+        Partner = self.env['res.partner'].sudo().with_company(company)
+        applicant_type = self.env['conedera.credit.applicant.type'].sudo().browse(
+            vals.get('applicant_type_id')).exists()
+        is_company = bool(applicant_type and applicant_type.code == 'juridical')
+        identity = (vals.get('business_ruc') if is_company else vals.get('identification')) or ''
+        identity = str(identity).strip()
+        if not identity:
+            raise ValidationError(_('Ingrese el documento de identificación antes de vincular un contacto.'))
+        marker = 'CONEDERA-CRED:%s:%s' % ('J' if is_company else 'N', identity)
+        # Impedir crear dos contactos simultáneos para el mismo documento.
+        key = zlib.crc32(('%s:%s:%s' % (company.id, is_company, identity)).encode('utf-8'))
+        if key >= 2**31:
+            key -= 2**32
+        self.env.cr.execute('SELECT pg_advisory_xact_lock(%s, %s)', (184148, key))
+        domain_company = ['|', ('company_id', '=', False), ('company_id', '=', company.id)]
+        matches = Partner.with_context(active_test=False).search(
+            domain_company + ['|', ('vat', '=ilike', identity), ('ref', '=', marker)],
+            order='id', limit=100)
+        matches = matches.filtered(lambda p: bool(p.is_company) == is_company)
+        user_partner = self.env['res.partner']
+        if portal_user_id:
+            user = self.env['res.users'].sudo().browse(portal_user_id).exists()
+            user_partner = user.partner_id if user else user_partner
+        if user_partner and user_partner in matches:
+            return user_partner
+        local_match = matches.filtered(lambda p: p.company_id == company)
+        if local_match:
+            return local_match[0]
+        if matches:
+            return matches[0]
+        # El usuario ya tiene contacto creado al registrarse por OTP. Reutilizar
+        # ese contacto cuando realmente es la misma persona natural.
+        email = (vals.get('applicant_email') or '').strip().lower()
+        if (not is_company and user_partner and not user_partner.is_company and
+                user_partner.company_id.id in (False, company.id) and
+                (not user_partner.vat or user_partner.vat.strip() == identity) and
+                email and (user_partner.email or '').strip().lower() == email):
+            if not user_partner.vat:
+                # La validación fiscal de Contactos puede ser más estricta que
+                # la de la solicitud. Conservar la identificación en ref cuando
+                # Odoo rechace el documento como VAT de un contacto.
+                try:
+                    with self.env.cr.savepoint():
+                        user_partner.sudo().write({'vat': identity})
+                except ValidationError:
+                    user_partner.sudo().write({'ref': marker})
+            return user_partner
+        # Reutilizar también un contacto que ya exista sin VAT si coinciden
+        # exactamente nombre y email (sin escoger arbitrariamente entre duplicados).
+        target_name = ((vals.get('business_name') if is_company else vals.get('applicant_name')) or '').strip()
+        lookup_email = (vals.get('invoice_email') or vals.get('representative_email') or
+                        vals.get('applicant_email')) if is_company else vals.get('applicant_email')
+        if target_name and lookup_email:
+            candidates = Partner.with_context(active_test=False).search(
+                domain_company + [('vat', '=', False), ('email', '=ilike', str(lookup_email).strip())],
+                order='id', limit=100).filtered(
+                    lambda p: p.is_company == is_company and
+                    (p.name or '').strip().casefold() == target_name.casefold())
+            if len(candidates) == 1:
+                return candidates
+        data = {
+            'name': (vals.get('business_name') if is_company else vals.get('applicant_name')) or _('Solicitante de crédito'),
+            'is_company': is_company,
+            'company_type': 'company' if is_company else 'person',
+            'company_id': company.id,
+            'vat': identity,
+            'email': (vals.get('invoice_email') or vals.get('representative_email') or
+                      vals.get('applicant_email')) if is_company else vals.get('applicant_email'),
+            'phone': (vals.get('business_phone') if is_company else vals.get('phone_fixed')) or False,
+            'mobile': (vals.get('mobile') if not is_company else False),
+            'street': (vals.get('business_address') if is_company else vals.get('home_address')) or False,
+            'city': vals.get('city') if is_company else False,
+        }
+        try:
+            with self.env.cr.savepoint():
+                return Partner.create(data)
+        except ValidationError:
+            # El requisito de Odoo/contabilidad sobre RUC puede ser distinto
+            # del del portal. La solicitud conserva el documento exacto.
+            data.pop('vat')
+            data['ref'] = marker
+            _logger.warning('El identificador %s no pasó la validación VAT de Contactos; se guardó en referencia.', identity)
+            return Partner.create(data)
+
+    @api.model
+    def _migrate_credit_partner_links(self):
+        """Vincular expedientes anteriores sin cambiar sus datos ni sus etapas."""
+        # Solo los expedientes previos (sin partner_id) se consideran históricos.
+        # Nunca reclasificar manualmente expedientes nuevos en actualizaciones posteriores.
+        self.env.cr.execute("""
+            UPDATE conedera_credit_application
+               SET credit_origin = 'portal'
+             WHERE portal_user_id IS NOT NULL AND partner_id IS NULL
+        """)
+        applications = self.sudo().with_context(active_test=False).search([('partner_id', '=', False)])
+        updated = 0
+        for application in applications:
+            if not (application.applicant_type_id and application.company_id):
+                continue
+            try:
+                with self.env.cr.savepoint():
+                    values = {key: application[key] for key in (
+                        'identification', 'business_ruc', 'applicant_name', 'business_name',
+                        'applicant_email', 'invoice_email', 'representative_email', 'mobile',
+                        'phone_fixed', 'business_phone', 'home_address', 'business_address', 'city')}
+                    values['applicant_type_id'] = application.applicant_type_id.id
+                    values['company_id'] = application.company_id.id
+                    partner = self._credit_partner_record(
+                        values, company_id=application.company_id.id,
+                        portal_user_id=application.portal_user_id.id)
+                    application.write({'partner_id': partner.id})
+                    updated += 1
+            except (ValidationError, AccessError, UserError, ValueError):
+                _logger.exception('No se pudo vincular contacto para la solicitud %s', application.name)
+        _logger.info('Solicitudes históricas vinculadas a Contactos: %s', updated)
+        return True
+
     @api.model_create_multi
     def create(self, vals_list):
         Stage = self.env['conedera.credit.stage']
@@ -701,11 +887,24 @@ class ConederaCreditApplication(models.Model):
         for vals in vals_list:
             user_id = vals.get('portal_user_id')
             user_company = (user_id, vals.get('company_id') or self.env.company.id)
-            if user_company in seen_users:
+            if user_id and user_company in seen_users:
                 raise ValidationError(_('Solo puede crear una solicitud en trámite por usuario.'))
-            seen_users.add(user_company)
-            if not all(vals.get(field) for field in required_consents):
-                raise ValidationError(_('Para guardar una nueva solicitud debe aceptar la declaración general y todas las condiciones adicionales.'))
+            if user_id:
+                seen_users.add(user_company)
+            from_portal = bool(self.env.context.get('credit_portal_submission'))
+            if from_portal:
+                if not user_id:
+                    raise ValidationError(_('La solicitud web requiere una sesión de usuario.'))
+                if not all(vals.get(field) for field in required_consents):
+                    raise ValidationError(_('Para guardar una nueva solicitud debe aceptar la declaración general y todas las condiciones adicionales.'))
+                vals['credit_origin'] = 'portal'
+                # El contacto NO proviene de un valor enviado por el navegador.
+                vals['partner_id'] = self._credit_partner_record(
+                    vals, portal_user_id=user_id).id
+            else:
+                vals['credit_origin'] = 'backend'
+                if not vals.get('partner_id'):
+                    raise ValidationError(_('Seleccione el contacto solicitante en Contactos.'))
             if not vals.get('applicant_type_id'):
                 raise ValidationError(_('Seleccione un tipo de solicitante configurado.'))
             if vals.get('name', 'Nuevo') == 'Nuevo':
@@ -732,7 +931,7 @@ class ConederaCreditApplication(models.Model):
                     'application_id': record.id,
                     'stage_id': record.stage_id.id,
                     'user_id': self.env.user.id,
-                    'notes': _('Solicitud registrada desde el portal'),
+                    'notes': _('Solicitud registrada desde el portal') if record.credit_origin == 'portal' else _('Solicitud registrada manualmente desde Odoo'),
                     'visible_to_portal': True,
                 })
             record.message_post(body=_('Solicitud registrada. Etapa inicial: %s') % escape(record.stage_id.name or ''))
@@ -769,6 +968,22 @@ class ConederaCreditApplication(models.Model):
                     raise ValidationError(_('No cambie el tipo de solicitante de una solicitud que ya contiene documentación.'))
         previous_stages = {record.id: record.stage_id for record in self} if 'stage_id' in vals else {}
         values = dict(vals)
+        if (self.env.context.get('credit_portal_submission') and
+                {'identification', 'business_ruc', 'applicant_type_id'}.intersection(values)):
+            if len(self) > 1:
+                for record in self:
+                    record.write(dict(values))
+                return True
+            if self:
+                values_for_match = {key: values.get(key, self[key]) for key in (
+                    'identification', 'business_ruc', 'applicant_name', 'business_name',
+                    'applicant_email', 'invoice_email', 'representative_email', 'mobile',
+                    'phone_fixed', 'business_phone', 'home_address', 'business_address', 'city')}
+                values_for_match['company_id'] = self.company_id.id
+                values_for_match['applicant_type_id'] = values.get('applicant_type_id', self.applicant_type_id.id)
+                values['partner_id'] = self._credit_partner_record(
+                    values_for_match, company_id=self.company_id.id,
+                    portal_user_id=self.portal_user_id.id).id
         if 'stage_id' in values:
             new_stage = self.env['conedera.credit.stage'].browse(values.get('stage_id'))
             if new_stage.is_documents_received:
@@ -830,13 +1045,16 @@ class ConederaCreditApplication(models.Model):
                 '<p>Estimado/a %(name)s:</p>'
                 '<p>La solicitud de crédito <b>%(number)s</b> registra un cambio de etapa.</p>'
                 '<p>Estado anterior: %(old)s<br/>Estado actual: <b>%(new)s</b></p>'
-                '<p>Puede consultar el historial ingresando al portal de CONEDERA.</p>'
+                '<p>%(access_note)s</p>'
             ) % {
                 'name': escape(self.applicant_name or self.portal_user_id.name or ''),
                 'number': escape(self.name or ''),
                 'old': escape(old_stage.name if old_stage else '-'),
                 'new': escape(new_stage.name or '-'),
                 'company': escape(self.company_id.name or ''),
+                'access_note': (_('Puede consultar el historial ingresando al portal de CONEDERA.')
+                                if self.portal_user_id else
+                                _('Este expediente fue registrado por el equipo de CONEDERA.')),
             }
             # Usar el SMTP independiente del módulo de crédito y su smtp_user
             # como remitente. No reutilizar ni alterar la configuración de RR. HH.

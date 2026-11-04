@@ -1400,7 +1400,7 @@ class ConederaCreditPortal(http.Controller):
                     values['vehicle_ids'] = [(5, 0, 0)] + values['vehicle_ids']
                     values['legacy_vehicle_migrated'] = True
                     values['reference_ids'] = [(5, 0, 0)] + values['reference_ids']
-                    application.sudo().write(values)
+                    application.sudo().with_context(credit_portal_submission=True).write(values)
                     # La autorización de corrección es para un único guardado.
                     # Si también se autorizó documentos, conservar SOLO ese acceso.
                     # Tras guardar, Historial vuelve a mostrar «Ver detalle».
@@ -1413,7 +1413,8 @@ class ConederaCreditPortal(http.Controller):
                     application.message_post(body=_('El solicitante actualizó sus datos mediante el permiso especial del portal. La autorización de edición del formulario fue consumida.'))
                 else:
                     application = request.env['conedera.credit.application'].sudo().with_company(
-                        self._credit_website_company()).create(values)
+                        self._credit_website_company()).with_context(
+                            credit_portal_submission=True).create(values)
         except (ValidationError, ValueError) as exc:
             return self._render_application_form(post, [str(exc)], application=application)
         except Exception:
