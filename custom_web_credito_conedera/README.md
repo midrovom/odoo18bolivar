@@ -411,3 +411,14 @@ un croquis fuera de la etapa de revisión habilitada, incluso con el permiso.
 - La relación admite contactos compartidos o de la empresa de la solicitud. No se modifican los datos de contactos comerciales existentes.
 
 - La ficha del Contacto muestra el botón inteligente **Solicitudes de crédito**, con el historial de expedientes vinculados y acceso a crear uno nuevo desde ese contacto (según permisos).
+
+
+## Versión 18.0.1.8.49 — Solicitante asociado directamente a Contactos
+- `applicant_name`: `fields.Many2one('res.partner')` calculado e invertible desde `partner_id`.
+- En el back, **Solicitante** permite elegir un contacto ya creado en Odoo.
+- La actualización conserva el texto antiguo `applicant_name` en `applicant_name_text` mediante migración SQL previa.
+- El portal conserva su captura de nombres como texto, pero solo el servidor resuelve el contacto; no acepta un ID de contacto arbitrario.
+- Los reportes y documentos mantienen el nombre declarado para respetar el histórico (representante en persona jurídica).
+- Si falta vinculación de un expediente antiguo se intenta enlazar mediante el procedimiento existente por documento, RUC y empresa, sin fusionar contactos ambiguos.
+- Se mantiene `partner_id` para compatibilidad con la ficha de Contactos y con instalaciones v18.0.1.8.48.
+**Actualizar el módulo instalado** (no desinstalarlo), tras realizar una copia de seguridad de la base y el filestore.

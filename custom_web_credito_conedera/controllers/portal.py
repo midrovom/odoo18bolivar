@@ -905,7 +905,11 @@ class ConederaCreditPortal(http.Controller):
         values = {}
         for name in APPLICATION_FIELDS:
             field_value = application[name]
-            if name in DATE_FIELDS and field_value:
+            if name == 'applicant_name':
+                # El portal captura nombre libre; el solicitante técnico es
+                # un res.partner elegido/vinculado únicamente por el servidor.
+                values[name] = application.applicant_name_text or application.applicant_name.name or ''
+            elif name in DATE_FIELDS and field_value:
                 values[name] = str(field_value)
             elif name in FLOAT_FIELDS or name in INTEGER_FIELDS:
                 values[name] = str(field_value) if field_value is not None and field_value is not False else ''
@@ -1384,6 +1388,10 @@ class ConederaCreditPortal(http.Controller):
                 step = 6 if invalid_terms else 1
             return self._render_application_form(post, errors, start_step=step, application=application)
 
+        # Reasignar el nombre capturado a su campo histórico. applicant_name
+        # ahora es Many2one(res.partner): jamás escribirle texto ni confiar en
+        # un ID de contacto procedente del POST del cliente.
+        values['applicant_name_text'] = values.pop('applicant_name', False)
         try:
             with request.env.cr.savepoint():
                 if application:
@@ -1436,7 +1444,7 @@ class ConederaCreditPortal(http.Controller):
                         '<p><b>Latitud del negocio:</b> %s<br/><b>Longitud del negocio:</b> %s</p>'
                     ) % tuple(escape(str(value or '')) for value in (
                         application.company_id.name,
-                        application.name, application.applicant_name,
+                        application.name, application.applicant_name_text or application.applicant_name.name,
                         application.business_name, application.identification,
                         latitude_raw, longitude_raw,
                     )),

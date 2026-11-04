@@ -83,7 +83,19 @@ class ConederaCreditApplication(models.Model):
     identification = fields.Char(string='Documento del solicitante', required=True, tracking=True, index=True)
     identification_type = fields.Selection([('cedula', 'Cédula ecuatoriana'), ('ruc', 'RUC'), ('foreign', 'Cédula extranjera')], string='Tipo de documento', default='cedula', required=True, tracking=True)
     application_date = fields.Date(string='Lugar y fecha de solicitud', required=True, default=fields.Date.context_today)
-    applicant_name = fields.Char(string='Nombres y apellidos del propietario o representante', required=True, tracking=True)
+    # A partir de 18.0.1.8.49 el campo técnico applicant_name ES un res.partner.
+    # partner_id mantiene la vinculación histórica y el smart button de Contactos.
+    # Ambos representan exactamente el mismo contacto, nunca dos solicitantes.
+    applicant_name = fields.Many2one(
+        'res.partner', string='Solicitante', related='partner_id', store=True,
+        readonly=False, tracking=True,
+        help='Seleccione el contacto existente de Odoo que presenta la solicitud.')
+    # Nombre capturado al llenar la ficha. Se conserva intacto para PDF,
+    # correcciones e historial; en personas jurídicas puede ser el representante,
+    # mientras que applicant_name/partner_id señalan al cliente (empresa).
+    applicant_name_text = fields.Char(
+        string='Nombre declarado en la ficha', copy=True,
+        help='Texto original del propietario o representante para conservar el histórico.')
     applicant_email = fields.Char(string='Correo electrónico del propietario o representante', required=True)
     phone_fixed = fields.Char(string='Teléfono fijo')
     mobile = fields.Char(string='Celular', required=True)
@@ -698,7 +710,7 @@ class ConederaCreditApplication(models.Model):
                 raise ValidationError(_(
                     'El contacto solicitante debe ser compartido o pertenecer a la misma empresa que la solicitud.'))
 
-    @api.onchange('partner_id')
+    @api.onchange('applicant_name', 'partner_id')
     def _onchange_credit_partner_id(self):
         """Usar los datos del contacto como punto de partida de una solicitud manual.
 
@@ -706,9 +718,10 @@ class ConederaCreditApplication(models.Model):
         contacto al editarla desde el backend.
         """
         for application in self:
-            partner = application.partner_id
+            partner = application.applicant_name or application.partner_id
             if not partner:
                 continue
+            application.partner_id = partner
             is_company = bool(partner.is_company)
             kind = 'juridical' if is_company else 'natural'
             applicant_type = self.env['conedera.credit.applicant.type'].sudo().search(
@@ -723,7 +736,7 @@ class ConederaCreditApplication(models.Model):
                 application.identification_type = document_type
             elif is_company:
                 application.identification_type = 'ruc'
-            application.applicant_name = partner.name or False
+            application.applicant_name_text = partner.name or False
             application.applicant_email = partner.email or False
             application.mobile = partner.mobile or partner.phone or False
             application.phone_fixed = partner.phone or False
@@ -796,7 +809,7 @@ class ConederaCreditApplication(models.Model):
             return user_partner
         # Reutilizar también un contacto que ya exista sin VAT si coinciden
         # exactamente nombre y email (sin escoger arbitrariamente entre duplicados).
-        target_name = ((vals.get('business_name') if is_company else vals.get('applicant_name')) or '').strip()
+        target_name = ((vals.get('business_name') if is_company else vals.get('applicant_name_text')) or '').strip()
         lookup_email = (vals.get('invoice_email') or vals.get('representative_email') or
                         vals.get('applicant_email')) if is_company else vals.get('applicant_email')
         if target_name and lookup_email:
@@ -808,7 +821,7 @@ class ConederaCreditApplication(models.Model):
             if len(candidates) == 1:
                 return candidates
         data = {
-            'name': (vals.get('business_name') if is_company else vals.get('applicant_name')) or _('Solicitante de crédito'),
+            'name': (vals.get('business_name') if is_company else vals.get('applicant_name_text')) or _('Solicitante de crédito'),
             'is_company': is_company,
             'company_type': 'company' if is_company else 'person',
             'company_id': company.id,
@@ -849,7 +862,7 @@ class ConederaCreditApplication(models.Model):
             try:
                 with self.env.cr.savepoint():
                     values = {key: application[key] for key in (
-                        'identification', 'business_ruc', 'applicant_name', 'business_name',
+                        'identification', 'business_ruc', 'applicant_name_text', 'business_name',
                         'applicant_email', 'invoice_email', 'representative_email', 'mobile',
                         'phone_fixed', 'business_phone', 'home_address', 'business_address', 'city')}
                     values['applicant_type_id'] = application.applicant_type_id.id
@@ -857,11 +870,31 @@ class ConederaCreditApplication(models.Model):
                     partner = self._credit_partner_record(
                         values, company_id=application.company_id.id,
                         portal_user_id=application.portal_user_id.id)
-                    application.write({'partner_id': partner.id})
+                    application.with_context(credit_migrating_partner=True).write({'partner_id': partner.id})
                     updated += 1
             except (ValidationError, AccessError, UserError, ValueError):
                 _logger.exception('No se pudo vincular contacto para la solicitud %s', application.name)
         _logger.info('Solicitudes históricas vinculadas a Contactos: %s', updated)
+        return True
+
+    @api.model
+    def _migrate_credit_applicant_name_partner(self):
+        """Backfill técnico applicant_name (res.partner) sin perder los nombres.
+
+        La migración SQL previa conservó el antiguo texto en applicant_name_text.
+        El enlace existente partner_id es la fuente de verdad; para expedientes
+        sin enlace, intentar la migración histórica por identificación/RUC.
+        """
+        self._migrate_credit_partner_links()
+        # La relación almacenada se recalculará por la dependencia de partner_id;
+        # invalidamos caché para que también se refleje en esta actualización.
+        applications = self.sudo().with_context(active_test=False).search([])
+        missing = applications.filtered(lambda a: not a.partner_id)
+        _logger.info('Migración solicitante res.partner: total=%s enlazadas=%s sin_contacto=%s',
+                     len(applications), len(applications) - len(missing), len(missing))
+        for app in missing:
+            _logger.warning('La solicitud %s no tiene contacto asociable; revisar documento %s',
+                            app.name, app.identification)
         return True
 
     @api.model_create_multi
@@ -885,6 +918,11 @@ class ConederaCreditApplication(models.Model):
                 raise ValidationError(_('Ya tiene una solicitud en trámite para esta empresa. Solo podrá registrar otra cuando la anterior esté aprobada o rechazada.'))
         seen_users = set()
         for vals in vals_list:
+            # El backend usa applicant_name como selector Many2one. El campo
+            # partner_id queda sincronizado para mantener todas las relaciones.
+            if 'applicant_name' in vals:
+                # Campo visible del backend: la selección se refleja en partner_id.
+                vals['partner_id'] = vals.pop('applicant_name')
             user_id = vals.get('portal_user_id')
             user_company = (user_id, vals.get('company_id') or self.env.company.id)
             if user_id and user_company in seen_users:
@@ -904,7 +942,11 @@ class ConederaCreditApplication(models.Model):
             else:
                 vals['credit_origin'] = 'backend'
                 if not vals.get('partner_id'):
-                    raise ValidationError(_('Seleccione el contacto solicitante en Contactos.'))
+                    raise ValidationError(_('Seleccione el solicitante desde Contactos.'))
+                # Nueva solicitud manual: por defecto usar el nombre del contacto.
+                if not vals.get('applicant_name_text'):
+                    partner = self.env['res.partner'].browse(vals['partner_id'])
+                    vals['applicant_name_text'] = partner.name or False
             if not vals.get('applicant_type_id'):
                 raise ValidationError(_('Seleccione un tipo de solicitante configurado.'))
             if vals.get('name', 'Nuevo') == 'Nuevo':
@@ -968,6 +1010,17 @@ class ConederaCreditApplication(models.Model):
                     raise ValidationError(_('No cambie el tipo de solicitante de una solicitud que ya contiene documentación.'))
         previous_stages = {record.id: record.stage_id for record in self} if 'stage_id' in vals else {}
         values = dict(vals)
+        if 'applicant_name' in values:
+            if self.env.context.get('credit_portal_submission'):
+                raise AccessError(_('El solicitante se identifica automáticamente desde el servidor.'))
+            # applicant_name es el selector de contacto; preferirlo a cualquier
+            # valor desactualizado del campo técnico partner_id.
+            values['partner_id'] = values.pop('applicant_name')
+        if ('partner_id' in values and values['partner_id'] and
+                not self.env.context.get('credit_portal_submission') and
+                not self.env.context.get('credit_migrating_partner') and
+                'applicant_name_text' not in values):
+            values['applicant_name_text'] = self.env['res.partner'].browse(values['partner_id']).name or False
         if (self.env.context.get('credit_portal_submission') and
                 {'identification', 'business_ruc', 'applicant_type_id'}.intersection(values)):
             if len(self) > 1:
@@ -976,7 +1029,7 @@ class ConederaCreditApplication(models.Model):
                 return True
             if self:
                 values_for_match = {key: values.get(key, self[key]) for key in (
-                    'identification', 'business_ruc', 'applicant_name', 'business_name',
+                    'identification', 'business_ruc', 'applicant_name_text', 'business_name',
                     'applicant_email', 'invoice_email', 'representative_email', 'mobile',
                     'phone_fixed', 'business_phone', 'home_address', 'business_address', 'city')}
                 values_for_match['company_id'] = self.company_id.id
@@ -1047,7 +1100,7 @@ class ConederaCreditApplication(models.Model):
                 '<p>Estado anterior: %(old)s<br/>Estado actual: <b>%(new)s</b></p>'
                 '<p>%(access_note)s</p>'
             ) % {
-                'name': escape(self.applicant_name or self.portal_user_id.name or ''),
+                'name': escape(self.applicant_name_text or self.applicant_name.name or self.portal_user_id.name or ''),
                 'number': escape(self.name or ''),
                 'old': escape(old_stage.name if old_stage else '-'),
                 'new': escape(new_stage.name or '-'),

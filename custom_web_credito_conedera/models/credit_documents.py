@@ -21,7 +21,7 @@ class ConederaCreditDocuments(models.Model):
     person_type = fields.Selection(related='application_id.person_type', string='Tipo anterior', store=True, readonly=True)
     applicant_type_id = fields.Many2one(related='application_id.applicant_type_id', string='Tipo de solicitante', store=True, readonly=True, index=True)
     document_line_ids = fields.One2many('conedera.credit.document.line', 'document_id', string='Archivos por requisito')
-    applicant_name = fields.Char(related='application_id.applicant_name', string='Solicitante', store=True, readonly=True)
+    applicant_name = fields.Char(related='application_id.applicant_name_text', string='Solicitante', store=True, readonly=True)
     state = fields.Selection([
         ('pending', 'Pendiente de carga'),
         ('submitted', 'En revisión'),
