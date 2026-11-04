@@ -1,0 +1,165 @@
+<odoo>
+  <data>
+
+    <record id="view_balance_portfolio_form" model="ir.ui.view">
+      <field name="name">view.balance.portfolio.form</field>
+      <field name="model">balance.portfolio</field>
+      <field name="arch" type="xml">
+        <form string="balance_portfolio" class="o_form_view_custom"  create="false" edit="false" delete="false" >
+          <header>
+                <!-- Agregar el botón dentro de un grupo o en la ubicación deseada -->
+                <button name="create_balance_portfolio_api" string=" Sincronizar" type="object" class="oe_highlight fa fa-refresh p-2" />
+          </header> 
+          <sheet>
+            <group name="group_top">
+                <group name="group_left">
+                    <field name="sales_man" />
+                    <field name="client_id"/>
+                    <field name="client_vat"/>
+                    <field name="status"/>
+                    <field name="current_date"/>
+                </group>
+                <group name="group_right" > 
+                    <field name="total_amount"/>
+                    <field name="total_balance"/>
+                    <field name="overdue_accounts"/>
+                    <field name="accounts_collected"/>
+                    <field name="postdated_checks"/>
+                </group>
+            </group>
+            <notebook>
+              <page string="Facturas">
+                <field name="factura_ids" widget="section_and_note_one2many" mode="list">
+                  <list editable="bottom">
+                    <field name="client_id" invisible="1"/>
+                    <field name="tipo"/>
+                    <field name="id_register"/>
+                    <field name="date"/>
+                    <field name="record_date" widget="date" options='{"datepicker": {"format": "dd/MM/yyyy"}}'/>
+                    <field name="end_date"  widget="date" options='{"datepicker": {"format": "dd/MM/yyyy"}}'/>
+                    <field name="days_order"/>
+                    <field name="total"/>
+                    <field name="balance"/>
+                    <field name="quota"/>
+                    <field name="term"/>
+                  </list>
+                </field>
+              </page>
+              <page string="Cheques">
+                <field name="cheque_ids"  widget="section_and_note_one2many"  mode="list">
+                  <list editable="bottom" default_order="days_order asc" >
+                    <field name="client_id" invisible="1"/>
+                    <field name="tipo"/>
+                    <field name="id_register"/>
+                    <field name="date"/>
+                    <field name="record_date" widget="date" options='{"datepicker": {"format": "dd/MM/yyyy"}}'/>
+                    <field name="end_date"  widget="date" options='{"datepicker": {"format": "dd/MM/yyyy"}}'/>
+                    <field name="days_order"/>
+                    <field name="total"/>
+                    <field name="balance"/>
+                    <field name="quota"/>
+                    <field name="term"/>
+                  </list>
+                </field>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="view_balance_portfolio_tree" model="ir.ui.view">
+      <field name="name">view.balance.portfolio.tree</field>
+      <field name="model">balance.portfolio</field>
+      <field name="arch" type="xml">
+        <list string="Saldo de cartera" default_order="client_id ASC"  create="0"  delete="false" >
+          <!-- Define un filtro para registros activos -->
+          <field name="client_id"/>
+          <field name="client_vat"/>
+          <!-- <field name="total_amount"/> -->
+        </list>
+      </field>
+    </record> 
+
+    <!-- kanban -->
+    <record id="view_balance_portfolio_kanban" model="ir.ui.view">
+      <field name="name">view.balance.portfolio.kanban</field>
+      <field name="model">balance.portfolio</field>
+      <field name="arch" type="xml">
+        <kanban class="o_balance_portfolio_kanban" default_order="client_id ASC" create="false">
+          <field name="id"/>
+          <field name="client_id"/>
+          <field name="client_vat"/>
+          <field name="status"/>
+          <field name="total_amount"/>
+          <templates>
+            <t t-name="card">
+              <div t-attf-class="oe_kanban_global_click">                                     
+                <div class="oe_kanban_details">
+                  <strong class="o_kanban_record_title">
+                    <div t-if="record.client_vat.value">
+                      <field name="client_vat"/>
+                      <!-- <span class="pl-3"><b>Total: <field name="total_amount"/> </b></span> -->
+                    </div> 
+                  </strong>
+                    <div t-if="record.client_id.value">
+                      <field name="client_id"/>
+                    </div>
+                    <!-- t-if camprueba si existe  -->
+                    <span><b>Estado : </b> <field name="status"/></span>
+                  
+                </div>
+              </div>
+            </t>
+          </templates>
+        </kanban>
+      </field>
+    </record>
+
+
+        <!-- search -->
+    <record id="view_balance_portfolio_search" model="ir.ui.view">
+      <field name="name">view.balance.portfolio.search</field>
+      <field name="model">balance.portfolio</field>
+      <field name="arch" type="xml">
+        <search string="Filtrar visitas">
+          <field name="client_id"/>
+          <field name="client_vat"/>
+          <group expand="0" string="Group By">
+            <filter name="groupby_date" string="Fecha" context="{'group_by':'current_date:year'}" help="Agrupar por fecha"/>
+          </group>
+        </search>
+      </field>
+    </record>
+
+
+
+    <record model="ir.actions.act_window" id="balance_portfolio_action_window">
+      <field name="name">Saldo de Cartera</field>
+      <field name="res_model">balance.portfolio</field>
+      <field name="view_mode">list,form</field>
+      <field name="target">current</field>
+      <field name="context">{}</field>
+      <!-- <field name="groups_id" eval="[(4, ref('balance_portfolio.group_balance_portfolio_basic'))]"/> -->
+      <field name="help" type="html">
+        <p class="oe_view_nocontent_create">
+          Saldo de Cartera
+        </p>
+        <p>
+          Click 'Nuevo' para añadir nuevos elementos
+        </p>
+      </field>
+
+    </record>
+
+    <!-- Top menu item -->
+    <menuitem name="Saldo de cartera" id="balance_portfolio_menu_root" 
+              web_icon="balance_portfolio,static/description/banner.png"
+              sequence="15"/>
+    <!-- menu categories -->
+
+    <menuitem name="Operaciones" id="balance_portfolio_data_menu" parent="balance_portfolio_menu_root" sequence="0"/>
+    <menuitem name="Saldo de cartera" id="balance_portfolio_option" parent="balance_portfolio_data_menu" sequence="0" action="balance_portfolio_action_window"/>
+
+  </data>
+</odoo>

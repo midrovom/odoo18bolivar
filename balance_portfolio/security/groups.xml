@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Categoría de grupo -->
+        <record id="group_category_saldo_cartera" model="ir.module.category">
+            <field name="name">Saldo de cartera</field>
+            <field name="description">Grupos relacionados al control de saldo de cartera</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Subcategoría de grupo -->
+        <record id="group_sub_category_saldo_cartera" model="ir.module.category">
+            <field name="name">Saldo de Cartera</field>
+            <field name="parent_id" ref="group_category_saldo_cartera"/>
+        </record>
+
+        <!-- Grupo: Administradores de saldo de cartera -->
+        <record id="group_saldo_cartera_admin" model="res.groups">
+            <field name="name">Administrador de cartera</field>
+            <field name="category_id" ref="balance_portfolio.group_sub_category_saldo_cartera"/>
+        </record>
+
+        <!-- Grupo: Acceso limitado a cartera -->
+        <record id="group_saldo_cartera_limited" model="res.groups">
+            <field name="name">Acceso limitado a cartera</field>
+            <field name="category_id" ref="balance_portfolio.group_sub_category_saldo_cartera"/>
+            <!-- <field name="implied_ids" eval="[(3, ref('balance_portfolio.group_saldo_cartera_admin'))]"/> -->
+        </record>
+
+    </data>
+</odoo>

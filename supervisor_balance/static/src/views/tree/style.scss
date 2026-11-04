@@ -1,0 +1,35 @@
+@media (max-width: 767px) {
+    .o_tree_view_custom th.o_column_sortable[data-name="supervisor"],
+    .o_tree_view_custom th.o_column_sortable[data-name="vendedor"],
+    .o_tree_view_custom th.o_column_sortable[data-name="client_id"] {
+        width: 250px !important;
+        max-width: 250px !important;
+        word-wrap: break-word !important;
+        white-space: normal !important;
+        overflow-wrap: break-word !important;
+    }
+
+    .o_tree_view_custom th.o_column_sortable[data-name="overdue_accounts"] {
+        width: 260px !important;
+        max-width: 260px !important;
+        word-wrap: break-word !important;
+        white-space: normal !important;
+        overflow-wrap: break-word !important;
+    }
+
+    /* Columna fija para overdue_accounts */
+    // .o_tree_view_custom th[data-name="overdue_accounts"],
+    // .o_tree_view_custom td[data-name="overdue_accounts"] {
+    //     position: sticky;
+    //     right: 0; /* Fija la columna al lado derecho, usa left: 0; si la quieres al lado izquierdo */
+    //     z-index: 2; /* Asegura que quede sobre otras columnas */
+    //     background: white; /* Evita que se vea transparente al desplazar */
+    // }
+
+    // /* Opcional: bordes o sombreado para diferenciar */
+    // .o_tree_view_custom th[data-name="overdue_accounts"] {
+    //     box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
+    // }
+
+}
+

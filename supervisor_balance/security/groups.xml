@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+    
+        <record id="group_saldo_cartera_supervisor" model="res.groups">
+            <field name="name">Supervisor de cartera</field>
+            <field name="category_id" ref="balance_portfolio.group_sub_category_saldo_cartera"/>
+        </record>
+
+        <record id="group_saldo_cartera_supervisor_sale" model="res.groups">
+            <field name="name">Supervisor de venta</field>
+            <field name="category_id" ref="balance_portfolio.group_sub_category_saldo_cartera"/>
+        </record>
+    
+    </data>
+    
+
+</odoo>

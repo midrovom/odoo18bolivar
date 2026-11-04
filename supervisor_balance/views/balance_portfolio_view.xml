@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+    
+        <record id="balance_portfolio_tree_inherit" model="ir.ui.view">
+            <field name="name">balance.portfolio.tree.inherit</field>
+            <field name="model">balance.portfolio</field>
+            <field name="inherit_id" ref="balance_portfolio.view_balance_portfolio_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//list" position="attributes">
+                    <attribute name="class">o_tree_view_custom</attribute>
+                    <attribute name="js_class">supervisor_balance_tree_button</attribute>
+                    <attribute name="default_order">overdue_accounts desc</attribute>
+                    <attribute name="sample">1</attribute>
+                    <attribute name="multi_edit">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='client_id']" position="before">
+                     <field name="overdue_accounts" sum="Total" groups="supervisor_balance.group_saldo_cartera_supervisor,supervisor_balance.group_saldo_cartera_supervisor_sale"/>
+                    <!-- <field name="supervisor" groups="supervisor_balance.group_saldo_cartera_supervisor,supervisor_balance.group_saldo_cartera_supervisor_sale" />
+                    <field name="vendedor" groups="supervisor_balance.group_saldo_cartera_supervisor,supervisor_balance.group_saldo_cartera_supervisor_sale,balance_portfolio.group_saldo_cartera_limited" /> -->
+                   
+                </xpath>
+            </field>
+        </record>
+
+        <record id="balance_portfolio_view_form_inherit" model="ir.ui.view">
+            <field name="name">balance.portfolio.view.form.inherit</field>
+            <field name="model">balance.portfolio</field>
+            <field name="inherit_id" ref="balance_portfolio.view_balance_portfolio_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='sales_man']" position="before">
+                    <field name="ciudad" />
+                    <field name="provincia" />
+                </xpath>
+            </field>
+        </record>
+    
+    </data>
+    
+
+</odoo>

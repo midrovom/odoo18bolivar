@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="supervisor_balance.ListView.Buttons" t-inherit="web.ListView.Buttons" t-inherit-mode="primary">
+        <xpath expr="//div[contains(@class, 'o_list_buttons')]" position="inside">
+            <button type="button" class="btn btn-primary" t-on-click="buttonTreeClick">
+                Sincronizar Saldos
+            </button>
+        </xpath>
+    </t>
+</templates>

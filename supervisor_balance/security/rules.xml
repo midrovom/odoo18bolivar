@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Regla: Acceso limitado a cartera -->
+        <record id="rule_saldo_cartera_supervisor" model="ir.rule">
+            <field name="name">rule.saldo.cartera.supervisor</field>
+            <field name="model_id" ref="balance_portfolio.model_balance_portfolio"/>
+            <field name="groups" eval="[(4, ref('supervisor_balance.group_saldo_cartera_supervisor'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record> 
+
+        <record id="rule_saldo_cartera_supervisor_sale" model="ir.rule">
+            <field name="name">rule.saldo.cartera.supervisor.sale</field>
+            <field name="model_id" ref="balance_portfolio.model_balance_portfolio"/>
+            <field name="groups" eval="[(4, ref('supervisor_balance.group_saldo_cartera_supervisor_sale'))]"/>
+            <field name="domain_force">[('code_super', '=', user.code_supervisor)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record> 
+
+    </data>
+</odoo>

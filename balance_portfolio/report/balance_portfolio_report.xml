@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Main template for withhold reports -->
+    <template id="report_balance_portfolio_document">
+        <t t-call="web.external_layout">
+            <t t-set="o" t-value="o.with_context(lang=lang)"/>
+            <div class="page">
+                <center>
+                    <h2>Reporte de Saldo de Cartera</h2>
+                    <!-- <span t-field="o.client_id" />  -->
+                </center>
+                <!-- Invoice & partner information -->
+                <div id="informations" class="row pt-3 mt-4 mb-4 d-flex justify-content-between">
+                    <t t-set="partner" t-value="o.client_id"/>
+                    <div class="col-6 mb-2" name="balance_portfolio_client">
+                        <p class="m-0">
+                            <div t-if="partner.name">
+                                <strong>Cliente: </strong>
+                                <t t-esc="partner.name"/>
+                            </div>  
+                        </p>
+                        <p class="m-0">
+                            <div t-if="partner.vat">
+                                <strong>RUC/Cédula: </strong>
+                                <t t-esc="partner.vat"/>
+                            </div> 
+                        </p>
+                    </div>
+                    <table class="col-6"  name="balance_portfoli_current_date">
+                        <tbody>
+                            <tr>
+                                <td><strong t-if='o.current_date'>Fecha Actual: </strong></td>
+                                <td><span t-if='o.current_date' t-esc='o.current_date'/></td>
+                            </tr>
+                            <tr>
+                                <td class="p-1"><strong>Total facturado: </strong></td>
+                                <td class="p-1">$ <span t-field="o.total_amount" t-field-options='{"widget": "monetary"}'/></td>
+                            </tr>
+                            <tr>
+                                <td class="p-1"><strong>Saldo cartera: </strong></td>
+                                <td class="p-1">$ <span t-field="o.total_balance" t-field-options='{"widget": "monetary"}'/></td>
+                            </tr>
+                            <tr>
+                                <td class="p-1"><strong>Cartera vencida: </strong></td>
+                                <td class="p-1">$ <span t-field="o.overdue_accounts" t-field-options='{"widget": "monetary"}'/></td>
+                            </tr>
+                            <tr>
+                                <td class="p-1"><strong>Cartera por vencer: </strong></td>
+                                <td class="p-1">$ <span t-field="o.accounts_collected" t-field-options='{"widget": "monetary"}'/></td>
+                            </tr>
+                            <tr>
+                                <td class="p-1"><strong>Cheques posfechados: </strong></td>
+                                <td class="p-1">$ <span t-field="o.postdated_checks" t-field-options='{"widget": "monetary"}'/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Withhold lines -->
+                <table class="table table-sm " name="balance_portfolio_line_table" style="font-size:12px; vertical-align: middle;">
+                    <thead>
+                        <tr>
+                            <t t-set="colspan" t-value="6"/>
+                            <th name="th_description" class="text-start">
+                                <span>Doc.</span>
+                            </th>
+                            <th name="th_docnumber" class="text-start">
+                                <span>Registro No.</span>
+                            </th>
+                            <th name="th_date" class="text-start">
+                                <span>Fecha de Emisión</span>
+                            </th>
+                            <th name="th_end_date" class="text-start">
+                                <span>Fecha de Vencimiento</span>
+                            </th>
+                            <th name="th_days" class="text-start">
+                                <span>Dias</span>
+                            </th>
+                            <th name="th_total" class="text-start">
+                                <span>Total</span>
+                            </th>
+                            <th name="th_balance" class="text-start">
+                                <span>Saldo</span>
+                            </th>
+                            <th name="th_balance" class="text-start">
+                                <span>Saldo Acumulado</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="balance_portfolio_line_table_tbody" style="vertical-align=middle;">
+                        <t t-if="o.factura_ids">
+                            <tr>
+                                <td colspan="8" style="text-align: center; font-weight: bold; padding: 5px;">DOCUMENTOS ADEUDADOS</td>
+                            </tr>
+
+                            <t t-set="saldo_acumulado" t-value="0"/> <!-- Inicializar saldo acumulado -->
+
+                            <tr t-foreach="o.factura_ids" style="border-top: 0.5px solid gray !important;" t-as='invoice_detail_line'>
+                                <t t-set="saldo_acumulado" t-value="round(saldo_acumulado + float(invoice_detail_line.balance), 2)"/>
+                                
+                                <td style="vertical-align: middle;">
+                                    <span t-esc="invoice_detail_line.tipo"/>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <span t-esc="invoice_detail_line.id_register"/>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <span t-esc="invoice_detail_line.record_date"/>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <span t-esc="invoice_detail_line.end_date"/>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <span t-esc="invoice_detail_line.days"/>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <span t-esc="invoice_detail_line.total"/>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <span t-esc="invoice_detail_line.balance"/>
+                                </td>
+                                <td class="text-end" style="vertical-align: middle; font-weight: bold;">
+                                    $ <span t-esc="saldo_acumulado"/>
+                                </td>
+                            </tr>
+                        </t>
+
+                        <t t-if="o.cheque_ids">
+                            <tr>
+                                <td colspan="8" style="text-align: center; font-weight: bold; padding: 5px;">CHEQUES POSFECHADOS</td>
+                            </tr>
+
+                            <t t-set="saldo_acumulado" t-value="0"/> <!-- Inicializar saldo acumulado -->
+
+                            <tr t-foreach="sorted(o.cheque_ids, key=lambda c: c.days_order)" style="border-top: 0.5px solid gray !important;" t-as='cheque_detail_line'>
+                                <t t-set="saldo_acumulado" t-value="round(saldo_acumulado + float(cheque_detail_line.balance), 2)"/>
+                                
+                                <td style="vertical-align: middle;">
+                                    <span t-esc="cheque_detail_line.tipo"/>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <span t-esc="cheque_detail_line.id_register"/>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <span t-esc="cheque_detail_line.record_date"/>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <span t-esc="cheque_detail_line.end_date"/>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <span t-esc="cheque_detail_line.days"/>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <span t-esc="cheque_detail_line.total"/>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <span t-esc="cheque_detail_line.balance"/>
+                                </td>
+                                <td class="text-end" style="vertical-align: middle; font-weight: bold;">
+                                    $ <span t-esc="saldo_acumulado"/>
+                                </td>
+                            </tr>
+                        </t>
+
+
+
+                        <!-- <t t-foreach="o.client_detail_ids" t-as="client_detail_line">
+                            
+                            <tr style="border-top: 0.5px solid gray !important;">
+                                    <td style="vertical-align: middle;">
+                                        <span t-esc="client_detail_line.tipo"/>
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <span t-esc="client_detail_line.id_register"/>
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <span t-esc="client_detail_line.record_date"/>
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <span t-esc="client_detail_line.end_date"/>
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <span t-esc="client_detail_line.days"/>
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <span t-esc="client_detail_line.total"/>
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <span t-esc="client_detail_line.balance"/>
+                                    </td> -->
+                                    
+                                    <!-- <td style="vertical-align: middle;">
+                                        <span t-esc="client_detail_line.quota"/>
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <span t-esc="client_detail_line.term"/>
+                                    </td> -->
+                            <!-- </tr> -->
+                        <!-- </t> -->
+                    </tbody> 
+                </table>
+            </div>
+        </t>
+    </template>
+
+    <!-- Report action for Withholds -->
+    <!-- <field name="print_report_name">(object._get_report_base_filename())</field>
+        <field name="attachment">(object.state == 'posted') and ((object.name or 'WTH').replace('/','_')+'.pdf')</field>
+        <field name="attachment_use">True</field> -->
+    <record id="balance_portfolio_report" model="ir.actions.report">
+        <field name="name">Reporte de cartera</field>
+        <field name="model">balance.portfolio</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">balance_portfolio.report_balance_portfolio</field>
+        <field name="report_file">balance_portfolio.report_balance_portfolio</field>
+        <field name="binding_model_id" ref="balance_portfolio.model_balance_portfolio"/>
+        <field name="binding_type">report</field>
+    </record>
+    
+    <!-- Workaround for Studio reports, see odoo/odoo#60660 -->
+    <template id="report_balance_portfolio">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="lang" t-value="o.client_id.lang or user.lang or 'es_EC'"/>
+                <t t-call="balance_portfolio.report_balance_portfolio_document" t-lang="lang"/>
+            </t>
+        </t> 
+    </template>
+
+</odoo>
