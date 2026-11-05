@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Categoría de grupo -->
+        <record id="group_category_sale_ranking" model="ir.module.category">
+            <field name="name">Ranking de Ventas</field>
+            <field name="description">Grupos relacionados al reporte de ranking de ventas</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Subcategoría de grupo -->
+        <record id="group_sub_category_sale_ranking" model="ir.module.category">
+            <field name="name">Grupos</field>
+            <field name="parent_id" ref="group_category_sale_ranking"/>
+        </record>
+
+        <!-- Grupo: Administradores de saldo de cartera -->
+        <record id="group_sale_ranking_admin" model="res.groups">
+            <field name="name">Administrador de ranking</field>
+            <field name="category_id" ref="sale_ranking_report.group_sub_category_sale_ranking"/>
+        </record>
+
+        <!-- Grupo: Acceso limitado a cartera -->
+        <record id="group_sale_ranking_vendor_code" model="res.groups">
+            <field name="name">Vendedores</field>
+            <field name="category_id" ref="sale_ranking_report.group_sub_category_sale_ranking"/>
+            <field name="implied_ids" eval="[(4, ref('sale_ranking_report.group_sale_ranking_admin'))]"/>
+        </record>
+
+    </data>
+</odoo>

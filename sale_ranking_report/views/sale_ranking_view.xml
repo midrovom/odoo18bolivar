@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+
+        <record id="action_sale_ranking_report_client" model="ir.actions.client">
+            <field name="name">Ranking de Ventas</field>
+            <field name="tag">sale_ranking_report_client</field>
+        </record>
+
+        <menuitem
+            id="sale_ranking_report_menu"
+            name="Ranking de Ventas"
+            action="action_sale_ranking_report_client"
+            sequence="10"
+            web_icon="sale_ranking_report,static/description/icon.png"
+            groups="sale_ranking_report.group_sale_ranking_admin,sale_ranking_report.group_sale_ranking_vendor_code"/>
+    
+    </data>
+    
+</odoo>

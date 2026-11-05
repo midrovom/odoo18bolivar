@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Cron independiente: consulta SOLO los endpoints con el check nuevo activo. -->
+        <record id="ir_cron_inventory_web_sync" model="ir.cron">
+            <field name="name">Inventario Web API: sincronizar productos y bodegas</field>
+            <field name="model_id" ref="model_stock_inventory_web_sync" />
+            <field name="user_id" ref="base.user_root" />
+            <field name="state">code</field>
+            <field name="code">model.sync_inventory_web_products()</field>
+            <field name="interval_number">30</field>
+            <field name="interval_type">minutes</field>
+            <field name="active" eval="True" />
+        </record>
+    </data>
+    <!-- Se ejecuta también en actualizaciones: el cron anterior tiene noupdate=1. -->
+    <data>
+        <function model="stock.inventory.web.sync" name="_migrate_inventory_web_cron_code" />
+        <function model="stock.inventory.web.sync" name="_migrate_inventory_web_price_warehouses" />
+        <function model="stock.inventory.web.sync" name="_hide_radis_inventory_menu" />
+    </data>
+</odoo>

@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_json_sales_report_user,json.sales.report.user,model_json_sales_report,sale_report.group_sales_report_user,1,0,0,0
+access_json_sales_report_manager,json.sales.report.manager,model_json_sales_report,sale_report.group_sales_report_tipo_manager,1,1,1,1
+access_sales_report_tipo_user,sales.report.tipo.user,model_sales_report_tipo,sale_report.group_sales_report_user,1,0,0,0
+access_sales_report_tipo_manager,sales.report.tipo.manager,model_sales_report_tipo,sale_report.group_sales_report_tipo_manager,1,1,1,1
+access_sales_report_empresa_user,sales.report.empresa.user,model_sales_report_empresa,sale_report.group_sales_report_user,1,0,0,0
+access_sales_report_empresa_manager,sales.report.empresa.manager,model_sales_report_empresa,sale_report.group_sales_report_tipo_manager,1,1,1,1
+access_res_users_empresa_rel_user,res.users.empresa.rel user,model_res_users_empresa_rel,base.group_user,1,1,1,1

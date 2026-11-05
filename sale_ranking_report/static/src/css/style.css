@@ -1,0 +1,64 @@
+.table-striped-custom > tbody > tr:nth-of-type(odd) {
+    background-color: #ebebeb; /* ejemplo de Bootstrap */
+}
+
+.border-purple {
+  border: 1px solid #71639e;
+}
+
+.text-purple {
+  color: #71639e;
+}
+
+.bg-purple {
+  background-color: #71639e;
+}
+
+
+@media (max-width: 576px) {
+  .mobile-small-text {
+    font-size: 10px;
+  }
+}
+
+
+/* Estilos para el autocomplete */
+.o-autocomplete--dropdown-menu {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    margin-top: 0.2rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.o-autocomplete--dropdown-item:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+/* Asegurar que el contenedor padre tenga posición relativa */
+.position-relative {
+    position: relative;
+}
+
+.odoo-purple-active {
+    background-color: #71639e !important;
+    color: white !important;
+}
+
+
+
+.border-last {
+  border-right: 1px solid #000;
+  border-top: none;
+  border-bottom: none;
+}
+
+.border-no-line {
+  border-top: none;
+  border-bottom: none;
+}
+
+
+

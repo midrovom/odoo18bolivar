@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ranking_sale,access.ranking.sale,model_sale_ranking_report,sale_ranking_report.group_sale_ranking_admin,1,1,1,1
+access_ranking_sale,access.ranking.sale,model_sale_ranking_report,sale_ranking_report.group_sale_ranking_vendor_code,1,0,0,0

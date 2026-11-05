@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+
+        <record id="action_json_sales_report" model="ir.actions.client">
+            <field name="name">Reporte Ventas</field>
+            <field name="tag">kadoshcell_report_client</field>
+        </record>
+
+        <menuitem id="menu_kadoshcell_root" name="Reporte de Ventas" web_icon="sale_report,static/description/icon.png"/>
+
+        <menuitem 
+            id="menu_json_sales_report"
+            name="Reporte Ventas"
+            parent="menu_kadoshcell_root"
+            action="action_json_sales_report"
+            groups="sale_report.group_sales_report_user,sale_report.group_sales_report_tipo_manager"/>
+
+    </data>
+
+</odoo>

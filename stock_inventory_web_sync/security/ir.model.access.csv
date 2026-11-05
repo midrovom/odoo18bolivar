@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_inventory_web_log_manager,inventory.web.log.manager,model_stock_inventory_web_log,stock.group_stock_manager,1,0,0,0
+access_inventory_web_sync_manager,inventory.web.sync.manager,model_stock_inventory_web_sync,stock.group_stock_manager,1,0,0,0
+access_inventory_web_product_log_manager,inventory.web.product.log.manager,model_stock_inventory_web_product_log,stock.group_stock_manager,1,0,0,0

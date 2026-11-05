@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_inventory_web_log_tree" model="ir.ui.view">
+        <field name="name">stock.inventory.web.log.tree</field>
+        <field name="model">stock.inventory.web.log</field>
+        <field name="arch" type="xml">
+            <list string="Sincronizaciones API" create="false" edit="false" delete="false">
+                <field name="date" />
+                <field name="api_id" />
+                <field name="company_id" />
+                <field name="state" widget="badge" />
+                <field name="created_count" />
+                <field name="updated_count" />
+                <field name="modified_count" />
+                <field name="unchanged_count" />
+                <field name="stock_count" />
+                <field name="warning_count" />
+                <field name="error_count" />
+            </list>
+        </field>
+    </record>
+    <record id="view_inventory_web_log_form" model="ir.ui.view">
+        <field name="name">stock.inventory.web.log.form</field>
+        <field name="model">stock.inventory.web.log</field>
+        <field name="arch" type="xml">
+            <form string="Resultado de sincronización" create="false" edit="false" delete="false">
+                <sheet>
+                    <group>
+                        <group><field name="date"/><field name="api_id"/><field name="company_id"/></group>
+                        <group><field name="state"/><field name="created_count"/><field name="updated_count"/><field name="modified_count"/><field name="unchanged_count"/><field name="stock_count"/><field name="warning_count"/><field name="error_count"/></group>
+                    </group>
+                    <group><field name="details" widget="text" nolabel="1"/></group>
+                    <notebook>
+                        <page string="Productos procesados">
+                            <field name="product_log_ids" readonly="1" nolabel="1">
+                                <list string="Detalle por producto" create="false" edit="false" delete="false" limit="80">
+                                    <field name="date" />
+                                    <field name="sku" />
+                                    <field name="product_tmpl_id" />
+                                    <field name="execution_type" />
+                                    <field name="state" widget="badge" />
+                                    <field name="stock_count" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_inventory_web_log" model="ir.actions.act_window">
+        <field name="name">Registro de sincronizaciones</field>
+        <field name="res_model">stock.inventory.web.log</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_inventory_web_root" name="Inventario Web API" sequence="75" groups="stock.group_stock_manager" />
+    <menuitem id="menu_inventory_web_log" name="Sincronizaciones" parent="menu_inventory_web_root" action="action_inventory_web_log" sequence="10" />
+
+    <record id="view_inventory_web_product_log_tree" model="ir.ui.view">
+        <field name="name">stock.inventory.web.product.log.tree</field>
+        <field name="model">stock.inventory.web.product.log</field>
+        <field name="arch" type="xml">
+            <list string="Actualizaciones de productos por API" create="false" edit="false" delete="false">
+                <field name="date" />
+                <field name="sku" />
+                <field name="product_tmpl_id" />
+                <field name="api_id" />
+                <field name="company_id" groups="base.group_multi_company" />
+                <field name="execution_type" />
+                <field name="state" widget="badge" />
+                <field name="stock_count" />
+            </list>
+        </field>
+    </record>
+    <record id="view_inventory_web_product_log_form" model="ir.ui.view">
+        <field name="name">stock.inventory.web.product.log.form</field>
+        <field name="model">stock.inventory.web.product.log</field>
+        <field name="arch" type="xml">
+            <form string="Detalle de sincronización por producto" create="false" edit="false" delete="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="date" />
+                            <field name="sku" />
+                            <field name="product_tmpl_id" />
+                            <field name="product_id" />
+                            <field name="product_name" />
+                            <field name="company_id" />
+                        </group>
+                        <group>
+                            <field name="api_id" />
+                            <field name="sync_log_id" />
+                            <field name="execution_type" />
+                            <field name="state" />
+                            <field name="stock_count" />
+                        </group>
+                    </group>
+                    <group string="Cambios de precio y stock por bodega">
+                        <field name="details" widget="text" nolabel="1" readonly="1" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_inventory_web_product_log_search" model="ir.ui.view">
+        <field name="name">stock.inventory.web.product.log.search</field>
+        <field name="model">stock.inventory.web.product.log</field>
+        <field name="arch" type="xml">
+            <search string="Consultar sincronizaciones de productos">
+                <field name="sku" />
+                <field name="product_tmpl_id" />
+                <field name="api_id" />
+                <filter name="log_errors" string="Errores" domain="[('state','=','error')]" />
+                <filter name="log_warnings" string="Advertencias" domain="[('state','=','warning')]" />
+                <filter name="log_cron" string="Cron" domain="[('execution_type','=','cron')]" />
+                <group expand="0" string="Agrupar por">
+                    <filter name="group_sku" string="Código" context="{'group_by':'sku'}" />
+                    <filter name="group_api" string="API" context="{'group_by':'api_id'}" />
+                    <filter name="group_status" string="Resultado" context="{'group_by':'state'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_inventory_web_product_log" model="ir.actions.act_window">
+        <field name="name">Detalle por producto</field>
+        <field name="res_model">stock.inventory.web.product.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_inventory_web_product_log_search" />
+    </record>
+    <menuitem id="menu_inventory_web_product_log" name="Detalle por producto"
+              parent="menu_inventory_web_root" action="action_inventory_web_product_log" sequence="20" />
+
+    <record id="rule_inventory_web_product_log_company" model="ir.rule">
+        <field name="name">Log de producto por empresas autorizadas</field>
+        <field name="model_id" ref="model_stock_inventory_web_product_log" />
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]" />
+    </record>
+
+    <record id="view_api_administrator_inventory_web_sync" model="ir.ui.view">
+        <field name="name">api.administrator.inventory.web.sync</field>
+        <field name="model">api.administrator</field>
+        <field name="inherit_id" ref="api_administrator.view_api_adminitrator_form" />
+        <field name="arch" type="xml">
+            <!-- El campo base warehouse_id permanece Many2one para las APIs
+                 anteriores. Solo Inventario Web muestra su propio selector
+                 múltiple con la MISMA etiqueta Bodega Relacionada. -->
+            <xpath expr="//field[@name='warehouse_id']" position="before">
+                <field name="inventory_web_products_enabled" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='warehouse_id']" position="attributes">
+                <attribute name="invisible">inventory_web_products_enabled</attribute>
+            </xpath>
+            <xpath expr="//field[@name='warehouse_id']" position="after">
+                <field name="inventory_web_price_warehouse_ids"
+                       string="Bodega Relacionada"
+                       widget="many2many_tags"
+                       domain="[('company_id', '=', company_id)]"
+                       options="{'no_create': True}"
+                       invisible="not inventory_web_products_enabled"/>
+                <field name="inventory_web_products_enabled"
+                       groups="stock.group_stock_manager"/>
+            </xpath>
+            <!-- Encabezado del formulario: disponible para sincronización manual.
+                 La tarea programada sigue ejecutando el método independiente. -->
+            <xpath expr="//form/sheet" position="before">
+                <header>
+                    <button name="action_sync_inventory_web"
+                            type="object"
+                            string="Sincronizar"
+                            class="oe_highlight"
+                            groups="stock.group_stock_manager"
+                            help="Sincroniza los productos, precios y bodegas de esta API. Requiere activar Inventario Web: Productos y Bodegas en esta configuración."/>
+                </header>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_product_template_inventory_web" model="ir.ui.view">
+        <field name="name">product.template.inventory.web</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Inventario Web API" groups="stock.group_stock_manager">
+                    <group>
+                        <group>
+                            <field name="inventory_web_line" />
+                            <field name="inventory_web_brand" />
+                            <field name="inventory_web_format" />
+                            <field name="inventory_web_price_1" readonly="1" />
+                            <field name="inventory_web_price_2" readonly="1" />
+                        </group>
+                        <group>
+                            <field name="inventory_web_mxpallets" />
+                            <field name="inventory_web_mxplaca" />
+                            <field name="inventory_web_mxcaja" />
+                            <field name="inventory_web_stock_total" readonly="1" />
+                            <field name="inventory_web_last_sync" readonly="1" />
+                        </group>
+                    </group>
+                    <group string="Almacenes encontrados por código">
+                        <field name="inventory_web_warehouse_ids" widget="many2many_tags" readonly="1" nolabel="1" />
+                    </group>
+                    <group string="Historial por producto (cron y manual)">
+                        <field name="inventory_web_log_ids" nolabel="1" readonly="1">
+                            <list string="Historial de cambios" create="false" edit="false" delete="false" limit="80">
+                                <field name="date" />
+                                <field name="sku" />
+                                <field name="api_id" />
+                                <field name="execution_type" />
+                                <field name="state" widget="badge" />
+                                <field name="stock_count" />
+                            </list>
+                            <form string="Detalle de actualización" create="false" edit="false" delete="false">
+                                <group>
+                                    <field name="date" />
+                                    <field name="sku" />
+                                    <field name="api_id" />
+                                    <field name="execution_type" />
+                                    <field name="state" />
+                                    <field name="stock_count" />
+                                    <field name="details" widget="text" readonly="1" nolabel="1" />
+                                </group>
+                            </form>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_product_variant_inventory_web_history" model="ir.ui.view">
+        <field name="name">product.product.inventory.web.history</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Historial Inventario Web API" groups="stock.group_stock_manager">
+                    <field name="inventory_web_log_ids" readonly="1" nolabel="1">
+                        <list create="false" edit="false" delete="false" limit="80">
+                            <field name="date" />
+                            <field name="api_id" />
+                            <field name="execution_type" />
+                            <field name="state" widget="badge" />
+                            <field name="stock_count" />
+                        </list>
+                        <form string="Detalle de actualización" create="false" edit="false" delete="false">
+                            <group>
+                                <field name="date" />
+                                <field name="sku" />
+                                <field name="api_id" />
+                                <field name="execution_type" />
+                                <field name="state" />
+                                <field name="details" widget="text" readonly="1" nolabel="1" />
+                            </group>
+                        </form>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

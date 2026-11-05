@@ -1,0 +1,83 @@
+.table-totales .valor {
+  white-space: nowrap;   
+  display: inline-block; 
+}
+
+.valor-color {
+  color: #000;
+  font-weight: bold;
+}
+
+.tabla-web{
+  font-size: 1rem !important;
+}
+
+@media (max-width: 576px) {
+  .table {
+    font-size: 0.8rem;
+    line-height: 1.2; 
+  }
+
+  .table th,
+  .table td {
+    padding: 0.25rem 0.35rem; 
+  }
+
+  .valor {
+    font-size: 0.8rem;
+    white-space: nowrap;
+    letter-spacing: -0.2px;
+  }
+
+  .table-info {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .mt-ventas{
+    font-size: 1.3rem !important;           
+  }
+
+  .utlidad{
+    font-size: 1.3rem !important;         
+  }
+
+  th:nth-child(2), td:nth-child(2),
+  th:nth-child(3), td:nth-child(3),
+  th:nth-child(4), td:nth-child(4),
+  th:nth-child(5), td:nth-child(5) {
+    min-width: 90px;
+  }
+
+  th:nth-child(1), td:nth-child(1) {
+    min-width: 120px; 
+  }
+
+  th:nth-child(6), td:nth-child(6) {
+    min-width: 100px; 
+  }
+
+  .tabla-totales .valor,
+  .tabla-totales .valor-color {
+    font-size: 1.4rem !important; 
+    font-weight: bold;
+  }
+
+  .tabla-totales strong {
+    font-size: 1.2rem; 
+  }
+
+  .tabla-totales td {
+    padding: 0.5rem 0.6rem; 
+  }
+
+  .valor-totales-general {
+    font-size: 1.1rem !important; 
+  }
+
+  .tabla_mobil{
+    font-size: 1rem !important;
+  }
+
+}
+

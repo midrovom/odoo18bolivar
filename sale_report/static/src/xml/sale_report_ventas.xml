@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="sale_report.Zoomable" owl="1">
+        <div class="zoom-wrapper"
+             t-on-touchstart="onTouchStart"
+             t-on-touchmove="onTouchMove"
+             t-on-touchend="onTouchEnd">
+
+            <div class="zoom-content" t-ref="zoom">
+                <t t-slot="default"/>
+            </div>
+
+        </div>
+    </t>
+
+    <t t-name="sale_report.SaleRankingReport" owl="1">
+
+        <Zoomable>
+            <div class="d-flex flex-column h-100" style="max-height:80vh; overflow-y:auto;">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-12 col-md-3">
+                                <label class="form-label fw-bold">Desde</label>
+                                <input type="date" class="form-control" t-model="state.date_from"/>
+                            </div>
+
+                            <div class="col-12 col-md-3">
+                                <label class="form-label fw-bold">Hasta</label>
+                                <input type="date" class="form-control" t-model="state.date_to"/>
+                            </div>
+
+                            <div class="col-12 col-md-3">
+                                <label class="form-label fw-bold">Tipo</label>
+                                <select class="form-control" t-model="state.tipo">
+                                    <option value="">Seleccione</option>
+                                    <t t-foreach="state.tipos" t-as="t" t-key="t.id">
+                                        <option t-att-value="t.id">
+                                            <t t-esc="t.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-3">
+                                <button class="btn btn-primary w-100" t-on-click="updateRanking">
+                                    Consultar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACCORDION -->
+                <div class="accordion">
+                    <t t-foreach="state.empresas" t-as="empresa" t-key="empresa.nombre">
+                        <t t-set="safe_id" t-value="cleanName(empresa.nombre)"/>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-bold text-warning" type="button" data-bs-toggle="collapse" t-att-data-bs-target="'#collapse-' + safe_id">
+                                    <div class="container-fluid">
+                                        <div class="row mb-1">
+                                            <div class="col-12 text-start">
+                                            <strong><t t-esc="empresa.nombre"/></strong>
+                                            </div>
+                                        </div>
+
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-borderless text-start mb-0">
+                                                
+                                                <thead class="small text-muted">
+                                                    <tr class="d-none d-md-table-row tabla-web">
+                                                        <th>Monto Ventas: $</th>
+                                                        <th>% Utilidad</th>
+                                                        <th>P Tarjeta: $</th>
+                                                        <th>Utilidad: $</th>
+                                                        <th>Costo: $</th>
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody>
+
+                                                    <tr class="d-none d-md-table-row">
+                                                        <td><strong class="valor-color"><t t-esc="empresa.total_ventas_fmt"/></strong></td>
+                                                        <td><strong class="valor-color"><t t-esc="empresa.total_utilidad"/>%</strong></td>
+                                                        <td><strong class="valor-color"><t t-esc="empresa.total_ptarjeta_fmt"/></strong></td>
+                                                        <td><strong class="valor-color"><t t-esc="empresa.total_rentabilidad_fmt"/></strong></td>
+                                                        <td><strong class="valor-color"><t t-esc="empresa.total_costo_fmt"/></strong></td>
+                                                    </tr>
+
+                                                    <!-- MOBILE -->
+                                                    <tr class="d-table-row d-md-none tabla_mobil">
+                                                        <th class="text-muted tabla_mobil">Monto Ventas: $</th>
+                                                        <td><strong class="valor-color tabla_mobil"><t t-esc="empresa.total_ventas_fmt"/></strong></td>
+                                                    </tr>
+
+                                                    <tr class="d-table-row d-md-none tabla_mobil">
+                                                        <th class="text-muted tabla_mobil">% Utilidad</th>
+                                                        <td><strong class="valor-color tabla_mobil"><t t-esc="empresa.total_utilidad"/>%</strong></td>
+                                                    </tr>
+
+                                                    <tr class="d-table-row d-md-none tabla_mobil">
+                                                        <th class="text-muted tabla_mobil">P Tarjeta: $</th>
+                                                        <td><strong class="valor-color tabla_mobil"><t t-esc="empresa.total_ptarjeta_fmt"/></strong></td>
+                                                    </tr>
+
+                                                    <tr class="d-table-row d-md-none tabla_mobil">
+                                                        <th class="text-muted tabla_mobil">Costo: $</th>
+                                                        <td><strong class="valor-color tabla_mobil"><t t-esc="empresa.total_costo_fmt"/></strong></td>
+                                                    </tr>
+                                                    <tr class="d-table-row d-md-none">
+                                                        <th class="text-muted tabla_mobil">Utilidad: $</th>
+                                                        <td><strong class="valor-color tabla_mobil"><t t-esc="empresa.total_rentabilidad_fmt"/></strong></td>
+                                                    </tr>
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </button>
+                            </h2>
+
+                            <div class="accordion-collapse collapse"
+                                 t-att-id="'collapse-' + safe_id">
+                                <div class="accordion-body table-responsive">
+                                    <table class="table table-bordered text-center">
+                                        <thead class="table-info">
+                                            <tr>
+                                                <th>Vendedor</th>
+                                                <th>Costo</th>
+                                                <th>Monto Ventas</th>
+                                                <th>Utilidad</th>
+                                                <th>% Utilidad</th>
+                                                <th>Ptarjeta</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody class="table-secondary">
+                                            <t t-foreach="empresa.vendedores" t-as="v" t-key="v_index">
+                                                <tr>
+                                                    <td class="text-start">
+                                                        <t t-esc="v.vendedor"/>
+                                                    </td>
+
+                                                    <td class="text-end">
+                                                        $ <t t-esc="v.costo_fmt"/>
+                                                    </td>
+
+                                                    <td class="text-end">
+                                                        $ <t t-esc="v.monto_ventas_fmt"/>
+                                                    </td>
+
+                                                    <td class="text-end">
+                                                        $ <t t-esc="v.rentabilidad_fmt"/>
+                                                    </td>
+
+                                                    <td class="text-end">
+                                                        <t t-esc="v.utilidad"/>%
+                                                    </td>
+
+                                                    <td class="text-end">
+                                                        $ <t t-esc="v.ptarjeta_fmt"/>
+                                                    </td>
+
+                                                    <t t-if="v_index === 0">
+                                                        <td t-att-rowspan="empresa.vendedores.length"
+                                                            class="text-center align-middle">
+                                                            $ <t t-esc="empresa.total_general_fmt"/>
+                                                        </td>
+                                                    </t>
+                                                </tr>
+
+                                            </t>
+
+                                            <tr class="table-secondary">
+                                                <td><strong>Totales</strong></td>
+                                                <td class="text-end">$ <t t-esc="empresa.total_costo_fmt"/></td>
+                                                <td class="text-end">$ <t t-esc="empresa.total_ventas_fmt"/></td>
+                                                <td class="text-end">$ <t t-esc="empresa.total_rentabilidad_fmt"/></td>
+                                                <td class="text-end"><t t-esc="empresa.total_utilidad"/>%</td>
+                                                <td class="text-end">$ <t t-esc="empresa.total_ptarjeta_fmt"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+
+                <!-- TOTALES GENERALES -->
+                <div class="card mt-3">
+                    <div class="card-body p-2 table-responsive">
+                        <table class="table table-bordered text-center mb-0 valor-totales-general tabla-totales">
+                            <thead>
+                                <tr style="background-color:#ADD8E6;">
+                                <th class="text-start"><strong>Total General: $</strong></th>
+                                <th class="text-start"><strong>% Utilidad:</strong></th>
+                                <th class="text-start"><strong>PTarjeta: $</strong></th>
+                                <th class="text-start"><strong>Utilidad: $</strong></th>
+                                <th class="text-start"><strong>Costo: $</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                <td class="text-start"><t t-esc="state.totales.ventas_fmt"/></td>
+                                <td class="text-start"><t t-esc="state.totales.utilidad"/>%</td>
+                                <td class="text-start"><t t-esc="state.totales.ptarjeta_fmt"/></td>
+                                <td class="text-start"><t t-esc="state.totales.rentabilidad_fmt"/></td>
+                                <td class="text-start"><t t-esc="state.totales.costo_fmt"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </Zoomable>
+
+    </t>
+
+</templates>
+

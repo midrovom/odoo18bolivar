@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+<t t-name="sale_ranking_report.SaleRankingReportMain" owl="1">
+    <div class="d-flex flex-column h-100 mobile-small-text">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between p-3 bg-light border-bottom">
+            <!-- Botón de actualización -->
+            <button type="button" class="btn btn-primary mb-2 mb-md-0" t-on-click="updateRanking">
+                <i class="fa fa-refresh me-2"></i> Actualizar ranking
+            </button>
+
+            <!-- Search de usuarios -->
+            <t t-if="state.showUserSearch">
+                <div class="position-relative w-100 w-md-auto" style="min-width: 300px; max-width: 400px">
+                    <form t-on-submit.prevent="onSearchUser">
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                class="o-autocomplete--input o_input form-control"
+                                placeholder="Buscar vendedor"
+                                name="search"
+                                t-on-input="onSearchInput"
+                                t-on-focus="onInputFocus"
+                                t-on-blur="onInputBlur"
+                                t-on-keydown="onInputKeydown"
+                                autocomplete="off"
+                                aria-autocomplete="list"
+                                aria-haspopup="listbox"
+                                t-att-aria-expanded="state.isDropdownOpen ? 'true' : 'false'"
+                                t-ref="input"
+                            />
+                            <!-- <button class="btn btn-primary o_wait_lazy_js" type="submit">
+                                <span class="fa fa-search"></span>
+                            </button> -->
+                            <button t-on-click.prevent="clearSearch" class="btn btn-primary" title="Limpiar búsqueda">
+                                <span class="fa fa-times"/>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Contenedor para el dropdown con posicionamiento absoluto -->
+                    <t t-if="state.isDropdownOpen and state.filteredUsers.length">
+                        <ul role="listbox" style="min-width: 300px; max-width: 400px; position: absolute; z-index: 1000; top:100%;" class="o-autocomplete--dropdown-menu dropdown-menu ui-widget ui-autocomplete show mt-0">
+                            <t t-foreach="state.filteredUsers" t-as="user" t-key="user.id">
+                                <li
+                                    class="o-autocomplete--dropdown-item ui-menu-item"
+                                    t-att-class="{'ui-state-active': state.activeUserIndex === user_index}"
+                                    t-on-click="() => this.onSelectUser(user)"
+                                    t-on-mouseenter="() => state.activeUserIndex = user_index"
+                                >
+                                    <a
+                                        role="option"
+                                        href="#"
+                                        class="dropdown-item ui-menu-item-wrapper text-truncate"
+                                        t-att-class="state.activeUserIndex === user_index ? 'dropdown-item ui-menu-item-wrapper text-truncate odoo-purple-active' : 'dropdown-item ui-menu-item-wrapper text-truncate'"
+                                        t-att-aria-selected="state.activeUserIndex === user_index ? 'true' : 'false'"
+                                    >
+                                        <span t-esc="user.name"/>
+                                        <t t-if="user.balanceCode">
+                                            (<span t-esc="user.balanceCode"/>)
+                                        </t>
+                                    </a>
+                                </li>
+                            </t>
+                        </ul>
+                    </t>
+                </div>
+            </t>
+
+        </div>
+
+        <t t-if="state.isLoading">
+            <div class="text-center p-5">
+                <div class="loader-animation mb-3">
+                    <div class="spinner-grow text-primary" role="status"></div>
+                    <div class="spinner-grow text-success" role="status"></div>
+                    <div class="spinner-grow text-info" role="status"></div>
+                </div>
+                <h5 class="text-muted">Cargando datos...</h5>
+                <p class="small text-muted">Por favor, espera mientras procesamos la información.</p>
+            </div>
+        </t>
+
+        <t t-else="">
+            <div class="table-responsive">
+                <table class="table table-striped-custom table-hover" style="position: relative; border-collapse: collapse; border-spacing: 0;">
+                    <t t-set="columns_per_marca" t-value="3"/>
+                    <t t-set="colspan_marcas" t-value="state.rows.marcas.length * columns_per_marca"/>
+                    <thead class="bg-purple" style="position: sticky; top: 0; z-index: 10;">
+                        <!-- Fila 1 -->
+                        <tr>
+                            <th class="text-center align-middle fw-bold text-white" style="border-right: 1px solid #000; border-top: none; border-bottom: none;" rowspan="2">Cliente</th>
+                            <th t-att-colspan="colspan_marcas" class="text-center fw-bold text-white" style="border-top: none; border-bottom: none;">
+                                Marcas
+                            </th>
+                            <th class="text-center align-middle fw-bold text-white" style="border-left: 1px solid #000; border-top: none; border-bottom: none;" rowspan="3">Total Cliente</th>
+                        </tr>
+                        <!-- Fila 2 -->
+                        <tr>
+                            <t t-foreach="state.rows.marcas" t-as="marca" t-key="marca">
+                                <th colspan="3" class="text-center fw-bold text-white" style="border-right: 1px solid #000; border-top: none; border-bottom: none;">
+                                    <t t-esc="marca"/>
+                                </th>
+                            </t>
+                        </tr>
+                        <!-- Fila 3 -->
+                        <tr>
+                            <th class="text-center align-middle fw-bold text-white" style="border-right: 1px solid #000;">
+                                Meses 👉
+                            </th>
+                            <!-- <t t-foreach="state.rows.marcas" t-as="marca" t-key="marca">
+                                <t t-foreach="state.rows.meses" t-as="mes" t-key="mes">
+                                    <th class="text-center fw-bold text-white"
+                                        style="border-right: 1px solid #000; border-left: 1px solid #000; border-top: none; border-bottom: none;">
+                                        <t t-esc="mes"/>
+                                    </th>
+                                </t>
+                            </t> -->
+
+                            <t t-foreach="state.rows.marcas" t-as="marca" t-key="marca">
+                                <t t-foreach="state.rows.meses" t-as="mes" t-key="mes">
+                                    <th class="text-center fw-bold text-white"
+                                        t-att-class="mes_index  === state.rows.meses.length - 1 ? 'border-last' : 'border-no-line'">
+                                        <t t-esc="mes"/>
+                                    </th>
+                                </t>
+                            </t>
+
+                        </tr>
+                    </thead>
+                    <t t-if="state.rows.totales">
+                        <tfoot style="position: sticky; bottom: 0; z-index: 10; background-color: white;">
+                            <tr>
+                                <th class="text-center fw-bold text-dark">Total</th>
+                                <t t-foreach="state.rows.marcas" t-as="marca" t-key="marca">
+                                    <t t-foreach="state.rows.meses" t-as="mes" t-key="mes">
+                                        <td class="text-center fw-bold text-dark" style="border-right: 1px solid #000; border-left: 1px solid #000; border-top: none; border-bottom: none;">
+                                            <t t-esc="state.rows.totales[marca]?.[mes] || 0.0"/>
+                                        </td>
+                                    </t>
+                                </t>
+                                <td class="text-center fw-bold text-primary">
+                                    <t t-esc="state.rows.total_general || 0.0"/>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </t>
+                    <!-- <tbody class="border-dark" style="overflow-y: auto;">
+                        <t t-foreach="state.rows.clientes" t-as="cliente" t-key="cliente.nombre">
+                            <tr>
+                                <td class="text-nowrap" style="min-width: 200px; white-space: nowrap;"><t t-esc="cliente.nombre"/></td>
+                                <t t-foreach="state.rows.marcas" t-as="marca" t-key="marca">
+                                    <t t-foreach="state.rows.meses" t-as="mes" t-key="mes">
+                                        <td class="text-center border border-dark" 
+                                            t-att-class="(cliente.data[marca]?.[mes] || 0.0) > 0 ? 'text-success fw-bold' : 'text-danger'">
+                                            <t t-esc="cliente.data[marca]?.[mes] || 0.0"/>
+                                        </td>
+                                    </t>
+                                </t>
+                                <td class="text-center fw-bold text-primary">
+                                    <t t-esc="cliente.total || 0.0"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody> -->
+
+                    <tbody class="border-dark" style="overflow-y: auto;">
+                        <t t-set="middle_index" t-value="Math.floor(state.rows.marcas.length / 2)"/>
+                        <t t-foreach="state.rows.clientes" t-as="cliente" t-key="cliente.nombre">
+                            <tr>
+                                <td class="text-nowrap" style="min-width: 200px; white-space: nowrap;">
+                                    <t t-esc="cliente.nombre"/>
+                                </td>
+
+                                <t t-foreach="state.rows.marcas" t-as="marca" t-key="marca">
+                                    <t t-foreach="state.rows.meses" t-as="mes" t-key="mes">
+                                        <td class="text-center border border-dark"
+                                            t-att-class="(cliente.data[marca]?.[mes] || 0.0) > 0 ? 'text-success fw-bold' : 'text-danger'"
+                                            t-att-style="marca_index === middle_index ? 'background-color: #f3f1ff;' : ''">
+                                            <t t-esc="cliente.data[marca]?.[mes] || 0.0"/>
+                                        </td>
+                                    </t>
+                                </t>
+
+                                <td class="text-center fw-bold text-primary">
+                                    <t t-esc="cliente.total || 0.0"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+
+                </table>
+            </div>
+        </t>
+    </div>
+</t>
+</templates>
