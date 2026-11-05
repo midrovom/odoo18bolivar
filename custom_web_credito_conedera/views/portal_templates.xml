@@ -421,7 +421,7 @@
                 <meta name="apple-mobile-web-app-capable" content="yes"/>
                 <meta name="apple-mobile-web-app-title" content="Crédito"/>
                 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-                <link rel="apple-touch-icon" href="/custom_web_credito_conedera/static/pwa/icon-180.png"/>
+                <link rel="apple-touch-icon" href="/custom_web_credito_conedera/static/pwa/icon-180.png?v=20261105"/>
             </t>
         </xpath>
         <xpath expr="//body" position="inside">

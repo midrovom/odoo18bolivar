@@ -1477,8 +1477,8 @@ class ConederaCreditPortal(http.Controller):
                 'custom_web_credito_conedera.website_%s.theme_color_primary' % request.website.id,
                 '#8f2f2f') or '#8f2f2f'),
             'icons': [
-                {'src': '/custom_web_credito_conedera/static/pwa/icon-192.png', 'sizes': '192x192', 'type': 'image/png', 'purpose': 'any'},
-                {'src': '/custom_web_credito_conedera/static/pwa/icon-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'any maskable'},
+                {'src': '/custom_web_credito_conedera/static/pwa/icon-192.png?v=20261105', 'sizes': '192x192', 'type': 'image/png', 'purpose': 'any'},
+                {'src': '/custom_web_credito_conedera/static/pwa/icon-512.png?v=20261105', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'any maskable'},
             ],
         }
         return request.make_response(json.dumps(data, ensure_ascii=False), headers=[

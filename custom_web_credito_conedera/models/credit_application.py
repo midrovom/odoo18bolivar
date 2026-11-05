@@ -7,6 +7,7 @@ import re
 import zlib
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError, AccessError, UserError
+from odoo.tools import email_normalize
 
 from .credit_identity import valid_ecuador_mobile, valid_credit_identity, valid_ecuador_or_foreign_document, valid_ruc_length
 
@@ -480,13 +481,31 @@ class ConederaCreditApplication(models.Model):
             },
         }
 
-    credit_is_admin = fields.Boolean(compute='_compute_credit_is_admin', string='Edición completa habilitada')
+    # Indicador de permiso de edición SOLO para la vista del backend.
+    # En registros aún sin guardar Odoo lee default_get() antes de realizar el
+    # cálculo del booleano; devolver su valor evita bloquear el formulario Nuevo.
+    credit_is_admin = fields.Boolean(
+        compute='_compute_credit_is_admin', string='Edición completa habilitada')
+
+    def _has_credit_admin_access(self):
+        """Misma fuente de verdad para el formulario y el control ORM."""
+        return bool(self.env.su or self.env.user.has_group(
+            'custom_web_credito_conedera.group_credit_administrator'))
+
+    @api.model
+    def default_get(self, fields_list):
+        defaults = super().default_get(fields_list)
+        # Los campos computados no siempre tienen valor en una ficha nueva.
+        # El widget utiliza este booleano para evaluar las expresiones readonly.
+        if 'credit_is_admin' in fields_list:
+            defaults['credit_is_admin'] = self._has_credit_admin_access()
+        return defaults
 
     @api.depends_context('uid')
     def _compute_credit_is_admin(self):
-        permitted = self.env.su or self.env.user.has_group('custom_web_credito_conedera.group_credit_administrator')
+        permitted = self._has_credit_admin_access()
         for application in self:
-            application.credit_is_admin = bool(permitted)
+            application.credit_is_admin = permitted
 
     # El usuario de crédito SOLO puede cambiar la etapa y los campos de verificación
     # del negocio. Protegido en ORM además de en las vistas (RPC/importaciones).
@@ -500,7 +519,7 @@ class ConederaCreditApplication(models.Model):
     })
 
     def _check_reviewer_values(self, values):
-        if self.env.su or self.env.user.has_group('custom_web_credito_conedera.group_credit_administrator'):
+        if self._has_credit_admin_access():
             return
         if self.env.user.has_group('custom_web_credito_conedera.group_credit_manager'):
             forbidden = set(values).difference(self._credit_reviewer_writable)
@@ -850,6 +869,142 @@ class ConederaCreditApplication(models.Model):
             return Partner.create(data)
 
     @api.model
+    def _credit_backend_partner_from_name(self, vals):
+        """Resolver el solicitante escrito en la ficha manual de crédito.
+
+        No crear contactos durante un onchange: sólo después de guardar.
+        Nunca modificar el nombre de un contacto comercial que ya existe.
+        Las sociedades usan RUC como dato del negocio; el solicitante escrito
+        en la ficha es la persona representante (contacto individual).
+        """
+        name = (vals.get('applicant_name_text') or '').strip()
+        if not name:
+            raise ValidationError(_(
+                'Seleccione un contacto en Solicitante o escriba el nombre del solicitante en la ficha.'))
+        email = email_normalize(vals.get('applicant_email') or '')
+        if not email:
+            raise ValidationError(_(
+                'Ingrese un correo electrónico válido para crear el contacto solicitante.'))
+        company = self.env['res.company'].sudo().browse(
+            vals.get('company_id') or self.env.company.id).exists()
+        if not company:
+            raise ValidationError(_('Seleccione una empresa válida.'))
+        Partner = self.env['res.partner'].sudo().with_company(company)
+        company_domain = ['|', ('company_id', '=', False), ('company_id', '=', company.id)]
+        # Solo reutilizar automáticamente cuando nombre Y correo coinciden
+        # exactamente. Si la ficha usa un contacto diferente, el administrador
+        # puede elegirlo expresamente en el campo Solicitante.
+        matches = Partner.with_context(active_test=False).search(
+            company_domain + [('name', '=ilike', name), ('email', '=ilike', email)],
+            order='id', limit=101)
+        matches = matches.filtered(
+            lambda p: not p.is_company and
+            (p.name or '').strip().casefold() == name.casefold() and
+            email_normalize(p.email or '') == email)
+        if len(matches) == 1:
+            return matches
+        if len(matches) > 1:
+            raise ValidationError(_(
+                'Existen varios contactos con ese nombre y correo. '
+                'Seleccione manualmente el solicitante para evitar duplicados.'))
+        # Si el documento personal ya existe, no crear un duplicado con otro
+        # correo o nombre. El administrador debe escoger el contacto correcto.
+        applicant_type = self.env['conedera.credit.applicant.type'].sudo().browse(
+            vals.get('applicant_type_id')).exists()
+        if applicant_type and applicant_type.code != 'juridical':
+            identity = (vals.get('identification') or '').strip()
+            if identity:
+                old_with_id = Partner.with_context(active_test=False).search(
+                    company_domain + [('vat', '=ilike', identity)], limit=2)
+                if old_with_id:
+                    raise ValidationError(_(
+                        'Ya existe un contacto con esa identificación. '
+                        'Selecciónelo en Solicitante para evitar duplicados.'))
+        partner_vals = {
+            'name': name,
+            'is_company': False,
+            'company_type': 'person',
+            'company_id': company.id,
+            'email': email,
+            'phone': vals.get('phone_fixed') or False,
+            'mobile': vals.get('mobile') or False,
+            'street': vals.get('home_address') or False,
+            'city': vals.get('city') or False,
+        }
+        # La identificación en una persona jurídica puede ser el RUC del negocio.
+        # No guardarla como VAT del representante personal.
+        if applicant_type and applicant_type.code != 'juridical':
+            identity = (vals.get('identification') or '').strip()
+            if identity:
+                partner_vals['vat'] = identity
+        try:
+            with self.env.cr.savepoint():
+                return Partner.create(partner_vals)
+        except ValidationError:
+            # Algunas cédulas extranjeras no cumplen la validación fiscal
+            # local de res.partner. Mantener la identificación en la ficha.
+            partner_vals.pop('vat', None)
+            return Partner.create(partner_vals)
+
+    def _credit_invite_backend_portal_user(self):
+        """Crear acceso al portal mediante invitación oficial de Odoo 18.
+
+        Sólo afecta solicitudes nuevas creadas internamente. No reutilizar un
+        login de otra persona ni asignar contraseñas conocidas por empleados.
+        Los datos de auditoría del portal permanecen en la base aunque la vista
+        interna no los muestre.
+        """
+        Users = self.env['res.users'].sudo().with_context(active_test=False)
+        for application in self:
+            if application.credit_origin != 'backend' or application.portal_user_id:
+                continue
+            partner = application.partner_id
+            email = email_normalize(application.applicant_email or '')
+            if not partner or not email:
+                continue
+            # No tomar posesión de un cliente existente con distinto correo.
+            if partner.email and email_normalize(partner.email) != email:
+                application.message_post(body=_('El contacto fue vinculado, pero no se creó acceso al portal: el correo de la ficha no coincide con el correo del contacto.'))
+                continue
+            if not partner.email:
+                partner.sudo().write({'email': email})
+            existing = Users.search([('login', '=ilike', email)], order='id', limit=2)
+            if existing:
+                matched = existing.filtered(
+                    lambda u: u.partner_id.id == partner.id and
+                    u.active and u.has_group('base.group_portal') and not u.has_group('base.group_user'))
+                if len(existing) == 1 and len(matched) == 1:
+                    application.write({'portal_user_id': matched.id})
+                else:
+                    application.message_post(body=_('El correo ya está registrado para otra cuenta o un usuario interno. No se vinculó automáticamente por seguridad. Revise el contacto en Usuarios.'))
+                continue
+            # La invitación nativa envía un enlace para fijar su propia clave.
+            # Ante problemas del correo/SMTP, guardar el expediente y dejar
+            # una advertencia visible en su historial en lugar de perderlo.
+            try:
+                with self.env.cr.savepoint():
+                    wizard = self.env['portal.wizard'].sudo().with_company(
+                        application.company_id).create({
+                            'partner_ids': [(6, 0, [partner.id])],
+                        })
+                    invite = wizard.user_ids.filtered(lambda u: u.partner_id.id == partner.id)[:1]
+                    if not invite:
+                        raise UserError(_('Odoo no pudo preparar la invitación del portal.'))
+                    if invite.is_internal:
+                        raise UserError(_('El contacto ya pertenece a un usuario interno.'))
+                    if not invite.is_portal:
+                        invite.action_grant_access()
+                    user = Users.search([('partner_id', '=', partner.id),
+                                         ('login', '=ilike', email)], limit=1)
+                    if not user or not user.has_group('base.group_portal'):
+                        raise UserError(_('No se pudo confirmar la cuenta del portal.'))
+                    application.write({'portal_user_id': user.id})
+            except Exception as error:
+                _logger.exception('No se pudo invitar al portal el contacto %s de la solicitud %s',
+                                  partner.id, application.name)
+                application.message_post(body=_('La solicitud y el contacto se guardaron, pero no se pudo generar la invitación al portal. Revise el correo y la configuración SMTP. Detalle: %s') % escape(str(error)))
+
+    @api.model
     def _migrate_credit_partner_links(self):
         """Vincular expedientes anteriores sin cambiar sus datos ni sus etapas."""
         # Solo los expedientes previos (sin partner_id) se consideran históricos.
@@ -947,8 +1102,9 @@ class ConederaCreditApplication(models.Model):
             else:
                 vals['credit_origin'] = 'backend'
                 if not vals.get('partner_id'):
-                    raise ValidationError(_('Seleccione el solicitante desde Contactos.'))
-                # Nueva solicitud manual: por defecto usar el nombre del contacto.
+                    vals['partner_id'] = self._credit_backend_partner_from_name(vals).id
+                # Si el administrador elige un contacto existente, respetar su nombre.
+                # Si sólo escribe el nombre de la ficha, crear/reutilizar el contacto.
                 if not vals.get('applicant_name_text'):
                     partner = self.env['res.partner'].browse(vals['partner_id'])
                     vals['applicant_name_text'] = partner.name or False
@@ -984,6 +1140,8 @@ class ConederaCreditApplication(models.Model):
             record.message_post(body=_('Solicitud registrada. Etapa inicial: %s') % escape(record.stage_id.name or ''))
             if record.stage_id.is_initial:
                 record._send_stage_notification(False, record.stage_id)
+        if not self.env.context.get('credit_portal_submission') and not self.env.context.get('credit_skip_portal_invitation'):
+            records._credit_invite_backend_portal_user()
         return records
 
     def write(self, vals):
