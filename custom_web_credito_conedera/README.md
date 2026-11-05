@@ -193,7 +193,7 @@ Instalación: respaldar base de datos y filestore, sustituir directorio, reinici
 ## 18.0.1.6.0 — Permisos por solicitud como Historial de Postulaciones
 
 - A diferencia del permiso global anterior, cada solicitud almacena `portal_update_scope`: `none`, `history`, `documentation`, `both`. Por seguridad, los expedientes antiguos se mantienen sin permiso hasta que el responsable los habilite.
-- En **Crédito CONEDERA → Solicitudes**, el usuario interno que pertenezca al grupo **Gestionar permisos de actualización del portal de crédito** ve el botón de cabecera **Habilitar permiso del portal** y el botón inteligente **Permiso portal**. Ambos abren el mismo asistente de autorización con botones **Habilitar/Cancelar**, como en `custom_web_hr_historial_postulaciones`.
+- En **Crédito CONEDERA → Solicitudes**, el usuario interno que pertenezca al grupo **Gestionar permisos de actualización del portal de crédito** ve un único botón inteligente **Actualizar solicitud**, que abre el asistente de autorización con botones **Habilitar/Cancelar**, como en `custom_web_hr_historial_postulaciones`.
 - El responsable se puede autorizar desde **Ajustes → Usuarios → Puede habilitar permisos del portal de crédito**, o asignándole el grupo de administración correspondiente. Este grupo implica gestionar crédito y **no se otorga a usuarios portal**.
 - **Historial:** aparecerá el botón **Actualizar** para la solicitud autorizada, mientras esté en trámite y no aprobada/rechazada. Se cargan los datos existentes del formulario de cinco pasos.
 - **Documentación:** el primer ingreso de archivos se permite tras la aprobación; modificaciones posteriores de un expediente ya creado requieren el permiso `documentation` o `both` de esa solicitud (igual que el módulo de referencia). Sin aprobación no se permite cargar archivos ni mediante URL.
@@ -205,7 +205,7 @@ Instalación: respaldar base de datos y filestore, sustituir directorio, reinici
 
 - Se elimina del código el grupo de corrección global del portal y el campo auxiliar antiguo de `res.users`.
 - Al **actualizar** una base que tenga versiones anteriores, `migrations/18.0.1.7.0/post-remove-old-portal-group.py` quita el grupo legado de `res.groups` y sus asignaciones a usuarios.
-- Se mantiene sin cambios el grupo **Gestionar permisos de actualización del portal de crédito**, el botón inteligente **Permiso portal** y los permisos individuales de las solicitudes.
+- Se mantiene sin cambios el grupo **Gestionar permisos de actualización del portal de crédito**, el botón inteligente **Actualizar solicitud** y los permisos individuales de las solicitudes.
 - La migración se ejecuta al actualizar el módulo por cambio de versión; no es suficiente reemplazar archivos sin actualizar el módulo en Odoo.
 
 
@@ -274,7 +274,7 @@ El botón «Usar mi ubicación actual» distingue entre sitio sin HTTPS, permiso
 
 ## Versión 18.0.1.8.12: habilitación del croquis por solicitud
 
-En Solicitudes de crédito, el botón «Habilitar permiso del portal» ofrece tres casillas
+En Solicitudes de crédito, el botón inteligente «Actualizar solicitud» abre el asistente que ofrece tres casillas
 independientes: (1) corrección de solicitud, (2) corrección de documentos y
 (3) corrección de croquis del cliente. El responsable puede combinarlas libremente.
 Los permisos existentes de versiones anteriores se preservan.
@@ -469,8 +469,13 @@ Actualizar el módulo desde Aplicaciones después de reiniciar el servicio Odoo.
 ## Versión 18.0.1.8.57 — Autorización única para permisos de actualización del portal
 
 - Se retira de Ajustes > Usuarios el checkbox duplicado **Permiso adicional: habilitar correcciones del portal**. La vista heredada anterior queda desactivada también en bases actualizadas.
-- Únicamente quien tenga asignado el grupo **Gestionar permisos de actualización del portal de crédito** puede ver los botones **Permiso portal** y **Habilitar permiso del portal**, siempre que la solicitud tenga un usuario de portal asociado.
+- Únicamente quien tenga asignado el grupo **Gestionar permisos de actualización del portal de crédito** puede ver el botón inteligente **Actualizar solicitud**, siempre que la solicitud tenga un usuario de portal asociado.
 - Ser Administrador de crédito o Usuario de crédito, por sí solo, NO habilita los botones ni la ejecución del asistente. La comprobación se realiza otra vez en el servidor al abrir y aplicar el asistente.
 - La ACL anterior del asistente concedida a todos los Administradores se desactiva explícitamente en CSV para bases ya instaladas.
 - Los permisos concedidos anteriormente a solicitudes y sus fechas no se modifican.
 - Para conceder acceso, marcar el grupo **Gestionar permisos de actualización del portal de crédito** en Ajustes > Usuarios.
+
+### Versión 18.0.1.8.58
+- Se eliminó el botón duplicado en la cabecera del formulario de solicitudes.
+- El único botón inteligente **Actualizar solicitud** abre el mismo asistente para habilitar correcciones de datos, documentos y croquis.
+- Sigue limitado al grupo **Gestionar permisos de actualización del portal de crédito** y a expedientes con usuario de portal asociado.
