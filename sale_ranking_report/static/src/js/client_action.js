@@ -9,7 +9,6 @@ export class SaleRankingReportMain extends Component {
     setup() {
         // this.localSearchValue = "";
         this.orm = useService("orm");
-        this.user = useService("user");
         this.dialogService = useService("dialog");
         this.state = useState({
             rows: { marcas: [], meses: [], clientes: [], totales: {}, total_general: 0 },
