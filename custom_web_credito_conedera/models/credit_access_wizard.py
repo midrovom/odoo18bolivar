@@ -35,13 +35,8 @@ class ConederaCreditAccessWizard(models.TransientModel):
 
     def action_apply(self):
         self.ensure_one()
-        if not (
-            (
-                self.env.user.has_group('custom_web_credito_conedera.group_credit_portal_update_manager')
-                and self.env.user.has_group('custom_web_credito_conedera.group_credit_manager')
-            )
-            or self.env.user.has_group('custom_web_credito_conedera.group_credit_administrator')
-        ):
+        # Validar en servidor: no basta con ocultar el botón en la vista.
+        if not self.env['conedera.credit.application']._credit_can_manage_portal_updates():
             raise AccessError(_('No tiene permisos para habilitar la actualización del portal.'))
         application = self.application_id.exists()
         if not application or not application.portal_user_id:

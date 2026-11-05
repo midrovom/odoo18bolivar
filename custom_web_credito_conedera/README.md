@@ -464,3 +464,13 @@ Actualice el módulo (no lo reinstale). Las validaciones de Odoo en el servidor 
 - Campos de secuencia, aceptación registrada, fechas automáticas y estado de documentación siguen protegidos.
 
 Actualizar el módulo desde Aplicaciones después de reiniciar el servicio Odoo. No desinstalar.
+
+
+## Versión 18.0.1.8.57 — Autorización única para permisos de actualización del portal
+
+- Se retira de Ajustes > Usuarios el checkbox duplicado **Permiso adicional: habilitar correcciones del portal**. La vista heredada anterior queda desactivada también en bases actualizadas.
+- Únicamente quien tenga asignado el grupo **Gestionar permisos de actualización del portal de crédito** puede ver los botones **Permiso portal** y **Habilitar permiso del portal**, siempre que la solicitud tenga un usuario de portal asociado.
+- Ser Administrador de crédito o Usuario de crédito, por sí solo, NO habilita los botones ni la ejecución del asistente. La comprobación se realiza otra vez en el servidor al abrir y aplicar el asistente.
+- La ACL anterior del asistente concedida a todos los Administradores se desactiva explícitamente en CSV para bases ya instaladas.
+- Los permisos concedidos anteriormente a solicitudes y sus fechas no se modifican.
+- Para conceder acceso, marcar el grupo **Gestionar permisos de actualización del portal de crédito** en Ajustes > Usuarios.

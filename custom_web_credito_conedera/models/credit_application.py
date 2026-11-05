@@ -590,16 +590,24 @@ class ConederaCreditApplication(models.Model):
         string='Puede conceder permisos del portal', compute='_compute_credit_access_button_visible'
     )
 
+    @api.model
+    def _credit_can_manage_portal_updates(self):
+        """Exige el grupo asignado expresamente, incluso si es administrador.
+
+        Consultar membership explícita (en sudo sobre res.users) evita que
+        privilegios generales o el modo superusuario equivalgan a marcar
+        la casilla independiente de gestión de permisos del portal.
+        """
+        group = self.env.ref(
+            'custom_web_credito_conedera.group_credit_portal_update_manager',
+            raise_if_not_found=False,
+        )
+        return bool(group and group.id in self.env.user.sudo().groups_id.ids)
+
     @api.depends('portal_user_id')
     @api.depends_context('uid')
     def _compute_credit_access_button_visible(self):
-        authorized = (
-            (
-                self.env.user.has_group('custom_web_credito_conedera.group_credit_portal_update_manager')
-                and self.env.user.has_group('custom_web_credito_conedera.group_credit_manager')
-            )
-            or self.env.user.has_group('custom_web_credito_conedera.group_credit_administrator')
-        )
+        authorized = self._credit_can_manage_portal_updates()
         for record in self:
             record.credit_access_button_visible = bool(authorized and record.portal_user_id)
 
@@ -1289,13 +1297,7 @@ class ConederaCreditApplication(models.Model):
     def action_open_portal_update_wizard(self):
         """Botón inteligente y de cabecera, igual al permiso de postulaciones."""
         self.ensure_one()
-        if not (
-            (
-                self.env.user.has_group('custom_web_credito_conedera.group_credit_portal_update_manager')
-                and self.env.user.has_group('custom_web_credito_conedera.group_credit_manager')
-            )
-            or self.env.user.has_group('custom_web_credito_conedera.group_credit_administrator')
-        ):
+        if not self._credit_can_manage_portal_updates():
             raise AccessError(_('No puede gestionar permisos de actualización del portal de crédito.'))
         if not self.portal_user_id:
             raise UserError(_('Esta solicitud no tiene un usuario de portal asociado.'))

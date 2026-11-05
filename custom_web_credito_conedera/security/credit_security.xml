@@ -17,10 +17,8 @@
         <field name="implied_ids" eval="[(6, 0, [ref('base.group_user')])]"/>
         <field name="comment">Puede modificar solicitudes, referencias, documentos y catálogos de crédito, así como configurar los colores del portal.</field>
     </record>
-    <!-- Igual que el módulo de postulaciones: el responsable concede permiso por solicitud,
-         no por usuario de portal. Este grupo es para el empleado que otorga permisos. -->
-    <!-- Permiso adicional e independiente para habilitar correcciones del portal.
-         Un administrador posee este derecho por su propio grupo. -->
+    <!-- Único permiso para conceder actualizaciones desde el portal.
+         Es independiente de Administrador de crédito y Usuario de crédito. -->
     <record id="group_credit_portal_update_manager" model="res.groups">
         <field name="name">Gestionar permisos de actualización del portal de crédito</field>
         <field name="category_id" ref="module_category_conedera_credit"/>
