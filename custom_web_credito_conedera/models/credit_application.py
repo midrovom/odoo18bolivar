@@ -742,7 +742,7 @@ class ConederaCreditApplication(models.Model):
                 raise ValidationError(_(
                     'El contacto solicitante debe ser compartido o pertenecer a la misma empresa que la solicitud.'))
 
-    @api.onchange('applicant_name', 'partner_id')
+    @api.onchange('partner_id')
     def _onchange_credit_partner_id(self):
         """Usar los datos del contacto como punto de partida de una solicitud manual.
 
@@ -750,10 +750,9 @@ class ConederaCreditApplication(models.Model):
         contacto al editarla desde el backend.
         """
         for application in self:
-            partner = application.applicant_name or application.partner_id
+            partner = application.partner_id
             if not partner:
                 continue
-            application.partner_id = partner
             is_company = bool(partner.is_company)
             kind = 'juridical' if is_company else 'natural'
             applicant_type = self.env['conedera.credit.applicant.type'].sudo().search(
