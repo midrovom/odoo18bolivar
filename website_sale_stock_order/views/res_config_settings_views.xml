@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_stock_order" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.website.stock.order</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="website_sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='sale_product_catalog_settings']" position="inside">
+                <setting id="website_stock_sort_default_setting"
+                         string="Orden de productos en la tienda"
+                         help="Elige el orden predeterminado cuando un visitante abre la tienda sin seleccionar otro orden.">
+                    <field name="website_stock_sort_default"/>
+                    <div class="text-muted mt-1">
+                        Stock: mayor a menor muestra primero los productos con existencias.
+                        Los agotados permanecen publicados, al final del catálogo.
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>
