@@ -38,6 +38,67 @@ class TestAnalyticsSalesDashboard(TransactionCase):
         moves.create(dict(sample, source_key='test-B', local_id=self.shop_b.id,
                           document_number='TEST-2', quantity=10, total_net=1000, total_cost=400))
 
+    def test_configurable_identity_and_scope(self):
+        moves = self.env['analytics.sales.move'].sudo()
+        moves.create({
+            'company_id': self.company.id, 'source_kind': 'historico',
+            'source_key': 'test-custom-line', 'document_type': 'FA',
+            'document_number': 'TEST-3', 'date': '2026-11-01',
+            'local_id': self.shop_a.id, 'line_name': 'CERÁMICA',
+            'quantity': 1, 'total_net': 75, 'cost_known': True, 'total_cost': 25,
+        })
+        dash = self.env['analytics.sales.dashboard']
+        params = {'date_from': '2026-11-01', 'date_to': '2026-11-30'}
+        before = dash.get_dashboard(params)
+        self.assertEqual(before['scope'], 'all')
+        self.assertEqual(set(before['options']['lines']), {'CALZADO', 'CERÁMICA'})
+        self.assertEqual(before['metrics']['sales'], 1225)
+        catalog = self.env['analytics.sales.category']
+        catalog._initialize_from_sales()
+        category_before = catalog.search([
+            ('company_id', '=', self.company.id), ('name', '=', 'CERÁMICA')])
+        self.assertEqual(len(category_before), 1)
+        catalog._initialize_from_sales()
+        self.assertEqual(catalog.search([
+            ('company_id', '=', self.company.id), ('name', '=', 'CERÁMICA')]).ids, category_before.ids)
+        master_action = catalog.action_open_master()
+        self.assertEqual(master_action['res_model'], 'analytics.sales.category')
+        with self.assertRaises(AccessError):
+            catalog.with_user(self.user_store).action_open_master()
+        settings_model = self.env['analytics.sales.settings']
+        action = settings_model.action_open_saved()
+        settings = settings_model.browse(action['res_id'])
+        category = self.env['analytics.sales.category'].search([
+            ('company_id', '=', self.company.id), ('name', '=', 'CERÁMICA')])
+        self.assertEqual(len(category), 1)
+        settings.write({
+            'dashboard_scope_name': 'Revestimientos',
+            'dashboard_category_ids': [(6, 0, category.ids)],
+            'dashboard_scope_default': True,
+        })
+        reopened = settings_model.action_open_scope()
+        self.assertEqual(reopened['res_id'], settings.id)
+        self.assertEqual(reopened['views'][0][0], self.env.ref('analytics_sales.view_analytics_sales_scope_form').id)
+        # New attributes do not automatically expand the configured button.
+        catalog._register_names(self.company, ['OTRA LÍNEA TEST'])
+        self.assertEqual(settings.dashboard_category_ids.ids, category.ids)
+        custom = dash.get_dashboard(params)
+        self.assertEqual(custom['scope'], 'configured')
+        self.assertEqual(custom['presentation']['title'], self.company.name)
+        self.assertEqual(custom['presentation']['logo'], ''.join(word[0] for word in self.company.name.split()[:3]).upper() if len(self.company.name.split()) > 1 else self.company.name[:3].upper())
+        self.assertIn('logo_url', custom['presentation'])
+        self.assertEqual(custom['presentation']['subtitle'], 'INTELIGENCIA COMERCIAL')
+        self.assertEqual(custom['options']['lines'], ['CERÁMICA'])
+        self.assertEqual(custom['metrics']['sales'], 75)
+        self.assertEqual(dash.get_dashboard(dict(params, scope='all'))['metrics']['sales'], 1225)
+        store = dash.with_user(self.user_store).get_dashboard(dict(params, scope='all'))
+        self.assertEqual(store['metrics']['sales'], 225)
+        self.assertNotIn('cost', store['metrics'])
+        with self.assertRaises(AccessError):
+            settings.with_user(self.user_store).write({'dashboard_scope_name': 'No autorizado'})
+        settings.write({'dashboard_category_ids': [(5, 0, 0)]})
+        self.assertEqual(dash.get_dashboard(dict(params, scope='configured'))['scope'], 'all')
+
     def test_store_scope_unique_invoices_no_costs(self):
         dashboard = self.env['analytics.sales.dashboard'].with_user(self.user_store).with_company(self.company)
         d = dashboard.get_dashboard({'date_from': '2026-11-01', 'date_to': '2026-11-30'})

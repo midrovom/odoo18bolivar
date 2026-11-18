@@ -32,6 +32,38 @@ class TestAnalyticsSalesNativeApiJson(TransactionCase):
             ('local_id.name', '=', 'TEST JSON IDR LOCAL 001'),
         ])
 
+    def test_attributes_created_automatically_from_accepted_sales(self):
+        catalog = self.env['analytics.sales.category'].sudo()
+        domain = [('company_id', '=', self.company.id)]
+        self.sync._upsert_snapshot([
+            self._row(Linea=' Celulares  '),
+            self._row(clave='FA-5377-SKU-02', Codproducto='SKU-02', Linea='celulares'),
+        ], self.company, 'api', 'merge')
+        phone = catalog.search(domain + [('name', '=', 'CELULARES')])
+        self.assertEqual(len(phone), 1)
+        self.sync._upsert_snapshot([
+            self._row(Linea='Accesorios'),
+        ], self.company, 'api', 'merge')
+        self.assertEqual(catalog.search(domain + [('name', '=', 'CELULARES')]).ids, phone.ids)
+        self.assertEqual(catalog.search_count(domain + [('name', '=', 'ACCESORIOS')]), 1)
+        self.sync._upsert_snapshot([self._row(Linea='accesorios ')], self.company, 'api', 'merge')
+        self.assertEqual(catalog.search_count(domain + [('name', '=', 'ACCESORIOS')]), 1)
+        # Same name in another company is a distinct catalog entry.
+        other_company = self.env['res.company'].sudo().create({'name': 'Telefonía test 2'})
+        self.sync._upsert_snapshot([self._row(Linea='Celulares')], other_company, 'api', 'merge')
+        other = catalog.search([('company_id', '=', other_company.id), ('name', '=', 'CELULARES')])
+        self.assertEqual(len(other), 1)
+        self.assertNotEqual(other.id, phone.id)
+
+    def test_invalid_response_does_not_add_attribute(self):
+        with self.assertRaises(ValidationError), self.env.cr.savepoint():
+            self.sync._upsert_snapshot([
+                self._row(Linea='CATEGORIA INVALIDA TEST'),
+                self._row(clave='FA-5377-SKU-02', Cantidad='no numérico'),
+            ], self.company, 'api', 'merge')
+        self.assertFalse(self.env['analytics.sales.category'].sudo().search([
+            ('company_id', '=', self.company.id), ('name', '=', 'CATEGORIA INVALIDA TEST')]))
+
     def test_wrapped_response_and_signed_returns(self):
         row = self._row()
         payload = {'success': True, 'data': [row], 'session_id': 'session-test'}

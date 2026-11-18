@@ -12,6 +12,52 @@ class AnalyticsSalesSettings(models.Model):
     _sql_constraints = [('settings_company_unique', 'unique(company_id)',
                          'Ya existe una configuración API para esta compañía.')]
 
+    dashboard_logo_text = fields.Char(string='Siglas de la cabecera', size=6,
+                                      help='Texto del recuadro de marca. Vacío: iniciales de la compañía.')
+    dashboard_brand_title = fields.Char(string='Nombre comercial',
+                                        help='Vacío: nombre de la compañía activa.')
+    dashboard_brand_subtitle = fields.Char(string='Subtítulo comercial',
+                                           default='INTELIGENCIA COMERCIAL',
+                                           help='Vacío: Inteligencia comercial.')
+    dashboard_scope_name = fields.Char(string='Nombre del ámbito personalizado',
+                                       default='Líneas seleccionadas')
+    dashboard_category_ids = fields.Many2many(
+        'analytics.sales.category', 'analytics_sales_settings_category_rel',
+        'settings_id', 'category_id', string='Atributos del botón personalizado',
+        domain="[('company_id', '=', company_id)]",
+        help='Seleccione atributos del maestro de ventas (campo Línea). Sin selección, el ámbito personalizado se oculta.')
+    dashboard_scope_default = fields.Boolean(string='Abrir con el ámbito personalizado', default=False)
+
+    @api.constrains('dashboard_category_ids', 'company_id')
+    def _check_dashboard_categories(self):
+        for record in self:
+            if record.dashboard_category_ids.filtered(lambda cat: cat.company_id != record.company_id):
+                raise ValidationError(_('Las líneas del ámbito deben pertenecer a la compañía activa.'))
+
+    @api.model
+    def _dashboard_preferences(self, company):
+        # Private helper called after dashboard authorization. Return presentation
+        # settings only, never API credentials, identifiers or other settings.
+        record = self.sudo().search([('company_id', '=', company.id)], limit=1)
+        name = (company.name or 'Analytics Sales').strip() or 'Analytics Sales'
+        words = name.split()
+        initials = (''.join(word[0] for word in words[:3]) if len(words) > 1
+                    else name[:3]).upper()
+        categories = (sorted(record.dashboard_category_ids.filtered(
+            lambda cat: cat.company_id == company).mapped('name')) if record else [])
+        return {
+            # La cabecera toma la identidad corporativa directamente de la compañía
+            # activa. Si la empresa aún no tiene logo cargado, el frontend muestra
+            # las iniciales como respaldo visual.
+            'logo': initials,
+            'logo_url': ('/web/image?model=res.company&id=%s&field=logo' % company.id) if company.logo else False,
+            'title': name,
+            'subtitle': 'INTELIGENCIA COMERCIAL',
+            'scope_name': ((record.dashboard_scope_name or '').strip() or 'Líneas seleccionadas') if record else 'Líneas seleccionadas',
+            'scope_lines': categories,
+            'default_scope': 'configured' if categories and record.dashboard_scope_default else 'all',
+        }
+
     _binding_fields = {
         'annual': ('annual_api_id',),
         'monthly': ('monthly_api_id',),
@@ -75,6 +121,7 @@ class AnalyticsSalesSettings(models.Model):
                           'annual_cron_id', 'monthly_cron_id', 'warehouse_api_id')
         # Serialize initialization; the SQL constraint is the last line of defense.
         self.env.cr.execute('SELECT pg_advisory_xact_lock(%s, %s)', (171708, company.id))
+        self.env['analytics.sales.category']._refresh_from_sales(company)
         saved = self.default_get(list(fields_to_load))
         saved['company_id'] = company.id
         record = self.search([('company_id', '=', company.id)], limit=1)
@@ -95,6 +142,16 @@ class AnalyticsSalesSettings(models.Model):
             'res_id': record.id,
             'target': 'current',
         }
+
+    @api.model
+    def action_open_scope(self):
+        """Reuse the permanent company settings; never create a second scope."""
+        action = self.action_open_saved()
+        action.update({
+            'name': _('Ámbito de análisis'),
+            'views': [(self.env.ref('analytics_sales.view_analytics_sales_scope_form').id, 'form')],
+        })
+        return action
 
     @api.model
     def default_get(self, names):

@@ -6,9 +6,6 @@ from odoo import api, fields, models, _
 from .goal_report import seller_identity, split_cents, money_cents, equal_month_seller_shares
 from odoo.exceptions import AccessError, ValidationError
 
-FASHION_LINES = {'CALZADO', 'CARTERAS', 'MODA MUJER'}
-
-
 def _previous_calendar_month(today):
     """Mes calendario anterior completo, incluso en un cambio de año."""
     last = today.replace(day=1) - timedelta(days=1)
@@ -303,9 +300,15 @@ class AnalyticsSalesDashboard(models.AbstractModel):
                 raise ValidationError(_('Local inválido.'))
             if selected_local not in allowed_ids:
                 raise AccessError(_('No tiene permiso para consultar ese nlocal.'))
-        scope = (filters.get('scope') or 'moda').lower()
-        if scope not in ('moda', 'all'):
+        presentation = self.env['analytics.sales.settings']._dashboard_preferences(company)
+        scope = str(filters.get('scope') or presentation['default_scope']).lower()
+        # Compatibility with older clients; the token no longer implies fashion.
+        if scope == 'moda':
+            scope = 'configured'
+        if scope not in ('configured', 'all'):
             raise ValidationError(_('Ámbito inválido.'))
+        if not presentation['scope_lines']:
+            scope = 'all'
         source_domain = [('company_id', '=', company.id), ('source_kind', '=', 'api')]
         move_model = self.env['analytics.sales.move'].sudo()
         source = 'api' if move_model.with_context(active_test=False).search_count(source_domain) else 'historico'
@@ -330,10 +333,13 @@ class AnalyticsSalesDashboard(models.AbstractModel):
             base_domain.append(('local_id', '=', selected_local))
             if role == 'tienda':
                 comparison_domain.append(('local_id', '=', selected_local))
-        if scope == 'moda':
-            fashion_filter = ('line_name', 'in', list(FASHION_LINES))
-            base_domain.append(fashion_filter)
-            comparison_domain.append(fashion_filter)
+        if scope == 'configured':
+            scope_lines = presentation['scope_lines']
+            scope_domain = [('line_name', 'in', scope_lines)]
+            if 'SIN LÍNEA' in scope_lines:
+                scope_domain = ['|', ('line_name', '=', False)] + scope_domain
+            base_domain += scope_domain
+            comparison_domain += scope_domain
         first_rec = move_model.search(base_domain, order='date asc,id asc', limit=1)
         last_rec = move_model.search(base_domain, order='date desc,id desc', limit=1)
         first = first_rec.date if first_rec else False
@@ -503,6 +509,7 @@ class AnalyticsSalesDashboard(models.AbstractModel):
             selected_seller=filters.get('seller'))
         return {
             'role': role, 'company': company.name, 'source': source,
+            'presentation': presentation,
             'api_synced_at': api_synced_at,
             # Marca de la consulta real, independiente de la última sincronización API.
             'dashboard_read_at': fields.Datetime.to_string(fields.Datetime.now()),
@@ -688,7 +695,7 @@ class AnalyticsSalesDashboard(models.AbstractModel):
             rows_period = move_model.search_read(period_domain, data_fields, order='date,id')
         else:
             # Misma fuente y MISMAS líneas que se usan para Venta neta:
-            # fecha, permisos, establecimiento/local, Moda, línea, marca y
+            # fecha, permisos, establecimiento/local, ámbito, línea, marca y
             # vendedor ya fueron aplicados en get_dashboard. No volver a
             # consultar las ventas ignorando esos filtros.
             local_set = set(local_ids)

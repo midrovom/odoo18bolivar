@@ -8,7 +8,15 @@
                 <sheet>
                     <h2>Analytics Sales | Sincronizaciones independientes</h2>
                     <p>Seleccione las APIs. Cada acción programada (cron) se vincula automáticamente y se muestra en solo lectura. Los vínculos se guardan por ID y las credenciales siguen en API Administrator.</p>
-                    <field name="company_id" readonly="1"/>
+                    <group>
+                        <field name="company_id" readonly="1"/>
+                    </group>
+                    <group string="Identidad comercial del dashboard">
+                        <div class="text-muted">
+                            La cabecera del dashboard toma automáticamente el <strong>logo</strong> y el <strong>nombre</strong> de la compañía activa (<code>res.company</code>). El subtítulo se mantiene fijo como <strong>INTELIGENCIA COMERCIAL</strong>.
+                        </div>
+                    </group>
+                    <p class="text-muted">Configure las categorías del botón personalizado en Administración → Ámbito de análisis. Las opciones provienen del Maestro de atributos.</p>
                     <group string="Cron 1: histórico de ventas anuales">
                         <field name="annual_api_id"/>
                         <field name="annual_cron_id" readonly="1"/>

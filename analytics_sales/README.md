@@ -753,3 +753,19 @@ El ajuste está limitado al archivo `static/src/css/dashboard.css` y al número 
 - Los tres cron aparecen en Configuración API como vínculos de solo lectura. Cada uno ejecuta exclusivamente la API guardada para su tipo y compañía. No se requieren selecciones manuales de cron.
 - Ventas anuales: 00:00 Ecuador; mensuales: cada dos horas pares; bodegas: cada día, conservando su próxima ejecución. Se reactivan los tres cron existentes y se corrigen sus intervalos al actualizar, sin crear nuevos cron.
 - Se conservan los botones de actualización manual opcional, las APIs seleccionadas y los dashboards. Los vínculos antiguos invertidos o vacíos no afectan al cron automático.
+
+## 18.0.1.1.85 — Identidad comercial y ámbito de análisis configurables
+
+- Administración → Configuración API: identidad de la cabecera y ámbito personalizado, guardados por compañía en el registro de configuración existente.
+- Si no hay nombre/siglas configurados, se usa el nombre/iniciales de la compañía. El subtítulo tiene valor genérico editable.
+- El catálogo de líneas se obtiene de los movimientos de venta de la fuente activa (API o histórico), mediante una consulta agrupada al abrir Configuración API. Conserva nombres ya detectados para no perder una selección guardada. No requiere crear líneas manualmente.
+- El filtro Todas las líneas sigue siendo dinámico; el ámbito personalizado es opcional y se puede establecer como inicial. La antigua clave RPC `moda` se acepta como alias del ámbito personalizado, sin categorías fijas; si no hay selección se usa `all`.
+- Se mantiene la seguridad por compañía y rol, los enlaces API, los cron y las fórmulas comerciales; se corrige la referencia visible a Odoo 16 en el pie.
+
+## 18.0.1.1.86 — Maestro de atributos y ámbito de análisis
+
+- Administración → Maestro de atributos: catálogo de solo lectura de las líneas de ventas por compañía. Reutiliza `analytics.sales.category` y su restricción única por compañía y nombre.
+- Cada importación exitosa de ventas anuales, mensuales o Excel agrega los valores distintos de `line_name` (campo `Linea` de la API). Se conserva la normalización anterior de mayúsculas, espacios exteriores y `SIN LÍNEA` para datos vacíos. Las categorías se registran dentro de la transacción de la carga; respuestas inválidas no generan entradas. No se crean categorías en el catálogo por cada fila, ni se eliminan al desaparecer de un corte.
+- La actualización del módulo completa el maestro con los movimientos ya almacenados (API/Excel), sin consultar las APIs ni modificar movimientos, registros de configuración o selecciones anteriores.
+- Administración → Ámbito de análisis: selección múltiple del maestro, nombre del botón y opción de apertura predeterminada. Se reutiliza el mismo registro de configuración de la compañía; guardar estos campos no cambia los vínculos de las APIs.
+- El botón personalizado filtra las categorías seleccionadas; las nuevas categorías no se seleccionan automáticamente. Todas las líneas mantiene los filtros, origen de ventas, cálculos y permisos anteriores. No hay valores de moda predeterminados.

@@ -633,6 +633,10 @@ class AnalyticsSalesSync(models.AbstractModel):
         removed = len(existing) if mode == 'replace' else 0
         if mode == 'replace' and existing:
             move_obj.browse([rec.id for rec in existing.values()]).unlink()
+        # Persist the catalog in the same transaction as accepted sales. Work
+        # with unique names, not individual movements or a full-table scan.
+        self.env['analytics.sales.category']._register_names(
+            company, {record['line_name'] for record in records})
         if repeated_source_keys:
             _logger.warning('Analytics Sales: %s filas repetidas con la misma clave API se ignoraron (no duplicar importes/unidades).', repeated_source_keys)
         return {'rows': len(rows), 'created': created, 'updated': updated, 'removed': removed,

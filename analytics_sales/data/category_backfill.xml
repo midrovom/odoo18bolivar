@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Populate existing data on install/upgrade, retaining IDs and selections. -->
+    <function model="analytics.sales.category" name="_initialize_from_sales"/>
+</odoo>

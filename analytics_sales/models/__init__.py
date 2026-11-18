@@ -11,4 +11,5 @@ from . import move
 from . import dashboard
 from . import sync
 from . import warehouse
+from . import category
 from . import settings

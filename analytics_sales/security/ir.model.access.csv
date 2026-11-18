@@ -8,3 +8,4 @@ access_sales_establishment_admin,Sales Analytics Establishment Admin,model_analy
 access_sales_goal_admin,Sales Analytics Goal Admin,model_analytics_sales_goal,analytics_sales.group_analytics_sales_admin,1,1,1,1
 access_sales_goal_month_admin,Analytics Sales Monthly Goal Admin,model_analytics_sales_goal_month_line,analytics_sales.group_analytics_sales_admin,1,1,1,0
 access_sales_warehouse_admin,Analytics Sales Bodega Admin,model_analytics_sales_warehouse,analytics_sales.group_analytics_sales_admin,1,1,0,0
+access_sales_category_admin,Analytics Sales Category Admin,model_analytics_sales_category,analytics_sales.group_analytics_sales_admin,1,0,0,0

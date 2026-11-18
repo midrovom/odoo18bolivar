@@ -46,4 +46,9 @@
         <field name="model_id" ref="model_analytics_sales_settings"/>
         <field name="domain_force">[('company_id', '=', company_id)]</field>
     </record>
+    <record id="rule_sales_category_company" model="ir.rule">
+        <field name="name">Analytics Sales | Líneas de compañía activa</field>
+        <field name="model_id" ref="model_analytics_sales_category"/>
+        <field name="domain_force">[('company_id', '=', company_id)]</field>
+    </record>
 </odoo>

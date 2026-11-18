@@ -4,7 +4,15 @@
 <div t-att-class="'as-sales ' + roleClass" role="main">
   <div class="as-app">
     <header class="as-head">
-      <div class="as-brand"><div class="as-logo">IDR</div><div><strong>IDR MODA</strong><small>INTELIGENCIA COMERCIAL</small></div></div>
+      <div class="as-brand">
+        <t t-if="presentation.logo_url">
+          <img class="as-logo-image" t-att-src="presentation.logo_url" t-att-alt="brandTitle"/>
+        </t>
+        <t t-else="">
+          <div class="as-logo" t-att-class="presentation.logo.length > 3 ? 'as-logo-long' : ''" t-esc="presentation.logo"/>
+        </t>
+        <div><strong t-esc="brandTitle"/><small t-esc="presentation.subtitle"/></div>
+      </div>
       <button t-if="state.nativeMenuAvailable" type="button" class="as-button as-mobile-menu" t-on-click="onToggleNativeMenu" t-att-aria-expanded="state.nativeMenuOpen ? 'true' : 'false'" t-att-aria-label="state.nativeMenuOpen ? 'Ocultar menú de Odoo' : 'Mostrar menú de Odoo'">
         <i t-att-class="state.nativeMenuOpen ? 'fa fa-times' : 'fa fa-bars'" aria-hidden="true"/><span t-esc="state.nativeMenuOpen ? 'Cerrar menú' : 'Menú Odoo'"/>
       </button>
@@ -33,9 +41,9 @@
         </div>
       </div>
       <section class="as-scope">
-        <div class="as-scope-copy"><strong>Ámbito de análisis</strong><span>Moda incluye Calzado, Carteras y Moda Mujer. Todas las líneas incluye las demás categorías disponibles.</span></div>
+        <div class="as-scope-copy"><strong>Ámbito de análisis</strong><span t-esc="scopeDescription"/></div>
         <div class="as-segments">
-          <button type="button" t-att-class="state.filters.scope === 'moda' ? 'selected' : ''" data-scope="moda" t-on-click="onScope">Moda · Calzado, Carteras y Moda Mujer</button>
+          <button t-if="hasCustomScope" type="button" t-att-class="state.filters.scope === 'configured' ? 'selected' : ''" data-scope="configured" t-on-click="onScope" t-esc="presentation.scope_name"/>
           <button type="button" t-att-class="state.filters.scope === 'all' ? 'selected' : ''" data-scope="all" t-on-click="onScope">Todas las líneas</button>
         </div>
       </section>
@@ -334,10 +342,10 @@
           <div class="as-table-wrap"><table><thead><tr><th>Marca</th><th class="as-num">Vendido FA (uds.)</th><th class="as-num">Unidades devueltas DE</th><th class="as-num">Unidades netas</th><th class="as-num">Facturado FA</th><th class="as-num">Devuelto DE</th><th class="as-num">Venta neta</th></tr></thead><tbody><t t-foreach="salesBrands" t-as="r" t-key="r.name"><tr><td t-esc="r.name"/><td class="as-num" t-esc="num(r.fa_units)"/><td class="as-num" t-esc="num(r.de_units)"/><td class="as-num" t-esc="num(r.units)"/><td class="as-num" t-esc="money(r.fa_sales)"/><td class="as-num" t-esc="money(r.de_sales)"/><td class="as-num" t-esc="money(r.sales)"/></tr></t></tbody></table></div>
         </article>
       </div>
-      <footer class="as-footer"><span><strong>IDR Moda · Dashboard gerencial · Odoo 16.</strong> Locales derivados de nlocal; facturas distintas por tipo + nlocal + número.</span><span><strong>Seguridad:</strong> los perfiles se validan en el servidor Odoo. <t t-esc="state.data.limitations"/></span></footer>
+      <footer class="as-footer"><span><strong><t t-esc="brandTitle"/> · Dashboard gerencial · Odoo 18.</strong> Locales derivados de nlocal; facturas distintas por tipo + nlocal + número.</span><span><strong>Seguridad:</strong> los perfiles se validan en el servidor Odoo. <t t-esc="state.data.limitations"/></span></footer>
     </t>
   </div>
-  <div t-if="state.guideOpen" class="as-modal-backdrop" role="presentation"><div class="as-modal" role="dialog" aria-modal="true" aria-label="Reglas del dashboard"><div class="as-modal-head"><h2>Reglas del dashboard</h2><button type="button" class="as-button" t-on-click="onCloseGuide" aria-label="Cerrar ventana">✕</button></div><div class="as-modal-body"><p><strong>FA = factura (venta).</strong> <strong>DE = devolución.</strong> Los importes de devolución se restan una sola vez del total de facturación.</p><table><thead><tr><th>Métrica</th><th>Definición</th></tr></thead><tbody><tr><td>Venta neta</td><td>Ventas FA menos devoluciones DE.</td></tr><tr><td>Unidades netas</td><td>Unidades FA menos unidades DE.</td></tr><tr><td>Facturas FA</td><td>Comprobantes únicos por tipo, local nlocal y número; no por SKU.</td></tr><tr><td>Ticket FA</td><td>Importe total FA dividido entre facturas FA únicas.</td></tr><tr><td>Facturado FA</td><td>Suma del importe de las líneas de factura FA antes de restar devoluciones.</td></tr><tr><td>Devuelto DE</td><td>Suma de los importes absolutos de las notas de devolución DE.</td></tr><tr><td>Neto vendido</td><td>Facturado FA menos Devuelto DE.</td></tr><tr><td>Vendido FA (uds.)</td><td>Unidades facturadas FA antes de restar las unidades devueltas DE.</td></tr><tr><td>Unidades devueltas DE</td><td>Cantidad devuelta en notas DE del período y filtros seleccionados.</td></tr><tr><td>Unidades netas</td><td>Vendido FA (uds.) menos unidades devueltas DE.</td></tr><tr><td>ABC</td><td>Por modelo, según ventas netas positivas acumuladas: A ~80%, B ~15%, C ~5%.</td></tr><tr><td>Velocidad comercial</td><td>Unidades netas / días calendario del rango; no mide rotación de inventario.</td></tr><tr><td>Histórico diario</td><td>Ventas netas reales FA − DE de los últimos N días calendario del período, incluidos días sin movimientos. No incluye proyecciones futuras.</td></tr><tr><td>Utilidad / margen</td><td>Exclusivo Administrador. Depende de costos disponibles y completos.</td></tr></tbody></table><p><strong>Moda:</strong> Calzado, Carteras y Moda Mujer. <strong>Seguridad:</strong> los accesos a costos y locales se restringen desde Odoo, no sólo visualmente.</p></div></div></div>
+  <div t-if="state.guideOpen" class="as-modal-backdrop" role="presentation"><div class="as-modal" role="dialog" aria-modal="true" aria-label="Reglas del dashboard"><div class="as-modal-head"><h2>Reglas del dashboard</h2><button type="button" class="as-button" t-on-click="onCloseGuide" aria-label="Cerrar ventana">✕</button></div><div class="as-modal-body"><p><strong>FA = factura (venta).</strong> <strong>DE = devolución.</strong> Los importes de devolución se restan una sola vez del total de facturación.</p><table><thead><tr><th>Métrica</th><th>Definición</th></tr></thead><tbody><tr><td>Venta neta</td><td>Ventas FA menos devoluciones DE.</td></tr><tr><td>Unidades netas</td><td>Unidades FA menos unidades DE.</td></tr><tr><td>Facturas FA</td><td>Comprobantes únicos por tipo, local nlocal y número; no por SKU.</td></tr><tr><td>Ticket FA</td><td>Importe total FA dividido entre facturas FA únicas.</td></tr><tr><td>Facturado FA</td><td>Suma del importe de las líneas de factura FA antes de restar devoluciones.</td></tr><tr><td>Devuelto DE</td><td>Suma de los importes absolutos de las notas de devolución DE.</td></tr><tr><td>Neto vendido</td><td>Facturado FA menos Devuelto DE.</td></tr><tr><td>Vendido FA (uds.)</td><td>Unidades facturadas FA antes de restar las unidades devueltas DE.</td></tr><tr><td>Unidades devueltas DE</td><td>Cantidad devuelta en notas DE del período y filtros seleccionados.</td></tr><tr><td>Unidades netas</td><td>Vendido FA (uds.) menos unidades devueltas DE.</td></tr><tr><td>ABC</td><td>Por modelo, según ventas netas positivas acumuladas: A ~80%, B ~15%, C ~5%.</td></tr><tr><td>Velocidad comercial</td><td>Unidades netas / días calendario del rango; no mide rotación de inventario.</td></tr><tr><td>Histórico diario</td><td>Ventas netas reales FA − DE de los últimos N días calendario del período, incluidos días sin movimientos. No incluye proyecciones futuras.</td></tr><tr><td>Utilidad / margen</td><td>Exclusivo Administrador. Depende de costos disponibles y completos.</td></tr></tbody></table><p><strong>Ámbito de análisis:</strong> <t t-esc="scopeDescription"/> <strong>Seguridad:</strong> los accesos a costos y locales se restringen desde Odoo, no sólo visualmente.</p></div></div></div>
 </div>
 </t>
 </templates>

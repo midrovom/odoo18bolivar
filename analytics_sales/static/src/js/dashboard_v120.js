@@ -16,14 +16,14 @@ class AnalyticsSalesDashboard extends Component {
             nativeMenuAvailable: false, nativeMenuOpen: false,
             historyDays: 15,
             sort: 'sales',
-            filters: {scope: 'moda', establishment_id: 'all', local_id: 'all', line: 'all', brand: 'all', seller: 'all',
+            filters: {scope: '', establishment_id: 'all', local_id: 'all', line: 'all', brand: 'all', seller: 'all',
                       date_from: '', date_to: ''},
         });
         this.lastRequest = 0;
         // Al abrir (incluido F5), consultar Odoo una vez con una URL nueva.
         // Sin temporizadores, eventos de visibilidad ni consultas a la API externa.
         onWillStart(async () => { await this.loadData(); });
-        // Sólo durante esta acción: en móvil se usa la cabecera de IDR.
+        // Sólo durante esta acción: en móvil se usa la cabecera comercial.
         // No se registran workers, cachés ni nuevas consultas.
         onMounted(() => {
             this.state.nativeMenuAvailable = Boolean(document.querySelector('.o_main_navbar'));
@@ -57,6 +57,7 @@ class AnalyticsSalesDashboard extends Component {
             });
             if (token !== this.lastRequest) return;
             this.state.data = payload;
+            this.state.filters.scope = payload.scope;
             // Tienda nunca muestra un conjunto de locales; siempre refleja
             // el único nlocal devuelto/validado por el servidor.
             if (payload.role === 'tienda' && payload.selected_local_id) {
@@ -264,7 +265,17 @@ class AnalyticsSalesDashboard extends Component {
     }
     // El prototipo HTML es sólo una referencia visual. Los datos provienen del
     // backend de Odoo; los perfiles jamás se simulan en el navegador.
-    get brandTitle() { return 'IDR MODA'; }
+    get presentation() {
+        return this.state.data?.presentation || {logo:'AS', logo_url:'', title:'Analytics Sales',
+            subtitle:'INTELIGENCIA COMERCIAL', scope_name:'Líneas seleccionadas', scope_lines:[]};
+    }
+    get brandTitle() { return this.presentation.title; }
+    get hasCustomScope() { return this.presentation.scope_lines.length > 0; }
+    get scopeDescription() {
+        return this.hasCustomScope
+            ? `${this.presentation.scope_name} incluye: ${this.presentation.scope_lines.join(', ')}. Todas las líneas incluye todas las categorías disponibles.`
+            : 'Todas las líneas incluye todas las categorías disponibles según los filtros y permisos del usuario.';
+    }
     get dataSourceLabel() {
         if (!this.hasData) return 'Sin datos';
         return this.state.data.source === 'api' ? 'Información actualizada' : 'Histórico Excel';
