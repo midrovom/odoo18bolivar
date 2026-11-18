@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="module_category_analytics_sales" model="ir.module.category">
+        <field name="name">Analytics Sales</field><field name="description">Permisos del dashboard de ventas Analytics Sales.</field><field name="sequence">42</field>
+    </record>
+    <record id="group_analytics_sales_tienda" model="res.groups">
+        <field name="name">Tienda</field><field name="category_id" ref="module_category_analytics_sales"/>
+    </record>
+    <record id="group_analytics_sales_supervisor" model="res.groups">
+        <field name="name">Supervisor</field><field name="category_id" ref="module_category_analytics_sales"/>
+    </record>
+    <record id="group_analytics_sales_admin" model="res.groups">
+        <field name="name">Administrador</field><field name="category_id" ref="module_category_analytics_sales"/>
+    </record>
+</odoo>

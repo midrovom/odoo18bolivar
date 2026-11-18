@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+    <record id="view_analytics_sales_goal_tree" model="ir.ui.view">
+        <field name="name">analytics.sales.goal.tree</field>
+        <field name="model">analytics.sales.goal</field>
+        <field name="arch" type="xml">
+            <list string="Metas anuales y mensuales por establecimiento" class="as-goal-list-compact">
+                <field name="year" width="90px"/>
+                <field name="name" width="315px"/>
+                <field name="establishment_id" width="220px"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="total_meta" readonly="1" width="145px"/>
+                <field name="active" width="75px"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_analytics_sales_goal_form" model="ir.ui.view">
+        <field name="name">analytics.sales.goal.form</field>
+        <field name="model">analytics.sales.goal</field>
+        <field name="arch" type="xml">
+            <form string="Meta anual de ventas netas">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="year"/>
+                            <field name="establishment_id" domain="[('company_id', '=', company_id)]" options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="total_meta" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="company_id" readonly="1"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="local_count" readonly="1" invisible="not establishment_id"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Distribución por mes" name="monthly_distribution">
+                            <div class="text-muted">Totales de los 12 meses del establecimiento: meta mensual definida, facturado FA, devuelto DE, ventas netas y cumplimiento. Sin desglose por local.</div>
+                            <group col="4" string="Asignar la misma meta a los 12 meses">
+                                <field name="bulk_monthly_target" string="Importe mensual" colspan="2" placeholder="Ej.: 1000,00"/>
+                                <button name="action_apply_monthly_target" type="object" string="Aplicar" class="oe_highlight" colspan="1" groups="analytics_sales.group_analytics_sales_admin"/>
+                            </group>
+                            <field name="monthly_table_heading" widget="html" readonly="1" nolabel="1" class="w-100"/>
+                            <field name="monthly_line_ids" nolabel="1" class="w-100" colspan="4">
+                                <list string="Distribución por mes" editable="bottom" create="false" delete="false">
+                                    <field name="month" readonly="1" force_save="1" width="140px"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="target_amount" string="Meta mensual asignada" width="190px"/>
+                                    <field name="fa_amount" readonly="1" width="155px"/>
+                                    <field name="de_amount" readonly="1" width="155px"/>
+                                    <field name="net_amount" readonly="1" width="175px"/>
+                                    <field name="compliance" readonly="1" width="135px" class="text-end"/>
+                                </list>
+                            </field>
+                            <div class="text-muted">Escriba la meta en la columna de cada mes y guarde el registro. Si no ingresa un valor, la meta es $0,00; las ventas reales se calculan desde la API.</div>
+                        </page>
+                        <page string="Distribución por vendedor" name="monthly_sellers">
+                            <div class="text-muted">Cada mes se muestra una sola vez, seguido por sus vendedores. La meta mensual ingresada se reparte equitativamente entre los vendedores del establecimiento, sin duplicar a quienes trabajan en varios locales. Se conservan FA, DE, ventas netas y cumplimiento.</div>
+                            <field name="monthly_seller_report" widget="html" readonly="1" nolabel="1" class="w-100"/>
+                        </page>
+                    </notebook>
+                    <group><field name="notes"/></group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_analytics_sales_goal_search" model="ir.ui.view">
+        <field name="name">analytics.sales.goal.search</field>
+        <field name="model">analytics.sales.goal</field>
+        <field name="arch" type="xml">
+            <search string="Metas por establecimiento y año">
+                <field name="year"/>
+                <field name="establishment_id"/>
+                <field name="name"/>
+                <group expand="0" string="Agrupar por">
+                    <filter name="group_by_year" string="Año" context="{'group_by': 'year'}"/>
+                    <filter name="group_by_establishment" string="Establecimiento" context="{'group_by': 'establishment_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_analytics_sales_goal" model="ir.actions.act_window">
+        <field name="name">Metas</field>
+        <field name="res_model">analytics.sales.goal</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_analytics_sales_goal_search"/>
+        <field name="context">{'search_default_group_by_year': 1, 'search_default_group_by_establishment': 2}</field>
+    </record>
+</odoo>

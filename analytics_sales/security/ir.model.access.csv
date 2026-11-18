@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sales_local_admin,Sales Analytics Local Admin,model_analytics_sales_local,analytics_sales.group_analytics_sales_admin,1,1,1,1
+access_sales_assignment_admin,Sales Analytics Access Admin,model_analytics_sales_user_access,analytics_sales.group_analytics_sales_admin,1,1,1,1
+access_sales_settings_admin,Sales Analytics Settings Admin,model_analytics_sales_settings,analytics_sales.group_analytics_sales_admin,1,1,1,0
+access_sales_log_admin,Sales Analytics Log Admin,model_analytics_sales_sync_log,analytics_sales.group_analytics_sales_admin,1,0,0,0
+access_sales_excel_import_admin,Sales Analytics Import Excel Admin,analytics_sales.model_analytics_sales_excel_import,analytics_sales.group_analytics_sales_admin,1,1,1,1
+access_sales_establishment_admin,Sales Analytics Establishment Admin,model_analytics_sales_establishment,analytics_sales.group_analytics_sales_admin,1,1,1,1
+access_sales_goal_admin,Sales Analytics Goal Admin,model_analytics_sales_goal,analytics_sales.group_analytics_sales_admin,1,1,1,1
+access_sales_goal_month_admin,Analytics Sales Monthly Goal Admin,model_analytics_sales_goal_month_line,analytics_sales.group_analytics_sales_admin,1,1,1,0
+access_sales_warehouse_admin,Analytics Sales Bodega Admin,model_analytics_sales_warehouse,analytics_sales.group_analytics_sales_admin,1,1,0,0

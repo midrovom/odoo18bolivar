@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_analytics_sales_excel_import_form" model="ir.ui.view">
+        <field name="name">analytics.sales.excel.import.form</field>
+        <field name="model">analytics.sales.excel.import</field>
+        <field name="arch" type="xml">
+            <form string="Importar Excel de ventas">
+                <sheet>
+                    <h2>Importación manual de Excel</h2>
+                    <p>Seleccione cualquier archivo Excel con los movimientos de ventas y devoluciones. El archivo NO está incluido en el módulo y no es necesaria una conexión a la API.</p>
+                    <group>
+                        <field name="company_id" readonly="1"/>
+                        <field name="upload_file" filename="filename" widget="binary" required="1"/>
+                        <field name="filename" invisible="1" required="1"/>
+                        <field name="sheet_name" placeholder="En blanco: detectar hoja automáticamente"/>
+                        <field name="import_mode" widget="radio"/>
+                    </group>
+                    <p><strong>Columnas obligatorias:</strong> Tipo (FA/DE), numero, FechaFactura, nlocal, Codproducto, Cantidad y Total_neto.</p>
+                    <p><strong>Opcionales:</strong> Factura, Vendedor, CodVendedor, Linea, Marca, Producto, costo, Total_Costo e id_linea.</p>
+                    <p><strong>Agregar/actualizar:</strong> conserva importaciones anteriores y evita duplicar las líneas reconocibles. <strong>Reemplazar:</strong> elimina únicamente las líneas históricas importadas desde Excel de esta compañía y carga las del archivo elegido. En ambos casos los movimientos provenientes de la API permanecen intactos.</p>
+                </sheet>
+                <footer>
+                    <button name="action_import" string="Importar archivo" type="object" class="btn-primary"/>
+                    <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_analytics_sales_excel_import" model="ir.actions.act_window">
+        <field name="name">Importar Excel</field>
+        <field name="res_model">analytics.sales.excel.import</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_analytics_sales_excel_import_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>

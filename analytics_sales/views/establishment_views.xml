@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_analytics_sales_establishment_tree" model="ir.ui.view">
+        <field name="name">analytics.sales.establishment.tree</field>
+        <field name="model">analytics.sales.establishment</field>
+        <field name="arch" type="xml">
+            <list string="Establecimiento">
+                <field name="name"/>
+                <field name="local_ids" widget="many2many_tags"/>
+                <field name="warehouse_ids" widget="many2many_tags" optional="show"/>
+                <field name="seller_count"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_analytics_sales_establishment_form" model="ir.ui.view">
+        <field name="name">analytics.sales.establishment.form</field>
+        <field name="model">analytics.sales.establishment</field>
+        <field name="arch" type="xml">
+            <form string="Establecimiento">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" placeholder="Ej. Durán"/>
+                            <field name="company_id" readonly="1"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group string="Locales">
+                        <field name="local_ids" widget="many2many_tags"
+                               domain="[('company_id', '=', company_id)]"
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                    </group>
+                    <group string="Bodegas">
+                        <field name="warehouse_ids" widget="many2many_tags"
+                               domain="[('company_id', '=', company_id), '|', ('establishment_id', '=', False), ('establishment_id', '=', id)]"
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                    </group>
+                    <separator string="Vendedores asociados al establecimiento"/>
+                    <group>
+                        <field name="seller_count" readonly="1"/>
+                    </group>
+                    <div class="o_as_establishment_roster" style="display:block;width:100%;max-width:100%;min-width:0;">
+                        <field name="seller_report" widget="html" readonly="1" nolabel="1" class="w-100"/>
+                    </div>
+                    <group><field name="notes" placeholder="Opcional"/></group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_analytics_sales_establishment" model="ir.actions.act_window">
+        <field name="name">Establecimiento</field>
+        <field name="res_model">analytics.sales.establishment</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

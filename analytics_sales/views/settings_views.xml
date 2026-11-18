@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_analytics_sales_settings_form" model="ir.ui.view">
+        <field name="name">analytics.sales.settings.form</field>
+        <field name="model">analytics.sales.settings</field>
+        <field name="arch" type="xml">
+            <form string="Configuración API Administrator" create="0" delete="0" duplicate="0">
+                <sheet>
+                    <h2>Analytics Sales | Sincronizaciones independientes</h2>
+                    <p>Seleccione las APIs. Cada acción programada (cron) se vincula automáticamente y se muestra en solo lectura. Los vínculos se guardan por ID y las credenciales siguen en API Administrator.</p>
+                    <field name="company_id" readonly="1"/>
+                    <group string="Cron 1: histórico de ventas anuales">
+                        <field name="annual_api_id"/>
+                        <field name="annual_cron_id" readonly="1"/>
+                        <div class="text-muted">Se programa diariamente a las 00:00 de Ecuador (05:00 UTC). El servicio de cron puede ejecutarlo minutos después.</div>
+                        <button name="action_sync_annual_now" type="object" string="Sincronizar ventas anuales ahora" class="btn-secondary"/>
+                    </group>
+                    <group string="Cron 2: ventas mensuales">
+                        <field name="monthly_api_id"/>
+                        <field name="monthly_cron_id" readonly="1"/>
+                        <div class="text-muted">Se ejecuta cada 2 horas (00, 02, 04 ... hora Ecuador).</div>
+                        <button name="action_sync_monthly_now" type="object" string="Sincronizar ventas mensuales ahora" class="btn-secondary"/>
+                    </group>
+                    <group string="Cron 3: actualización de bodegas">
+                        <field name="warehouse_api_id"/>
+                        <field name="warehouse_cron_name" readonly="1"/>
+                        <div class="text-muted">Cron exclusivo de bodegas: una vez al día. La selección se guarda de forma permanente por compañía.</div>
+                        <button name="action_sync_warehouses_now" type="object" string="Actualizar bodegas ahora" class="btn-secondary"/>
+                    </group>
+                    <group string="Acciones">
+                        <button name="action_save" type="object" string="Guardar vínculos de API" class="btn-primary"/>
+                        <button name="action_verify_links" type="object" string="Verificar APIs seleccionadas" class="btn-secondary"/>
+                        <button name="action_sync_now" type="object" string="Actualizar todas las APIs ahora"/>
+                        <button name="action_open_import_wizard" type="object" string="Importar Excel" class="btn-secondary"/>
+                    </group>
+                    <p>Seleccione la API de cada apartado y guarde el formulario o pulse Guardar vínculos de API. Los tres cron se ejecutan automáticamente en sus horarios; no es necesario pulsar los botones de sincronización manual. Después puede verificar las relaciones guardadas o ejecutar una sincronización manual. Cada cron resuelve el ID elegido, aunque cambie el nombre de la API. Cada ejecución de los cron consulta nuevamente la API seleccionada y actualiza los valores de todas las claves recibidas. El dashboard consulta Odoo al abrirlo, al refrescar el navegador o al cambiar filtros; no realiza consultas periódicas desde el navegador. Si la API informa una anulación (anulado=true o estado=anulado), el movimiento deja de mostrarse. No se borran movimientos ausentes de respuestas parciales; las ventas Excel permanecen separadas. Revisar Administración → Historial de sincronización para conocer el resultado.</p>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_analytics_sales_settings" model="ir.actions.act_window">
+        <field name="name">Configuración de API</field>
+        <field name="res_model">analytics.sales.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+    <record id="action_analytics_sales_settings_saved" model="ir.actions.server">
+        <field name="name">Configuración de API</field>
+        <field name="model_id" ref="model_analytics_sales_settings"/>
+        <field name="state">code</field>
+        <field name="code">action = env['analytics.sales.settings'].action_open_saved()</field>
+    </record>
+</odoo>

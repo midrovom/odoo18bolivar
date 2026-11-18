@@ -1,0 +1,63 @@
+/* Solo vista lista de Metas: no afecta al dashboard ni a otras listas. */
+.o_list_view.as-goal-list-compact .o_list_table,
+.o_list_view .o_list_table.as-goal-list-compact,
+.as-goal-list-compact .o_list_table,
+.o_list_table.as-goal-list-compact,
+.o_list_view:has(.o_list_table th[data-name="establishment_id"]):has(.o_list_table th[data-name="year"]) .o_list_table {
+    width: min(100%, 860px) !important;
+    max-width: 860px !important;
+    table-layout: auto;
+    margin-left: 0;
+    margin-right: auto;
+}
+/* Más espacio al texto; Año y Activo compactos. */
+.o_list_view .o_list_table.as-goal-list-compact th[data-name="year"],
+.o_list_view.as-goal-list-compact th[data-name="year"],
+.o_list_view:has(th[data-name="establishment_id"]):has(th[data-name="year"]) th[data-name="year"] {
+    width: 90px !important;
+}
+.o_list_view .o_list_table.as-goal-list-compact th[data-name="name"],
+.o_list_view.as-goal-list-compact th[data-name="name"],
+.o_list_view:has(th[data-name="establishment_id"]):has(th[data-name="year"]) th[data-name="name"] {
+    width: 315px !important;
+}
+.o_list_view .o_list_table.as-goal-list-compact th[data-name="establishment_id"],
+.o_list_view.as-goal-list-compact th[data-name="establishment_id"],
+.o_list_view:has(th[data-name="establishment_id"]):has(th[data-name="year"]) th[data-name="establishment_id"] {
+    width: 220px !important;
+}
+.o_list_view .o_list_table.as-goal-list-compact th[data-name="active"],
+.o_list_view.as-goal-list-compact th[data-name="active"],
+.o_list_view:has(th[data-name="establishment_id"]):has(th[data-name="year"]) th[data-name="active"] {
+    width: 75px !important;
+}
+@media (max-width: 900px) {
+    .o_list_view.as-goal-list-compact .o_list_table,
+    .o_list_view .o_list_table.as-goal-list-compact,
+    .as-goal-list-compact .o_list_table,
+    .o_list_table.as-goal-list-compact,
+    .o_list_view:has(.o_list_table th[data-name="establishment_id"]):has(.o_list_table th[data-name="year"]) .o_list_table {
+        min-width: 700px;
+    }
+}
+
+/* 16.0.1.1.35 — Centrar solo Año en la lista de Metas.
+   Odoo alinea enteros a la derecha por defecto; se sobrescribe tanto
+   en la cabecera como en el valor, sin alterar el ancho compacto. */
+.o_list_view.as-goal-list-compact .o_list_table th[data-name="year"],
+.o_list_view .o_list_table.as-goal-list-compact th[data-name="year"],
+.o_list_view:has(th[data-name="establishment_id"]):has(th[data-name="year"]) .o_list_table th[data-name="year"],
+.o_list_view.as-goal-list-compact .o_list_table td[name="year"],
+.o_list_view .o_list_table.as-goal-list-compact td[name="year"],
+.o_list_view:has(th[data-name="establishment_id"]):has(th[data-name="year"]) .o_list_table td[name="year"],
+.o_list_view:has(th[data-name="establishment_id"]):has(th[data-name="year"]) .o_list_table tbody tr.o_data_row > td:nth-child(2) {
+    text-align: center !important;
+}
+
+/* 16.0.1.1.38 — Únicamente valores de Cumplimiento en Distribución por mes.
+   El campo es Char: Odoo lo alinea a la izquierda por defecto. */
+.o_field_widget[name="monthly_line_ids"] .o_list_table td[name="compliance"],
+.o_field_widget[name="monthly_line_ids"] .o_list_table .o_data_cell[name="compliance"],
+.o_form_view:has(.o_field_widget[name="monthly_line_ids"]) .o_list_table td[name="compliance"] {
+    text-align: right !important;
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_analytics_sales_user_access_tree" model="ir.ui.view">
+        <field name="name">analytics.sales.user.access.tree</field><field name="model">analytics.sales.user.access</field>
+        <field name="arch" type="xml"><list string="Permisos por usuario y compañía">
+            <field name="user_id"/><field name="company_id" readonly="1"/><field name="role"/><field name="local_ids" widget="many2many_tags"/>
+        </list></field>
+    </record>
+    <record id="view_analytics_sales_user_access_form" model="ir.ui.view">
+        <field name="name">analytics.sales.user.access.form</field><field name="model">analytics.sales.user.access</field>
+        <field name="arch" type="xml"><form string="Perfil y locales autorizados"><sheet>
+            <group><field name="user_id"/><field name="company_id" readonly="1"/><field name="role"/></group>
+            <group string="Locales autorizados (campo nlocal del ERP)">
+                <field name="local_ids" widget="many2many_tags" readonly="role == 'administrador'"/>
+                <div class="text-muted">Tienda y Supervisor solo verán los nlocal asignados. Administrador ve todo.</div>
+            </group>
+            <group><field name="notes"/></group>
+        </sheet></form></field>
+    </record>
+    <record id="action_analytics_sales_user_access" model="ir.actions.act_window">
+        <field name="name">Usuarios y locales autorizados</field><field name="res_model">analytics.sales.user.access</field><field name="view_mode">list,form</field>
+    </record>
+</odoo>

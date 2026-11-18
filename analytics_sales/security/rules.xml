@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="rule_sales_local_company" model="ir.rule">
+        <field name="name">Analytics Sales | Locales de compañía activa</field>
+        <field name="model_id" ref="model_analytics_sales_local"/>
+        <field name="domain_force">[('company_id', '=', company_id)]</field>
+        <field name="groups" eval="[(4, ref('analytics_sales.group_analytics_sales_admin'))]"/>
+    </record>
+    <record id="rule_sales_access_company" model="ir.rule">
+        <field name="name">Analytics Sales | Perfiles de compañía activa</field>
+        <field name="model_id" ref="model_analytics_sales_user_access"/>
+        <field name="domain_force">[('company_id', '=', company_id)]</field>
+        <field name="groups" eval="[(4, ref('analytics_sales.group_analytics_sales_admin'))]"/>
+    </record>
+    <record id="rule_sales_log_company" model="ir.rule">
+        <field name="name">Analytics Sales | Sincronizaciones de compañía activa</field>
+        <field name="model_id" ref="model_analytics_sales_sync_log"/>
+        <field name="domain_force">[('company_id', '=', company_id)]</field>
+        <field name="groups" eval="[(4, ref('analytics_sales.group_analytics_sales_admin'))]"/>
+    </record>
+    <record id="rule_sales_establishment_company" model="ir.rule">
+        <field name="name">Analytics Sales | Establecimientos de compañía activa</field>
+        <field name="model_id" ref="model_analytics_sales_establishment"/>
+        <field name="domain_force">[('company_id', '=', company_id)]</field>
+        <field name="groups" eval="[(4, ref('analytics_sales.group_analytics_sales_admin'))]"/>
+    </record>
+    <record id="rule_sales_goal_company" model="ir.rule">
+        <field name="name">Analytics Sales | Metas de compañía activa</field>
+        <field name="model_id" ref="model_analytics_sales_goal"/>
+        <field name="domain_force">[('company_id', '=', company_id)]</field>
+        <field name="groups" eval="[(4, ref('analytics_sales.group_analytics_sales_admin'))]"/>
+    </record>
+    <record id="rule_sales_goal_month_company" model="ir.rule">
+        <field name="name">Analytics Sales | Metas mensuales de compañía activa</field>
+        <field name="model_id" ref="model_analytics_sales_goal_month_line"/>
+        <field name="domain_force">[('goal_id.company_id', '=', company_id)]</field>
+        <field name="groups" eval="[(4, ref('analytics_sales.group_analytics_sales_admin'))]"/>
+    </record>
+    <record id="rule_sales_warehouse_company" model="ir.rule">
+        <field name="name">Analytics Sales | Bodegas de compañía activa</field>
+        <field name="model_id" ref="model_analytics_sales_warehouse"/>
+        <field name="domain_force">[('company_id', '=', company_id)]</field>
+    </record>
+    <record id="rule_sales_settings_company" model="ir.rule">
+        <field name="name">Analytics Sales | Configuración de compañía activa</field>
+        <field name="model_id" ref="model_analytics_sales_settings"/>
+        <field name="domain_force">[('company_id', '=', company_id)]</field>
+    </record>
+</odoo>

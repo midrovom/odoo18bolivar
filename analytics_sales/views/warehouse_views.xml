@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_analytics_sales_warehouse_tree" model="ir.ui.view">
+        <field name="name">analytics.sales.warehouse.tree</field>
+        <field name="model">analytics.sales.warehouse</field>
+        <field name="arch" type="xml">
+            <list string="Bodega" create="0" delete="0">
+                <field name="code"/><field name="name"/><field name="stock" sum="Stock total"/>
+                <field name="currency_id" column_invisible="1"/><field name="value" widget="monetary" options="{'currency_field': 'currency_id'}" sum="Valor total uds"/>
+                <field name="establishment_id"/>
+                <field name="updated_at"/><field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_analytics_sales_warehouse_form" model="ir.ui.view">
+        <field name="name">analytics.sales.warehouse.form</field>
+        <field name="model">analytics.sales.warehouse</field>
+        <field name="arch" type="xml">
+            <form string="Bodega" create="0" delete="0">
+                <sheet>
+                    <group string="Información recibida desde la API">
+                        <group><field name="code"/><field name="name"/><field name="stock"/></group>
+                        <group><field name="company_id"/><field name="currency_id" invisible="1"/><field name="value" widget="monetary" options="{'currency_field': 'currency_id'}"/><field name="updated_at"/></group>
+                    </group>
+                    <group string="Relación comercial">
+                        <field name="establishment_id" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                        <div class="text-muted">Asigne directamente el establecimiento de esta bodega. También puede seleccionar las bodegas desde Administración → Establecimiento. La API conserva esta relación.</div>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_analytics_sales_warehouse" model="ir.actions.act_window">
+        <field name="name">Bodega</field><field name="res_model">analytics.sales.warehouse</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_analytics_sales_local_tree" model="ir.ui.view">
+        <field name="name">analytics.sales.local.tree</field>
+        <field name="model">analytics.sales.local</field>
+        <field name="arch" type="xml">
+            <list string="Locales"><field name="name"/><field name="company_id" readonly="1"/><field name="active"/></list>
+        </field>
+    </record>
+    <record id="view_analytics_sales_local_form" model="ir.ui.view">
+        <field name="name">analytics.sales.local.form</field>
+        <field name="model">analytics.sales.local</field>
+        <field name="arch" type="xml">
+            <form string="Local Analytics Sales"><sheet><group><field name="name"/><field name="company_id" readonly="1"/><field name="active"/></group></sheet></form>
+        </field>
+    </record>
+    <record id="action_analytics_sales_local" model="ir.actions.act_window">
+        <field name="name">Locales</field><field name="res_model">analytics.sales.local</field><field name="view_mode">list,form</field>
+    </record>
+</odoo>

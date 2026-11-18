@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Old system ACLs survive CSV edits on upgrade; revoke them explicitly. -->
+    <function model="analytics.sales.security" name="_revoke_legacy_system_acl"/>
+</odoo>

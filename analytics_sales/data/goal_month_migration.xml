@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Always runs on module install/update: create missing month rows only.
+         Previously entered monthly_goal_01..12 are migrated when present. -->
+    <function model="analytics.sales.goal" name="_initialize_monthly_lines"/>
+</odoo>

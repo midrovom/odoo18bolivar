@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+<t t-name="analytics_sales.Dashboard" owl="1">
+<div t-att-class="'as-sales ' + roleClass" role="main">
+  <div class="as-app">
+    <header class="as-head">
+      <div class="as-brand"><div class="as-logo">IDR</div><div><strong>IDR MODA</strong><small>INTELIGENCIA COMERCIAL</small></div></div>
+      <div class="as-head-actions">
+        <span class="as-chip"><span class="as-status-dot"/><t t-esc="dataSourceLabel"/></span>
+        <button class="as-button" t-on-click="onGuide" type="button">ⓘ&#160; Cómo se calcula</button>
+        <button class="as-button as-primary" t-on-click="onExport" t-att-disabled="!hasData" type="button">↓&#160; Exportar CSV</button>
+      </div>
+    </header>
+    <div t-if="state.loading" class="as-empty">Cargando información de ventas…</div>
+    <div t-if="state.error" class="as-error"><strong>No fue posible actualizar los indicadores.</strong><span t-esc="state.error"/></div>
+    <t t-if="hasData">
+      <section class="as-hero">
+        <div><div class="as-eyebrow">Business Intelligence · Dashboard gerencial · Datos reales</div><h1 t-esc="title"/><p t-esc="subtitle"/></div>
+        <div class="as-rolebox"><span class="as-role-note">PERFIL ACTUAL</span><span class="as-role"><t t-esc="profileLabel"/> · <t t-esc="state.data.company"/></span>
+          <button t-if="isAdmin" class="as-button" t-on-click="onSync" t-att-disabled="state.syncing" type="button"><t t-esc="state.syncing ? 'Sincronizando…' : 'Sincronizar API'"/></button>
+        </div>
+      </section>
+      <div class="as-role-banner">
+        <span t-if="isAdmin">◈ <strong>Administración:</strong> todos los locales de la compañía, costos y rentabilidad.</span>
+        <span t-elif="isStore">▣ <strong>Tienda:</strong> resultados únicamente del local <strong t-esc="selectedLocalName"/>. Sin costos ni comparativos de otras tiendas.</span>
+        <span t-else="">◎ <strong>Supervisión:</strong> compara únicamente locales nlocal autorizados, vendedores y facturas. Sin acceso a costos ni márgenes.</span>
+        <span t-if="state.refreshing" class="as-updating">Actualizando…</span>
+        <span t-if="apiFreshnessLabel" class="as-freshness" t-esc="apiFreshnessLabel"/>
+      </div>
+      <section t-if="isAdmin" class="as-importbox">
+        <div class="as-importhead"><div><h2>Importación de datos comerciales · nlocal</h2><p>Carga cualquier archivo Excel compatible desde tu computadora. Los datos no están incluidos en el módulo ni requieren conexión con la API.</p></div>
+          <div class="as-importactions"><button class="as-button as-primary" type="button" t-on-click="onImport">↥&#160; Abrir Excel</button></div></div>
+        <div class="as-importstate"><strong>Fuente activa:</strong> <t t-esc="dataSourceLabel"/> · <t t-esc="num(state.data.rows_filtered)"/> líneas para los filtros actuales. Puedes agregar/actualizar o reemplazar únicamente los registros de Excel.</div>
+        <div class="as-schema-hint">Columnas requeridas: Tipo, numero, FechaFactura, nlocal, Codproducto, Cantidad y Total_neto. El asistente guarda la importación en Odoo y evita duplicados identificables.</div>
+      </section>
+      <section class="as-scope">
+        <div class="as-scope-copy"><strong>Ámbito de análisis</strong><span>Moda incluye Calzado, Carteras y Moda Mujer. Todas las líneas incluye las demás categorías disponibles.</span></div>
+        <div class="as-segments">
+          <button type="button" t-att-class="state.filters.scope === 'moda' ? 'selected' : ''" data-scope="moda" t-on-click="onScope">Moda · Calzado, Carteras y Moda Mujer</button>
+          <button type="button" t-att-class="state.filters.scope === 'all' ? 'selected' : ''" data-scope="all" t-on-click="onScope">Todas las líneas</button>
+        </div>
+      </section>
+      <div class="as-data-warning"><strong>Nota de calidad de datos:</strong> Las devoluciones DE pueden referirse a facturas emitidas fuera del período consultado. La relación DE/FA del filtro no es necesariamente una tasa de devolución por cohorte.</div>
+        <div t-if="state.openDropdown" class="as-dropdown-dismiss" t-on-click="onDropdownDismiss" aria-hidden="true"/>
+      <section class="as-filters" aria-label="Filtros comerciales">
+        <t t-foreach="filterFields" t-as="field" t-key="field.key">
+          <div class="as-filter-control">
+            <span class="as-control-title" t-esc="field.title"/>
+            <div class="as-filter-dropdown" t-on-keydown="onDropdownKeydown">
+              <button type="button" class="as-dropdown-trigger" t-att-disabled="field.disabled"
+                  t-att-data-field="field.key" t-on-click="onDropdownToggle"
+                  t-att-aria-label="field.title + ': ' + filterValue(field.key)"
+                  aria-haspopup="listbox" t-att-aria-expanded="state.openDropdown === field.key ? 'true' : 'false'"
+                  t-att-class="state.openDropdown === field.key ? 'as-dropdown-trigger is-open' : 'as-dropdown-trigger'">
+                <span t-esc="filterValue(field.key)"/><span class="as-chevron" aria-hidden="true">⌄</span>
+              </button>
+              <div t-if="state.openDropdown === field.key" class="as-dropdown-menu" role="listbox" t-att-aria-label="field.title">
+                <button t-if="field.allowAll" type="button" role="option" class="as-dropdown-option" data-value="all"
+                    t-att-data-field="field.key" t-on-click="onDropdownChoose"
+                    t-att-aria-selected="state.filters[field.key] === 'all' ? 'true' : 'false'"
+                    t-att-class="state.filters[field.key] === 'all' ? 'as-dropdown-option is-selected' : 'as-dropdown-option'"
+                    t-esc="field.all"/>
+                <t t-foreach="field.choices" t-as="choice" t-key="choice.value">
+                  <button type="button" role="option" t-att-data-value="choice.value" t-att-data-field="field.key"
+                    t-on-click="onDropdownChoose"
+                    t-att-class="(state.filters[field.key] || 'all').toString() === choice.value ? 'as-dropdown-option is-selected' : 'as-dropdown-option'"
+                    t-att-aria-selected="(state.filters[field.key] || 'all').toString() === choice.value ? 'true' : 'false'"
+                    t-esc="choice.label"/>
+                </t>
+                <div t-if="!field.choices.length" class="as-dropdown-empty">No hay opciones en este filtro.</div>
+              </div>
+            </div>
+          </div>
+        </t>
+        <label><span>Período</span><div class="as-period"><button type="button" t-att-class="state.period === '30' ? 'active' : ''" data-days="30" t-on-click="onPeriod">30 días</button><button type="button" t-att-class="state.period === '90' ? 'active' : ''" data-days="90" t-on-click="onPeriod">90 días</button><button type="button" t-att-class="state.period === 'year' ? 'active' : ''" data-days="year" t-on-click="onPeriod">Año</button></div></label>
+        <label><span>Rango de fechas</span><div class="as-dates"><input type="date" data-field="date_from" t-att-value="state.period === 'custom' ? (state.filters.date_from || state.data.date_from) : state.data.date_from" t-on-change="onFilterChange"/><input type="date" data-field="date_to" t-att-value="state.period === 'custom' ? (state.filters.date_to || state.data.date_to) : state.data.date_to" t-on-change="onFilterChange"/></div></label>
+      </section>
+      <div class="as-summary"><span><strong t-esc="num(state.data.rows_filtered)"/> líneas · <strong t-esc="num(state.data.metrics.invoices)"/> facturas FA únicas · desde <t t-esc="state.data.date_from"/> hasta <t t-esc="state.data.date_to"/></span><span><strong>FA</strong> suma · <strong>DE</strong> resta · <span class="as-data-label" t-esc="dataSourceLabel"/></span></div>
+      <section class="as-metrics" aria-label="Indicadores principales">
+        <t t-foreach="cards" t-as="k" t-key="k.key"><article t-att-class="'as-card accent-' + k.accent"><div class="as-card-title"><span t-esc="k.label"/><span class="as-card-icon" t-esc="k.key === 'sales' ? '↗' : k.key === 'invoices' ? '▤' : k.key === 'credit_notes' ? '↩' : '◇'"/></div><strong class="as-card-value" t-esc="k.val"/><small t-esc="k.detail"/></article></t>
+      </section>
+      <div class="as-grid-main as-section">
+        <article class="as-panel"><div class="as-panel-head"><div><h2>Evolución de ventas netas</h2><p>Facturación FA y devoluciones DE, según período y filtros.</p></div><span class="as-tag">USD</span></div>
+          <div class="as-trend-plot" t-if="trendPlot">
+            <svg viewBox="0 0 680 232" preserveAspectRatio="none" role="img" aria-label="Evolución mensual de facturación FA y devoluciones DE">
+              <t t-foreach="trendPlot.axis" t-as="axis" t-key="axis_index"><line x1="34" x2="652" t-att-y1="axis.y" t-att-y2="axis.y" stroke="#37415a" stroke-width="0.8" stroke-dasharray="4 6"/><text x="30" t-att-y="axis.y + 4" text-anchor="end" fill="#929eb7" font-size="9" t-esc="num(axis.value)"/></t>
+              <path t-att-d="trendPlot.area" fill="#b6a6ff" fill-opacity="0.09"/>
+              <path t-att-d="trendPlot.faPath" fill="none" stroke="#b6a6ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path t-att-d="trendPlot.dePath" fill="none" stroke="#f8a4c3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <t t-foreach="trendPlot.fa" t-as="p" t-key="p_index"><circle t-att-cx="p.x" t-att-cy="p.y" r="3.2" fill="#b6a6ff"><title t-esc="p.label + ' · FA ' + money(p.value)"/></circle></t>
+              <t t-foreach="trendPlot.de" t-as="p" t-key="p_index"><circle t-att-cx="p.x" t-att-cy="p.y" r="2.8" fill="#f8a4c3"><title t-esc="p.label + ' · DE ' + money(p.value)"/></circle></t>
+              <t t-foreach="trendPlot.labels" t-as="lab" t-key="lab_index"><text t-att-x="lab.x" y="218" text-anchor="middle" fill="#a4afc5" font-size="10" t-esc="lab.name"/></t>
+            </svg>
+          </div><div t-else="" class="as-empty">No hay movimientos para este filtro.</div>
+          <div class="as-legend"><span><i/> Ventas FA</span><span><i class="pink"/> Devoluciones DE</span></div>
+        </article>
+        <article class="as-panel"><div class="as-panel-head"><div><h2>Ventas por línea de producto</h2><p>Haz clic sobre una línea para filtrarla.</p></div><span class="as-tag">Ranking</span></div>
+          <div class="as-ranks as-ranks-detailed"><t t-foreach="salesLines" t-as="r" t-key="r.name"><div class="as-rank"><div class="as-rank-top"><button type="button" class="as-rank-choice" t-att-data-line="r.name" t-on-click="onSelectLine" t-esc="r.name"/><strong><span class="as-net-prefix">Neto</span> <t t-esc="money(r.sales)"/></strong></div><div class="as-track"><div t-att-style="'width:' + width(r.sales, salesLines[0].sales)"/></div><div class="as-rank-kpis" aria-label="Detalle de facturación y venta">
+                     <div class="as-rank-kpi"><span>Facturado FA</span><strong t-esc="money(r.fa_sales)"/></div>
+                     <div class="as-rank-kpi"><span>Devuelto DE</span><strong t-esc="money(r.de_sales)"/></div>
+                     <div class="as-rank-kpi is-net"><span>Neto vendido</span><strong t-esc="money(r.sales)"/></div>
+                     <div class="as-rank-kpi"><span>Vendido FA</span><strong><t t-esc="num(r.fa_units)"/> uds.</strong></div>
+                     <div class="as-rank-kpi is-return-units"><span>Unidades devueltas DE</span><strong><t t-esc="num(r.de_units)"/> uds.</strong></div>
+                     <div class="as-rank-kpi is-net-units"><span>Unidades netas</span><strong><t t-esc="num(r.units)"/> uds.</strong></div>
+                   </div><small><t t-esc="num(r.invoices)"/> facturas FA</small></div></t></div>
+        </article>
+      </div>
+      <section class="as-panel as-section as-daily-panel" aria-label="Histórico de ventas netas diarias reales">
+        <div class="as-panel-head as-daily-head">
+          <div><h2>Ventas netas por día · histórico real</h2>
+            <p>Ventas netas registradas (FA − DE) en los últimos días del período seleccionado. Se incluyen días sin movimientos con valor cero.</p>
+          </div>
+          <label class="as-history-control"><span>Días históricos</span>
+            <input type="number" min="1" max="90" step="1" t-att-value="state.historyDays" t-on-change="onHistoryDays" aria-label="Cantidad de días históricos de ventas reales"/>
+          </label>
+        </div>
+        <t t-if="dailyHistory &amp;&amp; dailyHistory.history.length">
+          <div class="as-daily-summary">
+            <div><span>Venta neta del historial</span><strong t-esc="money(dailyHistory.net_total)"/></div>
+            <div><span>Promedio neto diario real</span><strong t-esc="money(dailyHistory.daily_average)"/></div>
+            <div><span>Último día con movimientos</span><strong t-esc="dailyHistory.last_actual_day"/></div>
+          </div>
+          <div class="as-daily-scroll" tabindex="0" aria-label="Gráfico histórico de ventas netas reales desplazable lateralmente">
+            <div class="as-daily-bars">
+              <t t-foreach="dailyBars" t-as="p" t-key="p.date">
+                <div class="as-daily-item" t-att-title="p.date + ' · Venta neta real ' + money(p.sales)">
+                  <strong t-esc="money(p.sales)"/>
+                  <div class="as-daily-track"><div t-att-class="p.sales &lt; 0 ? 'is-negative' : ''" t-att-style="'height:' + dailyBarHeight(p.sales)"/></div>
+                  <small t-esc="dayShort(p.date)"/>
+                </div>
+              </t>
+            </div>
+          </div>
+          <div class="as-daily-legend"><span><i class="is-real"/> Venta neta real FA − DE</span></div>
+          <p class="as-muted-note">Solo se muestran movimientos reales de las fechas y locales autorizados. No se calculan ni registran ventas futuras.</p>
+        </t>
+        <div t-else="" class="as-empty">No hay ventas reales en el período y filtros seleccionados.</div>
+      </section>
+      <div class="as-grid-three as-section">
+        <article class="as-panel as-panel-commercial" data-ranking="brands">
+          <div class="as-panel-head"><div><h2>Marcas más vendidas</h2><p>Facturado, vendido y neto por marca.</p></div><span class="as-tag">Top 7</span></div>
+          <div class="as-ranks as-ranks-expanded" aria-label="Marcas más vendidas con facturación, ventas y neto">
+            <t t-foreach="salesBrands" t-as="r" t-key="r.name">
+              <div class="as-rank as-rank-commercial">
+                <div class="as-rank-top"><strong class="as-rank-name" t-esc="r.name" t-att-title="r.name"/><strong class="as-rank-main"><span class="as-rank-main-label">Neto</span> <t t-esc="money(r.sales)"/></strong></div>
+                <div class="as-track pink"><div t-att-style="'width:' + width(r.sales, salesBrands[0].sales)"/></div>
+                <div class="as-rank-financials" aria-label="Datos comerciales detallados">
+                  <div class="as-financial-cell as-financial-sold"><span>Vendido FA</span><strong><t t-esc="num(r.fa_units)"/> uds.</strong></div>
+                  <div class="as-financial-cell"><span>Facturado FA</span><strong t-esc="money(r.fa_sales)"/></div>
+                  <div class="as-financial-cell as-financial-net"><span>Neto vendido</span><strong t-esc="money(r.sales)"/></div>
+                  <div class="as-financial-cell as-financial-return"><span>Devuelto DE</span><strong t-esc="money(r.de_sales)"/></div>
+                  <div class="as-financial-cell as-financial-return-units"><span>Unidades devueltas DE</span><strong><t t-esc="num(r.de_units)"/> uds.</strong></div>
+                  <div class="as-financial-cell as-financial-net-units"><span>Unidades netas</span><strong><t t-esc="num(r.units)"/> uds.</strong></div>
+                </div>
+              </div>
+            </t>
+            <div t-if="!salesBrands.length" class="as-empty">No hay datos para los filtros seleccionados.</div>
+          </div>
+        </article>
+        <article class="as-panel as-panel-commercial" data-ranking="sellers">
+          <div class="as-panel-head"><div><h2>Vendedores destacados</h2><p>Facturado, vendido y neto por vendedor.</p></div><span class="as-tag">Top 5</span></div>
+          <div class="as-ranks as-ranks-expanded" aria-label="Vendedores destacados con facturación, ventas y neto">
+            <t t-foreach="salesSellers" t-as="r" t-key="r.name">
+              <div class="as-rank as-rank-commercial">
+                <div class="as-rank-top"><strong class="as-rank-name" t-esc="r.name" t-att-title="r.name"/><strong class="as-rank-main"><span class="as-rank-main-label">Neto</span> <t t-esc="money(r.sales)"/></strong></div>
+                <div class="as-track "><div t-att-style="'width:' + width(r.sales, salesSellers[0].sales)"/></div>
+                <div class="as-rank-financials" aria-label="Datos comerciales detallados">
+                  <div class="as-financial-cell as-financial-sold"><span>Vendido FA</span><strong><t t-esc="num(r.fa_units)"/> uds.</strong></div>
+                  <div class="as-financial-cell"><span>Facturado FA</span><strong t-esc="money(r.fa_sales)"/></div>
+                  <div class="as-financial-cell as-financial-net"><span>Neto vendido</span><strong t-esc="money(r.sales)"/></div>
+                  <div class="as-financial-cell as-financial-return"><span>Devuelto DE</span><strong t-esc="money(r.de_sales)"/></div>
+                  <div class="as-financial-cell as-financial-return-units"><span>Unidades devueltas DE</span><strong><t t-esc="num(r.de_units)"/> uds.</strong></div>
+                  <div class="as-financial-cell as-financial-net-units"><span>Unidades netas</span><strong><t t-esc="num(r.units)"/> uds.</strong></div>
+                </div>
+              </div>
+            </t>
+            <div t-if="!salesSellers.length" class="as-empty">No hay datos para los filtros seleccionados.</div>
+          </div>
+        </article>
+        <article class="as-panel as-panel-commercial" data-ranking="velocity">
+          <div class="as-panel-head"><div><h2>Mayor velocidad de venta</h2><p>Unidades por día, más facturado y neto por SKU.</p></div><span class="as-tag">Uds./día</span></div>
+          <div class="as-ranks as-ranks-expanded" aria-label="Mayor velocidad de venta con facturación, ventas y neto">
+            <t t-foreach="velocityProducts" t-as="r" t-key="r.name">
+              <div class="as-rank as-rank-commercial">
+                <div class="as-rank-top"><strong class="as-rank-name" t-esc="r.name" t-att-title="r.name"/><strong class="as-rank-main"><span class="as-rank-main-label">Uds./día</span> <t t-esc="num(r.velocity)"/></strong></div>
+                <div class="as-track "><div t-att-style="'width:' + width(r.velocity, velocityProducts[0].velocity)"/></div>
+                <div class="as-rank-financials" aria-label="Datos comerciales detallados">
+                  <div class="as-financial-cell as-financial-sold"><span>Vendido FA</span><strong><t t-esc="num(r.fa_units)"/> uds.</strong></div>
+                  <div class="as-financial-cell"><span>Facturado FA</span><strong t-esc="money(r.fa_sales)"/></div>
+                  <div class="as-financial-cell as-financial-net"><span>Neto vendido</span><strong t-esc="money(r.sales)"/></div>
+                  <div class="as-financial-cell as-financial-return"><span>Devuelto DE</span><strong t-esc="money(r.de_sales)"/></div>
+                  <div class="as-financial-cell as-financial-return-units"><span>Unidades devueltas DE</span><strong><t t-esc="num(r.de_units)"/> uds.</strong></div>
+                  <div class="as-financial-cell as-financial-net-units"><span>Unidades netas</span><strong><t t-esc="num(r.units)"/> uds.</strong></div>
+                </div>
+              </div>
+            </t>
+            <div t-if="!velocityProducts.length" class="as-empty">No hay datos para los filtros seleccionados.</div>
+          </div>
+        </article>
+      </div>
+      <section class="as-invoice-section"><div class="as-section-heading"><div><div class="as-eyebrow">GESTIÓN DE FACTURACIÓN</div><h2>Facturas, productividad y decisión comercial</h2><p>Comprobantes únicos FA (no líneas de detalle). Los documentos DE se muestran por separado.</p></div><span class="as-tag">Por nlocal y vendedor</span></div>
+        <div class="as-grid-main as-section">
+          <article class="as-panel"><div class="as-panel-head"><div><h2>Productividad por vendedor</h2><p>Facturas FA, ticket, unidades y ventas netas para el período seleccionado.</p></div><span class="as-tag">Vendedores</span></div>
+            <div class="as-table-wrap"><table><thead><tr><th>Vendedor</th><th class="as-num">Facturas FA</th><th class="as-num">Vendido FA (uds.)</th><th class="as-num">Unidades devueltas DE</th><th class="as-num">Unidades netas</th><th class="as-num">Facturado FA</th><th class="as-num">Devuelto DE</th><th class="as-num">Venta neta</th><th class="as-num">Ticket FA</th><th t-if="isAdmin" class="as-num">Utilidad</th></tr></thead><tbody><t t-foreach="sellerInvoices" t-as="r" t-key="r.name"><tr><td t-esc="r.name"/><td class="as-num" t-esc="num(r.invoices)"/><td class="as-num" t-esc="num(r.fa_units)"/><td class="as-num" t-esc="num(r.de_units)"/><td class="as-num" t-esc="num(r.units)"/><td class="as-num" t-esc="money(r.fa_sales)"/><td class="as-num" t-esc="money(r.de_sales)"/><td class="as-num" t-esc="money(r.sales)"/><td class="as-num" t-esc="money(r.ticket)"/><td t-if="isAdmin" class="as-num" t-esc="money(r.profit)"/></tr></t></tbody></table></div>
+          </article>
+          <article class="as-panel"><div class="as-panel-head"><div><h2>Facturas emitidas por mes</h2><p>Documentos FA distintos por mes, y ticket promedio.</p></div><span class="as-tag">Tendencia</span></div>
+            <div class="as-invoice-trend"><t t-foreach="invoiceMonths" t-as="r" t-key="r.month"><div class="as-invoice-line"><span class="as-invoice-label" t-esc="r.month.slice(5) + '/' + r.month.slice(2,4)"/><div class="as-track"><div t-att-style="'width:' + width(r.invoices, maxInvoices)"/></div><strong t-esc="num(r.invoices)"/><small><t t-esc="money(r.fa_sales)"/> FA · Ticket <t t-esc="money(r.ticket)"/></small></div></t></div>
+          </article>
+        </div>
+        <article class="as-panel as-section"><div class="as-panel-head"><div><h2>Alertas para decisiones</h2><p>Señales del período y ámbito elegidos; no son metas ni diagnósticos de inventario.</p></div><span class="as-tag">Acciones sugeridas</span></div>
+          <div class="as-decision-list"><t t-foreach="decisions" t-as="item" t-key="item.label"><div t-att-class="'as-decision ' + item.kind"><span t-esc="item.label"/><strong t-esc="item.title"/><p t-esc="item.detail"/></div></t></div>
+        </article>
+      </section>
+      <section class="as-spotlight" t-if="roleInsights.length"><div class="as-spotlight-head"><span class="as-spotlight-kicker">HALLAZGOS DESTACADOS · <t t-esc="isAdmin ? 'Administración' : isSupervisor ? 'Supervisión' : 'Tu tienda'"/></span><span class="as-tag">Inteligencia comercial</span></div><div class="as-spotlight-grid"><t t-foreach="roleInsights" t-as="r" t-key="r.label"><div><span t-esc="r.label"/><strong t-esc="r.title"/><small t-esc="r.detail"/></div></t></div></section>
+      <div class="as-grid-main as-section">
+        <article class="as-panel"><div class="as-panel-head"><div><h2>Clasificación ABC por ventas netas</h2><p>Prioridad de SKU según participación acumulada en las ventas. A: 80% · B: 15% · C: 5%.</p></div><span class="as-tag">ABC comercial</span></div>
+          <div class="as-abc-list"><t t-foreach="abcBreakdown" t-as="r" t-key="r.label"><div class="as-abc-row"><div class="as-abc-name"><span t-att-class="'as-abc-pill abc-' + r.label" t-esc="r.label"/><span><strong><t t-esc="num(r.products)"/> SKU</strong><small><t t-esc="pct(r.share)"/> de ventas netas positivas</small></span></div><strong t-esc="money(r.sales)"/></div></t></div>
+        </article>
+        <article class="as-panel"><div class="as-panel-head"><div><h2>Líneas con más devoluciones</h2><p>Valor DE / facturación FA por línea. No corresponde a una tasa de cohorte.</p></div><span class="as-tag">Calidad de ventas</span></div>
+          <div class="as-ranks"><t t-foreach="returnLines" t-as="r" t-key="r.name"><div class="as-rank"><div class="as-rank-top"><strong class="as-rank-name" t-esc="r.name"/><strong t-esc="pct(r.return_rate)"/></div><div class="as-track pink"><div t-att-style="'width:' + width(r.return_rate, returnLines[0].return_rate)"/></div><small><t t-esc="money(r.de_sales)"/> devueltos · <t t-esc="num(r.de_units)"/> unidades DE</small></div></t><div t-if="!returnLines.length" class="as-empty">No hay devoluciones DE en este filtro.</div></div>
+        </article>
+      </div>
+      <div class="as-section">
+        <article class="as-panel"><div class="as-panel-head"><div><h2>Productos más vendidos</h2><p>Ranking de SKU por unidades netas vendidas.</p></div><span class="as-tag">Top 8 SKU</span></div>
+          <div class="as-table-wrap"><table><thead><tr><th>Producto / SKU</th><th>ABC</th><th class="as-num">Vendido FA (uds.)</th><th class="as-num">Unidades devueltas DE</th><th class="as-num">Unidades netas</th><th class="as-num">Facturado FA</th><th class="as-num">Devuelto DE</th><th class="as-num">Venta neta</th></tr></thead><tbody><t t-foreach="productTable" t-as="r" t-key="r.name"><tr><td t-esc="r.name"/><td><span class="as-ordinal" t-esc="r.abc"/></td><td class="as-num" t-esc="num(r.fa_units)"/><td class="as-num" t-esc="num(r.de_units)"/><td class="as-num" t-esc="num(r.units)"/><td class="as-num" t-esc="money(r.fa_sales)"/><td class="as-num" t-esc="money(r.de_sales)"/><td class="as-num" t-esc="money(r.sales)"/></tr></t></tbody></table></div>
+        </article>
+        
+      </div>
+      <div class="as-grid-main as-section">
+        <article class="as-panel"><div class="as-panel-head"><div><h2>Desglose FA / DE</h2><p>Impacto de las devoluciones en la venta efectiva.</p></div><span class="as-tag">Movimientos</span></div>
+          <div class="as-breakdown"><t t-foreach="breakdown" t-as="r" t-key="r.label"><div class="as-breakdown-row"><span><i t-att-class="'as-dot-' + r.accent"/><t t-esc="r.label"/></span><strong t-esc="money(r.value)"/></div></t></div><p class="as-muted-note"><t t-esc="num(state.data.metrics.credit_notes)"/> notas DE únicas · <t t-esc="num(state.data.metrics.de_units)"/> unidades devueltas.</p>
+        </article>
+        <article class="as-panel" t-if="isAdmin"><div class="as-panel-head"><div><h2>Rentabilidad por marca</h2><p>Utilidad y margen para detectar las marcas que aportan más.</p></div><span class="as-tag">Análisis</span></div>
+          <div class="as-table-wrap"><table><thead><tr><th>Marca</th><th class="as-num">Vendido FA (uds.)</th><th class="as-num">Unidades devueltas DE</th><th class="as-num">Facturado FA</th><th class="as-num">Devuelto DE</th><th class="as-num">Venta neta</th><th class="as-num">Utilidad</th><th class="as-num">Margen</th></tr></thead><tbody><t t-foreach="profitBrands" t-as="r" t-key="r.name"><tr><td t-esc="r.name"/><td class="as-num" t-esc="num(r.fa_units)"/><td class="as-num" t-esc="num(r.de_units)"/><td class="as-num" t-esc="money(r.fa_sales)"/><td class="as-num" t-esc="money(r.de_sales)"/><td class="as-num" t-esc="money(r.sales)"/><td class="as-num" t-esc="money(r.profit)"/><td class="as-num" t-esc="pct(r.margin)"/></tr></t></tbody></table></div><p t-if="!hasCompleteCosts" class="as-muted-note">Los márgenes se omiten donde existen costos incompletos.</p>
+        </article>
+        <article class="as-panel" t-else=""><div class="as-panel-head"><div><h2>Aporte por marca</h2><p>Unidades y ventas netas sin mostrar costos.</p></div><span class="as-tag">Comercial</span></div>
+          <div class="as-table-wrap"><table><thead><tr><th>Marca</th><th class="as-num">Vendido FA (uds.)</th><th class="as-num">Unidades devueltas DE</th><th class="as-num">Unidades netas</th><th class="as-num">Facturado FA</th><th class="as-num">Devuelto DE</th><th class="as-num">Venta neta</th></tr></thead><tbody><t t-foreach="salesBrands" t-as="r" t-key="r.name"><tr><td t-esc="r.name"/><td class="as-num" t-esc="num(r.fa_units)"/><td class="as-num" t-esc="num(r.de_units)"/><td class="as-num" t-esc="num(r.units)"/><td class="as-num" t-esc="money(r.fa_sales)"/><td class="as-num" t-esc="money(r.de_sales)"/><td class="as-num" t-esc="money(r.sales)"/></tr></t></tbody></table></div>
+        </article>
+      </div>
+      <section class="as-panel-fullwidth as-section" aria-label="Comparativo de localidades">
+<article class="as-panel">
+          <div class="as-panel-head"><div>
+            <h2 t-esc="isStore ? 'Ventas netas por vendedor de tu local' : 'Ventas netas por localidades (nlocal)'"/>
+            <p t-esc="isStore ? 'Comparativo de vendedores autorizados.' : 'Comparativo de todos los locales autorizados, con desplazamiento vertical y horizontal.'"/>
+          </div><span class="as-tag" t-esc="isStore ? 'Solo mi local' : isAdmin ? 'Gerencia' : 'Supervisión'"/></div>
+          <div class="as-local-bars-scroll" tabindex="0" aria-label="Gráfico desplazable de ventas netas por localidades">
+            <div class="as-local-bars">
+              <t t-foreach="localComparison" t-as="r" t-key="r.name">
+                <div class="as-local-row">
+                  <span class="as-local-name" t-esc="r.name" t-att-title="r.name"/>
+                  <div class="as-local-content">
+                    <div class="as-track"><div t-att-style="'width:' + width(r.sales, maxLocalSales)"/></div>
+                    <small>FA <t t-esc="money(r.fa_sales)"/> · DE <t t-esc="money(r.de_sales)"/> · <t t-esc="num(r.units)"/> uds. netas</small>
+                  </div>
+                  <strong class="as-local-net" t-esc="money(r.sales)"/>
+                </div>
+              </t>
+              <div t-if="!localComparison.length" class="as-empty">Sin localidades para los filtros.</div>
+            </div>
+          </div>
+          <div class="as-local-table-hint">Desplaza el gráfico hacia abajo para ver todos los locales. La tabla inferior permite desplazamiento lateral.</div>
+          <div class="as-table-wrap as-local-scroll" tabindex="0" aria-label="Tabla por localidades, desplazable en ambos sentidos"><table>
+            <thead><tr>
+              <th t-esc="isStore ? 'Vendedor' : 'Local nlocal'"/>
+              <th class="as-num">Facturas FA</th><th class="as-num">Vendido FA (uds.)</th><th class="as-num">Unidades devueltas DE</th><th class="as-num">Unidades netas</th><th class="as-num">Facturado FA</th><th class="as-num">Devuelto DE</th><th class="as-num">Venta neta</th><th class="as-num">Ticket FA</th>
+              <th class="as-num">Notas DE</th><th class="as-num">DE/FA</th>
+              <th t-if="isAdmin" class="as-num">Utilidad</th><th t-if="isAdmin" class="as-num">Margen</th>
+            </tr></thead>
+            <tbody><t t-foreach="localComparison" t-as="r" t-key="r.name"><tr>
+              <td t-esc="r.name"/><td class="as-num" t-esc="num(r.invoices)"/>
+              <td class="as-num" t-esc="num(r.fa_units)"/><td class="as-num" t-esc="num(r.de_units)"/><td class="as-num" t-esc="num(r.units)"/>
+              <td class="as-num" t-esc="money(r.fa_sales)"/><td class="as-num" t-esc="money(r.de_sales)"/>
+              <td class="as-num" t-esc="money(r.sales)"/><td class="as-num" t-esc="money(r.ticket)"/>
+              <td class="as-num" t-esc="num(r.credit_notes)"/>
+              <td class="as-num" t-esc="pct(r.return_rate)"/>
+              <td t-if="isAdmin" class="as-num" t-esc="money(r.profit)"/>
+              <td t-if="isAdmin" class="as-num" t-esc="pct(r.margin)"/>
+            </tr></t></tbody>
+          </table></div>
+        </article>
+      </section>
+      <footer class="as-footer"><span><strong>IDR Moda · Dashboard gerencial · Odoo 16.</strong> Locales derivados de nlocal; facturas distintas por tipo + nlocal + número.</span><span><strong>Seguridad:</strong> los perfiles se validan en el servidor Odoo. <t t-esc="state.data.limitations"/></span></footer>
+    </t>
+  </div>
+  <div t-if="state.guideOpen" class="as-modal-backdrop" role="presentation"><div class="as-modal" role="dialog" aria-modal="true" aria-label="Reglas del dashboard"><div class="as-modal-head"><h2>Reglas del dashboard</h2><button type="button" class="as-button" t-on-click="onCloseGuide" aria-label="Cerrar ventana">✕</button></div><div class="as-modal-body"><p><strong>FA = factura (venta).</strong> <strong>DE = devolución.</strong> Los importes de devolución se restan una sola vez del total de facturación.</p><table><thead><tr><th>Métrica</th><th>Definición</th></tr></thead><tbody><tr><td>Venta neta</td><td>Ventas FA menos devoluciones DE.</td></tr><tr><td>Unidades netas</td><td>Unidades FA menos unidades DE.</td></tr><tr><td>Facturas FA</td><td>Comprobantes únicos por tipo, local nlocal y número; no por SKU.</td></tr><tr><td>Ticket FA</td><td>Importe total FA dividido entre facturas FA únicas.</td></tr><tr><td>Facturado FA</td><td>Suma del importe de las líneas de factura FA antes de restar devoluciones.</td></tr><tr><td>Devuelto DE</td><td>Suma de los importes absolutos de las notas de devolución DE.</td></tr><tr><td>Neto vendido</td><td>Facturado FA menos Devuelto DE.</td></tr><tr><td>Vendido FA (uds.)</td><td>Unidades facturadas FA antes de restar las unidades devueltas DE.</td></tr><tr><td>Unidades devueltas DE</td><td>Cantidad devuelta en notas DE del período y filtros seleccionados.</td></tr><tr><td>Unidades netas</td><td>Vendido FA (uds.) menos unidades devueltas DE.</td></tr><tr><td>ABC</td><td>Por valor de ventas netas positivas acumuladas: A ~80%, B ~15%, C ~5%.</td></tr><tr><td>Velocidad comercial</td><td>Unidades netas / días calendario del rango; no mide rotación de inventario.</td></tr><tr><td>Histórico diario</td><td>Ventas netas reales FA − DE de los últimos N días calendario del período, incluidos días sin movimientos. No incluye proyecciones futuras.</td></tr><tr><td>Utilidad / margen</td><td>Exclusivo Administrador. Depende de costos disponibles y completos.</td></tr></tbody></table><p><strong>Moda:</strong> Calzado, Carteras y Moda Mujer. <strong>Seguridad:</strong> los accesos a costos y locales se restringen desde Odoo, no sólo visualmente.</p></div></div></div>
+</div>
+</t>
+</templates>
