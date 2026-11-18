@@ -769,3 +769,10 @@ El ajuste está limitado al archivo `static/src/css/dashboard.css` y al número 
 - La actualización del módulo completa el maestro con los movimientos ya almacenados (API/Excel), sin consultar las APIs ni modificar movimientos, registros de configuración o selecciones anteriores.
 - Administración → Ámbito de análisis: selección múltiple del maestro, nombre del botón y opción de apertura predeterminada. Se reutiliza el mismo registro de configuración de la compañía; guardar estos campos no cambia los vínculos de las APIs.
 - El botón personalizado filtra las categorías seleccionadas; las nuevas categorías no se seleccionan automáticamente. Todas las líneas mantiene los filtros, origen de ventas, cálculos y permisos anteriores. No hay valores de moda predeterminados.
+
+## 18.0.1.1.88 — Acceso al menú Atributos en Odoo 18
+
+- Se asigna explícitamente el grupo Analytics Sales / Administrador a la acción de servidor que abre el catálogo. Odoo 18 exige permiso de escritura en el modelo de acciones sin grupos, incluso si la acción únicamente abre una lista.
+- Se conserva la ACL de solo lectura, la validación del perfil de administrador y el aislamiento por compañía. No se modifica el vínculo de categorías del ámbito ni los registros existentes.
+- El menú, la acción, la lista y la descripción del modelo se muestran como Atributos.
+- Se incorpora una prueba de regresión de la acción real con un usuario administrador sin sudo y otra comprobación de rechazo a usuarios no autorizados.

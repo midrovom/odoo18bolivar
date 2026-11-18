@@ -16,7 +16,7 @@
                             La cabecera del dashboard toma automáticamente el <strong>logo</strong> y el <strong>nombre</strong> de la compañía activa (<code>res.company</code>). El subtítulo se mantiene fijo como <strong>INTELIGENCIA COMERCIAL</strong>.
                         </div>
                     </group>
-                    <p class="text-muted">Configure las categorías del botón personalizado en Administración → Ámbito de análisis. Las opciones provienen del Maestro de atributos.</p>
+                    <p class="text-muted">Configure las categorías del botón personalizado en Administración → Ámbito de análisis. Las opciones provienen de Atributos.</p>
                     <group string="Cron 1: histórico de ventas anuales">
                         <field name="annual_api_id"/>
                         <field name="annual_cron_id" readonly="1"/>

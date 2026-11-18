@@ -17,7 +17,7 @@
     <menuitem id="menu_analytics_sales_goals" name="Metas" parent="menu_analytics_sales_admin"
               action="action_analytics_sales_goal" sequence="9"/>
     <menuitem id="menu_analytics_sales_user_access" name="Usuarios y permisos" parent="menu_analytics_sales_admin" action="action_analytics_sales_user_access" sequence="10"/>
-    <menuitem id="menu_analytics_sales_category" name="Maestro de atributos" parent="menu_analytics_sales_admin"
+    <menuitem id="menu_analytics_sales_category" name="Atributos" parent="menu_analytics_sales_admin"
               action="action_analytics_sales_category_master" sequence="11" groups="analytics_sales.group_analytics_sales_admin"/>
     <menuitem id="menu_analytics_sales_scope" name="Ámbito de análisis" parent="menu_analytics_sales_admin"
               action="action_analytics_sales_scope_saved" sequence="12" groups="analytics_sales.group_analytics_sales_admin"/>

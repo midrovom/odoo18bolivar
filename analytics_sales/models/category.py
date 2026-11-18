@@ -6,7 +6,7 @@ from odoo import api, fields, models, _
 
 class AnalyticsSalesCategory(models.Model):
     _name = 'analytics.sales.category'
-    _description = 'Maestro de atributos de ventas (Línea)'
+    _description = 'Atributos'
     _order = 'name, id'
 
     name = fields.Char(string='Atributo (Línea)', required=True, readonly=True)
@@ -64,7 +64,7 @@ class AnalyticsSalesCategory(models.Model):
         self.env['analytics.sales.security'].check_admin()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Maestro de atributos'),
+            'name': _('Atributos'),
             'res_model': self._name,
             'view_mode': 'list,form',
             'views': [(self.env.ref('analytics_sales.view_analytics_sales_category_list').id, 'list'),

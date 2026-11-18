@@ -1,7 +1,7 @@
 {
     'name': 'Analytics Sales',
     'summary': 'Dashboard responsive de ventas, facturas, unidades y rentabilidad con acceso por nlocal',
-    'version': '18.0.1.1.87',
+    'version': '18.0.1.1.88',
     'category': 'Sales/Reporting',
     'author': 'Equipo de desarrollo',
     'license': 'LGPL-3',

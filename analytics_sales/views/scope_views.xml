@@ -8,7 +8,7 @@
             <form string="Ámbito de análisis" create="0" delete="0" duplicate="0">
                 <sheet>
                     <h2>Ámbito de análisis</h2>
-                    <p>Configure el botón personalizado del panel comercial seleccionando los atributos del maestro de ventas de esta compañía.</p>
+                    <p>Configure el botón personalizado del panel comercial seleccionando los atributos del catálogo de esta compañía.</p>
                     <group>
                         <field name="company_id" readonly="1"/>
                     </group>
@@ -18,7 +18,7 @@
                                options="{'no_create': True, 'no_create_edit': True}"/>
                         <field name="dashboard_scope_default" invisible="not dashboard_category_ids"/>
                     </group>
-                    <p class="text-muted">Guarde los cambios con el botón Guardar de Odoo. Los atributos se incorporan automáticamente al maestro al sincronizar las ventas. El botón personalizado solo incluye los seleccionados; Todas las líneas conserva todas las categorías disponibles. Sin atributos seleccionados, se oculta el botón personalizado.</p>
+                    <p class="text-muted">Guarde los cambios con el botón Guardar de Odoo. Los atributos se incorporan automáticamente al catálogo al sincronizar las ventas. El botón personalizado solo incluye los seleccionados; Todas las líneas conserva todas las categorías disponibles. Sin atributos seleccionados, se oculta el botón personalizado.</p>
                 </sheet>
             </form>
         </field>

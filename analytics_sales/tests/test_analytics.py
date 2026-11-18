@@ -99,6 +99,36 @@ class TestAnalyticsSalesDashboard(TransactionCase):
         settings.write({'dashboard_category_ids': [(5, 0, 0)]})
         self.assertEqual(dash.get_dashboard(dict(params, scope='configured'))['scope'], 'all')
 
+    def test_attributes_server_action_read_only_admin(self):
+        """Regression: execute the real menu action without superuser mode."""
+        admin_group = self.env.ref('analytics_sales.group_analytics_sales_admin')
+        admin = self.env['res.users'].sudo().with_context(no_reset_password=True).create({
+            'name': 'Analytics Attributes Test Admin',
+            'login': 'analytics_attributes_test_admin_%s' % self.company.id,
+            'company_id': self.company.id,
+            'company_ids': [(6, 0, [self.company.id])],
+            'groups_id': [(6, 0, [self.env.ref('base.group_user').id, admin_group.id])],
+        })
+        catalog = self.env['analytics.sales.category']
+        catalog._register_names(self.company, ['TEST ATRIBUTOS'])
+        action = self.env.ref('analytics_sales.action_analytics_sales_category_master')
+        self.assertEqual(action.groups_id, admin_group)
+        admin_action = action.with_user(admin).with_company(self.company).with_context(
+            active_id=False, active_ids=[], active_model=False,
+        )
+        self.assertFalse(admin_action.env.su)
+        result = admin_action.run()
+        self.assertEqual(result['res_model'], 'analytics.sales.category')
+        self.assertEqual(result['domain'], [('company_id', '=', self.company.id)])
+        category = catalog.with_user(admin).with_company(self.company).search([
+            ('name', '=', 'TEST ATRIBUTOS'), ('company_id', '=', self.company.id),
+        ])
+        self.assertEqual(len(category), 1)
+        with self.assertRaises(AccessError):
+            category.write({'name': 'NO MODIFICAR'})
+        with self.assertRaises(AccessError):
+            action.with_user(self.user_store).with_company(self.company).run()
+
     def test_store_scope_unique_invoices_no_costs(self):
         dashboard = self.env['analytics.sales.dashboard'].with_user(self.user_store).with_company(self.company)
         d = dashboard.get_dashboard({'date_from': '2026-11-01', 'date_to': '2026-11-30'})

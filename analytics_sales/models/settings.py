@@ -25,7 +25,7 @@ class AnalyticsSalesSettings(models.Model):
         'analytics.sales.category', 'analytics_sales_settings_category_rel',
         'settings_id', 'category_id', string='Atributos del botón personalizado',
         domain="[('company_id', '=', company_id)]",
-        help='Seleccione atributos del maestro de ventas (campo Línea). Sin selección, el ámbito personalizado se oculta.')
+        help='Seleccione atributos del catálogo de ventas (campo Línea). Sin selección, el ámbito personalizado se oculta.')
     dashboard_scope_default = fields.Boolean(string='Abrir con el ámbito personalizado', default=False)
 
     @api.constrains('dashboard_category_ids', 'company_id')
