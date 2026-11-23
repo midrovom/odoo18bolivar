@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Referencia al menú RAÍZ del módulo original; no crea menús duplicados. -->
+    <record id="petty_cash_control.menu_petty_cash_root" model="ir.ui.menu">
+        <field name="web_icon">petty_cash_icon_custom,static/description/icon.png</field>
+    </record>
+</odoo>
