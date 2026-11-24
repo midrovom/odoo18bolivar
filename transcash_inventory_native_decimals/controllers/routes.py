@@ -10,14 +10,17 @@ permission checks are replaced: each method delegates to super() first.
 import ast
 import html
 import json
+import logging
 import re
 
 from odoo import http
 from odoo.http import request
 from odoo.addons.transcash_inventory.controllers.routes import TranscashDashboardController
+from ..services.localized_xlsx import XLSX_TYPE, add_odoo_display_sheet
 
 
-_ASSET = '/transcash_inventory_native_decimals/static/src/native_decimals.js?v=18.0.1.0.0'
+_ASSET = '/transcash_inventory_native_decimals/static/src/native_decimals.js?v=18.0.1.1.0'
+_logger = logging.getLogger(__name__)
 
 
 def _read_grouping(raw):
@@ -92,3 +95,35 @@ class TranscashNativeDecimalController(TranscashDashboardController):
     @http.route()
     def photos_sync_ui(self, **kw):
         return _decorate_html(super().photos_sync_ui(**kw))
+
+
+def _decorate_xlsx(response):
+    """Only adjust successful native Excel downloads after existing ACL/CSRF checks."""
+    if response.status_code != 200 or response.mimetype != XLSX_TYPE:
+        return response
+    content = response.get_data()
+    if not content.startswith(b'PK'):
+        return response
+    try:
+        converted = add_odoo_display_sheet(content, _locale_data())
+    except Exception as exc:
+        _logger.exception('TRANSCASH: no fue posible agregar la vista Excel del idioma Odoo: %s', exc)
+        return response
+    response.set_data(converted)
+    response.headers['Cache-Control'] = 'private, no-store'
+    return response
+
+
+# Register routes as an inherited controller, preserving all original checks.
+class TranscashNativeExportController(TranscashNativeDecimalController):
+    @http.route()
+    def table_export_xlsx(self, **kw):
+        return _decorate_xlsx(super().table_export_xlsx(**kw))
+
+    @http.route()
+    def imported_export_xlsx(self, **kw):
+        return _decorate_xlsx(super().imported_export_xlsx(**kw))
+
+    @http.route()
+    def ai_export_xlsx(self, **kw):
+        return _decorate_xlsx(super().ai_export_xlsx(**kw))
