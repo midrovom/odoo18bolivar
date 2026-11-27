@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="transcash_dispatch_analysis.menu_dispatch_root" model="ir.ui.menu" forcecreate="0">
+        <field name="web_icon">transcash_dispatch_analysis_custom,static/description/icon.png</field>
+    </record>
+</odoo>

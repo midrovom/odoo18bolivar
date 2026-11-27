@@ -24,3 +24,8 @@ Actualización 18.0.1.0.1: en "Mayores retrasos" la columna "Factura / destino" 
 
 
 18.0.1.0.2: compatibilidad RPC con get_active_filter_state y save_active_filter_state de assets anteriores. Ambos delegan en los métodos personalizados existentes, con las mismas validaciones y preferencias por usuario y compañía. No hay migración ni cambio de esquema. Se recomienda renovar los assets del módulo original y conservar su carpeta limpia.
+
+
+### 18.0.1.0.3 — Ícono del menú principal
+
+El personalizado asigna su imagen PNG de 256 × 256 al menú existente `transcash_dispatch_analysis.menu_dispatch_root` mediante `web_icon`. No crea otro menú ni modifica archivos del módulo base. Actualizar únicamente el personalizado y recargar la sesión web.
