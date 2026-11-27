@@ -60,6 +60,18 @@ class ExtensionTests(unittest.TestCase):
         service.env.models['dispatch.invoice'] = AnnualInvoiceModel(rows)
         return service
 
+    def test_legacy_filter_rpc_delegates_to_custom_methods(self):
+        svc = ext.DispatchDashboardCustom()
+        expected = {'filters': {'warehouse_ids': [10, 20]}, 'board_id': 4, 'favorite_id': 8}
+        with patch.object(svc, 'get_custom_active_filter_state', return_value=expected) as read:
+            self.assertEqual(svc.get_active_filter_state(), expected)
+            read.assert_called_once_with()
+        with patch.object(svc, 'save_custom_active_filter_state', return_value=True) as save:
+            self.assertTrue(svc.save_active_filter_state(expected['filters'], 4, 8))
+            save.assert_called_once_with(expected['filters'], 4, 8)
+            self.assertTrue(svc.save_active_filter_state())
+            save.assert_called_with(None, False, False)
+
     def test_annual_pending_sum(self):
         rows = [dict(id=i, invoice_date='2026-01-01', cutoff_date='2026-11-27', pending=True) for i in range(5)]
         rows += [dict(id=i, invoice_date='2026-02-01', cutoff_date='2026-11-27', pending=True) for i in range(5,8)]
@@ -80,6 +92,12 @@ class ExtensionTests(unittest.TestCase):
         self.assertEqual(ext.external_delay_label('FA/7347'),'FA/7347')
         self.assertEqual(ext.external_delay_label(False),'FA/SIN NÚMERO EXTERNO')
 
+    def test_combined_delay_label(self):
+        self.assertEqual(ext.previous_delay_label('FA 23245'), 'FA/23245')
+        self.assertEqual(ext.previous_delay_label('FA/23245'), 'FA/23245')
+        self.assertEqual(ext.combined_delay_label('FA 23245', '4791'), 'FA/23245 / FA/4791')
+        self.assertEqual(ext.combined_delay_label('FA/4791', '4791'), 'FA/4791')
+
     def test_full_dashboard_and_native_detail(self):
         rows, lines = data()
         rows[0].update(external_number='7347', name='FA 343475', completion_date='2026-01-06', sla_status='late', deadline='2026-01-04')
@@ -91,7 +109,7 @@ class ExtensionTests(unittest.TestCase):
         self.assertEqual(before['stats'],after['stats'])
         item = after['timeliness']['delays']['completed']['top'][0]
         self.assertEqual(item['name'],'FA 343475')
-        self.assertEqual(item['custom_external_label'],'FA/7347')
+        self.assertEqual(item['custom_external_label'],'FA/343475 / FA/7347')
         self.assertEqual(after['monthly']['pending_total'],2)
         self.assertNotIn('monthly',svc.get_data(filters,False,True))
 

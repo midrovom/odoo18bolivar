@@ -15,6 +15,29 @@ def external_delay_label(value):
     return "FA/" + (text or "SIN NÚMERO EXTERNO")
 
 
+def previous_delay_label(value):
+    text = "" if value is None or value is False else str(value).strip()
+    if not text:
+        return ""
+    upper = text.upper()
+    if upper.startswith("FAC/") or upper.startswith("FA/"):
+        prefix = text[:text.find('/')]
+        suffix = text[text.find('/') + 1:].strip()
+        return prefix.upper() + "/" + suffix if suffix else prefix.upper()
+    parts = text.split()
+    if len(parts) >= 2 and parts[0].isalpha():
+        return parts[0].upper() + "/" + " ".join(parts[1:]).strip()
+    return text
+
+
+def combined_delay_label(previous_value, external_value):
+    previous = previous_delay_label(previous_value)
+    external = external_delay_label(external_value)
+    if previous and external and previous != external:
+        return f"{previous} / {external}"
+    return previous or external
+
+
 class DispatchDashboardCustom(models.AbstractModel):
     _inherit = "dispatch.dashboard"
 
@@ -30,7 +53,7 @@ class DispatchDashboardCustom(models.AbstractModel):
                 [("id", "in", ids)], ["external_number"]) if ids else []
             external = {row["id"]: row["external_number"] for row in headers}
             for row in top:
-                row["custom_external_label"] = external_delay_label(external.get(row["id"]))
+                row["custom_external_label"] = combined_delay_label(row.get("name"), external.get(row["id"]))
             result["monthly"] = self._annual_statistics(filters or {})
         return result
 
@@ -96,6 +119,16 @@ class DispatchDashboardCustom(models.AbstractModel):
     def _active_filter_scope(self):
         """Keep preferences separate for each set of enabled companies."""
         return ",".join(str(company_id) for company_id in sorted(self.env.companies.ids))
+
+    @api.model
+    def get_active_filter_state(self):
+        """Compatibility with cached dashboard assets from previous versions."""
+        return self.get_custom_active_filter_state()
+
+    @api.model
+    def save_active_filter_state(self, filters=None, board_id=False, favorite_id=False):
+        """Use the same validated preference store as the custom dashboard."""
+        return self.save_custom_active_filter_state(filters, board_id, favorite_id)
 
     @api.model
     def get_custom_active_filter_state(self):

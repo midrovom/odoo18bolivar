@@ -1,7 +1,7 @@
 {
     "name": "Transcash · Análisis de despachos personalizado",
     "summary": "Filtros persistentes, estadísticas mensuales y referencia externa en mayores retrasos",
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.2",
     "category": "Inventory/Reporting",
     "author": "Transcash",
     "license": "LGPL-3",

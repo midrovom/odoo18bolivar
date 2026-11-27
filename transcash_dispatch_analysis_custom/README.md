@@ -18,3 +18,9 @@ Versión 18.0.1.0.0 para Odoo 18. Dependencia: `transcash_dispatch_analysis` ori
 El complemento no tiene scripts de migración, hooks de instalación, cron ni cambios en `dispatch.invoice` / `dispatch.invoice.line`. No vuelve a consultar la API al instalarse. La primera consulta del tablero sí realiza las lecturas anuales necesarias para los gráficos. No se ha ejecutado Odoo/PostgreSQL real en este entorno.
 
 Pruebas locales: `python -m unittest discover -s tests -p 'test_extension_standalone.py'` con el módulo original al lado. Usa ORM simulado y verifica datos, alcance, retrasos, numeración y objetivos XML. También se verificó el JavaScript con Node.
+
+
+Actualización 18.0.1.0.1: en "Mayores retrasos" la columna "Factura / destino" muestra el valor anterior y el externo juntos, por ejemplo: FA/23245 / FA/4791.
+
+
+18.0.1.0.2: compatibilidad RPC con get_active_filter_state y save_active_filter_state de assets anteriores. Ambos delegan en los métodos personalizados existentes, con las mismas validaciones y preferencias por usuario y compañía. No hay migración ni cambio de esquema. Se recomienda renovar los assets del módulo original y conservar su carpeta limpia.
